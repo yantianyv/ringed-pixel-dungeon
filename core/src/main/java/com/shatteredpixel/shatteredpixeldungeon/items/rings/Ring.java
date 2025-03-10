@@ -21,6 +21,10 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
@@ -43,10 +47,6 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 
 public class Ring extends KindofMisc {
 	
@@ -265,22 +265,18 @@ public class Ring extends KindofMisc {
 		return !isIdentified() && levelsToID <= 0;
 	}
 	
+	// ————————生成的戒指等级————————
 	@Override
+	// 突破戒指等级上限，现在理论上可以获得任意等级的戒指，但概率递减
 	public Item random() {
-		//+0: 66.67% (2/3)
-		//+1: 26.67% (4/15)
-		//+2: 6.67%  (1/15)
 		int n = 0;
-		if (Random.Int(3) == 0) {
+		while(Random.Int(n+2) < 2){
 			n++;
-			if (Random.Int(5) == 0){
-				n++;
-			}
 		}
 		level(n);
 		
-		//30% chance to be cursed
-		if (Random.Float() < 0.3f) {
+		//为了平衡，戒指被诅咒的概率受等级影响
+		if (Random.Int(n+2) <= n) {
 			cursed = true;
 		}
 		
