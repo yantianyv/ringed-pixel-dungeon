@@ -689,7 +689,7 @@ public class Generator {
             case ARMOR:
                 return randomArmor();
             case WEAPON:
-                return random(Category.RING);
+                return randomWeapon();
             case MISSILE:
                 return randomMissile();
             case ARTIFACT:
@@ -808,6 +808,7 @@ public class Generator {
         } else {
             w = (MeleeWeapon) random(wepTiers[Random.chances(floorSetTierProbs[floorSet])]);
         }
+        w.level(-2);
         return w;
     }
 
