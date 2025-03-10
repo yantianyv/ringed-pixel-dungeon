@@ -457,15 +457,15 @@ public class Blacksmith extends NPC {
 
         public static void generateRewards(boolean useDecks) {
             smithRewards = new ArrayList<>();
-            smithRewards.add(Generator.randomArmor(3, useDecks));
-            smithRewards.add(Generator.randomArmor(3, useDecks));
+            smithRewards.add(Generator.randomArmor(3));
+            smithRewards.add(Generator.randomArmor(3));
             ArrayList<Item> toUndo = new ArrayList<>();
             while (smithRewards.get(0).getClass() == smithRewards.get(1).getClass()) {
                 if (useDecks) {
                     toUndo.add(smithRewards.get(1));
                 }
                 smithRewards.remove(1);
-                smithRewards.add(Generator.randomArmor(3, useDecks));
+                smithRewards.add(Generator.randomArmor(3));
             }
             for (Item i : toUndo) {
                 Generator.undoDrop(i);

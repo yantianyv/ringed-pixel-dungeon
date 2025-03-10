@@ -59,7 +59,7 @@ public class TormentedSpirit extends Wraith {
         //50/50 between weapon or armor, always uncursed & enchanted, 50% chance to be +1 if level 0
         Item prize;
         if (Random.Int(2) == 0) {
-            prize = Generator.randomArmor(true);
+            prize = Generator.randomArmor();
             ((Weapon) prize).enchant();
         } else {
             prize = Generator.randomArmor();

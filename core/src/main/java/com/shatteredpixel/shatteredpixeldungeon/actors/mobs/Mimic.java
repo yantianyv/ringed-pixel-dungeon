@@ -351,7 +351,7 @@ public class Mimic extends Mob {
                     reward = Generator.randomArmor();
                     break;
                 case 3:
-                    reward = Generator.randomArmor(!useDecks);
+                    reward = Generator.randomArmor();
                     break;
                 case 4:
                     reward = useDecks ? Generator.random(Generator.Category.RING) : Generator.randomUsingDefaults(Generator.Category.RING);

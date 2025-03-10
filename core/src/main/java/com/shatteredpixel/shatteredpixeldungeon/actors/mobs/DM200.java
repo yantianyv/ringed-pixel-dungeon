@@ -80,7 +80,7 @@ public class DM200 extends Mob {
         Dungeon.LimitedDrops.DM200_EQUIP.count++;
         //uses probability tables for dwarf city
         if (loot == Generator.Category.RING) {
-            return Generator.randomArmor(4, true);
+            return Generator.randomArmor(4);
         } else {
             return Generator.randomArmor(4);
         }
