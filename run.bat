@@ -1,1 +1,1 @@
-java -jar ./desktop/build/lib/*.jar
+.\desktop\build\libs\*.jar

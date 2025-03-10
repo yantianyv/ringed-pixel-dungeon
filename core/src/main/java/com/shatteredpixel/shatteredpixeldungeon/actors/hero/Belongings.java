@@ -18,8 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -44,426 +46,451 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 public class Belongings implements Iterable<Item> {
 
-	private Hero owner;
+    private Hero owner;
 
-	public static class Backpack extends Bag {
-		{
-			image = ItemSpriteSheet.BACKPACK;
-		}
-		public int capacity(){
-			int cap = super.capacity();
-			for (Item item : items){
-				if (item instanceof Bag){
-					cap++;
-				}
-			}
-			if (Dungeon.hero != null && Dungeon.hero.belongings.secondWep != null){
-				//secondary weapons still occupy an inv. slot
-				cap--;
-			}
-			return cap;
-		}
-	}
+    public static class Backpack extends Bag {
 
-	public Backpack backpack;
-	
-	public Belongings( Hero owner ) {
-		this.owner = owner;
-		
-		backpack = new Backpack();
-		backpack.owner = owner;
-	}
+        {
+            image = ItemSpriteSheet.BACKPACK;
+        }
 
-	public KindOfWeapon weapon = null;
-	public Armor armor = null;
-	public Artifact artifact = null;
-	public KindofMisc misc = null;
-	public Ring ring = null;
+        public int capacity() {
+            int cap = super.capacity();
+            for (Item item : items) {
+                if (item instanceof Bag) {
+                    cap++;
+                }
+            }
+            if (Dungeon.hero != null && Dungeon.hero.belongings.secondWep != null) {
+                //secondary weapons still occupy an inv. slot
+                cap--;
+            }
+            return cap;
+        }
+    }
 
-	//used when thrown weapons temporary become the current weapon
-	public KindOfWeapon thrownWeapon = null;
+    public Backpack backpack;
 
-	//used to ensure that the duelist always uses the weapon she's using the ability of
-	public KindOfWeapon abilityWeapon = null;
+    public Belongings(Hero owner) {
+        this.owner = owner;
 
-	//used by the champion subclass
-	public KindOfWeapon secondWep = null;
+        backpack = new Backpack();
+        backpack.owner = owner;
+    }
 
-	//*** these accessor methods are so that worn items can be affected by various effects/debuffs
-	// we still want to access the raw equipped items in cases where effects should be ignored though,
-	// such as when equipping something, showing an interface, or dealing with items from a dead hero
+    public KindOfWeapon weapon = null;
+    public Armor armor = null;
+    public Artifact artifact = null;
+    public KindofMisc misc = null;
+    public Ring ring = null;
 
-	//normally the primary equipped weapon, but can also be a thrown weapon or an ability's weapon
-	public KindOfWeapon attackingWeapon(){
-		if (thrownWeapon != null) return thrownWeapon;
-		if (abilityWeapon != null) return abilityWeapon;
-		return weapon();
-	}
+    //used when thrown weapons temporary become the current weapon
+    public KindOfWeapon thrownWeapon = null;
 
-	//we cache whether belongings are lost to avoid lots of calls to hero.buff(LostInventory.class)
-	private boolean lostInvent;
-	public void lostInventory( boolean val ){
-		lostInvent = val;
-	}
+    //used to ensure that the duelist always uses the weapon she's using the ability of
+    public KindOfWeapon abilityWeapon = null;
 
-	public boolean lostInventory(){
-		return lostInvent;
-	}
+    //used by the champion subclass
+    public KindOfWeapon secondWep = null;
 
-	public KindOfWeapon weapon(){
-		if (!lostInventory() || (weapon != null && weapon.keptThroughLostInventory())){
-			return weapon;
-		} else {
-			return null;
-		}
-	}
+    //*** these accessor methods are so that worn items can be affected by various effects/debuffs
+    // we still want to access the raw equipped items in cases where effects should be ignored though,
+    // such as when equipping something, showing an interface, or dealing with items from a dead hero
+    //normally the primary equipped weapon, but can also be a thrown weapon or an ability's weapon
+    public KindOfWeapon attackingWeapon() {
+        if (thrownWeapon != null) {
+            return thrownWeapon;
+        }
+        if (abilityWeapon != null) {
+            return abilityWeapon;
+        }
+        return weapon();
+    }
 
-	public Armor armor(){
-		if (!lostInventory() || (armor != null && armor.keptThroughLostInventory())){
-			return armor;
-		} else {
-			return null;
-		}
-	}
+    //we cache whether belongings are lost to avoid lots of calls to hero.buff(LostInventory.class)
+    private boolean lostInvent;
 
-	public Artifact artifact(){
-		if (!lostInventory() || (artifact != null && artifact.keptThroughLostInventory())){
-			return artifact;
-		} else {
-			return null;
-		}
-	}
+    public void lostInventory(boolean val) {
+        lostInvent = val;
+    }
 
-	public KindofMisc misc(){
-		if (!lostInventory() || (misc != null && misc.keptThroughLostInventory())){
-			return misc;
-		} else {
-			return null;
-		}
-	}
+    public boolean lostInventory() {
+        return lostInvent;
+    }
 
-	public Ring ring(){
-		if (!lostInventory() || (ring != null && ring.keptThroughLostInventory())){
-			return ring;
-		} else {
-			return null;
-		}
-	}
+    public KindOfWeapon weapon() {
+        if (!lostInventory() || (weapon != null && weapon.keptThroughLostInventory())) {
+            return weapon;
+        } else {
+            return null;
+        }
+    }
 
-	public KindOfWeapon secondWep(){
-		if (!lostInventory() || (secondWep != null && secondWep.keptThroughLostInventory())){
-			return secondWep;
-		} else {
-			return null;
-		}
-	}
+    public Armor armor() {
+        if (!lostInventory() || (armor != null && armor.keptThroughLostInventory())) {
+            return armor;
+        } else {
+            return null;
+        }
+    }
 
-	// ***
-	
-	private static final String WEAPON		= "weapon";
-	private static final String ARMOR		= "armor";
-	private static final String ARTIFACT   = "artifact";
-	private static final String MISC       = "misc";
-	private static final String RING       = "ring";
+    public Artifact artifact() {
+        if (!lostInventory() || (artifact != null && artifact.keptThroughLostInventory())) {
+            return artifact;
+        } else {
+            return null;
+        }
+    }
 
-	private static final String SECOND_WEP = "second_wep";
+    public KindofMisc misc() {
+        if (!lostInventory() || (misc != null && misc.keptThroughLostInventory())) {
+            return misc;
+        } else {
+            return null;
+        }
+    }
 
-	public void storeInBundle( Bundle bundle ) {
-		
-		backpack.storeInBundle( bundle );
-		
-		bundle.put( WEAPON, weapon );
-		bundle.put( ARMOR, armor );
-		bundle.put( ARTIFACT, artifact );
-		bundle.put( MISC, misc );
-		bundle.put( RING, ring );
-		bundle.put( SECOND_WEP, secondWep );
-	}
-	
-	public void restoreFromBundle( Bundle bundle ) {
-		
-		backpack.clear();
-		backpack.restoreFromBundle( bundle );
-		
-		weapon = (KindOfWeapon) bundle.get(WEAPON);
-		if (weapon() != null)       weapon().activate(owner);
-		
-		armor = (Armor)bundle.get( ARMOR );
-		if (armor() != null)        armor().activate( owner );
+    public Ring ring() {
+        if (!lostInventory() || (ring != null && ring.keptThroughLostInventory())) {
+            return ring;
+        } else {
+            return null;
+        }
+    }
 
-		artifact = (Artifact) bundle.get(ARTIFACT);
-		if (artifact() != null)     artifact().activate(owner);
+    public KindOfWeapon secondWep() {
+        if (!lostInventory() || (secondWep != null && secondWep.keptThroughLostInventory())) {
+            return secondWep;
+        } else {
+            return null;
+        }
+    }
 
-		misc = (KindofMisc) bundle.get(MISC);
-		if (misc() != null)         misc().activate( owner );
+    // ***
+    private static final String WEAPON = "weapon";
+    private static final String ARMOR = "armor";
+    private static final String ARTIFACT = "artifact";
+    private static final String MISC = "misc";
+    private static final String RING = "ring";
 
-		ring = (Ring) bundle.get(RING);
-		if (ring() != null)         ring().activate( owner );
+    private static final String SECOND_WEP = "second_wep";
 
-		secondWep = (KindOfWeapon) bundle.get(SECOND_WEP);
-		if (secondWep() != null)    secondWep().activate(owner);
-	}
-	
-	public static void preview( GamesInProgress.Info info, Bundle bundle ) {
-		if (bundle.contains( ARMOR )){
-			Armor armor = ((Armor)bundle.get( ARMOR ));
-			if (armor instanceof ClassArmor){
-				info.armorTier = 6;
-			} else {
-				info.armorTier = armor.tier;
-			}
-		} else {
-			info.armorTier = 0;
-		}
-	}
+    public void storeInBundle(Bundle bundle) {
 
-	//ignores lost inventory debuff
-	public ArrayList<Bag> getBags(){
-		ArrayList<Bag> result = new ArrayList<>();
+        backpack.storeInBundle(bundle);
 
-		result.add(backpack);
+        bundle.put(WEAPON, weapon);
+        bundle.put(ARMOR, armor);
+        bundle.put(ARTIFACT, artifact);
+        bundle.put(MISC, misc);
+        bundle.put(RING, ring);
+        bundle.put(SECOND_WEP, secondWep);
+    }
 
-		for (Item i : this){
-			if (i instanceof Bag){
-				result.add((Bag)i);
-			}
-		}
+    public void restoreFromBundle(Bundle bundle) {
 
-		return result;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public<T extends Item> T getItem( Class<T> itemClass ) {
+        backpack.clear();
+        backpack.restoreFromBundle(bundle);
 
-		boolean lostInvent = lostInventory();
+        weapon = (KindOfWeapon) bundle.get(WEAPON);
+        if (weapon() != null) {
+            weapon().activate(owner);
+        }
 
-		for (Item item : this) {
-			if (itemClass.isInstance( item )) {
-				if (!lostInvent || item.keptThroughLostInventory()) {
-					return (T) item;
-				}
-			}
-		}
-		
-		return null;
-	}
+        armor = (Armor) bundle.get(ARMOR);
+        if (armor() != null) {
+            armor().activate(owner);
+        }
 
-	public<T extends Item> ArrayList<T> getAllItems( Class<T> itemClass ) {
-		ArrayList<T> result = new ArrayList<>();
+        artifact = (Artifact) bundle.get(ARTIFACT);
+        if (artifact() != null) {
+            artifact().activate(owner);
+        }
 
-		boolean lostInvent = lostInventory();
+        misc = (KindofMisc) bundle.get(MISC);
+        if (misc() != null) {
+            misc().activate(owner);
+        }
 
-		for (Item item : this) {
-			if (itemClass.isInstance( item )) {
-				if (!lostInvent || item.keptThroughLostInventory()) {
-					result.add((T) item);
-				}
-			}
-		}
+        ring = (Ring) bundle.get(RING);
+        if (ring() != null) {
+            ring().activate(owner);
+        }
 
-		return result;
-	}
-	
-	public boolean contains( Item contains ){
+        secondWep = (KindOfWeapon) bundle.get(SECOND_WEP);
+        if (secondWep() != null) {
+            secondWep().activate(owner);
+        }
+    }
 
-		boolean lostInvent = lostInventory();
-		
-		for (Item item : this) {
-			if (contains == item) {
-				if (!lostInvent || item.keptThroughLostInventory()) {
-					return true;
-				}
-			}
-		}
-		
-		return false;
-	}
-	
-	public Item getSimilar( Item similar ){
+    public static void preview(GamesInProgress.Info info, Bundle bundle) {
+        if (bundle.contains(ARMOR)) {
+            Armor armor = ((Armor) bundle.get(ARMOR));
+            if (armor instanceof ClassArmor) {
+                info.armorTier = 6;
+            } else {
+                info.armorTier = armor.tier;
+            }
+        } else {
+            info.armorTier = 0;
+        }
+    }
 
-		boolean lostInvent = lostInventory();
-		
-		for (Item item : this) {
-			if (similar != item && similar.isSimilar(item)) {
-				if (!lostInvent || item.keptThroughLostInventory()) {
-					return item;
-				}
-			}
-		}
-		
-		return null;
-	}
-	
-	public ArrayList<Item> getAllSimilar( Item similar ){
-		ArrayList<Item> result = new ArrayList<>();
+    //ignores lost inventory debuff
+    public ArrayList<Bag> getBags() {
+        ArrayList<Bag> result = new ArrayList<>();
 
-		boolean lostInvent = lostInventory();
-		
-		for (Item item : this) {
-			if (item != similar && similar.isSimilar(item)) {
-				if (!lostInvent || item.keptThroughLostInventory()) {
-					result.add(item);
-				}
-			}
-		}
-		
-		return result;
-	}
+        result.add(backpack);
 
-	//triggers when a run ends, so ignores lost inventory effects
-	public void identify() {
-		for (Item item : this) {
-			item.identify(false);
-		}
-	}
-	
-	public void observe() {
-		if (weapon() != null) {
-			if (ShardOfOblivion.passiveIDDisabled() && weapon() instanceof Weapon){
-				((Weapon) weapon()).setIDReady();
-			} else {
-				weapon().identify();
-				Badges.validateItemLevelAquired(weapon());
-			}
-		}
-		if (secondWep() != null){
-			if (ShardOfOblivion.passiveIDDisabled() && secondWep() instanceof Weapon){
-				((Weapon) secondWep()).setIDReady();
-			} else {
-				secondWep().identify();
-				Badges.validateItemLevelAquired(secondWep());
-			}
-		}
-		if (armor() != null) {
-			if (ShardOfOblivion.passiveIDDisabled()){
-				armor().setIDReady();
-			} else {
-				armor().identify();
-				Badges.validateItemLevelAquired(armor());
-			}
-		}
-		if (artifact() != null) {
-			//oblivion shard does not prevent artifact IDing
-			artifact().identify();
-			Badges.validateItemLevelAquired(artifact());
-		}
-		if (misc() != null) {
-			if (ShardOfOblivion.passiveIDDisabled() && misc() instanceof Ring){
-				((Ring) misc()).setIDReady();
-			} else {
-				misc().identify();
-				Badges.validateItemLevelAquired(misc());
-			}
-		}
-		if (ring() != null) {
-			if (ShardOfOblivion.passiveIDDisabled()){
-				ring().setIDReady();
-			} else {
-				ring().identify();
-				Badges.validateItemLevelAquired(ring());
-			}
-		}
-		if (ShardOfOblivion.passiveIDDisabled()){
-			GLog.p(Messages.get(ShardOfOblivion.class, "identify_ready_worn"));
-		}
-		for (Item item : backpack) {
-			if (item instanceof EquipableItem || item instanceof Wand) {
-				item.cursedKnown = true;
-			}
-		}
-		Item.updateQuickslot();
-	}
-	
-	public void uncurseEquipped() {
-		ScrollOfRemoveCurse.uncurse( owner, armor(), weapon(), artifact(), misc(), ring(), secondWep());
-	}
-	
-	public Item randomUnequipped() {
-		if (owner.buff(LostInventory.class) != null) return null;
+        for (Item i : this) {
+            if (i instanceof Bag) {
+                result.add((Bag) i);
+            }
+        }
 
-		return Random.element( backpack.items );
-	}
-	
-	public int charge( float charge ) {
-		
-		int count = 0;
-		
-		for (Wand.Charger charger : owner.buffs(Wand.Charger.class)){
-			charger.gainCharge(charge);
-			count++;
-		}
-		
-		return count;
-	}
+        return result;
+    }
 
-	@Override
-	public Iterator<Item> iterator() {
-		return new ItemIterator();
-	}
-	
-	private class ItemIterator implements Iterator<Item> {
+    @SuppressWarnings("unchecked")
+    public <T extends Item> T getItem(Class<T> itemClass) {
 
-		private int index = 0;
-		
-		private Iterator<Item> backpackIterator = backpack.iterator();
-		
-		private Item[] equipped = {weapon, armor, artifact, misc, ring, secondWep};
-		private int backpackIndex = equipped.length;
-		
-		@Override
-		public boolean hasNext() {
-			
-			for (int i=index; i < backpackIndex; i++) {
-				if (equipped[i] != null) {
-					return true;
-				}
-			}
-			
-			return backpackIterator.hasNext();
-		}
+        boolean lostInvent = lostInventory();
 
-		@Override
-		public Item next() {
-			
-			while (index < backpackIndex) {
-				Item item = equipped[index++];
-				if (item != null) {
-					return item;
-				}
-			}
-			
-			return backpackIterator.next();
-		}
+        for (Item item : this) {
+            if (itemClass.isInstance(item)) {
+                if (!lostInvent || item.keptThroughLostInventory()) {
+                    return (T) item;
+                }
+            }
+        }
 
-		@Override
-		public void remove() {
-			switch (index) {
-			case 0:
-				equipped[0] = weapon = null;
-				break;
-			case 1:
-				equipped[1] = armor = null;
-				break;
-			case 2:
-				equipped[2] = artifact = null;
-				break;
-			case 3:
-				equipped[3] = misc = null;
-				break;
-			case 4:
-				equipped[4] = ring = null;
-				break;
-			case 5:
-				equipped[5] = secondWep = null;
-				break;
-			default:
-				backpackIterator.remove();
-			}
-		}
-	}
+        return null;
+    }
+
+    public <T extends Item> ArrayList<T> getAllItems(Class<T> itemClass) {
+        ArrayList<T> result = new ArrayList<>();
+
+        boolean lostInvent = lostInventory();
+
+        for (Item item : this) {
+            if (itemClass.isInstance(item)) {
+                if (!lostInvent || item.keptThroughLostInventory()) {
+                    result.add((T) item);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public boolean contains(Item contains) {
+
+        boolean lostInvent = lostInventory();
+
+        for (Item item : this) {
+            if (contains == item) {
+                if (!lostInvent || item.keptThroughLostInventory()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public Item getSimilar(Item similar) {
+
+        boolean lostInvent = lostInventory();
+
+        for (Item item : this) {
+            if (similar != item && similar.isSimilar(item)) {
+                if (!lostInvent || item.keptThroughLostInventory()) {
+                    return item;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public ArrayList<Item> getAllSimilar(Item similar) {
+        ArrayList<Item> result = new ArrayList<>();
+
+        boolean lostInvent = lostInventory();
+
+        for (Item item : this) {
+            if (item != similar && similar.isSimilar(item)) {
+                if (!lostInvent || item.keptThroughLostInventory()) {
+                    result.add(item);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    //triggers when a run ends, so ignores lost inventory effects
+    public void identify() {
+        for (Item item : this) {
+            item.identify(false);
+        }
+    }
+
+    public void observe() {
+        if (weapon() != null) {
+            if (ShardOfOblivion.passiveIDDisabled() && weapon() instanceof Weapon) {
+                ((Weapon) weapon()).setIDReady();
+            } else {
+                weapon().identify();
+                Badges.validateItemLevelAquired(weapon());
+            }
+        }
+        if (secondWep() != null) {
+            if (ShardOfOblivion.passiveIDDisabled() && secondWep() instanceof Weapon) {
+                ((Weapon) secondWep()).setIDReady();
+            } else {
+                secondWep().identify();
+                Badges.validateItemLevelAquired(secondWep());
+            }
+        }
+        if (armor() != null) {
+            if (ShardOfOblivion.passiveIDDisabled()) {
+                armor().setIDReady();
+            } else {
+                armor().identify();
+                Badges.validateItemLevelAquired(armor());
+            }
+        }
+        if (artifact() != null) {
+            //oblivion shard does not prevent artifact IDing
+            artifact().identify();
+            Badges.validateItemLevelAquired(artifact());
+        }
+        if (misc() != null) {
+            if (ShardOfOblivion.passiveIDDisabled() && misc() instanceof Ring) {
+                ((Ring) misc()).setIDReady();
+            } else {
+                misc().identify();
+                Badges.validateItemLevelAquired(misc());
+            }
+        }
+        if (ring() != null) {
+            if (ShardOfOblivion.passiveIDDisabled()) {
+                ring().setIDReady();
+            } else {
+                ring().identify();
+                Badges.validateItemLevelAquired(ring());
+            }
+        }
+        if (ShardOfOblivion.passiveIDDisabled()) {
+            GLog.p(Messages.get(ShardOfOblivion.class, "identify_ready_worn"));
+        }
+        for (Item item : backpack) {
+            if (item instanceof EquipableItem || item instanceof Wand) {
+                item.cursedKnown = true;
+            }
+        }
+        Item.updateQuickslot();
+    }
+
+    public void uncurseEquipped() {
+        ScrollOfRemoveCurse.uncurse(owner, armor(), weapon(), artifact(), misc(), ring(), secondWep());
+    }
+
+    public Item randomUnequipped() {
+        if (owner.buff(LostInventory.class) != null) {
+            return null;
+        }
+
+        return Random.element(backpack.items);
+    }
+
+    public int charge(float charge) {
+
+        int count = 0;
+
+        for (Wand.Charger charger : owner.buffs(Wand.Charger.class)) {
+            charger.gainCharge(charge);
+            count++;
+        }
+
+        return count;
+    }
+
+    @Override
+    public Iterator<Item> iterator() {
+        return new ItemIterator();
+    }
+
+    private class ItemIterator implements Iterator<Item> {
+
+        private int index = 0;
+
+        private Iterator<Item> backpackIterator = backpack.iterator();
+
+        private Item[] equipped = {weapon, armor, artifact, misc, ring, ring, ring, ring, ring, secondWep};
+        private int backpackIndex = equipped.length;
+
+        @Override
+        public boolean hasNext() {
+
+            for (int i = index; i < backpackIndex; i++) {
+                if (equipped[i] != null) {
+                    return true;
+                }
+            }
+
+            return backpackIterator.hasNext();
+        }
+
+        @Override
+        public Item next() {
+
+            while (index < backpackIndex) {
+                Item item = equipped[index++];
+                if (item != null) {
+                    return item;
+                }
+            }
+
+            return backpackIterator.next();
+        }
+
+        @Override
+        public void remove() {
+            switch (index) {
+                case 0:
+                    equipped[0] = weapon = null;
+                    break;
+                case 1:
+                    equipped[1] = armor = null;
+                    break;
+                case 2:
+                    equipped[2] = artifact = null;
+                    break;
+                case 3:
+                    equipped[3] = misc = null;
+                    break;
+                case 4:
+                    equipped[4] = ring = null;
+                case 5:
+                    equipped[5] = ring = null;
+                case 6:
+                    equipped[6] = ring = null;
+                case 7:
+                    equipped[7] = ring = null;
+                case 8:
+                    equipped[8] = ring = null;
+                case 9:
+                    equipped[9] = ring = null;
+                case 10:
+                    equipped[10] = secondWep = null;
+                    break;
+                default:
+                    backpackIterator.remove();
+            }
+        }
+    }
 }

@@ -418,6 +418,12 @@ public class Ring extends KindofMisc {
 		if (hero.belongings.misc() != null && hero.belongings.misc().getClass() == getClass()){
 			bonus += ((Ring)hero.belongings.misc()).soloBonus();
 		}
+		// 检查背包中的戒指
+		for (Item item : hero.belongings.backpack){
+			if (item.getClass() == getClass() && item instanceof Ring){
+				bonus += ((Ring)item).soloBonus() / 2;
+			}
+		}
 		return bonus;
 	}
 
@@ -463,3 +469,4 @@ public class Ring extends KindofMisc {
 
 	}
 }
+
