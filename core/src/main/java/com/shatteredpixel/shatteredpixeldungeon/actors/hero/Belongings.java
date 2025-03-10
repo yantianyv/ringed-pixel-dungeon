@@ -469,12 +469,13 @@ public class Belongings implements Iterable<Item> {
             }
         }
         if (ring3() != null) {
-            ring3().setIDReady();
-        } else {
-            ring3().identify();
-            Badges.validateItemLevelAquired(ring3());
+            if (ShardOfOblivion.passiveIDDisabled()) {
+                ring3().setIDReady();
+            } else {
+                ring3().identify();
+                Badges.validateItemLevelAquired(ring3());
+            }
         }
-
         if (ring4() != null) {
             if (ShardOfOblivion.passiveIDDisabled()) {
                 ring4().setIDReady();
