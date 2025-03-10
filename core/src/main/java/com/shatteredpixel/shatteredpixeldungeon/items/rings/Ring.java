@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 import java.util.ArrayList;
@@ -49,424 +48,432 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
 public class Ring extends KindofMisc {
-	
-	protected Buff buff;
-	protected Class<? extends RingBuff> buffClass;
 
-	private static final LinkedHashMap<String, Integer> gems = new LinkedHashMap<String, Integer>() {
-		{
-			put("garnet",ItemSpriteSheet.RING_GARNET);
-			put("ruby",ItemSpriteSheet.RING_RUBY);
-			put("topaz",ItemSpriteSheet.RING_TOPAZ);
-			put("emerald",ItemSpriteSheet.RING_EMERALD);
-			put("onyx",ItemSpriteSheet.RING_ONYX);
-			put("opal",ItemSpriteSheet.RING_OPAL);
-			put("tourmaline",ItemSpriteSheet.RING_TOURMALINE);
-			put("sapphire",ItemSpriteSheet.RING_SAPPHIRE);
-			put("amethyst",ItemSpriteSheet.RING_AMETHYST);
-			put("quartz",ItemSpriteSheet.RING_QUARTZ);
-			put("agate",ItemSpriteSheet.RING_AGATE);
-			put("diamond",ItemSpriteSheet.RING_DIAMOND);
-		}
-	};
-	
-	private static ItemStatusHandler<Ring> handler;
-	
-	private String gem;
-	
-	//rings cannot be 'used' like other equipment, so they ID purely based on exp
-	private float levelsToID = 1;
-	
-	@SuppressWarnings("unchecked")
-	public static void initGems() {
-		handler = new ItemStatusHandler<>( (Class<? extends Ring>[])Generator.Category.RING.classes, gems );
-	}
+    protected Buff buff;
+    protected Class<? extends RingBuff> buffClass;
 
-	public static void clearGems(){
-		handler = null;
-	}
-	
-	public static void save( Bundle bundle ) {
-		handler.save( bundle );
-	}
+    private static final LinkedHashMap<String, Integer> gems = new LinkedHashMap<String, Integer>() {
+        {
+            put("garnet", ItemSpriteSheet.RING_GARNET);
+            put("ruby", ItemSpriteSheet.RING_RUBY);
+            put("topaz", ItemSpriteSheet.RING_TOPAZ);
+            put("emerald", ItemSpriteSheet.RING_EMERALD);
+            put("onyx", ItemSpriteSheet.RING_ONYX);
+            put("opal", ItemSpriteSheet.RING_OPAL);
+            put("tourmaline", ItemSpriteSheet.RING_TOURMALINE);
+            put("sapphire", ItemSpriteSheet.RING_SAPPHIRE);
+            put("amethyst", ItemSpriteSheet.RING_AMETHYST);
+            put("quartz", ItemSpriteSheet.RING_QUARTZ);
+            put("agate", ItemSpriteSheet.RING_AGATE);
+            put("diamond", ItemSpriteSheet.RING_DIAMOND);
+        }
+    };
 
-	public static void saveSelectively( Bundle bundle, ArrayList<Item> items ) {
-		handler.saveSelectively( bundle, items );
-	}
-	
-	@SuppressWarnings("unchecked")
-	public static void restore( Bundle bundle ) {
-		handler = new ItemStatusHandler<>( (Class<? extends Ring>[])Generator.Category.RING.classes, gems, bundle );
-	}
-	
-	public Ring() {
-		super();
-		reset();
-	}
+    private static ItemStatusHandler<Ring> handler;
 
-	//anonymous rings are always IDed, do not affect ID status,
-	//and their sprite is replaced by a placeholder if they are not known,
-	//useful for items that appear in UIs, or which are only spawned for their effects
-	protected boolean anonymous = false;
-	public void anonymize(){
-		if (!isKnown()) image = ItemSpriteSheet.RING_HOLDER;
-		anonymous = true;
-	}
-	
-	public void reset() {
-		super.reset();
-		levelsToID = 1;
-		if (handler != null && handler.contains(this)){
-			image = handler.image(this);
-			gem = handler.label(this);
-		} else {
-			image = ItemSpriteSheet.RING_GARNET;
-			gem = "garnet";
-		}
-	}
-	
-	public void activate( Char ch ) {
-		if (buff != null){
-			buff.detach();
-			buff = null;
-		}
-		buff = buff();
-		buff.attachTo( ch );
-	}
+    private String gem;
 
-	@Override
-	public boolean doUnequip( Hero hero, boolean collect, boolean single ) {
-		if (super.doUnequip( hero, collect, single )) {
+    //rings cannot be 'used' like other equipment, so they ID purely based on exp
+    private float levelsToID = 1;
 
-			if (buff != null) {
-				buff.detach();
-				buff = null;
-			}
+    @SuppressWarnings("unchecked")
+    public static void initGems() {
+        handler = new ItemStatusHandler<>((Class<? extends Ring>[]) Generator.Category.RING.classes, gems);
+    }
 
-			return true;
+    public static void clearGems() {
+        handler = null;
+    }
 
-		} else {
+    public static void save(Bundle bundle) {
+        handler.save(bundle);
+    }
 
-			return false;
+    public static void saveSelectively(Bundle bundle, ArrayList<Item> items) {
+        handler.saveSelectively(bundle, items);
+    }
 
-		}
-	}
-	
-	public boolean isKnown() {
-		return anonymous || (handler != null && handler.isKnown( this ));
-	}
-	
-	public void setKnown() {
-		if (!anonymous) {
-			if (!isKnown()) {
-				handler.know(this);
-			}
+    @SuppressWarnings("unchecked")
+    public static void restore(Bundle bundle) {
+        handler = new ItemStatusHandler<>((Class<? extends Ring>[]) Generator.Category.RING.classes, gems, bundle);
+    }
 
-			if (Dungeon.hero.isAlive()) {
-				Catalog.setSeen(getClass());
-				Statistics.itemTypesDiscovered.add(getClass());
-			}
-		}
-	}
-	
-	@Override
-	public String name() {
-		return isKnown() ? super.name() : Messages.get(Ring.class, gem);
-	}
+    public Ring() {
+        super();
+        reset();
+    }
 
-	@Override
-	public String desc() {
-		return isKnown() ? super.desc() : Messages.get(this, "unknown_desc");
-	}
-	
-	@Override
-	public String info(){
+    //anonymous rings are always IDed, do not affect ID status,
+    //and their sprite is replaced by a placeholder if they are not known,
+    //useful for items that appear in UIs, or which are only spawned for their effects
+    protected boolean anonymous = false;
 
-		//skip custom notes if anonymized and un-Ided
-		String desc;
-		if (anonymous && (handler == null || !handler.isKnown( this ))){
-			desc = desc();
+    public void anonymize() {
+        if (!isKnown()) {
+            image = ItemSpriteSheet.RING_HOLDER;
+        }
+        anonymous = true;
+    }
 
-		//otherwise, check for item type note, rings can have either but not both
-		} else if (Notes.findCustomRecord(customNoteID) == null) {
-			Notes.CustomRecord note = Notes.findCustomRecord(getClass());
-			if (note != null){
-				//we swap underscore(0x5F) with low macron(0x2CD) here to avoid highlighting in the item window
-				desc = Messages.get(this, "custom_note", note.title().replace('_', 'ˍ')) + "\n\n" + super.info();
-			} else {
-				desc = super.info();
-			}
-		} else {
-			desc = super.info();
-		}
+    public void reset() {
+        super.reset();
+        levelsToID = 1;
+        if (handler != null && handler.contains(this)) {
+            image = handler.image(this);
+            gem = handler.label(this);
+        } else {
+            image = ItemSpriteSheet.RING_GARNET;
+            gem = "garnet";
+        }
+    }
 
-		if (cursed && isEquipped( Dungeon.hero )) {
-			desc += "\n\n" + Messages.get(Ring.class, "cursed_worn");
-			
-		} else if (cursed && cursedKnown) {
-			desc += "\n\n" + Messages.get(Ring.class, "curse_known");
-			
-		} else if (!isIdentified() && cursedKnown){
-			desc += "\n\n" + Messages.get(Ring.class, "not_cursed");
-			
-		}
-		
-		if (isKnown()) {
-			desc += "\n\n" + statsInfo();
-		}
-		
-		return desc;
-	}
-	
-	protected String statsInfo(){
-		return "";
-	}
+    public void activate(Char ch) {
+        if (buff != null) {
+            buff.detach();
+            buff = null;
+        }
+        buff = buff();
+        buff.attachTo(ch);
+    }
 
-	public String upgradeStat1(int level){
-		return null;
-	}
+    @Override
+    public boolean doUnequip(Hero hero, boolean collect, boolean single) {
+        if (super.doUnequip(hero, collect, single)) {
 
-	public String upgradeStat2(int level){
-		return null;
-	}
+            if (buff != null) {
+                buff.detach();
+                buff = null;
+            }
 
-	public String upgradeStat3(int level){
-		return null;
-	}
-	
-	@Override
-	public Item upgrade() {
-		super.upgrade();
-		
-		if (Random.Int(3) == 0) {
-			cursed = false;
-		}
-		
-		return this;
-	}
-	
-	@Override
-	public boolean isIdentified() {
-		return super.isIdentified() && isKnown();
-	}
-	
-	@Override
-	public Item identify( boolean byHero ) {
-		setKnown();
-		levelsToID = 0;
-		return super.identify(byHero);
-	}
+            return true;
 
-	public void setIDReady(){
-		levelsToID = -1;
-	}
+        } else {
 
-	public boolean readyToIdentify(){
-		return !isIdentified() && levelsToID <= 0;
-	}
-	
-	// ————————生成的戒指等级————————
-	@Override
-	// 突破戒指等级上限，现在理论上可以获得任意等级的戒指，但概率递减
-	public Item random() {
-		int n = 0;
-		while(Random.Int(n+2) < 2){
-			n++;
-		}
-		level(n);
-		
-		//为了平衡，戒指被诅咒的概率受等级影响
-		if (Random.Int(n+2) <= n) {
-			cursed = true;
-		}
-		
-		return this;
-	}
-	
-	public static HashSet<Class<? extends Ring>> getKnown() {
-		return handler.known();
-	}
-	
-	public static HashSet<Class<? extends Ring>> getUnknown() {
-		return handler.unknown();
-	}
-	
-	public static boolean allKnown() {
-		return handler != null && handler.known().size() == Generator.Category.RING.classes.length;
-	}
-	
-	@Override
-	public int value() {
-		int price = 75;
-		if (cursed && cursedKnown) {
-			price /= 2;
-		}
-		if (levelKnown) {
-			if (level() > 0) {
-				price *= (level() + 1);
-			} else if (level() < 0) {
-				price /= (1 - level());
-			}
-		}
-		if (price < 1) {
-			price = 1;
-		}
-		return price;
-	}
-	
-	protected RingBuff buff() {
-		return null;
-	}
+            return false;
 
-	private static final String LEVELS_TO_ID    = "levels_to_ID";
+        }
+    }
 
-	@Override
-	public void storeInBundle( Bundle bundle ) {
-		super.storeInBundle( bundle );
-		bundle.put( LEVELS_TO_ID, levelsToID );
-	}
+    public boolean isKnown() {
+        return anonymous || (handler != null && handler.isKnown(this));
+    }
 
-	@Override
-	public void restoreFromBundle( Bundle bundle ) {
-		super.restoreFromBundle( bundle );
-		levelsToID = bundle.getFloat( LEVELS_TO_ID );
-	}
-	
-	public void onHeroGainExp( float levelPercent, Hero hero ){
-		if (isIdentified() || !isEquipped(hero)) return;
-		levelPercent *= Talent.itemIDSpeedFactor(hero, this);
-		//becomes IDed after 1 level
-		levelsToID -= levelPercent;
-		if (levelsToID <= 0){
-			if (ShardOfOblivion.passiveIDDisabled()){
-				if (levelsToID > -1){
-					GLog.p(Messages.get(ShardOfOblivion.class, "identify_ready"), name());
-				}
-				setIDReady();
-			} else {
-				identify();
-				GLog.p(Messages.get(Ring.class, "identify"));
-				Badges.validateItemLevelAquired(this);
-			}
-		}
-	}
+    public void setKnown() {
+        if (!anonymous) {
+            if (!isKnown()) {
+                handler.know(this);
+            }
 
-	@Override
-	public int buffedLvl() {
-		int lvl = super.buffedLvl();
-		if (Dungeon.hero.buff(EnhancedRings.class) != null){
-			lvl++;
-		}
-		return lvl;
-	}
+            if (Dungeon.hero.isAlive()) {
+                Catalog.setSeen(getClass());
+                Statistics.itemTypesDiscovered.add(getClass());
+            }
+        }
+    }
 
-	public static int getBonus(Char target, Class<?extends RingBuff> type){
-		if (target.buff(MagicImmune.class) != null) return 0;
-		int bonus = 0;
-		for (RingBuff buff : target.buffs(type)) {
-			bonus += buff.level();
-		}
-		SpiritForm.SpiritFormBuff spiritForm = target.buff(SpiritForm.SpiritFormBuff.class);
-		if (bonus == 0
-				&& spiritForm != null
-				&& spiritForm.ring() != null
-				&& spiritForm.ring().buffClass == type){
-			bonus += spiritForm.ring().soloBonus();
-		}
-		return bonus;
-	}
+    @Override
+    public String name() {
+        return isKnown() ? super.name() : Messages.get(Ring.class, gem);
+    }
 
-	public static int getBuffedBonus(Char target, Class<?extends RingBuff> type){
-		if (target.buff(MagicImmune.class) != null) return 0;
-		int bonus = 0;
-		for (RingBuff buff : target.buffs(type)) {
-			bonus += buff.buffedLvl();
-		}
-		if (bonus == 0
-				&& target.buff(SpiritForm.SpiritFormBuff.class) != null
-				&& target.buff(SpiritForm.SpiritFormBuff.class).ring() != null
-				&& target.buff(SpiritForm.SpiritFormBuff.class).ring().buffClass == type){
-			bonus += target.buff(SpiritForm.SpiritFormBuff.class).ring().soloBuffedBonus();
-		}
-		return bonus;
-	}
+    @Override
+    public String desc() {
+        return isKnown() ? super.desc() : Messages.get(this, "unknown_desc");
+    }
 
-	//just used for ring descriptions
-	public int soloBonus(){
-		if (cursed){
-			return Math.min( 0, Ring.this.level()-2 );
-		} else {
-			return Ring.this.level()+1;
-		}
-	}
+    @Override
+    public String info() {
 
-	//just used for ring descriptions
-	public int soloBuffedBonus(){
-		if (cursed){
-			return Math.min( 0, Ring.this.buffedLvl()-2 );
-		} else {
-			return Ring.this.buffedLvl()+1;
-		}
-	}
+        //skip custom notes if anonymized and un-Ided
+        String desc;
+        if (anonymous && (handler == null || !handler.isKnown(this))) {
+            desc = desc();
 
-	//just used for ring descriptions
-	public int combinedBonus(Hero hero){
-		int bonus = 0;
-		if (hero.belongings.ring() != null && hero.belongings.ring().getClass() == getClass()){
-			bonus += hero.belongings.ring().soloBonus();
-		}
-		if (hero.belongings.misc() != null && hero.belongings.misc().getClass() == getClass()){
-			bonus += ((Ring)hero.belongings.misc()).soloBonus();
-		}
-		// 检查背包中的戒指
-		for (Item item : hero.belongings.backpack){
-			if (item.getClass() == getClass() && item instanceof Ring){
-				bonus += ((Ring)item).soloBonus() / 2;
-			}
-		}
-		return bonus;
-	}
+            //otherwise, check for item type note, rings can have either but not both
+        } else if (Notes.findCustomRecord(customNoteID) == null) {
+            Notes.CustomRecord note = Notes.findCustomRecord(getClass());
+            if (note != null) {
+                //we swap underscore(0x5F) with low macron(0x2CD) here to avoid highlighting in the item window
+                desc = Messages.get(this, "custom_note", note.title().replace('_', 'ˍ')) + "\n\n" + super.info();
+            } else {
+                desc = super.info();
+            }
+        } else {
+            desc = super.info();
+        }
 
-	//just used for ring descriptions
-	public int combinedBuffedBonus(Hero hero){
-		int bonus = 0;
-		if (hero.belongings.ring() != null && hero.belongings.ring().getClass() == getClass()){
-			bonus += hero.belongings.ring().soloBuffedBonus();
-		}
-		if (hero.belongings.misc() != null && hero.belongings.misc().getClass() == getClass()){
-			bonus += ((Ring)hero.belongings.misc()).soloBuffedBonus();
-		}
-		return bonus;
-	}
+        if (cursed && isEquipped(Dungeon.hero)) {
+            desc += "\n\n" + Messages.get(Ring.class, "cursed_worn");
 
-	public class RingBuff extends Buff {
+        } else if (cursed && cursedKnown) {
+            desc += "\n\n" + Messages.get(Ring.class, "curse_known");
 
-		@Override
-		public boolean attachTo( Char target ) {
-			if (super.attachTo( target )) {
-				//if we're loading in and the hero has partially spent a turn, delay for 1 turn
-				if (target instanceof Hero && Dungeon.hero == null && cooldown() == 0 && target.cooldown() > 0) {
-					spend(TICK);
-				}
-				return true;
-			}
-			return false;
-		}
+        } else if (!isIdentified() && cursedKnown) {
+            desc += "\n\n" + Messages.get(Ring.class, "not_cursed");
 
-		@Override
-		public boolean act() {
-			spend( TICK );
-			return true;
-		}
+        }
 
-		public int level(){
-			return Ring.this.soloBonus();
-		}
+        if (isKnown()) {
+            desc += "\n\n" + statsInfo();
+        }
 
-		public int buffedLvl(){
-			return Ring.this.soloBuffedBonus();
-		}
+        return desc;
+    }
 
-	}
+    protected String statsInfo() {
+        return "";
+    }
+
+    public String upgradeStat1(int level) {
+        return null;
+    }
+
+    public String upgradeStat2(int level) {
+        return null;
+    }
+
+    public String upgradeStat3(int level) {
+        return null;
+    }
+
+    @Override
+    public Item upgrade() {
+        super.upgrade();
+
+        if (Random.Int(3) == 0) {
+            cursed = false;
+        }
+
+        return this;
+    }
+
+    @Override
+    public boolean isIdentified() {
+        return super.isIdentified() && isKnown();
+    }
+
+    @Override
+    public Item identify(boolean byHero) {
+        setKnown();
+        levelsToID = 0;
+        return super.identify(byHero);
+    }
+
+    public void setIDReady() {
+        levelsToID = -1;
+    }
+
+    public boolean readyToIdentify() {
+        return !isIdentified() && levelsToID <= 0;
+    }
+
+    // ————————生成的戒指等级————————
+    @Override
+    // 突破戒指等级上限，现在理论上可以获得任意等级的戒指，但概率递减
+    public Item random() {
+        int n = 0;
+        while (Random.Int(n + 2) <= 1) {
+            n++;
+        }
+        level(n);
+
+        //为了平衡，戒指被诅咒的概率受等级影响
+        if (Random.Int(n + 2) <= n) {
+            cursed = true;
+        }
+
+        return this;
+    }
+
+    public static HashSet<Class<? extends Ring>> getKnown() {
+        return handler.known();
+    }
+
+    public static HashSet<Class<? extends Ring>> getUnknown() {
+        return handler.unknown();
+    }
+
+    public static boolean allKnown() {
+        return handler != null && handler.known().size() == Generator.Category.RING.classes.length;
+    }
+
+    @Override
+    public int value() {
+        int price = 75;
+        if (cursed && cursedKnown) {
+            price /= 2;
+        }
+        if (levelKnown) {
+            if (level() > 0) {
+                price *= (level() + 1);
+            } else if (level() < 0) {
+                price /= (1 - level());
+            }
+        }
+        if (price < 1) {
+            price = 1;
+        }
+        return price;
+    }
+
+    protected RingBuff buff() {
+        return null;
+    }
+
+    private static final String LEVELS_TO_ID = "levels_to_ID";
+
+    @Override
+    public void storeInBundle(Bundle bundle) {
+        super.storeInBundle(bundle);
+        bundle.put(LEVELS_TO_ID, levelsToID);
+    }
+
+    @Override
+    public void restoreFromBundle(Bundle bundle) {
+        super.restoreFromBundle(bundle);
+        levelsToID = bundle.getFloat(LEVELS_TO_ID);
+    }
+
+    public void onHeroGainExp(float levelPercent, Hero hero) {
+        if (isIdentified() || !isEquipped(hero)) {
+            return;
+        }
+        levelPercent *= Talent.itemIDSpeedFactor(hero, this);
+        //becomes IDed after 1 level
+        levelsToID -= levelPercent;
+        if (levelsToID <= 0) {
+            if (ShardOfOblivion.passiveIDDisabled()) {
+                if (levelsToID > -1) {
+                    GLog.p(Messages.get(ShardOfOblivion.class, "identify_ready"), name());
+                }
+                setIDReady();
+            } else {
+                identify();
+                GLog.p(Messages.get(Ring.class, "identify"));
+                Badges.validateItemLevelAquired(this);
+            }
+        }
+    }
+
+    @Override
+    public int buffedLvl() {
+        int lvl = super.buffedLvl();
+        if (Dungeon.hero.buff(EnhancedRings.class) != null) {
+            lvl++;
+        }
+        return lvl;
+    }
+
+    public static int getBonus(Char target, Class<? extends RingBuff> type) {
+        if (target.buff(MagicImmune.class) != null) {
+            return 0;
+        }
+        int bonus = 0;
+        for (RingBuff buff : target.buffs(type)) {
+            bonus += buff.level();
+        }
+        SpiritForm.SpiritFormBuff spiritForm = target.buff(SpiritForm.SpiritFormBuff.class);
+        if (bonus == 0
+                && spiritForm != null
+                && spiritForm.ring() != null
+                && spiritForm.ring().buffClass == type) {
+            bonus += spiritForm.ring().soloBonus();
+        }
+        return bonus;
+    }
+
+    public static int getBuffedBonus(Char target, Class<? extends RingBuff> type) {
+        if (target.buff(MagicImmune.class) != null) {
+            return 0;
+        }
+        int bonus = 0;
+        for (RingBuff buff : target.buffs(type)) {
+            bonus += buff.buffedLvl();
+        }
+        if (bonus == 0
+                && target.buff(SpiritForm.SpiritFormBuff.class) != null
+                && target.buff(SpiritForm.SpiritFormBuff.class).ring() != null
+                && target.buff(SpiritForm.SpiritFormBuff.class).ring().buffClass == type) {
+            bonus += target.buff(SpiritForm.SpiritFormBuff.class).ring().soloBuffedBonus();
+        }
+        return bonus;
+    }
+
+    //just used for ring descriptions
+    public int soloBonus() {
+        if (cursed) {
+            return Math.min(0, Ring.this.level() - 2);
+        } else {
+            return Ring.this.level() + 1;
+        }
+    }
+
+    //just used for ring descriptions
+    public int soloBuffedBonus() {
+        if (cursed) {
+            return Math.min(0, Ring.this.buffedLvl() - 2);
+        } else {
+            return Ring.this.buffedLvl() + 1;
+        }
+    }
+
+    //just used for ring descriptions
+    public int combinedBonus(Hero hero) {
+        int bonus = 0;
+        if (hero.belongings.ring() != null && hero.belongings.ring().getClass() == getClass()) {
+            bonus += hero.belongings.ring().soloBonus();
+        }
+        if (hero.belongings.misc() != null && hero.belongings.misc().getClass() == getClass()) {
+            bonus += ((Ring) hero.belongings.misc()).soloBonus();
+        }
+        // 检查背包中的戒指
+        for (Item item : hero.belongings.backpack) {
+            if (item.getClass() == getClass() && item instanceof Ring) {
+                bonus += ((Ring) item).soloBonus() / 2;
+            }
+        }
+        return bonus;
+    }
+
+    //just used for ring descriptions
+    public int combinedBuffedBonus(Hero hero) {
+        int bonus = 0;
+        if (hero.belongings.ring() != null && hero.belongings.ring().getClass() == getClass()) {
+            bonus += hero.belongings.ring().soloBuffedBonus();
+        }
+        if (hero.belongings.misc() != null && hero.belongings.misc().getClass() == getClass()) {
+            bonus += ((Ring) hero.belongings.misc()).soloBuffedBonus();
+        }
+        return bonus;
+    }
+
+    public class RingBuff extends Buff {
+
+        @Override
+        public boolean attachTo(Char target) {
+            if (super.attachTo(target)) {
+                //if we're loading in and the hero has partially spent a turn, delay for 1 turn
+                if (target instanceof Hero && Dungeon.hero == null && cooldown() == 0 && target.cooldown() > 0) {
+                    spend(TICK);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean act() {
+            spend(TICK);
+            return true;
+        }
+
+        public int level() {
+            return Ring.this.soloBonus();
+        }
+
+        public int buffedLvl() {
+            return Ring.this.soloBuffedBonus();
+        }
+
+    }
 }
-

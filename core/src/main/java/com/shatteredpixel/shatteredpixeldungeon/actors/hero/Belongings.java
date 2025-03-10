@@ -477,14 +477,19 @@ public class Belongings implements Iterable<Item> {
                     equipped[4] = ring = null;
                 case 5:
                     equipped[5] = ring = null;
+                    break;
                 case 6:
                     equipped[6] = ring = null;
+                    break;
                 case 7:
                     equipped[7] = ring = null;
+                    break;
                 case 8:
                     equipped[8] = ring = null;
+                    break;
                 case 9:
                     equipped[9] = ring = null;
+                    break;
                 case 10:
                     equipped[10] = secondWep = null;
                     break;
