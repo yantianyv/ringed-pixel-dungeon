@@ -77,6 +77,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfIntuition;
@@ -216,8 +217,12 @@ public abstract class Level implements Bundlable {
         if (!Dungeon.bossLevel() && Dungeon.branch == 0) {
 
             addItemToSpawn(Generator.random(Generator.Category.FOOD));
-            addItemToSpawn(Generator.random(Generator.Category.RING));
+            if (Random.Int(2) == 0) {
+                addItemToSpawn(Generator.random(Generator.Category.RING));
+            } else {
+                addItemToSpawn(new ScrollOfTransmutation());
 
+            }
             if (Dungeon.posNeeded()) {
                 Dungeon.LimitedDrops.STRENGTH_POTIONS.count++;
                 addItemToSpawn(new PotionOfStrength());
