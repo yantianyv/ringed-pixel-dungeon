@@ -500,8 +500,23 @@ public enum Talent {
 			}
 		}
 		if (talent == THIEFS_INTUITION && hero.pointsInTalent(THIEFS_INTUITION) == 2){
-			if (hero.belongings.ring instanceof Ring && !ShardOfOblivion.passiveIDDisabled()) {
-				hero.belongings.ring.identify();
+			if (hero.belongings.ring1 instanceof Ring && !ShardOfOblivion.passiveIDDisabled()) {
+				hero.belongings.ring1.identify();
+			}
+			if (hero.belongings.ring2 instanceof Ring && !ShardOfOblivion.passiveIDDisabled()) {
+				hero.belongings.ring2.identify();
+			}
+			if (hero.belongings.ring3 instanceof Ring && !ShardOfOblivion.passiveIDDisabled()) {
+				hero.belongings.ring3.identify();
+			}
+			if (hero.belongings.ring4 instanceof Ring && !ShardOfOblivion.passiveIDDisabled()) {
+				hero.belongings.ring4.identify();
+			}
+			if (hero.belongings.ring5 instanceof Ring && !ShardOfOblivion.passiveIDDisabled()) {
+				hero.belongings.ring5.identify();
+			}
+			if (hero.belongings.ring6 instanceof Ring && !ShardOfOblivion.passiveIDDisabled()) {
+				hero.belongings.ring6.identify();
 			}
 			if (hero.belongings.misc instanceof Ring && !ShardOfOblivion.passiveIDDisabled()) {
 				hero.belongings.misc.identify();
@@ -513,15 +528,35 @@ public enum Talent {
 			}
 		}
 		if (talent == THIEFS_INTUITION && hero.pointsInTalent(THIEFS_INTUITION) == 1){
-			if (hero.belongings.ring instanceof Ring) hero.belongings.ring.setKnown();
+			if (hero.belongings.ring1 instanceof Ring) hero.belongings.ring1.setKnown();
 			if (hero.belongings.misc instanceof Ring) ((Ring) hero.belongings.misc).setKnown();
 		}
+		if (talent == THIEFS_INTUITION && hero.pointsInTalent(THIEFS_INTUITION) == 1){
+			if (hero.belongings.ring2 instanceof Ring) hero.belongings.ring2.setKnown();
+			if (hero.belongings.misc instanceof Ring) ((Ring) hero.belongings.misc).setKnown();
+		}
+		if (talent == THIEFS_INTUITION && hero.pointsInTalent(THIEFS_INTUITION) == 1){
+			if (hero.belongings.ring3 instanceof Ring) hero.belongings.ring3.setKnown();
+			if (hero.belongings.misc instanceof Ring) ((Ring) hero.belongings.misc).setKnown();
+		}
+		if (talent == THIEFS_INTUITION && hero.pointsInTalent(THIEFS_INTUITION) == 1){
+			if (hero.belongings.ring4 instanceof Ring) hero.belongings.ring4.setKnown();
+			if (hero.belongings.misc instanceof Ring) ((Ring) hero.belongings.misc).setKnown();
+		}
+		if (talent == THIEFS_INTUITION && hero.pointsInTalent(THIEFS_INTUITION) == 1){
+			if (hero.belongings.ring5 instanceof Ring) hero.belongings.ring5.setKnown();
+			if (hero.belongings.misc instanceof Ring) ((Ring) hero.belongings.misc).setKnown();
+		}
+		if (talent == THIEFS_INTUITION && hero.pointsInTalent(THIEFS_INTUITION) == 1){
+			if (hero.belongings.ring6 instanceof Ring) hero.belongings.ring6.setKnown();
+			if (hero.belongings.misc instanceof Ring) ((Ring) hero.belongings.misc).setKnown();
+		}
+
 		if (talent == ADVENTURERS_INTUITION && hero.pointsInTalent(ADVENTURERS_INTUITION) == 2){
 			if (hero.belongings.weapon() != null && !ShardOfOblivion.passiveIDDisabled()){
 				hero.belongings.weapon().identify();
 			}
 		}
-
 		if (talent == PROTECTIVE_SHADOWS && hero.invisible > 0){
 			Buff.affect(hero, Talent.ProtectiveShadowsTracker.class);
 		}

@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
@@ -34,94 +33,99 @@ import com.watabou.noosa.audio.Sample;
 
 public class InventorySlot extends ItemSlot {
 
-	private static final int NORMAL		= 0x9953564D;
-	private static final int EQUIPPED	= 0x9991938C;
+    private static final int NORMAL = 0x9953564D;
+    private static final int EQUIPPED = 0x9991938C;
 
-	private ColorBlock bg;
+    private ColorBlock bg;
 
-	public InventorySlot( Item item ) {
+    public InventorySlot(Item item) {
 
-		super( item );
-	}
+        super(item);
+    }
 
-	@Override
-	protected void createChildren() {
-		bg = new ColorBlock( 1, 1, NORMAL );
-		add( bg );
+    @Override
+    protected void createChildren() {
+        bg = new ColorBlock(1, 1, NORMAL);
+        add(bg);
 
-		super.createChildren();
-	}
+        super.createChildren();
+    }
 
-	@Override
-	protected void layout() {
-		bg.size(width, height);
-		bg.x = x;
-		bg.y = y;
+    @Override
+    protected void layout() {
+        bg.size(width, height);
+        bg.x = x;
+        bg.y = y;
 
-		super.layout();
-	}
+        super.layout();
+    }
 
-	@Override
-	public void alpha(float value) {
-		super.alpha(value);
-		bg.alpha(value);
-	}
+    @Override
+    public void alpha(float value) {
+        super.alpha(value);
+        bg.alpha(value);
+    }
 
-	@Override
-	public void item( Item item ) {
+    @Override
+    public void item(Item item) {
 
-		super.item( item );
+        super.item(item);
 
-		bg.visible = !(item instanceof Gold || item instanceof Bag);
+        bg.visible = !(item instanceof Gold || item instanceof Bag);
 
-		if (item != null) {
+        if (item != null) {
 
-			boolean equipped = item.isEquipped(Dungeon.hero) ||
-					item == Dungeon.hero.belongings.weapon ||
-					item == Dungeon.hero.belongings.armor ||
-					item == Dungeon.hero.belongings.artifact ||
-					item == Dungeon.hero.belongings.misc ||
-					item == Dungeon.hero.belongings.ring ||
-					item == Dungeon.hero.belongings.secondWep;
+            boolean equipped = item.isEquipped(Dungeon.hero)
+                    || item == Dungeon.hero.belongings.weapon
+                    || item == Dungeon.hero.belongings.armor
+                    || item == Dungeon.hero.belongings.artifact
+                    || item == Dungeon.hero.belongings.misc
+                    || item == Dungeon.hero.belongings.ring6
+                    || item == Dungeon.hero.belongings.ring5
+                    || item == Dungeon.hero.belongings.ring4
+                    || item == Dungeon.hero.belongings.ring3
+                    || item == Dungeon.hero.belongings.ring2
+                    || item == Dungeon.hero.belongings.ring1
+                    || item == Dungeon.hero.belongings.secondWep;
 
-			bg.texture( TextureCache.createSolid( equipped ? EQUIPPED : NORMAL ) );
-			bg.resetColor();
-			if (item.cursed && item.cursedKnown) {
-				bg.ra = +0.3f;
-				bg.ga = -0.15f;
-			} else if (!item.isIdentified()) {
-				if ((item instanceof EquipableItem || item instanceof Wand) && item.cursedKnown){
-					bg.ba = 0.3f;
-				} else {
-					bg.ra = 0.3f;
-					bg.ba = 0.3f;
-				}
-			}
+            bg.texture(TextureCache.createSolid(equipped ? EQUIPPED : NORMAL));
+            bg.resetColor();
+            if (item.cursed && item.cursedKnown) {
+                bg.ra = +0.3f;
+                bg.ga = -0.15f;
+            } else if (!item.isIdentified()) {
+                if ((item instanceof EquipableItem || item instanceof Wand) && item.cursedKnown) {
+                    bg.ba = 0.3f;
+                } else {
+                    bg.ra = 0.3f;
+                    bg.ba = 0.3f;
+                }
+            }
 
-			if (item.name() == null) {
-				enable( false );
-			} else if (Dungeon.hero.belongings.lostInventory()
-					&& !item.keptThroughLostInventory()){
-				enable(false);
-			}
-		} else {
-			bg.texture( TextureCache.createSolid( NORMAL ) );
-			bg.resetColor();
-		}
-	}
+            if (item.name() == null) {
+                enable(false);
+            } else if (Dungeon.hero.belongings.lostInventory()
+                    && !item.keptThroughLostInventory()) {
+                enable(false);
+            }
+        } else {
+            bg.texture(TextureCache.createSolid(NORMAL));
+            bg.resetColor();
+        }
+    }
 
-	public Item item(){
-		return item;
-	}
+    public Item item() {
+        return item;
+    }
 
-	@Override
-	protected void onPointerDown() {
-		bg.brightness( 1.5f );
-		Sample.INSTANCE.play( Assets.Sounds.CLICK, 0.7f, 0.7f, 1.2f );
-	}
+    @Override
+    protected void onPointerDown() {
+        bg.brightness(1.5f);
+        Sample.INSTANCE.play(Assets.Sounds.CLICK, 0.7f, 0.7f, 1.2f);
+    }
 
-	protected void onPointerUp() {
-		bg.brightness( 1.0f );
-	}
+    protected void onPointerUp() {
+        bg.brightness(1.0f);
+    }
 
 }

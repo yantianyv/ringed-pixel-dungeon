@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.items.bags;
 
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -30,27 +29,27 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class VelvetPouch extends Bag {
 
-	{
-		image = ItemSpriteSheet.POUCH;
-	}
+    {
+        image = ItemSpriteSheet.POUCH;
+    }
 
-	@Override
-	public boolean canHold( Item item ) {
-		if (item instanceof Plant.Seed || item instanceof Runestone
-				|| item instanceof GooBlob || item instanceof MetalShard){
-			return super.canHold(item);
-		} else {
-			return false;
-		}
-	}
+    @Override
+    public boolean canHold(Item item) {
+        if (item instanceof Plant.Seed || item instanceof Runestone
+                || item instanceof GooBlob || item instanceof MetalShard) {
+            return super.canHold(item);
+        } else {
+            return false;
+        }
+    }
 
-	public int capacity(){
-		return 19;
-	}
-	
-	@Override
-	public int value() {
-		return 30;
-	}
+    public int capacity() {
+        return 39;
+    }
+
+    @Override
+    public int value() {
+        return 30;
+    }
 
 }

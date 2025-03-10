@@ -334,6 +334,7 @@ public class Ring extends KindofMisc {
         levelsToID = bundle.getFloat(LEVELS_TO_ID);
     }
 
+    @Override
     public void onHeroGainExp(float levelPercent, Hero hero) {
         if (isIdentified() || !isEquipped(hero)) {
             return;
@@ -420,17 +421,26 @@ public class Ring extends KindofMisc {
     //just used for ring descriptions
     public int combinedBonus(Hero hero) {
         int bonus = 0;
-        if (hero.belongings.ring() != null && hero.belongings.ring().getClass() == getClass()) {
-            bonus += hero.belongings.ring().soloBonus();
+        if (hero.belongings.ring6() != null && hero.belongings.ring6().getClass() == getClass()) {
+            bonus += hero.belongings.ring6().soloBonus();
+        }
+        if (hero.belongings.ring5() != null && hero.belongings.ring5().getClass() == getClass()) {
+            bonus += hero.belongings.ring5().soloBonus();
+        }
+        if (hero.belongings.ring4() != null && hero.belongings.ring4().getClass() == getClass()) {
+            bonus += hero.belongings.ring4().soloBonus();
+        }
+        if (hero.belongings.ring3() != null && hero.belongings.ring3().getClass() == getClass()) {
+            bonus += hero.belongings.ring3().soloBonus();
+        }
+        if (hero.belongings.ring2() != null && hero.belongings.ring2().getClass() == getClass()) {
+            bonus += hero.belongings.ring2().soloBonus();
+        }
+        if (hero.belongings.ring1() != null && hero.belongings.ring1().getClass() == getClass()) {
+            bonus += hero.belongings.ring1().soloBonus();
         }
         if (hero.belongings.misc() != null && hero.belongings.misc().getClass() == getClass()) {
             bonus += ((Ring) hero.belongings.misc()).soloBonus();
-        }
-        // 检查背包中的戒指
-        for (Item item : hero.belongings.backpack) {
-            if (item.getClass() == getClass() && item instanceof Ring) {
-                bonus += ((Ring) item).soloBonus() / 2;
-            }
         }
         return bonus;
     }
@@ -438,8 +448,23 @@ public class Ring extends KindofMisc {
     //just used for ring descriptions
     public int combinedBuffedBonus(Hero hero) {
         int bonus = 0;
-        if (hero.belongings.ring() != null && hero.belongings.ring().getClass() == getClass()) {
-            bonus += hero.belongings.ring().soloBuffedBonus();
+        if (hero.belongings.ring6() != null && hero.belongings.ring6().getClass() == getClass()) {
+            bonus += hero.belongings.ring6().soloBuffedBonus();
+        }
+        if (hero.belongings.ring5() != null && hero.belongings.ring5().getClass() == getClass()) {
+            bonus += hero.belongings.ring5().soloBuffedBonus();
+        }
+        if (hero.belongings.ring4() != null && hero.belongings.ring4().getClass() == getClass()) {
+            bonus += hero.belongings.ring4().soloBuffedBonus();
+        }
+        if (hero.belongings.ring3() != null && hero.belongings.ring3().getClass() == getClass()) {
+            bonus += hero.belongings.ring3().soloBuffedBonus();
+        }
+        if (hero.belongings.ring2() != null && hero.belongings.ring2().getClass() == getClass()) {
+            bonus += hero.belongings.ring2().soloBuffedBonus();
+        }
+        if (hero.belongings.ring1() != null && hero.belongings.ring1().getClass() == getClass()) {
+            bonus += hero.belongings.ring1().soloBuffedBonus();
         }
         if (hero.belongings.misc() != null && hero.belongings.misc().getClass() == getClass()) {
             bonus += ((Ring) hero.belongings.misc()).soloBuffedBonus();
