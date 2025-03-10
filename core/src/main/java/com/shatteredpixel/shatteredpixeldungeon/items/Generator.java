@@ -736,7 +736,7 @@ public class Generator {
     //overrides any deck systems and always uses default probs
     // except for artifacts, which must always use a deck
     public static Item randomUsingDefaults(Category cat) {
-        if (cat == Category.RING) {
+        if (cat == Category.WEAPON) {
             return randomWeapon(true);
         } else if (cat == Category.MISSILE) {
             return randomMissile(true);
