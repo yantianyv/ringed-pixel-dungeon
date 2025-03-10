@@ -20,6 +20,11 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClericArmor;
@@ -206,11 +211,6 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 public class Generator {
 
@@ -689,7 +689,7 @@ public class Generator {
             case ARMOR:
                 return randomArmor();
             case WEAPON:
-                return randomWeapon();
+                return random(Category.RING);
             case MISSILE:
                 return randomMissile();
             case ARTIFACT:

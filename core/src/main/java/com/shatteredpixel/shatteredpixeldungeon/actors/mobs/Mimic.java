@@ -20,6 +20,10 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -42,10 +46,6 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 
 public class Mimic extends Mob {
 
@@ -340,7 +340,7 @@ public class Mimic extends Mob {
     protected void generatePrize(boolean useDecks) {
         Item reward = null;
         do {
-            switch (Random.Int(5)) {
+            switch (Random.Int(4)) {
                 case 0:
                     reward = new Gold().random();
                     break;
@@ -351,10 +351,7 @@ public class Mimic extends Mob {
                     reward = Generator.randomArmor();
                     break;
                 case 3:
-                    reward = Generator.randomArmor();
-                    break;
-                case 4:
-                    reward = useDecks ? Generator.random(Generator.Category.RING) : Generator.randomUsingDefaults(Generator.Category.RING);
+                    reward = Generator.random(Generator.Category.RING);
                     break;
             }
         } while (reward == null || Challenges.isItemBlocked(reward));
