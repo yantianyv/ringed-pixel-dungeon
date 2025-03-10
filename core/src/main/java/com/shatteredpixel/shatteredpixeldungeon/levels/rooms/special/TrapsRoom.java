@@ -26,7 +26,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLevitation;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
@@ -144,17 +143,11 @@ public class TrapsRoom extends SpecialRoom {
         }
 
         //1 floor set higher in probability, never cursed
-        if (Random.Int(2) == 0) {
-            prize = Generator.randomArmor((Dungeon.depth / 5) + 1);
-            if (((Weapon) prize).hasCurseEnchant()) {
-                ((Weapon) prize).enchant(null);
-            }
-        } else {
-            prize = Generator.randomArmor((Dungeon.depth / 5) + 1);
-            if (((Armor) prize).hasCurseGlyph()) {
-                ((Armor) prize).inscribe(null);
-            }
+        prize = Generator.randomArmor((Dungeon.depth / 5) + 1);
+        if (((Armor) prize).hasCurseGlyph()) {
+            ((Armor) prize).inscribe(null);
         }
+
         prize.cursed = false;
         prize.cursedKnown = true;
 

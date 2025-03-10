@@ -27,7 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.SacrificialFire;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
@@ -103,22 +103,17 @@ public class SacrificeRoom extends SpecialRoom {
     public static Item prize(Level level) {
 
         //1 floor set higher than normal
-        Weapon prize = Generator.randomWeapon((Dungeon.depth / 5) + 1);
+        Ring prize = (Ring)Generator.random(Generator.Category.RING);
 
         if (Challenges.isItemBlocked(prize)) {
             return new Gold().random();
         }
 
-        //always generate the curse to prevent parchment scrap from altering levelgen
-        Weapon.Enchantment curse = Weapon.Enchantment.randomCurse();
 
         //if it isn't already cursed, give it a free upgrade
         if (!prize.cursed) {
             prize.upgrade();
             //curse the weapon, unless it has a glyph
-            if (!prize.hasGoodEnchant()) {
-                prize.enchant(curse);
-            }
         }
         prize.cursed = prize.cursedKnown = true;
 

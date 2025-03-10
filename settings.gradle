@@ -3,7 +3,7 @@ include ':SPD-classes'
 include ':core'
 
 //platform modules
-// include ':android'
+include ':android'
 // include ':ios'
 include ':desktop'
 
