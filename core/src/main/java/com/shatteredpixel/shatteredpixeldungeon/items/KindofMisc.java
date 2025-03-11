@@ -175,8 +175,8 @@ public abstract class KindofMisc extends EquipableItem {
                     hero.belongings.misc = (Artifact) this;
                 }
             } else if (this instanceof Ring) {
-                if (hero.belongings.ring6 == null) {
-                    hero.belongings.ring6 = (Ring) this;
+                if (hero.belongings.ring1 == null) {
+                    hero.belongings.ring1 = (Ring) this;
                 } else {
                     hero.belongings.misc = (Ring) this;
                 }
