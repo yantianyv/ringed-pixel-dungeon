@@ -38,6 +38,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.ItemStatusHandler;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindofMisc;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfOblivion;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
@@ -240,8 +241,12 @@ public class Ring extends KindofMisc {
     public Item upgrade() {
         super.upgrade();
 
-        if (Random.Int(3) == 0) {
-            cursed = false;
+        cursed = false;
+        level(-1);
+        // 生成并原地掉落两个stone of enchantment
+        if (Dungeon.level != null) {
+            Dungeon.level.drop(new StoneOfEnchantment(), Dungeon.hero.pos).sprite.drop();
+            Dungeon.level.drop(new StoneOfEnchantment(), Dungeon.hero.pos).sprite.drop();
         }
 
         return this;
