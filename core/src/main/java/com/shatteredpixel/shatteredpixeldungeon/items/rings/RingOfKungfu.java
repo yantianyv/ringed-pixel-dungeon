@@ -53,16 +53,14 @@ public class RingOfKungfu extends Ring {
         }
     }
 
-    @Override
-    public boolean doUnequip(Hero hero, boolean collect, boolean single) {
-        if (super.doUnequip(hero, collect, single)) {
-            hero.updateHT(false);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
+    // public boolean _doUnequip(Hero hero, boolean collect, boolean single) {
+    //     if (super.doUnequip(hero, collect, single)) {
+    //         hero.updateHT(false);
+    //         return true;
+    //     } else {
+    //         return false;
+    //     }
+    // }
     @Override
     public void level(int value) {
         super.level(value);
@@ -90,9 +88,9 @@ public class RingOfKungfu extends Ring {
             if (hero.buff(BrawlersStance.class) != null && hero.buff(Kungfu.class) == null) {
                 //clear brawler's stance if no ring of Kungfu is equipped
                 hero.buff(BrawlersStance.class).active = false;
-                hero.updateHT(false);
 
             }
+            hero.updateHT(false);
             return true;
         } else {
             return false;
