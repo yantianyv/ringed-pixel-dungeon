@@ -250,6 +250,8 @@ public class Hero extends Char {
         int curHT = HT;
 
         HT = 20 + 5 * (lvl - 1) + HTBoost;
+        float addition = RingOfDefender.HTAddition(this);
+        HT = Math.round(HT + addition);
         float multiplier = RingOfMight.HTMultiplier(this);
         HT = Math.round(multiplier * HT);
 

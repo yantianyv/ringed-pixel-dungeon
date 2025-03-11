@@ -47,10 +47,10 @@ public class RingOfDefender extends Ring {
     public String statsInfo() {
         if (isIdentified()) {
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, soloBuffedBonus()))));
+                    Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.9f, soloBuffedBonus()))));
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, combinedBuffedBonus(Dungeon.hero)))));
+                        Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.9f, combinedBuffedBonus(Dungeon.hero)))));
             }
             return info;
         } else {
@@ -62,7 +62,7 @@ public class RingOfDefender extends Ring {
         if (cursed && cursedKnown) {
             level = Math.min(-1, level - 3);
         }
-        return Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, level + 1))) + "%";
+        return Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.9f, level + 1))) + "%";
     }
 
     @Override
@@ -72,7 +72,7 @@ public class RingOfDefender extends Ring {
 
     public static float damageMultiplier(Char t) {
         //(HT - HP)/HT = heroes current % missing health.
-        return (float) Math.pow(0.85, getBuffedBonus(t, Defender.class) * ((float) (t.HT - t.HP) / t.HT));
+        return (float) Math.pow(0.9, getBuffedBonus(t, Defender.class) * ((float) (t.HT - t.HP) / t.HT));
     }
 
     public static final HashSet<Class> RESISTS = new HashSet<>();
@@ -99,11 +99,15 @@ public class RingOfDefender extends Ring {
 
         for (Class c : RESISTS) {
             if (c.isAssignableFrom(effect)) {
-                return (float) Math.pow(0.825, getBuffedBonus(target, Resistance.class));
+                return (float) Math.pow(0.9, getBuffedBonus(target, Resistance.class));
             }
         }
 
         return 1f;
+    }
+
+    public static float HTAddition(Char target) {
+        return (float) Math.pow(getBuffedBonus(target, Defender.class), 1);
     }
 
     public class Defender extends RingBuff {
