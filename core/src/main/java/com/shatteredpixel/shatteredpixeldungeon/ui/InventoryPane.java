@@ -20,6 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
+import java.util.ArrayList;
+
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDAction;
@@ -54,8 +56,6 @@ import com.watabou.noosa.ui.Component;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Signal;
 
-import java.util.ArrayList;
-
 public class InventoryPane extends Component {
 
     private NinePatch bg;
@@ -79,11 +79,11 @@ public class InventoryPane extends Component {
 
     private ArrayList<BagButton> bags;
 
-    public static final int WIDTH = 187;
-    public static final int HEIGHT = 82;
+    public static final int WIDTH = 274;
+    public static final int HEIGHT = 110;
 
-    private static final int SLOT_WIDTH = 17;
-    private static final int SLOT_HEIGHT = 24;
+    private static final int SLOT_WIDTH = 18;
+    private static final int SLOT_HEIGHT = 25;
 
     private WndBag.ItemSelector selector;
 
@@ -154,7 +154,7 @@ public class InventoryPane extends Component {
         };
 
         equipped = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
             InventorySlot btn = new InventoryPaneSlot(null);
             equipped.add(btn);
             add(btn);
@@ -177,7 +177,7 @@ public class InventoryPane extends Component {
         add(promptTxt);
 
         bagItems = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             InventorySlot btn = new InventoryPaneSlot(null);
             bagItems.add(btn);
             add(btn);
@@ -318,7 +318,7 @@ public class InventoryPane extends Component {
         }
 
         int j = 0;
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             if (i == 0 && lastBag != stuff.backpack) {
                 bagItems.get(i).item(lastBag);
                 continue;
@@ -395,7 +395,7 @@ public class InventoryPane extends Component {
         } else if (selector.preferredBag() != null) {
             Bag preferred = Dungeon.hero.belongings.getItem(selector.preferredBag());
             if (preferred != null) {
-                lastBag = preferred; 
+                lastBag = preferred;
             }//if a specific preferred bag isn't present, then the relevant items will be in backpack
             else {
                 lastBag = Dungeon.hero.belongings.backpack;
