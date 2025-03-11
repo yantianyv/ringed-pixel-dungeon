@@ -283,6 +283,7 @@ public class Ring extends KindofMisc {
         int n = 0;
         while (Random.Int(n + 4) <= 1) {
             n++;
+            n += 10;//为了方便调试留的，发布时应该删去
         }
         level(n);
 
@@ -412,7 +413,7 @@ public class Ring extends KindofMisc {
     //just used for ring descriptions
     public int soloBonus() {
         if (cursed) {
-            return Math.min(0, Ring.this.level() - 2);
+            return Math.min(0, -Ring.this.level());
         } else {
             return Ring.this.level() + 1;
         }
@@ -421,7 +422,7 @@ public class Ring extends KindofMisc {
     //just used for ring descriptions
     public int soloBuffedBonus() {
         if (cursed) {
-            return Math.min(0, Ring.this.buffedLvl() - 2);
+            return Math.min(0, -Ring.this.buffedLvl());
         } else {
             return Ring.this.buffedLvl() + 1;
         }

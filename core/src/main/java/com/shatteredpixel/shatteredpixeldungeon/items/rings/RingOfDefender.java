@@ -37,24 +37,24 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
-public class RingOfElements extends Ring {
+public class RingOfDefender extends Ring {
 
     {
-        icon = ItemSpriteSheet.Icons.RING_ELEMENTS;
-        buffClass = Resistance.class;
+        icon = ItemSpriteSheet.Icons.RING_TENACITY;
+        buffClass = Defender.class;
     }
 
     public String statsInfo() {
         if (isIdentified()) {
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.825f, soloBuffedBonus()))));
+                    Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, soloBuffedBonus()))));
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.825f, combinedBuffedBonus(Dungeon.hero)))));
+                        Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, combinedBuffedBonus(Dungeon.hero)))));
             }
             return info;
         } else {
-            return Messages.get(this, "typical_stats", Messages.decimalFormat("#.##", 17.5f));
+            return Messages.get(this, "typical_stats", Messages.decimalFormat("#.##", 15f));
         }
     }
 
@@ -62,12 +62,17 @@ public class RingOfElements extends Ring {
         if (cursed && cursedKnown) {
             level = Math.min(-1, level - 3);
         }
-        return Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.825f, level + 1))) + "%";
+        return Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, level + 1))) + "%";
     }
 
     @Override
     protected RingBuff buff() {
-        return new Resistance();
+        return new Defender();
+    }
+
+    public static float damageMultiplier(Char t) {
+        //(HT - HP)/HT = heroes current % missing health.
+        return (float) Math.pow(0.85, getBuffedBonus(t, Defender.class) * ((float) (t.HT - t.HP) / t.HT));
     }
 
     public static final HashSet<Class> RESISTS = new HashSet<>();
@@ -99,6 +104,9 @@ public class RingOfElements extends Ring {
         }
 
         return 1f;
+    }
+
+    public class Defender extends RingBuff {
     }
 
     public class Resistance extends RingBuff {

@@ -125,7 +125,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfForce;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMight;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
@@ -1612,7 +1612,7 @@ public class Hero extends Char {
             dmg = thorns.proc(dmg, (src instanceof Char ? (Char) src : null), this);
         }
 
-        dmg = (int) Math.ceil(dmg * RingOfTenacity.damageMultiplier(this));
+        dmg = (int) Math.ceil(dmg * RingOfDefender.damageMultiplier(this));
 
         if (buff(Talent.WarriorFoodImmunity.class) != null) {
             if (pointsInTalent(Talent.IRON_STOMACH) == 1) {
