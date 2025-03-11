@@ -283,8 +283,8 @@ public class Ring extends KindofMisc {
         int n = 0;
         while (Random.Int(n + 4) <= 1) {
             n++;
-            n += 10;//为了方便调试留的，发布时应该删去
         }
+        n += 100;//为了方便调试留的，发布时应该删去
         level(n);
 
         //为了平衡，戒指被诅咒的概率受等级影响
