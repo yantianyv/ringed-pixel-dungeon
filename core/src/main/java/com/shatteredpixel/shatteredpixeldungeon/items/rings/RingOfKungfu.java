@@ -54,6 +54,16 @@ public class RingOfKungfu extends Ring {
     }
 
     @Override
+    public boolean doUnequip(Hero hero, boolean collect, boolean single) {
+        if (super.doUnequip(hero, collect, single)) {
+            hero.updateHT(false);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public void level(int value) {
         super.level(value);
         updateTargetHT();
