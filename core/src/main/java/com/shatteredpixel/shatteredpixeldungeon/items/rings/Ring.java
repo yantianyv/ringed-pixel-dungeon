@@ -286,14 +286,14 @@ public class Ring extends KindofMisc {
     // 突破戒指等级上限，现在理论上可以获得任意等级的戒指，但概率递减
     public Item random() {
         int n = 0;
-        while (Random.Int(n + 4) <= 1) {
+        while (Random.Int(n + 5) <= 3) {
             n++;
         }
         // n += 100;//为了方便调试留的，发布时应该删去
         level(n);
 
         //为了平衡，戒指被诅咒的概率受等级影响
-        if (Random.Int(n + 4) <= n) {
+        if (Random.Int(n + 5) <= n) {
             cursed = true;
         }
 
