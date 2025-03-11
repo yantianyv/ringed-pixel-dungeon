@@ -35,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.SpiritForm;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.ItemStatusHandler;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindofMisc;
@@ -241,11 +242,17 @@ public class Ring extends KindofMisc {
     public Item upgrade() {
         // super.upgrade();
         cursed = false;
-        // 生成并原地掉落两个stone of enchantment
-        if (Dungeon.level != null) {
-            Dungeon.level.drop(new StoneOfEnchantment(), Dungeon.hero.pos).sprite.drop();
-            Dungeon.level.drop(new StoneOfEnchantment(), Dungeon.hero.pos).sprite.drop();
+        if (Random.Int(2) != 0) {
+            if (Dungeon.level != null) {
+                Dungeon.level.drop(new StoneOfEnchantment(), Dungeon.hero.pos).sprite.drop();
+                Dungeon.level.drop(Generator.random(Category.STONE), Dungeon.hero.pos).sprite.drop();
+            }
+        } else {
+            if (Dungeon.level != null) {
+                Dungeon.level.drop(Generator.random(Category.RING), Dungeon.hero.pos).sprite.drop();
+            }
         }
+
         return this;
     }
 
