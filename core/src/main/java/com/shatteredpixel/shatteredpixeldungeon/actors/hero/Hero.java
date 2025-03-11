@@ -121,10 +121,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.quest.DarkGold;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfForce;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMight;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
@@ -252,7 +252,7 @@ public class Hero extends Char {
         HT = 20 + 5 * (lvl - 1) + HTBoost;
         float addition = RingOfDefender.HTAddition(this);
         HT = Math.round(HT + addition);
-        float multiplier = RingOfMight.HTMultiplier(this);
+        float multiplier = RingOfKungfu.HTMultiplier(this);
         HT = Math.round(multiplier * HT);
 
         if (buff(ElixirOfMight.HTBoost.class) != null) {
@@ -268,7 +268,7 @@ public class Hero extends Char {
     public int STR() {
         int strBonus = 0;
 
-        strBonus += RingOfMight.strengthBonus(this);
+        strBonus += RingOfKungfu.strengthBonus(this);
 
         AdrenalineSurge buff = buff(AdrenalineSurge.class);
         if (buff != null) {
@@ -425,9 +425,9 @@ public class Hero extends Char {
 
     @Override
     public void hitSound(float pitch) {
-        if (!RingOfForce.fightingUnarmed(this)) {
+        if (!RingOfKungfu.fightingUnarmed(this)) {
             belongings.attackingWeapon().hitSound(pitch);
-        } else if (RingOfForce.getBuffedBonus(this, RingOfForce.Force.class) > 0) {
+        } else if (RingOfKungfu.getBuffedBonus(this, RingOfKungfu.Kungfu.class) > 0) {
             //pitch deepens by 2.5% (additive) per point of strength, down to 75%
             super.hitSound(pitch * GameMath.gate(0.75f, 1.25f - 0.025f * STR(), 1f));
         } else {
@@ -549,7 +549,7 @@ public class Hero extends Char {
             accuracy *= 1.50f;
         }
 
-        if (!RingOfForce.fightingUnarmed(this)) {
+        if (!RingOfKungfu.fightingUnarmed(this)) {
             return (int) (attackSkill * accuracy * wep.accuracyFactor(this, target));
         } else {
             return (int) (attackSkill * accuracy);
@@ -639,7 +639,7 @@ public class Hero extends Char {
                 dr += armDr;
             }
         }
-        if (belongings.weapon() != null && !RingOfForce.fightingUnarmed(this)) {
+        if (belongings.weapon() != null && !RingOfKungfu.fightingUnarmed(this)) {
             int wepDr = Random.NormalIntRange(0, belongings.weapon().defenseFactor(this));
             if (STR() < ((Weapon) belongings.weapon()).STRReq()) {
                 wepDr -= 2 * (((Weapon) belongings.weapon()).STRReq() - STR());
@@ -661,15 +661,15 @@ public class Hero extends Char {
         KindOfWeapon wep = belongings.attackingWeapon();
         int dmg;
 
-        if (!RingOfForce.fightingUnarmed(this)) {
+        if (!RingOfKungfu.fightingUnarmed(this)) {
             dmg = wep.damageRoll(this);
 
             if (!(wep instanceof MissileWeapon)) {
-                dmg += RingOfForce.armedDamageBonus(this);
+                dmg += RingOfKungfu.armedDamageBonus(this);
             }
         } else {
-            dmg = RingOfForce.damageRoll(this);
-            if (RingOfForce.unarmedGetsWeaponAugment(this)) {
+            dmg = RingOfKungfu.damageRoll(this);
+            if (RingOfKungfu.unarmedGetsWeaponAugment(this)) {
                 dmg = ((Weapon) belongings.attackingWeapon()).augment.damageFactor(dmg);
             }
         }
@@ -741,7 +741,7 @@ public class Hero extends Char {
         if (!(w instanceof Weapon)) {
             return true;
         }
-        if (RingOfForce.fightingUnarmed(this)) {
+        if (RingOfKungfu.fightingUnarmed(this)) {
             return true;
         }
         if (STR() < ((Weapon) w).STRReq()) {
@@ -792,7 +792,7 @@ public class Hero extends Char {
 
         float delay = 1f;
 
-        if (!RingOfForce.fightingUnarmed(this)) {
+        if (!RingOfKungfu.fightingUnarmed(this)) {
 
             return delay * belongings.attackingWeapon().delayFactor(this);
 
@@ -808,7 +808,7 @@ public class Hero extends Char {
             }
 
             //and augments + brawler's stance! My goodness, so many options now compared to 2014!
-            if (RingOfForce.unarmedGetsWeaponAugment(this)) {
+            if (RingOfKungfu.unarmedGetsWeaponAugment(this)) {
                 delay = ((Weapon) belongings.weapon).augment.delayFactor(delay);
             }
 
@@ -1473,7 +1473,7 @@ public class Hero extends Char {
         damage = super.attackProc(enemy, damage);
 
         KindOfWeapon wep;
-        if (RingOfForce.fightingUnarmed(this) && !RingOfForce.unarmedGetsWeaponEnchantment(this)) {
+        if (RingOfKungfu.fightingUnarmed(this) && !RingOfKungfu.unarmedGetsWeaponEnchantment(this)) {
             wep = null;
         } else {
             wep = belongings.attackingWeapon();
