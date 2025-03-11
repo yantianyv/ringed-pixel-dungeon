@@ -20,6 +20,9 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
@@ -40,6 +43,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.RingString;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb;
@@ -58,11 +62,6 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 
 public class ShopRoom extends SpecialRoom {
 
@@ -267,6 +266,12 @@ public class ShopRoom extends SpecialRoom {
         itemsToSpawn.add(new Alchemize().quantity(Random.IntRange(2, 3)));
 
         Bag bag = ChooseBag(Dungeon.hero.belongings);
+        if (Random.Int(20) < Dungeon.depth) {
+            if (bag != null) {
+                itemsToSpawn.add(bag);
+            }
+        }
+        bag = ChooseBag(Dungeon.hero.belongings);
         if (bag != null) {
             itemsToSpawn.add(bag);
         }
@@ -376,7 +381,9 @@ public class ShopRoom extends SpecialRoom {
         if (!Dungeon.LimitedDrops.MAGICAL_HOLSTER.dropped()) {
             bags.put(new MagicalHolster(), 0);
         }
-
+        if (!Dungeon.LimitedDrops.RING_STRING.dropped()) {
+            bags.put(new MagicalHolster(), 0);
+        }
         if (bags.isEmpty()) {
             return null;
         }
@@ -408,6 +415,8 @@ public class ShopRoom extends SpecialRoom {
             Dungeon.LimitedDrops.POTION_BANDOLIER.drop();
         } else if (bestBag instanceof MagicalHolster) {
             Dungeon.LimitedDrops.MAGICAL_HOLSTER.drop();
+        } else if (bestBag instanceof RingString) {
+            Dungeon.LimitedDrops.RING_STRING.drop();
         }
 
         return bestBag;

@@ -79,11 +79,14 @@ public class InventoryPane extends Component {
 
     private ArrayList<BagButton> bags;
 
-    public static final int WIDTH = 274;
-    public static final int HEIGHT = 110;
+    public static final int WIDTH = 306;
+    public static final int HEIGHT = 68;
 
-    private static final int SLOT_WIDTH = 18;
-    private static final int SLOT_HEIGHT = 25;
+    private static final int SLOT_WIDTH = 14;
+    private static final int SLOT_HEIGHT = 16;
+
+    private static final int EQ_SLOT_WIDTH = 18;
+    private static final int EQ_SLOT_HEIGHT = 25;
 
     private WndBag.ItemSelector selector;
 
@@ -215,7 +218,7 @@ public class InventoryPane extends Component {
 
         float left = x + 4;
         for (InventorySlot i : equipped) {
-            i.setRect(left, y + 4, SLOT_WIDTH, SLOT_HEIGHT);
+            i.setRect(left, y + 4, EQ_SLOT_WIDTH, EQ_SLOT_HEIGHT);
             left = i.right() + 1;
         }
 
@@ -241,12 +244,12 @@ public class InventoryPane extends Component {
         energy.y = energyTxt.y;
 
         for (BagButton b : bags) {
-            b.setRect(left, y + 14, SLOT_WIDTH, 14);
+            b.setRect(left, y + 14, EQ_SLOT_WIDTH - 2, 14);
             left = b.right() + 1;
         }
 
         left = x + 4;
-        float top = y + 4 + SLOT_HEIGHT + 1;
+        float top = y + 4 + EQ_SLOT_HEIGHT + 1;
         for (InventorySlot b : bagItems) {
             b.setRect(left, top, SLOT_WIDTH, SLOT_HEIGHT);
             left = b.right() + 1;
