@@ -36,12 +36,34 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 
 public class RingOfDefender extends Ring {
 
     {
         icon = ItemSpriteSheet.Icons.RING_TENACITY;
         buffClass = Defender.class;
+    }
+
+    @Override
+    public boolean doEquip(Hero hero) {
+        if (super.doEquip(hero)) {
+            hero.updateHT(false);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean doUnequip(Hero hero, boolean collect, boolean single) {
+        if (super.doUnequip(hero, collect, single)) {
+            hero.updateHT(false);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public String statsInfo() {
