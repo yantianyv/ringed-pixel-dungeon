@@ -239,16 +239,13 @@ public class Ring extends KindofMisc {
 
     @Override
     public Item upgrade() {
-        super.upgrade();
-
+        // super.upgrade();
         cursed = false;
-        level(-1);
         // 生成并原地掉落两个stone of enchantment
         if (Dungeon.level != null) {
             Dungeon.level.drop(new StoneOfEnchantment(), Dungeon.hero.pos).sprite.drop();
             Dungeon.level.drop(new StoneOfEnchantment(), Dungeon.hero.pos).sprite.drop();
         }
-
         return this;
     }
 
