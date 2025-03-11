@@ -35,9 +35,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.SpiritForm;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.ItemStatusHandler;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindofMisc;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfOblivion;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
@@ -239,7 +241,6 @@ public class Ring extends KindofMisc {
     @Override
     public Item upgrade() {
         if (cursed == true) {
-            cursed = false;
             if (Random.Int(2) != 0) {
                 if (Dungeon.level != null) {
                     Dungeon.level.drop(new StoneOfEnchantment(), Dungeon.hero.pos).sprite.drop();
@@ -250,8 +251,11 @@ public class Ring extends KindofMisc {
                     Dungeon.level.drop(Generator.random(Category.RING), Dungeon.hero.pos).sprite.drop();
                 }
             }
+            cursed = false;
+
         } else {
             super.upgrade();
+
         }
 
         return this;
