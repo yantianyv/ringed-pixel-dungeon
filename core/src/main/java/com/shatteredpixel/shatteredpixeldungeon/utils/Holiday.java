@@ -29,7 +29,7 @@ public enum Holiday {
     // 春节	
     LUNAR_NEW_YEAR,
     // 戒指地牢生日
-    RINGPD_BIRTHDAY,
+    RINGEDPD_BIRTHDAY,
     // 愚人节			4.1  
     APRIL_FOOLS,
     // 复活节			4月
@@ -74,7 +74,7 @@ public enum Holiday {
         if (cal.get(Calendar.MONTH) == Calendar.MARCH
                 && cal.get(Calendar.DAY_OF_MONTH) >= 11
                 && cal.get(Calendar.DAY_OF_MONTH) <= 18) {
-            return RINGPD_BIRTHDAY;
+            return RINGEDPD_BIRTHDAY;
         }
 
         //April Fools

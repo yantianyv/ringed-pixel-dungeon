@@ -799,7 +799,7 @@ public class ItemSpriteSheet {
         assignItemRect(FISH_LEFTOVER, 16, 12);
         assignItemRect(CHOC_AMULET, 16, 16);
         assignItemRect(EASTER_EGG, 12, 14);
-        assignItemRect(RINGED_CAKE, 12, 14);
+        assignItemRect(RINGED_CAKE, 14, 13);
         assignItemRect(SHATTERED_CAKE, 14, 13);
         assignItemRect(PUMPKIN_PIE, 16, 12);
         assignItemRect(VANILLA_CAKE, 14, 13);

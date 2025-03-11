@@ -66,7 +66,7 @@ public class Pasty extends Food {
             case SHATTEREDPD_BIRTHDAY:
                 image = ItemSpriteSheet.SHATTERED_CAKE;
                 break;
-            case RINGPD_BIRTHDAY:
+            case RINGEDPD_BIRTHDAY:
                 image = ItemSpriteSheet.RINGED_CAKE;
                 break;
             case HALLOWEEN:
@@ -121,7 +121,7 @@ public class Pasty extends Food {
                 break;
             case SHATTEREDPD_BIRTHDAY:
             case PD_BIRTHDAY:
-            case RINGPD_BIRTHDAY:
+            case RINGEDPD_BIRTHDAY:
                 //gives 10% of level in exp, min of 2
                 int expToGive = Math.max(2, hero.maxExp() / 10);
                 hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(expToGive), FloatingText.EXPERIENCE);
@@ -160,7 +160,7 @@ public class Pasty extends Food {
                 return Messages.get(this, "egg_name");
             case SHATTEREDPD_BIRTHDAY:
                 return Messages.get(this, "shattered_name");
-            case RINGPD_BIRTHDAY:
+            case RINGEDPD_BIRTHDAY:
                 return Messages.get(this, "ringed_name");
             case HALLOWEEN:
                 return Messages.get(this, "pie_name");
@@ -187,7 +187,7 @@ public class Pasty extends Food {
                 return Messages.get(this, "egg_desc");
             case SHATTEREDPD_BIRTHDAY:
                 return Messages.get(this, "shattered_desc");
-            case RINGPD_BIRTHDAY:
+            case RINGEDPD_BIRTHDAY:
                 return Messages.get(this, "ringed_desc");
             case HALLOWEEN:
                 return Messages.get(this, "pie_desc");
