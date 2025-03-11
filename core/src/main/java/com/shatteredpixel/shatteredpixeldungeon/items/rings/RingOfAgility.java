@@ -25,24 +25,24 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
-public class RingOfEvasion extends Ring {
+public class RingOfAgility extends Ring {
 
     {
-        icon = ItemSpriteSheet.Icons.RING_EVASION;
-        buffClass = Evasion.class;
+        icon = ItemSpriteSheet.Icons.RING_ACCURACY;
+        buffClass = Agility.class;
     }
 
     public String statsInfo() {
         if (isIdentified()) {
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100f * (Math.pow(1.125f, soloBuffedBonus()) - 1f)));
+                    Messages.decimalFormat("#.##", 100f * (Math.pow(1.2f, soloBuffedBonus()) - 1f)));
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100f * (Math.pow(1.125f, combinedBuffedBonus(Dungeon.hero)) - 1f)));
+                        Messages.decimalFormat("#.##", 100f * (Math.pow(1.2f, combinedBuffedBonus(Dungeon.hero)) - 1f)));
             }
             return info;
         } else {
-            return Messages.get(this, "typical_stats", Messages.decimalFormat("#.##", 12.5f));
+            return Messages.get(this, "typical_stats", Messages.decimalFormat("#.##", 30f));
         }
     }
 
@@ -50,18 +50,22 @@ public class RingOfEvasion extends Ring {
         if (cursed && cursedKnown) {
             level = Math.min(-1, level - 3);
         }
-        return Messages.decimalFormat("#.##", 100f * (Math.pow(1.125f, level + 1) - 1f)) + "%";
+        return Messages.decimalFormat("#.##", 100f * (Math.pow(1.2f, level + 1) - 1f)) + "%";
     }
 
     @Override
     protected RingBuff buff() {
-        return new Evasion();
+        return new Agility();
+    }
+
+    public static float accuracyMultiplier(Char target) {
+        return (float) Math.pow(1.2f, getBuffedBonus(target, Agility.class));
     }
 
     public static float evasionMultiplier(Char target) {
-        return (float) Math.pow(1.125, getBuffedBonus(target, Evasion.class));
+        return (float) Math.pow(1.2f, getBuffedBonus(target, Agility.class));
     }
 
-    public class Evasion extends RingBuff {
+    public class Agility extends RingBuff {
     }
 }
