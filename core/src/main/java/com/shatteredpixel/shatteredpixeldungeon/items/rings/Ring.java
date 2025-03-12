@@ -39,6 +39,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.ItemStatusHandler;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindofMisc;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.OldRing.Oldring;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfOblivion;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
@@ -120,12 +121,15 @@ public class Ring extends KindofMisc {
     public void reset() {
         super.reset();
         levelsToID = 1;
-        if (handler != null && handler.contains(this)) {
+        if (this.buffClass == Oldring.class) {
+            image = ItemSpriteSheet.RING_VOID;
+            gem = "void";
+        } else if (handler != null && handler.contains(this)) {
             image = handler.image(this);
             gem = handler.label(this);
         } else {
-            image = ItemSpriteSheet.RING_GARNET;
-            gem = "garnet";
+            image = ItemSpriteSheet.RING_VOID;
+            gem = "void";
         }
     }
 

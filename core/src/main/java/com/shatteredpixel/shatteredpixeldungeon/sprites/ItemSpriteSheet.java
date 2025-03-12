@@ -36,6 +36,12 @@ public class ItemSpriteSheet {
         return x + WIDTH * y;
     }
 
+    private static int half_xy(int x, int y) {
+        x -= 1;
+        y -= 1;
+        return x + WIDTH * y / 2;
+    }
+
     private static void assignItemRect(int item, int width, int height) {
         int x = (item % WIDTH) * SIZE;
         int y = (item / WIDTH) * SIZE;
@@ -423,19 +429,20 @@ public class ItemSpriteSheet {
         }
     }
 
-    private static final int RINGS = xy(1, 15);  //16 slots
-    public static final int RING_GARNET = RINGS + 0;
-    public static final int RING_RUBY = RINGS + 1;
-    public static final int RING_TOPAZ = RINGS + 2;
-    public static final int RING_EMERALD = RINGS + 3;
-    public static final int RING_ONYX = RINGS + 4;
-    public static final int RING_OPAL = RINGS + 5;
-    public static final int RING_TOURMALINE = RINGS + 6;
-    public static final int RING_SAPPHIRE = RINGS + 7;
-    public static final int RING_AMETHYST = RINGS + 8;
-    public static final int RING_QUARTZ = RINGS + 9;
-    public static final int RING_AGATE = RINGS + 10;
-    public static final int RING_DIAMOND = RINGS + 11;
+    private static final int RINGS = half_xy(1, 15);  //32 slots
+    public static final int RING_VOID = RINGS + 0;
+    public static final int RING_GARNET = RINGS + 1;
+    public static final int RING_RUBY = RINGS + 2;
+    public static final int RING_TOPAZ = RINGS + 3;
+    public static final int RING_EMERALD = RINGS + 4;
+    public static final int RING_ONYX = RINGS + 5;
+    public static final int RING_OPAL = RINGS + 6;
+    public static final int RING_TOURMALINE = RINGS + 7;
+    public static final int RING_SAPPHIRE = RINGS + 8;
+    public static final int RING_AMETHYST = RINGS + 9;
+    public static final int RING_QUARTZ = RINGS + 10;
+    public static final int RING_AGATE = RINGS + 11;
+    public static final int RING_DIAMOND = RINGS + 12;
 
     static {
         for (int i = RINGS; i < RINGS + 16; i++) {
