@@ -2056,7 +2056,7 @@ public class Hero extends Char {
             //如果装备了能量之戒则提供一个生命回复和充能buff
             if (RingOfEnergy.LevelUpBuff(this) > 0) {
                 Healing healing = Buff.affect(this, Healing.class);
-                healing.setHeal((int) RingOfEnergy.LevelUpBuff(this) * this.lvl, 0.1f, 0);
+                healing.setHeal((int) (RingOfEnergy.LevelUpBuff(this) * 0.18 * this.HT), 0.1f, 0);
                 healing.applyVialEffect();
                 Buff.affect(this, Recharging.class, (int) (RingOfEnergy.LevelUpBuff(this) * 0.5 * this.lvl));
                 Buff.affect(this, ArtifactRecharge.class).set((int) (RingOfEnergy.LevelUpBuff(this) * 0.5 * this.lvl)).ignoreHornOfPlenty = false;
