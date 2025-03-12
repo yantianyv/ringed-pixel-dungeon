@@ -74,12 +74,11 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.ExoticPotio
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfArcana;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfLighting;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
@@ -529,7 +528,7 @@ public class Generator {
 
             RING.classes = new Class<?>[]{
                 RingOfAgility.class,
-                RingOfArcana.class,
+                RingOfMagicshooting.class,
                 RingOfDefender.class,
                 RingOfEnergy.class,
                 RingOfAgility.class,
@@ -537,7 +536,7 @@ public class Generator {
                 RingOfLighting.class,
                 RingOfLighting.class,
                 RingOfKungfu.class,
-                RingOfSharpshooting.class,
+                RingOfMagicshooting.class,
                 RingOfDefender.class,
                 RingOfWealth.class};
             RING.defaultProbs = new float[]{3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3};

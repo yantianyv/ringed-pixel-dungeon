@@ -39,8 +39,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMight;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAugmentation;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
@@ -386,7 +386,7 @@ public class v0_6_X_Changes {
                 + "_-_ Curare darts are now paralytic darts, and paralyze for 5 turns, up from 3\n\n"
                 + "_-_ Alchemy interface now features a recipes button to show you what you can create."));
 
-        changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.RING_TOPAZ, null), Messages.get(RingOfSharpshooting.class, "name"),
+        changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.RING_TOPAZ, null), Messages.get(RingOfMagicshooting.class, "name"),
                 "Ring of Sharpshooting overhauled\n\n"
                 + "_-_ No longer grants bonus accuracy\n\n"
                 + "_-_ Now increases ranged weapon durability, instead of giving a chance to not consume them\n\n"

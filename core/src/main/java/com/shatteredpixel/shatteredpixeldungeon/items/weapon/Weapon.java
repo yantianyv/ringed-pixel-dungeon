@@ -40,9 +40,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Smite;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfArcana;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfLighting;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ParchmentScrap;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfOblivion;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Annoying;
@@ -524,7 +524,7 @@ abstract public class Weapon extends KindOfWeapon {
         }
 
         public static float genericProcChanceMultiplier(Char attacker) {
-            float multi = RingOfArcana.enchantPowerMultiplier(attacker);
+            float multi = RingOfMagicshooting.enchantPowerMultiplier(attacker);
             Berserk rage = attacker.buff(Berserk.class);
             if (rage != null) {
                 multi = rage.enchantFactor(multi);
