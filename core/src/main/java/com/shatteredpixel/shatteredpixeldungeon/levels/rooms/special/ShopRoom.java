@@ -382,7 +382,7 @@ public class ShopRoom extends SpecialRoom {
             bags.put(new MagicalHolster(), 0);
         }
         if (!Dungeon.LimitedDrops.RING_STRING.dropped()) {
-            bags.put(new MagicalHolster(), 0);
+            bags.put(new RingString(), 0);
         }
         if (bags.isEmpty()) {
             return null;
