@@ -14,11 +14,11 @@ buildscript {
 allprojects {
 
     ext {
-        appName = 'ringed Pixel Dungeon'
+        appName = 'Ringed Pixel Dungeon'
         appPackageName = 'com.yantianyv.ringedpixeldungeon'
 
-        appVersionCode = 831
-        appVersionName = '0.0.3'
+        appVersionCode = 4
+        appVersionName = '0.0.4'
 
         appJavaCompatibility = JavaVersion.VERSION_1_8
 
