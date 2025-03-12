@@ -28,7 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.SandalsOfNature;
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.WoollyBomb;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfArcana;
+// import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfArcana;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfAntiMagic;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfMetamorphosis;
@@ -84,7 +84,7 @@ public class v1_X_Changes {
 				"_30 pages of lore text have been added to the game, scattered around the regions of the dungeon!_\n\n" +
 				"These pages are found through the dungeon and go into a new tab in the journal window. Each region contains 6 pages that make up a short story that gives more details about that region and the people who have been there before the player."));
 
-		changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.RING_TOURMALINE), new RingOfArcana().trueName(),
+		changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.RING_TOURMALINE), new RingOfWealth().trueName(),
 				"_A new ring has been added that enhances enchantments and glyphs!_\n\n" +
 				"The Ring of Arcana lets the player directly power up their enchantments and glyphs, instead of only being able to power them up by upgrading the item they are attached to. This can lead to be some really potent enchant/glyph effects at high ring levels."));
 
