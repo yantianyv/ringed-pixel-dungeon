@@ -430,7 +430,7 @@ public class CrystalSpire extends Mob {
 
                                         //speeds up already woken guardians that aren't very close
                                         if (PathFinder.distance[ch.pos] > 8) {
-                                            Buff.affect(ch, Lighting.class, Math.round((PathFinder.distance[ch.pos] - 8) / 2f));
+                                            Buff.affect(ch, Haste.class, Math.round((PathFinder.distance[ch.pos] - 8) / 2f));
                                         }
                                     }
                                 }

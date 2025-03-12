@@ -195,7 +195,7 @@ public class Feint extends ArmorAbility {
                     enemy.sprite.showLost();
                 }
                 if (Dungeon.hero.hasTalent(Talent.FEIGNED_RETREAT)) {
-                    Buff.prolong(Dungeon.hero, Lighting.class, 2f * Dungeon.hero.pointsInTalent(Talent.FEIGNED_RETREAT));
+                    Buff.prolong(Dungeon.hero, Haste.class, 2f * Dungeon.hero.pointsInTalent(Talent.FEIGNED_RETREAT));
                 }
                 if (Dungeon.hero.hasTalent(Talent.EXPOSE_WEAKNESS)) {
                     Buff.prolong(enemy, Vulnerable.class, 2f * Dungeon.hero.pointsInTalent(Talent.EXPOSE_WEAKNESS));

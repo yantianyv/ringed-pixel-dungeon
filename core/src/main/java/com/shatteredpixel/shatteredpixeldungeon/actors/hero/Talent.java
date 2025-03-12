@@ -20,6 +20,12 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
@@ -84,12 +90,6 @@ import com.watabou.utils.GameMath;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 
 public enum Talent {
 
@@ -846,7 +846,7 @@ public enum Talent {
         }
         if (hero.hasTalent(INVIGORATING_MEAL)) {
             //effectively 1/2 turns of haste
-            Buff.prolong(hero, Lighting.class, 0.67f + hero.pointsInTalent(INVIGORATING_MEAL));
+            Buff.prolong(hero, Haste.class, 0.67f + hero.pointsInTalent(INVIGORATING_MEAL));
         }
         if (hero.hasTalent(STRENGTHENING_MEAL)) {
             //3 bonus physical damage for next 2/3 attacks

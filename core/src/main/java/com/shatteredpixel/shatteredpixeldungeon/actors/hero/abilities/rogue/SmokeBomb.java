@@ -133,7 +133,7 @@ public class SmokeBomb extends ArmorAbility {
                 if (hero.hasTalent(Talent.HASTY_RETREAT)) {
                     //effectively 1/2/3/4 turns
                     float duration = 0.67f + hero.pointsInTalent(Talent.HASTY_RETREAT);
-                    Buff.affect(hero, Lighting.class, duration);
+                    Buff.affect(hero, Haste.class, duration);
                     Buff.affect(hero, Invisibility.class, duration);
                 }
             }

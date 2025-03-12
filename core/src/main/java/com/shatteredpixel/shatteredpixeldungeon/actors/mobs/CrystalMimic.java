@@ -20,6 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
+import java.util.ArrayList;
+
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
@@ -43,8 +45,6 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
-
-import java.util.ArrayList;
 
 public class CrystalMimic extends Mimic {
 
@@ -111,9 +111,9 @@ public class CrystalMimic extends Mimic {
         }
         //haste for 2 turns if attacking
         if (alignment == Alignment.NEUTRAL) {
-            Buff.affect(this, Lighting.class, 2f);
+            Buff.affect(this, Haste.class, 2f);
         } else {
-            Buff.affect(this, Lighting.class, 1f);
+            Buff.affect(this, Haste.class, 1f);
         }
         if (Actor.chars().contains(this) && Dungeon.level.heroFOV[pos]) {
             enemy = Dungeon.hero;

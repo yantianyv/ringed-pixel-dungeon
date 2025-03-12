@@ -20,6 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.plants;
 
+import java.util.ArrayList;
+
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -37,8 +39,6 @@ import com.watabou.noosa.Image;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.utils.Bundle;
 
-import java.util.ArrayList;
-
 public class Swiftthistle extends Plant {
 
     {
@@ -51,7 +51,7 @@ public class Swiftthistle extends Plant {
         if (ch != null) {
             Buff.affect(ch, TimeBubble.class).reset();
             if (ch instanceof Hero && ((Hero) ch).subClass == HeroSubClass.WARDEN) {
-                Buff.affect(ch, Lighting.class, 1f);
+                Buff.affect(ch, Haste.class, 1f);
             }
         }
     }
