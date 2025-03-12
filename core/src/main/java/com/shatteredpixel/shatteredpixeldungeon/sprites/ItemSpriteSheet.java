@@ -881,6 +881,13 @@ public class ItemSpriteSheet {
             assignIconRect(RING_WEALTH, 7, 6);
         }
 
+        private static final int SPECIAL_RINGS = xy(1, 2);  //16 slots
+        public static final int OLD_RING = SPECIAL_RINGS + 0;
+
+        static {
+            assignIconRect(OLD_RING, 7, 7);
+        }
+
         //16 free slots
         private static final int SCROLLS = xy(1, 3);  //16 slots
         public static final int SCROLL_UPGRADE = SCROLLS + 0;

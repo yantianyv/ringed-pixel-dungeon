@@ -9,8 +9,8 @@ public class OldRing extends Ring {
 
     //这是一个戒指模板文件
     {
-        icon = ItemSpriteSheet.Icons.Old_Ring;// 图标
-        buffClass = Oldring.class;//戒指的buff标识
+        icon = ItemSpriteSheet.Icons.OLD_RING;// 图标，在core\src\main\java\prites\ItemSpriteSheet.java设置
+        buffClass = Oldring.class;// 戒指的buff类型
     }
 
     // 返回物品描述
