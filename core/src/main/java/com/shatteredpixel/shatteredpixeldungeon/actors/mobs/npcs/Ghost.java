@@ -346,7 +346,6 @@ public class Ghost extends NPC {
                 weapon = (Weapon) Generator.random(Generator.wepTiers[wepTier - 1]);
 
                 //clear weapon's starting properties
-                weapon.level(-2);
                 weapon.enchant(null);
                 weapon.cursed = true;
 
