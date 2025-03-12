@@ -414,11 +414,8 @@ public class WndUpgrade extends Window {
                 hide();
 
                 if (moreUpgradeItem != null && toUpgrade.isUpgradable()) {
-                    if (toUpgrade instanceof Ring) {
-
-                    } else {
+                    if (toUpgrade instanceof Ring == false) {
                         GameScene.show(new WndUpgrade(moreUpgradeItem, upgraded, false));
-
                     }
                 }
             }
