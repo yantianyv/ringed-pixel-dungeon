@@ -76,8 +76,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesi
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfIntuition;
@@ -217,11 +219,25 @@ public abstract class Level implements Bundlable {
         if (!Dungeon.bossLevel() && Dungeon.branch == 0) {
 
             addItemToSpawn(Generator.random(Generator.Category.FOOD));
-            if (Random.Int(2) == 0) {
+            if (Dungeon.depth == 1) {
                 addItemToSpawn(Generator.random(Generator.Category.RING));
-            } else {
                 addItemToSpawn(new ScrollOfTransmutation());
+                addItemToSpawn(new ScrollOfIdentify());
+                addItemToSpawn(new ScrollOfRemoveCurse());
 
+            } else {
+                switch (Random.Int(2)) {
+                    case 0:
+                        addItemToSpawn(Generator.random(Generator.Category.RING));
+                        break;
+                    case 1:
+                        addItemToSpawn(new ScrollOfTransmutation());
+                        break;
+                    case 2:
+                        addItemToSpawn(Generator.random(Generator.Category.SCROLL));
+                        addItemToSpawn(Generator.random(Generator.Category.POTION));
+                        break;
+                }
             }
             if (Dungeon.posNeeded()) {
                 Dungeon.LimitedDrops.STRENGTH_POTIONS.count++;
