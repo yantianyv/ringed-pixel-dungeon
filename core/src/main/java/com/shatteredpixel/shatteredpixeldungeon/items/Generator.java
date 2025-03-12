@@ -803,10 +803,17 @@ public class Generator {
         } else {
             w = (MeleeWeapon) random(wepTiers[Random.chances(floorSetTierProbs[floorSet])]);
         }
-        w.level(-2);
+        int n = -1;
+        while (Random.Int(3) != 0) {
+            n += Random.Int(3);
+            n -= 1;
+        }
+        w.level(n);
+        if (n < 0) {
+            w.cursed = true;
+        }
         return w;
     }
-
     public static final Category[] misTiers = new Category[]{
         Category.MIS_T1,
         Category.MIS_T2,
