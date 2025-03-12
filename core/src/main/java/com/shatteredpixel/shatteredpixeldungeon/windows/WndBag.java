@@ -416,7 +416,7 @@ public class WndBag extends WndTabbed {
         } else if (bag instanceof PotionBandolier) {
             return Icons.get(Icons.POTION_BANDOLIER);
         } else if (bag instanceof RingString) {
-            return Icons.get(Icons.POTION_BANDOLIER);
+            return Icons.get(Icons.RING_STRING);
         } else {
             return Icons.get(Icons.BACKPACK);
         }
