@@ -53,9 +53,9 @@ public class ScrollOfUpgrade extends InventoryScroll {
 
     @Override
     protected boolean usableOnItem(Item item) {
-        if (item instanceof Ring && item.cursed == false) {
+        if (item instanceof Ring && item.cursed == false || item.cursedKnown == false) {
             return false;
-        } 
+        }
         return item.isUpgradable();
     }
 
