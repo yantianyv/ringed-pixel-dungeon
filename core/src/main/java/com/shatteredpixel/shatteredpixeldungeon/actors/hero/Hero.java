@@ -123,6 +123,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfLighting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
@@ -176,6 +177,7 @@ import com.watabou.utils.GameMath;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -2051,6 +2053,14 @@ public class Hero extends Char {
                 Sample.INSTANCE.play(Assets.Sounds.LEVELUP);
             }
 
+            //如果装备了能量之戒则提供一个生命回复和充能buff
+            if (RingOfEnergy.LevelUpBuff(this) >= 0) {
+                Healing healing = Buff.affect(this, Healing.class);
+                healing.setHeal((int) RingOfEnergy.LevelUpBuff(this) + 1, 0.1f, 0);
+                healing.applyVialEffect();
+                Buff.affect(this, Recharging.class, (int) RingOfEnergy.LevelUpBuff(this) + 1);
+                Buff.affect(this, ArtifactRecharge.class).set((int) RingOfEnergy.LevelUpBuff(this) + 1).ignoreHornOfPlenty = false;
+            }
         }
 
         if (levelUp) {

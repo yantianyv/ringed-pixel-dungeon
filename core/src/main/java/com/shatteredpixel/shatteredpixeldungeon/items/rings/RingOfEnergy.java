@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -31,60 +30,76 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class RingOfEnergy extends Ring {
 
-	{
-		icon = ItemSpriteSheet.Icons.RING_ENERGY;
-		buffClass = Energy.class;
-	}
+    {
+        icon = ItemSpriteSheet.Icons.RING_ENERGY;
+        buffClass = Energy.class;
+    }
 
-	public String statsInfo() {
-		if (isIdentified()){
-			String info = Messages.get(this, "stats",
-					Messages.decimalFormat("#.##", 100f * (Math.pow(1.175f, soloBuffedBonus()) - 1f)));
-			if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)){
-				info += "\n\n" + Messages.get(this, "combined_stats",
-						Messages.decimalFormat("#.##", 100f * (Math.pow(1.175f, combinedBuffedBonus(Dungeon.hero)) - 1f)));
-			}
-			return info;
-		} else {
-			return Messages.get(this, "typical_stats",
-					Messages.decimalFormat("#.##", 17.5f));
-		}
-	}
+    public String statsInfo() {
+        if (isIdentified()) {
+            String info = Messages.get(this, "stats",
+                    Messages.decimalFormat("#.##", 100f * (Math.pow(1.175f, soloBuffedBonus()) - 1f)));
+            if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
+                info += "\n\n" + Messages.get(this, "combined_stats",
+                        Messages.decimalFormat("#.##", 100f * (Math.pow(1.175f, combinedBuffedBonus(Dungeon.hero)) - 1f)));
+            }
+            return info;
+        } else {
+            return Messages.get(this, "typical_stats",
+                    Messages.decimalFormat("#.##", 17.5f));
+        }
+    }
 
-	public String upgradeStat1(int level){
-		if (cursed && cursedKnown) level = Math.min(-1, level-3);
-		return Messages.decimalFormat("#.##", 100f * (Math.pow(1.175f, level+1)-1f)) + "%";
-	}
-	
-	@Override
-	protected RingBuff buff( ) {
-		return new Energy();
-	}
-	
-	public static float wandChargeMultiplier( Char target ){
-		float bonus = (float)Math.pow(1.175, getBuffedBonus(target, Energy.class));
+    public String upgradeStat1(int level) {
+        if (cursed && cursedKnown) {
+            level = Math.min(-1, level - 3);
+        }
+        return Messages.decimalFormat("#.##", 100f * (Math.pow(1.175f, level + 1) - 1f)) + "%";
+    }
 
-		if (target instanceof Hero && ((Hero) target).heroClass != HeroClass.CLERIC && ((Hero) target).hasTalent(Talent.LIGHT_READING)){
-			bonus *= 1f + (0.2f * ((Hero) target).pointsInTalent(Talent.LIGHT_READING)/3f);
-		}
+    @Override
+    protected RingBuff buff() {
+        return new Energy();
+    }
 
-		return bonus;
-	}
+    public static float wandChargeMultiplier(Char target) {
+        float bonus = (float) Math.pow(1.175, getBuffedBonus(target, Energy.class));
 
-	public static float artifactChargeMultiplier( Char target ){
-		float bonus = (float)Math.pow(1.175, getBuffedBonus(target, Energy.class));
+        if (target instanceof Hero && ((Hero) target).heroClass != HeroClass.CLERIC && ((Hero) target).hasTalent(Talent.LIGHT_READING)) {
+            bonus *= 1f + (0.2f * ((Hero) target).pointsInTalent(Talent.LIGHT_READING) / 3f);
+        }
 
-		if (target instanceof Hero && ((Hero) target).heroClass != HeroClass.ROGUE && ((Hero) target).hasTalent(Talent.LIGHT_CLOAK)){
-			bonus *= 1f + (0.2f * ((Hero) target).pointsInTalent(Talent.LIGHT_CLOAK)/3f);
-		}
+        return bonus;
+    }
 
-		return bonus;
-	}
+    public static float artifactChargeMultiplier(Char target) {
+        float bonus = (float) Math.pow(1.175, getBuffedBonus(target, Energy.class));
 
-	public static float armorChargeMultiplier( Char target ){
-		return (float)Math.pow(1.175, getBuffedBonus(target, Energy.class));
-	}
-	
-	public class Energy extends RingBuff {
-	}
+        if (target instanceof Hero && ((Hero) target).heroClass != HeroClass.ROGUE && ((Hero) target).hasTalent(Talent.LIGHT_CLOAK)) {
+            bonus *= 1f + (0.2f * ((Hero) target).pointsInTalent(Talent.LIGHT_CLOAK) / 3f);
+        }
+
+        return bonus;
+    }
+
+    public static float LevelUpBuff(Char target) {
+        float bonus = 0.00f;
+        if (getBuffedBonus(target, Energy.class) > 0) {
+            bonus = (float) Math.pow(getBuffedBonus(target, Energy.class), 1.1);
+        } else {
+            return bonus;
+        }
+        if (target instanceof Hero) {
+            bonus *= 1f + (0.2f * ((Hero) target).lvl);
+        }
+
+        return bonus;
+    }
+
+    public static float armorChargeMultiplier(Char target) {
+        return (float) Math.pow(1.175, getBuffedBonus(target, Energy.class));
+    }
+
+    public class Energy extends RingBuff {
+    }
 }
