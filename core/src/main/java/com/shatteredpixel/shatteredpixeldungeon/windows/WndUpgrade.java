@@ -288,29 +288,23 @@ public class WndUpgrade extends Window {
 
         //Various ring stats (varies by ring)
         if (toUpgrade instanceof Ring) {
-            if (toUpgrade.cursed == false || toUpgrade.cursedKnown == false) {
-                //禁用升级键
-                upgradeButton.enable(false);
-            } else {
-                levelTo = levelFrom;
-            }
             if (((Ring) toUpgrade).isKnown()) {
                 if (((Ring) toUpgrade).upgradeStat1(levelFrom) != null) {
                     bottom = fillFields(Messages.get(toUpgrade, "upgrade_stat_name_1"),
                             ((Ring) toUpgrade).upgradeStat1(levelFrom),
-                            ((Ring) toUpgrade).upgradeStat1(levelTo),
+                            ((Ring) toUpgrade).upgradeStat1(levelFrom),
                             bottom);
                 }
                 if (((Ring) toUpgrade).upgradeStat2(levelFrom) != null) {
                     bottom = fillFields(Messages.get(toUpgrade, "upgrade_stat_name_2"),
                             ((Ring) toUpgrade).upgradeStat2(levelFrom),
-                            ((Ring) toUpgrade).upgradeStat2(levelTo),
+                            ((Ring) toUpgrade).upgradeStat2(levelFrom),
                             bottom);
                 }
                 if (((Ring) toUpgrade).upgradeStat3(levelFrom) != null) {
                     bottom = fillFields(Messages.get(toUpgrade, "upgrade_stat_name_3"),
                             ((Ring) toUpgrade).upgradeStat3(levelFrom),
-                            ((Ring) toUpgrade).upgradeStat3(levelTo),
+                            ((Ring) toUpgrade).upgradeStat3(levelFrom),
                             bottom);
                 }
             }
@@ -419,7 +413,7 @@ public class WndUpgrade extends Window {
 
                 hide();
 
-                if (moreUpgradeItem != null && toUpgrade.isUpgradable()) {
+                if (moreUpgradeItem != null && toUpgrade.isUpgradable() && toUpgrade instanceof Ring) {
                     GameScene.show(new WndUpgrade(moreUpgradeItem, upgraded, false));
                 }
             }
