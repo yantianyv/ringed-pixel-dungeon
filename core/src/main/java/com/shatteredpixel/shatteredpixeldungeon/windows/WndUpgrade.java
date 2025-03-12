@@ -288,8 +288,9 @@ public class WndUpgrade extends Window {
 
         //Various ring stats (varies by ring)
         if (toUpgrade instanceof Ring) {
-            if (toUpgrade instanceof Ring && toUpgrade.cursed == false || toUpgrade.cursedKnown == false) {
-                hide();
+            if (toUpgrade.cursed == false || toUpgrade.cursedKnown == false) {
+                //禁用升级键
+                upgradeButton.enable(false);
             } else {
                 levelTo = levelFrom;
             }
