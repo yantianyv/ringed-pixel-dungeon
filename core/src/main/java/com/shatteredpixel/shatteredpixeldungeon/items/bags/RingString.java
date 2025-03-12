@@ -27,11 +27,8 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 public class RingString extends Bag {
 
     {
-        image = ItemSpriteSheet.HOLSTER;
+        image = ItemSpriteSheet.RINGSTRING;
     }
-
-    public static final float HOLSTER_SCALE_FACTOR = 0.85f;
-    public static final float HOLSTER_DURABILITY_FACTOR = 1.2f;
 
     @Override
     public boolean canHold(Item item) {
@@ -42,6 +39,7 @@ public class RingString extends Bag {
         }
     }
 
+    @Override
     public int capacity() {
         return 39;
     }
@@ -49,15 +47,6 @@ public class RingString extends Bag {
     @Override
     public boolean collect(Bag container) {
         if (super.collect(container)) {
-            // if (owner != null) {
-            //     for (Item item : items) {
-            //         if (item instanceof Wand) {
-            //             ((Wand) item).charge(owner, HOLSTER_SCALE_FACTOR);
-            //         } else if (item instanceof MissileWeapon) {
-            //             ((MissileWeapon) item).holster = true;
-            //         }
-            //     }
-            // }
             return true;
         } else {
             return false;
@@ -66,14 +55,7 @@ public class RingString extends Bag {
 
     @Override
     public void onDetach() {
-        // super.onDetach();
-        // for (Item item : items) {
-        //     if (item instanceof Wand) {
-        //         ((Wand) item).stopCharging();
-        //     } else if (item instanceof MissileWeapon) {
-        //         ((MissileWeapon) item).holster = false;
-        //     }
-        // }
+        super.onDetach();
     }
 
     @Override

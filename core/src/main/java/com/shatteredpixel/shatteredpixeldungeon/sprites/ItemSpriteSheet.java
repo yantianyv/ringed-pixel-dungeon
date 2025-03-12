@@ -800,6 +800,7 @@ public class ItemSpriteSheet {
     public static final int BANDOLIER = BAGS + 4;
     public static final int HOLSTER = BAGS + 5;
     public static final int VIAL = BAGS + 6;
+    public static final int RINGSTRING = BAGS + 7;
 
     static {
         assignItemRect(WATERSKIN, 16, 14);
@@ -809,6 +810,7 @@ public class ItemSpriteSheet {
         assignItemRect(BANDOLIER, 15, 16);
         assignItemRect(HOLSTER, 15, 16);
         assignItemRect(VIAL, 12, 12);
+        assignItemRect(RINGSTRING, 12, 12);
     }
 
     private static final int DOCUMENTS = xy(1, 32);  //16 slots
