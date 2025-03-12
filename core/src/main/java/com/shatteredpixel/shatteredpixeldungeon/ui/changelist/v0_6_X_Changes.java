@@ -483,7 +483,7 @@ public class v0_6_X_Changes {
                 + "_-_ Decreased lvls to recover rage to 2 from 3\n"
                 + "_-_ Berserking now reduces max health by 20%"));
 
-        changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.RING_ONYX, null), new OldRing().trueName(),
+        changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.RING_VOID, null), new OldRing().trueName(),
                 "The ring of evasion has always been a very powerful ring, but the recent freerunner rework has increased the power of evasiveness in general, making the ring overbearingly strong.\n\n"
                 + "Evasion synergy has been adjusted:\n"
                 + "_-_ Ring of evasion no longer synergizes as strongly with freerunner or armor of swiftness.\n"
@@ -840,7 +840,7 @@ public class v0_6_X_Changes {
                 + "_-_ Charge Speed reduced, primarily at lower levels:\n-20% at +0\n-7.5% at +10\n\n"
                 + "_-_ Upgrade rate adjusted, Food now contributes towards upgrades exactly in line with how much hunger it restores. This means smaller food items will contribute more, larger ones will contribute less. Rations still grant exactly 1 upgrade each."));
 
-        changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.RING_GARNET, null), new OldRing().trueName(),
+        changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.RING_VOID, null), new OldRing().trueName(),
                 "The Ring of Might's strength bonus is already extremely valuable, having it also provide an excellent health boost was simply too much:\n\n"
                 + "_-_ Health granted reduced from +5 per upgrade to +3.5% of max hp per upgrade.\n\n"
                 + "This is a massive reduction to its earlygame health boosting power, however as the player levels up this will improve. By hero level 26 it will be as strong as before this change."));

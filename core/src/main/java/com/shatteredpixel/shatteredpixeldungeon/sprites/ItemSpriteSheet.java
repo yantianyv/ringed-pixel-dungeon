@@ -39,7 +39,7 @@ public class ItemSpriteSheet {
     private static int half_xy(int x, int y) {
         x -= 1;
         y -= 1;
-        return x + WIDTH * y / 2;
+        return x / 2 + WIDTH * y;
     }
 
     private static void assignItemRect(int item, int width, int height) {
@@ -443,9 +443,13 @@ public class ItemSpriteSheet {
     public static final int RING_QUARTZ = RINGS + 10;
     public static final int RING_AGATE = RINGS + 11;
     public static final int RING_DIAMOND = RINGS + 12;
+    public static final int RING_JADE = RINGS + 13;
+    public static final int RING_OBSIDIAN = RINGS + 14;
+    public static final int RING_CHINA = RINGS + 15;
+    public static final int RING_CRYSTAL = RINGS + 15;
 
     static {
-        for (int i = RINGS; i < RINGS + 16; i++) {
+        for (int i = RINGS; i < RINGS + 32; i++) {
             assignItemRect(i, 8, 10);
         }
     }
