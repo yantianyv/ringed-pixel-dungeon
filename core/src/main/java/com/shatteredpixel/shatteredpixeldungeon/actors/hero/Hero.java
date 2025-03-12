@@ -122,8 +122,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfLighting;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfLighting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
@@ -710,7 +710,7 @@ public class Hero extends Char {
 
         float speed = super.speed();
 
-        speed *= RingOfHaste.speedMultiplier(this);
+        speed *= RingOfLighting.speedMultiplier(this);
 
         if (belongings.armor() != null) {
             speed = belongings.armor().speedFactor(this, speed);
@@ -800,7 +800,7 @@ public class Hero extends Char {
             //Normally putting furor speed on unarmed attacks would be unnecessary
             //But there's going to be that one guy who gets a furor+force ring combo
             //This is for that one guy, you shall get your fists of fury!
-            float speed = RingOfFuror.attackSpeedMultiplier(this);
+            float speed = RingOfLighting.attackSpeedMultiplier(this);
 
             //ditto for furor + sword dance!
             if (buff(Scimitar.SwordDance.class) != null) {

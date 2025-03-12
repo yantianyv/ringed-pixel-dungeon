@@ -20,6 +20,9 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
@@ -39,7 +42,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfArcana;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfLighting;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ParchmentScrap;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfOblivion;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Annoying;
@@ -74,9 +77,6 @@ import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 abstract public class Weapon extends KindOfWeapon {
 
@@ -302,7 +302,7 @@ abstract public class Weapon extends KindOfWeapon {
     }
 
     protected float speedMultiplier(Char owner) {
-        float multi = RingOfFuror.attackSpeedMultiplier(owner);
+        float multi = RingOfLighting.attackSpeedMultiplier(owner);
 
         if (owner.buff(Scimitar.SwordDance.class) != null) {
             multi += 0.6f;
@@ -558,8 +558,8 @@ abstract public class Weapon extends KindOfWeapon {
 
         public String name() {
             if (!curse()) {
-                return name(Messages.get(this, "enchant")); 
-            }else {
+                return name(Messages.get(this, "enchant"));
+            } else {
                 return name(Messages.get(Item.class, "curse"));
             }
         }
