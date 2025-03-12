@@ -18,13 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Document;
@@ -36,183 +37,196 @@ import com.watabou.utils.Bundle;
 
 public class Hunger extends Buff implements Hero.Doom {
 
-	public static final float HUNGRY	= 300f;
-	public static final float STARVING	= 450f;
+    public static final float HUNGRY = 300f;
+    public static final float STARVING = 450f;
 
-	private float level;
-	private float partialDamage;
+    private float level;
+    private float partialDamage;
 
-	private static final String LEVEL			= "level";
-	private static final String PARTIALDAMAGE 	= "partialDamage";
+    private static final String LEVEL = "level";
+    private static final String PARTIALDAMAGE = "partialDamage";
 
-	@Override
-	public void storeInBundle( Bundle bundle ) {
-		super.storeInBundle(bundle);
-		bundle.put( LEVEL, level );
-		bundle.put( PARTIALDAMAGE, partialDamage );
-	}
+    @Override
+    public void storeInBundle(Bundle bundle) {
+        super.storeInBundle(bundle);
+        bundle.put(LEVEL, level);
+        bundle.put(PARTIALDAMAGE, partialDamage);
+    }
 
-	@Override
-	public void restoreFromBundle( Bundle bundle ) {
-		super.restoreFromBundle( bundle );
-		level = bundle.getFloat( LEVEL );
-		partialDamage = bundle.getFloat(PARTIALDAMAGE);
-	}
+    @Override
+    public void restoreFromBundle(Bundle bundle) {
+        super.restoreFromBundle(bundle);
+        level = bundle.getFloat(LEVEL);
+        partialDamage = bundle.getFloat(PARTIALDAMAGE);
+    }
 
-	@Override
-	public boolean act() {
+    @Override
+    public boolean act() {
 
-		if (Dungeon.level.locked
-				|| target.buff(WellFed.class) != null
-				|| SPDSettings.intro()
-				|| target.buff(ScrollOfChallenge.ChallengeArena.class) != null){
-			spend(TICK);
-			return true;
-		}
+        if (target.buff(RingOfTakeout.Takeout.class) != null) {
+            if (Math.random() > RingOfTakeout.takeoutChance(target)) {
+                // 拼好饭戒指的进餐逻辑
+                Hero hero = Dungeon.hero;
+                Buff.affect(hero, Hunger.class).satisfy(RingOfTakeout.eatEffectSatiety(target));
 
-		if (target.isAlive() && target instanceof Hero) {
+                hero.sprite.operate(hero.pos);
+                SpellSprite.show(hero, SpellSprite.FOOD);
 
-			Hero hero = (Hero)target;
+                spend(TICK);
+                return true;
+            }
+        }
+        if (Dungeon.level.locked
+                || target.buff(WellFed.class) != null
+                || SPDSettings.intro()
+                || target.buff(ScrollOfChallenge.ChallengeArena.class) != null) {
+            spend(TICK);
+            return true;
+        }
 
-			if (isStarving()) {
+        if (target.isAlive() && target instanceof Hero) {
 
-				partialDamage += target.HT/1000f;
+            Hero hero = (Hero) target;
 
-				if (partialDamage > 1){
-					target.damage( (int)partialDamage, this);
-					partialDamage -= (int)partialDamage;
-				}
-				
-			} else {
+            if (isStarving()) {
 
-				float hungerDelay = 1f;
-				if (target.buff(Shadows.class) != null){
-					hungerDelay *= 1.5f;
-				}
-				hungerDelay /= SaltCube.hungerGainMultiplier();
+                partialDamage += target.HT / 1000f;
 
-				float newLevel = level + (1f/hungerDelay);
-				if (newLevel >= STARVING) {
+                if (partialDamage > 1) {
+                    target.damage((int) partialDamage, this);
+                    partialDamage -= (int) partialDamage;
+                }
 
-					GLog.n( Messages.get(this, "onstarving") );
-					hero.damage( 1, this );
+            } else {
 
-					hero.interrupt();
-					newLevel = STARVING;
+                float hungerDelay = 1f;
+                if (target.buff(Shadows.class) != null) {
+                    hungerDelay *= 1.5f;
+                }
+                hungerDelay /= SaltCube.hungerGainMultiplier();
 
-				} else if (newLevel >= HUNGRY && level < HUNGRY) {
+                float newLevel = level + (1f / hungerDelay);
+                if (newLevel >= STARVING) {
 
-					GLog.w( Messages.get(this, "onhungry") );
+                    GLog.n(Messages.get(this, "onstarving"));
+                    hero.damage(1, this);
 
-					if (!Document.ADVENTURERS_GUIDE.isPageRead(Document.GUIDE_FOOD)){
-						GameScene.flashForDocument(Document.ADVENTURERS_GUIDE, Document.GUIDE_FOOD);
-					}
+                    hero.interrupt();
+                    newLevel = STARVING;
 
-				}
-				level = newLevel;
+                } else if (newLevel >= HUNGRY && level < HUNGRY) {
 
-			}
-			
-			spend( TICK );
+                    GLog.w(Messages.get(this, "onhungry"));
 
-		} else {
+                    if (!Document.ADVENTURERS_GUIDE.isPageRead(Document.GUIDE_FOOD)) {
+                        GameScene.flashForDocument(Document.ADVENTURERS_GUIDE, Document.GUIDE_FOOD);
+                    }
 
-			diactivate();
+                }
+                level = newLevel;
 
-		}
+            }
 
-		return true;
-	}
+            spend(TICK);
 
-	public void satisfy( float energy ) {
-		affectHunger( energy, false );
-	}
+        } else {
 
-	public void affectHunger(float energy ){
-		affectHunger( energy, false );
-	}
+            diactivate();
 
-	public void affectHunger(float energy, boolean overrideLimits ) {
+        }
 
-		if (energy < 0 && target.buff(WellFed.class) != null){
-			target.buff(WellFed.class).left += energy;
-			BuffIndicator.refreshHero();
-			return;
-		}
+        return true;
+    }
 
-		float oldLevel = level;
+    public void satisfy(float energy) {
+        affectHunger(energy, false);
+    }
 
-		level -= energy;
-		if (level < 0 && !overrideLimits) {
-			level = 0;
-		} else if (level > STARVING) {
-			float excess = level - STARVING;
-			level = STARVING;
-			partialDamage += excess * (target.HT/1000f);
-			if (partialDamage > 1f){
-				target.damage( (int)partialDamage, this );
-				partialDamage -= (int)partialDamage;
-			}
-		}
+    public void affectHunger(float energy) {
+        affectHunger(energy, false);
+    }
 
-		if (oldLevel < HUNGRY && level >= HUNGRY){
-			GLog.w( Messages.get(this, "onhungry") );
-		} else if (oldLevel < STARVING && level >= STARVING){
-			GLog.n( Messages.get(this, "onstarving") );
-			target.damage( 1, this );
-		}
+    public void affectHunger(float energy, boolean overrideLimits) {
 
-		BuffIndicator.refreshHero();
-	}
+        if (energy < 0 && target.buff(WellFed.class) != null) {
+            target.buff(WellFed.class).left += energy;
+            BuffIndicator.refreshHero();
+            return;
+        }
 
-	public boolean isStarving() {
-		return level >= STARVING;
-	}
+        float oldLevel = level;
 
-	public int hunger() {
-		return (int)Math.ceil(level);
-	}
+        level -= energy;
+        if (level < 0 && !overrideLimits) {
+            level = 0;
+        } else if (level > STARVING) {
+            float excess = level - STARVING;
+            level = STARVING;
+            partialDamage += excess * (target.HT / 1000f);
+            if (partialDamage > 1f) {
+                target.damage((int) partialDamage, this);
+                partialDamage -= (int) partialDamage;
+            }
+        }
 
-	@Override
-	public int icon() {
-		if (level < HUNGRY) {
-			return BuffIndicator.NONE;
-		} else if (level < STARVING) {
-			return BuffIndicator.HUNGER;
-		} else {
-			return BuffIndicator.STARVATION;
-		}
-	}
+        if (oldLevel < HUNGRY && level >= HUNGRY) {
+            GLog.w(Messages.get(this, "onhungry"));
+        } else if (oldLevel < STARVING && level >= STARVING) {
+            GLog.n(Messages.get(this, "onstarving"));
+            target.damage(1, this);
+        }
 
-	@Override
-	public String name() {
-		if (level < STARVING) {
-			return Messages.get(this, "hungry");
-		} else {
-			return Messages.get(this, "starving");
-		}
-	}
+        BuffIndicator.refreshHero();
+    }
 
-	@Override
-	public String desc() {
-		String result;
-		if (level < STARVING) {
-			result = Messages.get(this, "desc_intro_hungry");
-		} else {
-			result = Messages.get(this, "desc_intro_starving");
-		}
+    public boolean isStarving() {
+        return level >= STARVING;
+    }
 
-		result += Messages.get(this, "desc");
+    public int hunger() {
+        return (int) Math.ceil(level);
+    }
 
-		return result;
-	}
+    @Override
+    public int icon() {
+        if (level < HUNGRY) {
+            return BuffIndicator.NONE;
+        } else if (level < STARVING) {
+            return BuffIndicator.HUNGER;
+        } else {
+            return BuffIndicator.STARVATION;
+        }
+    }
 
-	@Override
-	public void onDeath() {
+    @Override
+    public String name() {
+        if (level < STARVING) {
+            return Messages.get(this, "hungry");
+        } else {
+            return Messages.get(this, "starving");
+        }
+    }
 
-		Badges.validateDeathFromHunger();
+    @Override
+    public String desc() {
+        String result;
+        if (level < STARVING) {
+            result = Messages.get(this, "desc_intro_hungry");
+        } else {
+            result = Messages.get(this, "desc_intro_starving");
+        }
 
-		Dungeon.fail( this );
-		GLog.n( Messages.get(this, "ondeath") );
-	}
+        result += Messages.get(this, "desc");
+
+        return result;
+    }
+
+    @Override
+    public void onDeath() {
+
+        Badges.validateDeathFromHunger();
+
+        Dungeon.fail(this);
+        GLog.n(Messages.get(this, "ondeath"));
+    }
 }
