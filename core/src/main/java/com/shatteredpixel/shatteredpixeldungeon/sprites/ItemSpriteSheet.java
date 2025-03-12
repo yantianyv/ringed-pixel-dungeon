@@ -446,7 +446,8 @@ public class ItemSpriteSheet {
     public static final int RING_JADE = RINGS + 13;
     public static final int RING_OBSIDIAN = RINGS + 14;
     public static final int RING_CHINA = RINGS + 15;
-    public static final int RING_CRYSTAL = RINGS + 15;
+    public static final int RING_CRYSTAL = RINGS + 16;
+    public static final int RING_GLASS = RINGS + 17;
 
     static {
         for (int i = RINGS; i < RINGS + 32; i++) {
