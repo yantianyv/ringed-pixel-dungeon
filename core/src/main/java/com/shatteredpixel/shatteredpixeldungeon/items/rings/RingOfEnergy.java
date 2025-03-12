@@ -82,18 +82,19 @@ public class RingOfEnergy extends Ring {
         return bonus;
     }
 
-    // public static float LevelUpBuff(Char target) {
-    //     float bonus = 0.00f;
-    //     if (getBuffedBonus(target, Energy.class) > 0) {
-    //         bonus = (float) Math.pow(getBuffedBonus(target, Energy.class), 1.5);
-    //     } else {
-    //         return bonus;
-    //     }
-    //     if (target instanceof Hero) {
-    //         bonus *= 1f + (0.2f * ((Hero) target).lvl);
-    //     }
-    //     return bonus;
-    // }
+    public static float LevelUpBuff(Char target) {
+        float bonus = 0.00f;
+        if (getBuffedBonus(target, Energy.class) > 0) {
+            bonus = (float) Math.pow(1.05, getBuffedBonus(target, Energy.class));
+        } else {
+            return bonus;
+        }
+        if (target instanceof Hero) {
+            bonus *= 1f + (0.2f * ((Hero) target).lvl);
+        }
+        return bonus;
+    }
+
     public static float armorChargeMultiplier(Char target) {
         return (float) Math.pow(1.175, getBuffedBonus(target, Energy.class));
     }
