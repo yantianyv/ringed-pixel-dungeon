@@ -36,15 +36,15 @@ public class ItemSpriteSheet {
         return x + WIDTH * y;
     }
 
-    private static int half_xy(int x, int y) {
-        x -= 1;
-        y -= 1;
-        return x / 2 + WIDTH * y;
-    }
-
     private static void assignItemRect(int item, int width, int height) {
         int x = (item % WIDTH) * SIZE;
         int y = (item / WIDTH) * SIZE;
+        film.add(item, x, y, x + width, y + height);
+    }
+
+    private static void half_assignItemRect(int item, int width, int height) {
+        int x = (item % (WIDTH * 2)) * (SIZE / 2);
+        int y = (item / (WIDTH) - (item % (WIDTH * 2) / WIDTH)) * SIZE;
         film.add(item, x, y, x + width, y + height);
     }
 
@@ -429,7 +429,7 @@ public class ItemSpriteSheet {
         }
     }
 
-    private static final int RINGS = half_xy(1, 15);  //32 slots
+    private static final int RINGS = xy(1, 15);  //32 slots
     public static final int RING_VOID = RINGS + 0;
     public static final int RING_GARNET = RINGS + 1;
     public static final int RING_RUBY = RINGS + 2;
@@ -451,7 +451,7 @@ public class ItemSpriteSheet {
 
     static {
         for (int i = RINGS; i < RINGS + 32; i++) {
-            assignItemRect(i, 8, 10);
+            half_assignItemRect(i, 8, 10);
         }
     }
 

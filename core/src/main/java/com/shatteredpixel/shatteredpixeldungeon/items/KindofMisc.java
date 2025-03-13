@@ -148,23 +148,39 @@ public abstract class KindofMisc extends EquipableItem {
 
                 @Override
                 protected void onSelect(int index) {
+                    Dungeon.hero.belongings.backpack.items.remove(KindofMisc.this);
                     KindofMisc equipped = miscs[index];
-                    //we directly remove the item because we want to have inventory capacity
-                    // to unequip the equipped one, but don't want to trigger any other
-                    // item detaching logic
                     int slot = Dungeon.quickslot.getSlot(KindofMisc.this);
                     slotOfUnequipped = -1;
-                    Dungeon.hero.belongings.backpack.items.remove(KindofMisc.this);
                     if (equipped.doUnequip(hero, true, false)) {
                         //swap out equip in misc slot if needed
-                        if (index == 0 && KindofMisc.this instanceof Ring) {
+                        if (index == 0 && KindofMisc.this instanceof Ring) {// 用戒指替换神器槽
                             hero.belongings.artifact = (Artifact) hero.belongings.misc;
                             hero.belongings.misc = null;
-                        } else if (index >= 2 && KindofMisc.this instanceof Artifact) {
+                        } else if (index >= 2 && KindofMisc.this instanceof Artifact) {// 用神器替换戒指槽
+                            if (hero.belongings.ring5 instanceof Ring && hero.belongings.ring6 == null) {
+                                hero.belongings.ring6 = (Ring) hero.belongings.ring5;
+                                hero.belongings.ring5 = null;
+                            }
+                            if (hero.belongings.ring4 instanceof Ring && hero.belongings.ring5 == null) {
+                                hero.belongings.ring5 = (Ring) hero.belongings.ring4;
+                                hero.belongings.ring4 = null;
+                            }
+                            if (hero.belongings.ring3 instanceof Ring && hero.belongings.ring4 == null) {
+                                hero.belongings.ring4 = (Ring) hero.belongings.ring3;
+                                hero.belongings.ring3 = null;
+                            }
+                            if (hero.belongings.ring2 instanceof Ring && hero.belongings.ring3 == null) {
+                                hero.belongings.ring3 = (Ring) hero.belongings.ring2;
+                                hero.belongings.ring2 = null;
+                            }
+                            if (hero.belongings.ring1 instanceof Ring && hero.belongings.ring2 == null) {
+                                hero.belongings.ring2 = (Ring) hero.belongings.ring1;
+                                hero.belongings.ring1 = null;
+                            }
                             hero.belongings.ring1 = (Ring) hero.belongings.misc;
                             hero.belongings.misc = null;
                         }
-                        Dungeon.hero.belongings.backpack.items.add(KindofMisc.this);
                         doEquip(hero);
                     } else {
                         Dungeon.hero.belongings.backpack.items.add(KindofMisc.this);
