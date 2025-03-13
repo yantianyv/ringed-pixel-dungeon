@@ -126,12 +126,15 @@ public class Food extends Item {
             GLog.n(Messages.get(Hunger.class, "cursedhorn"));
         }
 
-        Buff.affect(hero, Hunger.class).satisfy(foodVal);
-        if (RingOfTakeout.takeoutChance(hero) < 0 && Dungeon.gold > 0) {
+        if (RingOfTakeout.takeoutChance(hero) < 0) {
             // 诅咒的拼好饭戒指会造成中毒效果
-            Buff.affect(hero, Poison.class).set(RingOfTakeout.takeoutChance(hero) * foodVal * 2 + 1);
-            updateQuickslot();
+            Buff.affect(hero, Poison.class).set((-RingOfTakeout.takeoutChance(hero)) * foodVal + 1);
+            GLog.n(Messages.get(Hunger.class, "takeoutpoison"));
+
         }
+
+        Buff.affect(hero, Hunger.class).satisfy(foodVal);
+
     }
 
     @Override
