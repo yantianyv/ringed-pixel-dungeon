@@ -48,8 +48,9 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.utils.Random;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.watabou.noosa.Visual;
-
+import com.watabou.noosa.audio.Sample;
 import jdk.internal.util.random.RandomSupport;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 
 public class HighGrass {
 
@@ -197,11 +198,13 @@ public class HighGrass {
                                 } else {
                                     hero.belongings.observe();
                                 }
+                            } else if (Random.Float() < (-RingOfNahida.grassBonusChance(ch)) && RingOfNahida.grassBonusChance(ch) < 0) {
+                                // 触发刷怪惩罚
+                                Sample.INSTANCE.play(Assets.Sounds.CURSED);
+                                Snake snake = new Snake();
+                                ScrollOfTeleportation.appear(snake, pos + 1);
                             }
-                        } else if (Random.Float() < (-RingOfNahida.grassBonusChance(ch)) && RingOfNahida.grassBonusChance(ch) < 0) {
-                            // 触发刷怪惩罚
-                            Snake snake = new Snake();
-                            ScrollOfTeleportation.appear(snake, pos + 1);
+
                         }
                     }
                 }
