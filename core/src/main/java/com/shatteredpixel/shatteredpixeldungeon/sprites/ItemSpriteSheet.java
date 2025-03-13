@@ -42,9 +42,15 @@ public class ItemSpriteSheet {
         film.add(item, x, y, x + width, y + height);
     }
 
+    private static int half_xy(int x, int y) {
+        x -= 1;
+        y -= 1;
+        return x + WIDTH * 2 * y + 100;
+    }
+
     private static void half_assignItemRect(int item, int width, int height) {
-        int x = (item % (WIDTH * 2)) * (SIZE / 2);
-        int y = (item / (WIDTH) - (item % (WIDTH * 2) / WIDTH)) * SIZE;
+        int x = ((item - 100) % (WIDTH * 2)) * (SIZE / 2);
+        int y = ((item - 100) / (WIDTH * 2)) * SIZE;
         film.add(item, x, y, x + width, y + height);
     }
 
@@ -429,7 +435,25 @@ public class ItemSpriteSheet {
         }
     }
 
-    private static final int RINGS = xy(1, 15);  //32 slots
+    // public static final int RING_VOID = Gems.RING_VOID;
+    // public static final int RING_GARNET = Gems.RING_GARNET;
+    // public static final int RING_RUBY = Gems.RING_RUBY;
+    // public static final int RING_TOPAZ = Gems.RING_TOPAZ;
+    // public static final int RING_EMERALD = Gems.RING_EMERALD;
+    // public static final int RING_ONYX = Gems.RING_ONYX;
+    // public static final int RING_OPAL = Gems.RING_OPAL;
+    // public static final int RING_TOURMALINE = Gems.RING_TOURMALINE;
+    // public static final int RING_SAPPHIRE = Gems.RING_SAPPHIRE;
+    // public static final int RING_AMETHYST = Gems.RING_AMETHYST;
+    // public static final int RING_QUARTZ = Gems.RING_QUARTZ;
+    // public static final int RING_AGATE = Gems.RING_AGATE;
+    // public static final int RING_DIAMOND = Gems.RING_DIAMOND;
+    // public static final int RING_JADE = Gems.RING_JADE;
+    // public static final int RING_OBSIDIAN = Gems.RING_OBSIDIAN;
+    // public static final int RING_CHINA = Gems.RING_CHINA;
+    // public static final int RING_CRYSTAL = Gems.RING_CRYSTAL;
+    // public static final int RING_GLASS = Gems.RING_GLASS;
+    private static final int RINGS = half_xy(1, 15);  //32 slots
     public static final int RING_VOID = RINGS + 0;
     public static final int RING_GARNET = RINGS + 1;
     public static final int RING_RUBY = RINGS + 2;
