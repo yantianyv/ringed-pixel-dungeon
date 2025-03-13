@@ -145,7 +145,7 @@ public class HighGrass {
                         if (ch != null) {
                             Hero hero = Dungeon.hero;
                             if (hero.buff(RingOfNahida.Nahida.class) != null) {	// 触发纳西妲之戒
-                                if (Random.Float() < RingOfNahida.grassBonusChance(hero)) {
+                                if (Random.Float() < RingOfNahida.grassBonusChance(hero) && RingOfNahida.grassBonusChance(hero) > 0) {
                                     // 触发掉落
                                     Item i = new Gold().random();
                                     switch (Random.Int(4)) {
@@ -178,7 +178,7 @@ public class HighGrass {
                                     } else {
                                         hero.belongings.observe();
                                     }
-                                } else if (Random.Float() > (-RingOfNahida.grassBonusChance(hero))  && RingOfNahida.grassBonusChance(hero ) <0) {
+                                } else if (Random.Float() > (-RingOfNahida.grassBonusChance(hero)) && RingOfNahida.grassBonusChance(hero) < 0) {
                                     // 触发刷怪惩罚
                                     Sample.INSTANCE.play(Assets.Sounds.CURSED);
                                     // Mob mob = Dungeon.level.createMob();

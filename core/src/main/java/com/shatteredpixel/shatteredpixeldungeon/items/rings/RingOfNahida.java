@@ -1,6 +1,5 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
-import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -30,15 +29,6 @@ public class RingOfNahida extends Ring {
         } else {// 鉴定前的通用信息
             return Messages.get(this, "typical_stats", 5);
         }
-    }
-
-    public static int eatEffectSatiety(Char target) {
-        int satiety = getBuffedBonus(target, Nahida.class);
-        if (Dungeon.isChallenged(Challenges.NO_FOOD)) {
-            satiety /= 3;
-        }
-        return satiety;
-
     }
 
     @Override
