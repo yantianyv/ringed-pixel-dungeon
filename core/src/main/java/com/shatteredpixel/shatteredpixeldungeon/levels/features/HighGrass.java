@@ -28,20 +28,19 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.MindForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.LeafParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Camouflage;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
-
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.SandalsOfNature;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Berry;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfNahida;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.PetrifiedSeed;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.MiningLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
@@ -175,23 +174,34 @@ public class HighGrass {
                                 break;
 
                             case 2:
-                                i=Generator.randomUsingDefaults(Generator.Category.POTION);
+                                i = Generator.randomUsingDefaults(Generator.Category.POTION);
                                 break;
 
                             case 3:
-                                i=Generator.randomUsingDefaults(Generator.Category.SCROLL);
+                                i = Generator.randomUsingDefaults(Generator.Category.SCROLL);
                                 break;
+                            case 4:
+                                i = Generator.randomUsingDefaults(Generator.Category.SEED);
+                                break;
+                            case 5:
+                                i = Generator.randomUsingDefaults(Generator.Category.MISSILE);
 
                         }
-						Dungeon.level.drop(i, pos);
-                        // 触发鉴定
-
+                        Dungeon.level.drop(i, pos);
                         // 播放特效
                         new Flare(6, 20).color(0x00FF00, true).show(ch.sprite, 3f);
-
+                        // 触发鉴定
+                        Hero hero = Dungeon.hero;
+                        if (Random.Int(2) == 0) {
+                            hero.belongings.randomUnequipped().identify();
+                        } else {
+                            hero.belongings.observe();
+                        }
                     }
                 } else if (Random.Float() < (-RingOfNahida.grassBonusChance(ch)) || RingOfNahida.grassBonusChance(ch) < 0) {
                     // 触发刷怪惩罚
+                    Snake snake = new Snake();
+                    ScrollOfTeleportation.appear(snake, pos + 1);
                 }
             }
 
