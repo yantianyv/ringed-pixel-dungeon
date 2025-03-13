@@ -36,11 +36,11 @@ public class Viper extends Mob {
     {
         spriteClass = ViperSprite.class;
 
-        HP = HT = 4;
-        defenseSkill = 25;
+        HP = HT = 15;
+        defenseSkill = 100;
 
         EXP = 1;
-        maxLvl = 15;
+        maxLvl = 30;
 
         loot = Generator.Category.SEED;
         lootChance = 0.01f;
