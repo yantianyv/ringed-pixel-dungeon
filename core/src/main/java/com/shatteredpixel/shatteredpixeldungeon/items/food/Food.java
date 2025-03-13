@@ -126,7 +126,7 @@ public class Food extends Item {
         Buff.affect(hero, Hunger.class).satisfy(foodVal);
         if (RingOfTakeout.takeoutChance(hero) < 0) {
             // 诅咒的拼好饭戒指会扣钱
-            Dungeon.gold -= (int) (foodVal * RingOfTakeout.takeoutChance(hero));
+            Dungeon.gold += (int) (foodVal * RingOfTakeout.takeoutChance(hero) * Dungeon.depth);// 由于进食率是负的，所以反而要增加金币才能扣除
             updateQuickslot();
         }
     }
