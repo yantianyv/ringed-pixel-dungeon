@@ -18,7 +18,7 @@ allprojects {
         appPackageName = 'com.yantianyv.ringedpixeldungeon'
 
         appVersionCode = 831
-        appVersionName = '0.0.4-3.0.0'
+        appVersionName = '0.0.5-3.0.0'
 
         appJavaCompatibility = JavaVersion.VERSION_1_8
 
