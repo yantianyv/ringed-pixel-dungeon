@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 
 public class Hunger extends Buff implements Hero.Doom {
 
@@ -64,14 +65,11 @@ public class Hunger extends Buff implements Hero.Doom {
     public boolean act() {
 
         if (target.buff(RingOfTakeout.Takeout.class) != null) {
-            if (Math.random() > RingOfTakeout.takeoutChance(target)) {
+            if (Math.random() < RingOfTakeout.takeoutChance(target)) {
                 // 拼好饭戒指的进餐逻辑
                 Hero hero = Dungeon.hero;
                 Buff.affect(hero, Hunger.class).satisfy(RingOfTakeout.eatEffectSatiety(target));
-
-                hero.sprite.operate(hero.pos);
-                SpellSprite.show(hero, SpellSprite.FOOD);
-
+                Talent.onFoodEaten(hero, RingOfTakeout.eatEffectSatiety(target), null);
                 spend(TICK);
                 return true;
             }
