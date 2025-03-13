@@ -52,6 +52,7 @@ import com.watabou.noosa.audio.Sample;
 import jdk.internal.util.random.RandomSupport;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.watabou.utils.PathFinder;
 
 public class HighGrass {
 
@@ -200,21 +201,27 @@ public class HighGrass {
                                 }
                             } else if (Random.Float() > (-RingOfNahida.grassBonusChance(hero))) {
                                 // 触发刷怪惩罚
-                                if (ch == hero) {
-                                    Sample.INSTANCE.play(Assets.Sounds.CURSED);
-                                }
+                                Sample.INSTANCE.play(Assets.Sounds.CURSED);
                                 // Mob mob = Dungeon.level.createMob();
                                 // ScrollOfTeleportation.appear(mob, pos);
-
-                                Mob snake = new Snake(); // 假设Snake是蛇这种怪物的类
-                                snake.state = snake.WANDERING;
-                                snake.pos = pos + 1 - Random.Int(2) * 2;
+                                int snake_pose = 0;
+                                for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+                                    snake_pose = pos + PathFinder.NEIGHBOURS8[i];
+                                    if (Actor.findChar(snake_pose) == null && (Dungeon.level.passable[snake_pose] || Dungeon.level.avoid[snake_pose])) {
+                                        break;
+                                    }
+                                }
+                                Mob snake = new Snake();
+                                snake.state = snake.HUNTING;
+                                snake.HT = Dungeon.depth;
+                                snake.HP = snake.HT;
+                                snake.flying = true;
+                                snake.pos = snake_pose;
                                 GameScene.add(snake);
-                                ScrollOfTeleportation.appear(snake, snake.pos);
+                                ScrollOfTeleportation.appear(snake, snake_pose);
                                 Dungeon.level.occupyCell(snake);
 
                             }
-
                         }
                     }
                 }
