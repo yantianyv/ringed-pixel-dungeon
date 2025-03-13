@@ -20,15 +20,15 @@ public class RingOfTakeout extends Ring {
         if (isIdentified()) {
             // 基本统计信息，其中soloBuffedBonus()是当前戒指等级
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100 * (1 - Math.pow(0.99, soloBuffedBonus()))));
+                    Messages.decimalFormat("#.##", 100 * (1 - Math.pow(0.995, soloBuffedBonus()))));
             //组合统计信息，其中combinedBuffedBonus(Dungeon.hero)是所有已装备同类戒指的等级之和
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100 * (1 - Math.pow(0.99, combinedBuffedBonus(Dungeon.hero)))));
+                        Messages.decimalFormat("#.##", 100 * (1 - Math.pow(0.995, combinedBuffedBonus(Dungeon.hero)))));
             }
             return info;
         } else {// 鉴定前的通用信息
-            return Messages.get(this, "typical_stats", 1);
+            return Messages.get(this, "typical_stats", 0.5);
         }
     }
 
@@ -48,7 +48,7 @@ public class RingOfTakeout extends Ring {
     }
 
     public static float takeoutChance(Char target) {// 触发进食的几率
-        return (float) (1 - Math.pow(0.99, getBuffedBonus(target, Takeout.class)));
+        return (float) (1 - Math.pow(0.995, getBuffedBonus(target, Takeout.class)));
     }
 
     // 定义RingBuff类

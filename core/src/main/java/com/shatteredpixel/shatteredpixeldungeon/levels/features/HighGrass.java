@@ -155,53 +155,54 @@ public class HighGrass {
                     lootChance /= 2;
                 }
 
-                if (Random.Float() < lootChance) {
+                if (Random.Float() < lootChance) {  // 掉落露水并判定纳西妲之戒的效果
                     level.drop(new Dewdrop(), pos).sprite.drop();
-                }
-                if (ch != null) {
-                    if (ch.buff(RingOfNahida.Nahida.class) != null) {	// 触发纳西妲之戒
-                        if (Random.Float() < RingOfNahida.grassBonusChance(ch) || RingOfNahida.grassBonusChance(ch) > 0) {
-                            // 触发掉落
-                            Item i = new Gold().random();
-                            switch (Random.Int(4)) {
-                                case 0:
-                                default:
-                                    i.quantity(i.quantity() / 2);
-                                    Dungeon.level.drop(i, pos);
-                                    break;
-                                case 1:
-                                    i = Generator.randomUsingDefaults(Generator.Category.STONE);
-                                    break;
 
-                                case 2:
-                                    i = Generator.randomUsingDefaults(Generator.Category.POTION);
-                                    break;
+                    if (ch != null) {
+                        if (ch.buff(RingOfNahida.Nahida.class) != null) {	// 触发纳西妲之戒
+                            if (Random.Float() < RingOfNahida.grassBonusChance(ch) && RingOfNahida.grassBonusChance(ch) > 0) {
+                                // 触发掉落
+                                Item i = new Gold().random();
+                                switch (Random.Int(4)) {
+                                    case 0:
+                                    default:
+                                        i.quantity(i.quantity() / 2);
+                                        Dungeon.level.drop(i, pos);
+                                        break;
+                                    case 1:
+                                        i = Generator.randomUsingDefaults(Generator.Category.STONE);
+                                        break;
 
-                                case 3:
-                                    i = Generator.randomUsingDefaults(Generator.Category.SCROLL);
-                                    break;
-                                case 4:
-                                    i = Generator.randomUsingDefaults(Generator.Category.SEED);
-                                    break;
-                                case 5:
-                                    i = Generator.randomUsingDefaults(Generator.Category.MISSILE);
+                                    case 2:
+                                        i = Generator.randomUsingDefaults(Generator.Category.POTION);
+                                        break;
 
+                                    case 3:
+                                        i = Generator.randomUsingDefaults(Generator.Category.SCROLL);
+                                        break;
+                                    case 4:
+                                        i = Generator.randomUsingDefaults(Generator.Category.SEED);
+                                        break;
+                                    case 5:
+                                        i = Generator.randomUsingDefaults(Generator.Category.MISSILE);
+
+                                }
+                                Dungeon.level.drop(i, pos);
+                                // 播放特效
+                                new Flare(6, 20).color(0x00FF00, true).show(ch.sprite, 3f);
+                                // 触发鉴定
+                                Hero hero = Dungeon.hero;
+                                if (Random.Int(2) == 0) {
+                                    hero.belongings.randomUnequipped().identify();
+                                } else {
+                                    hero.belongings.observe();
+                                }
                             }
-                            Dungeon.level.drop(i, pos);
-                            // 播放特效
-                            new Flare(6, 20).color(0x00FF00, true).show(ch.sprite, 3f);
-                            // 触发鉴定
-                            Hero hero = Dungeon.hero;
-                            if (Random.Int(2) == 0) {
-                                hero.belongings.randomUnequipped().identify();
-                            } else {
-                                hero.belongings.observe();
-                            }
+                        } else if (Random.Float() < (-RingOfNahida.grassBonusChance(ch)) && RingOfNahida.grassBonusChance(ch) < 0) {
+                            // 触发刷怪惩罚
+                            Snake snake = new Snake();
+                            ScrollOfTeleportation.appear(snake, pos + 1);
                         }
-                    } else if (Random.Float() < (-RingOfNahida.grassBonusChance(ch)) || RingOfNahida.grassBonusChance(ch) < 0) {
-                        // 触发刷怪惩罚
-                        Snake snake = new Snake();
-                        ScrollOfTeleportation.appear(snake, pos + 1);
                     }
                 }
             }

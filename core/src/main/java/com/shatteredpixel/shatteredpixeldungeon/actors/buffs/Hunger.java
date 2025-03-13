@@ -65,7 +65,7 @@ public class Hunger extends Buff implements Hero.Doom {
     public boolean act() {
         // 触发拼好饭之戒
         if (target.buff(RingOfTakeout.Takeout.class) != null) {
-            if (Math.random() < RingOfTakeout.takeoutChance(target) || RingOfTakeout.takeoutChance(target) > 0) {
+            if (Math.random() < RingOfTakeout.takeoutChance(target) && RingOfTakeout.takeoutChance(target) > 0) {
                 // 拼好饭戒指的进餐逻辑
                 Hero hero = Dungeon.hero;
                 Buff.affect(hero, Hunger.class).satisfy(RingOfTakeout.eatEffectSatiety(target));
