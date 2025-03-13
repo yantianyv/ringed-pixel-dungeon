@@ -51,6 +51,7 @@ import com.watabou.noosa.Visual;
 import com.watabou.noosa.audio.Sample;
 import jdk.internal.util.random.RandomSupport;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 
 public class HighGrass {
 
@@ -202,8 +203,8 @@ public class HighGrass {
                                 if (ch == hero) {
                                     Sample.INSTANCE.play(Assets.Sounds.CURSED);
                                 }
-                                Snake snake = new Snake();
-                                ScrollOfTeleportation.appear(snake, pos + 1);
+                                Mob mob = Dungeon.level.createMob();
+                                ScrollOfTeleportation.appear(mob, pos + 1);
                             }
 
                         }
