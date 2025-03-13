@@ -891,7 +891,7 @@ public class ItemSpriteSheet {
         private static final int RINGS = xy(1, 1);  //16 slots
         public static final int RING_ACCURACY = RINGS + 0;
         public static final int RING_TAKEOUT = RINGS + 1;
-        public static final int RING_ELEMENTS = RINGS + 2;
+        public static final int RING_NAHIDA = RINGS + 2;
         public static final int RING_ENERGY = RINGS + 3;
         public static final int RING_EVASION = RINGS + 4;
         public static final int RING_FORCE = RINGS + 5;
@@ -905,7 +905,7 @@ public class ItemSpriteSheet {
         static {
             assignIconRect(RING_ACCURACY, 7, 7);
             assignIconRect(RING_TAKEOUT, 7, 4);
-            assignIconRect(RING_ELEMENTS, 7, 7);
+            assignIconRect(RING_NAHIDA, 7, 6);
             assignIconRect(RING_ENERGY, 7, 5);
             assignIconRect(RING_EVASION, 7, 7);
             assignIconRect(RING_FORCE, 5, 6);
