@@ -158,10 +158,10 @@ public class HighGrass {
 
                 if (Random.Float() < lootChance) {  // 掉落露水并判定纳西妲之戒的效果
                     level.drop(new Dewdrop(), pos).sprite.drop();
-
                     if (ch != null) {
-                        if (ch.buff(RingOfNahida.Nahida.class) != null) {	// 触发纳西妲之戒
-                            if (Random.Float() < RingOfNahida.grassBonusChance(ch) && RingOfNahida.grassBonusChance(ch) > 0) {
+                        Hero hero = Dungeon.hero;
+                        if (hero.buff(RingOfNahida.Nahida.class) != null) {	// 触发纳西妲之戒
+                            if (Random.Float() < RingOfNahida.grassBonusChance(hero)) {
                                 // 触发掉落
                                 Item i = new Gold().random();
                                 switch (Random.Int(4)) {
@@ -190,17 +190,18 @@ public class HighGrass {
                                 }
                                 Dungeon.level.drop(i, pos);
                                 // 播放特效
-                                new Flare(6, 20).color(0x00FF00, true).show(ch.sprite, 3f);
+                                new Flare(6, 20).color(0x00FF00, true).show(hero.sprite, 3f);
                                 // 触发鉴定
-                                Hero hero = Dungeon.hero;
                                 if (Random.Int(2) == 0) {
                                     hero.belongings.randomUnequipped().identify();
                                 } else {
                                     hero.belongings.observe();
                                 }
-                            } else if (Random.Float() < (-RingOfNahida.grassBonusChance(ch)) && RingOfNahida.grassBonusChance(ch) < 0) {
+                            } else if (Random.Float() > (-RingOfNahida.grassBonusChance(hero))) {
                                 // 触发刷怪惩罚
-                                Sample.INSTANCE.play(Assets.Sounds.CURSED);
+                                if (ch == hero) {
+                                    Sample.INSTANCE.play(Assets.Sounds.CURSED);
+                                }
                                 Snake snake = new Snake();
                                 ScrollOfTeleportation.appear(snake, pos + 1);
                             }
