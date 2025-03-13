@@ -27,6 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
@@ -41,6 +42,8 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 
 import java.util.ArrayList;
+
+import jdk.internal.net.http.common.Log;
 
 public class Food extends Item {
 
@@ -124,9 +127,9 @@ public class Food extends Item {
         }
 
         Buff.affect(hero, Hunger.class).satisfy(foodVal);
-        if (RingOfTakeout.takeoutChance(hero) < 0) {
-            // 诅咒的拼好饭戒指会扣钱
-            Dungeon.gold += (int) (foodVal * RingOfTakeout.takeoutChance(hero) * Dungeon.depth);// 由于进食率是负的，所以反而要增加金币才能扣除
+        if (RingOfTakeout.takeoutChance(hero) < 0 || Dungeon.gold > 0) {
+            // 诅咒的拼好饭戒指会造成中毒效果
+            Buff.affect(hero, Poison.class).set(RingOfTakeout.takeoutChance(hero) * foodVal);
             updateQuickslot();
         }
     }
