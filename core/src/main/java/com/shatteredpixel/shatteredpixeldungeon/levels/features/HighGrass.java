@@ -203,25 +203,29 @@ public class HighGrass {
                                 if (ch == hero) {
                                     Sample.INSTANCE.play(Assets.Sounds.CURSED);
                                 }
-                                Mob mob = Dungeon.level.createMob();
-                                ScrollOfTeleportation.appear(mob, pos + 1);
-                            }
 
+                                Mob snake = new Snake(); // 假设Snake是蛇这种怪物的类
+                                snake.state = snake.WANDERING;
+                                snake.pos = pos + 1;
+                                GameScene.add(snake);
+                                ScrollOfTeleportation.appear(snake, snake.pos);
+                                Dungeon.level.occupyCell(snake);
+
+                            }
                         }
                     }
                 }
-            }
 
-            freezeTrample = false;
+                freezeTrample = false;
 
-            if (ShatteredPixelDungeon.scene() instanceof GameScene) {
-                GameScene.updateMap(pos);
+                if (ShatteredPixelDungeon.scene() instanceof GameScene) {
+                    GameScene.updateMap(pos);
 
-                CellEmitter.get(pos).burst(LeafParticle.LEVEL_SPECIFIC, 4);
-                if (Dungeon.level.heroFOV[pos]) {
-                    Dungeon.observe();
+                    CellEmitter.get(pos).burst(LeafParticle.LEVEL_SPECIFIC, 4);
+                    if (Dungeon.level.heroFOV[pos]) {
+                        Dungeon.observe();
+                    }
                 }
             }
         }
     }
-}
