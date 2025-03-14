@@ -93,9 +93,7 @@ public class QuickSlotButton extends Button {
                         GameScene.handleCell(cell);
                     } else {
                         //couldn't auto-aim, just target the position and hope for the best.
-                        if (lastTarget.buff(Invisibility.class) == null) {
-                            GameScene.handleCell(lastTarget.pos);
-                        }
+                        GameScene.handleCell(lastTarget.pos);
                     }
                 } else {
                     Item item = select(slotNum);
@@ -330,6 +328,7 @@ public class QuickSlotButton extends Button {
         if (lastTarget != null
                 && Actor.chars().contains(lastTarget)
                 && lastTarget.isAlive()
+                && lastTarget.buff(Invisibility.class) == null
                 && lastTarget.alignment != Char.Alignment.ALLY
                 && Dungeon.level.heroFOV[lastTarget.pos]) {
 
