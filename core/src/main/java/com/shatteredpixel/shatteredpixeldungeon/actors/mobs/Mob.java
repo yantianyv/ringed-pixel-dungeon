@@ -250,30 +250,6 @@ public abstract class Mob extends Char {
             return true;
         }
 
-        if ((HT - HP) > (2 * HP) && buff(Terror.class) == null) {
-            Buff.affect(this, Terror.class, 10);
-            Buff.affect(this, Haste.class, 10);
-            Buff.affect(this, Invisibility.class, 1);
-
-            if (Dungeon.level.locked) {
-                Buff.prolong(this, Haste.class, 2);
-            } else {
-                int counter = 0;
-                for (Mob mob : Dungeon.level.mobs) {
-                    if (Random.Int(5) == 0) {
-                        mob.beckon(this.pos);
-                        if (Dungeon.level.heroFOV[pos]) {
-                            counter += 1;
-                        }
-                    }
-                }
-                if (Dungeon.level.heroFOV[pos] && counter > 0) {
-                    CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
-                }
-            }
-
-        }
-
         if (buff(Terror.class) != null || buff(Dread.class) != null) {
             state = FLEEING;
         }
@@ -740,6 +716,29 @@ public abstract class Mob extends Char {
                 }
             } else {
                 return 0;
+            }
+            if ((HT - HP) > (2 * HP) && buff(Terror.class) == null) {
+                Buff.affect(this, Terror.class, 10);
+                Buff.affect(this, Haste.class, 10);
+                Buff.affect(this, Invisibility.class, 1);
+
+                if (Dungeon.level.locked) {
+                    Buff.prolong(this, Haste.class, 2);
+                } else {
+                    int counter = 0;
+                    for (Mob mob : Dungeon.level.mobs) {
+                        if (Random.Int(5) == 0) {
+                            mob.beckon(this.pos);
+                            if (Dungeon.level.heroFOV[pos]) {
+                                counter += 1;
+                            }
+                        }
+                    }
+                    if (Dungeon.level.heroFOV[pos] && counter > 0) {
+                        CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
+                    }
+                }
+
             }
         }
 
