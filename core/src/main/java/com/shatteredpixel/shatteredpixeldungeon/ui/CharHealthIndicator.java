@@ -56,6 +56,9 @@ public class CharHealthIndicator extends HealthBar {
         } else {
             visible = false;
         }
+        if (target.buff(Invisibility.class) != null) {
+            visible = false;
+        }
     }
 
     public void target(Char ch) {

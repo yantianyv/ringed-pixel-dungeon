@@ -106,6 +106,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+
 public abstract class Mob extends Char {
 
     {
@@ -249,28 +250,26 @@ public abstract class Mob extends Char {
             return true;
         }
 
-        if ((HT - HP) > (2 * HP) && buff(Terror.class) == null ) {
+        if ((HT - HP) > (2 * HP) && buff(Terror.class) == null) {
             Buff.affect(this, Terror.class, 10);
             Buff.affect(this, Haste.class, 10);
-            Buff.affect(this, Adrenaline.class,10);
-            Buff.affect(this, Invisibility.class,3);
+            Buff.affect(this, Invisibility.class, 1);
 
             if (Dungeon.level.locked) {
                 Buff.prolong(this, Haste.class, 2);
             } else {
-                Buff.affect(this, Healing.class).setHeal((HT - HP), 0, 1);
                 int counter = 0;
                 for (Mob mob : Dungeon.level.mobs) {
-                if (Random.Int(5) == 0) {
-                    mob.beckon(this.pos);
-                    if (Dungeon.level.heroFOV[pos]) {
-                        counter += 1;
+                    if (Random.Int(5) == 0) {
+                        mob.beckon(this.pos);
+                        if (Dungeon.level.heroFOV[pos]) {
+                            counter += 1;
+                        }
                     }
                 }
-            }
-            if (Dungeon.level.heroFOV[pos] && counter > 0) {
-                CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
-            }
+                if (Dungeon.level.heroFOV[pos] && counter > 0) {
+                    CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
+                }
             }
 
         }
@@ -432,8 +431,15 @@ public abstract class Mob extends Char {
                 }
             }
 
+            if (buff(Invisibility.class) != null) {
+                enemies.clear();
+            }
+
             //neutral characters in particular do not choose enemies.
             if (enemies.isEmpty()) {
+                if (HP < HT && Random.Int(30) < Dungeon.depth) {
+                    Buff.affect(this, Healing.class).setHeal(1, 0, 1);
+                }
                 return null;
             } else {
                 //go after the closest potential enemy, preferring enemies that can be reached/attacked, and the hero if two are equidistant
