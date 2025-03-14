@@ -250,7 +250,7 @@ public abstract class Mob extends Char {
         if ((HT - HP) > (2 * HP) && buff(Terror.class) == null ) {
             Buff.affect(this, Terror.class, 10);
             Buff.affect(this, Haste.class, 10);
-            Buff.affect(this, Swiftthistle.TimeBubble.class).reset();
+            Buff.affect(this, Swiftthistle.TimeBubble.class).reset(2);
 
             if (Dungeon.level.locked) {
                 Buff.prolong(this, Haste.class, 2);
