@@ -101,8 +101,9 @@ import java.util.HashSet;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 public abstract class Mob extends Char {
 
     {
@@ -247,10 +248,16 @@ public abstract class Mob extends Char {
         }
 
         if ((HT - HP) > (2 * HP) && buff(Terror.class) == null ) {
-            Buff.affect(this, Terror.class, 20);
-            Buff.affect(this, TimeBubble.class, 5);
-            int counter = 0;
-            for (Mob mob : Dungeon.level.mobs) {
+            Buff.affect(this, Terror.class, 10);
+            Buff.affect(this, Haste.class, 10);
+            Buff.affect(this, Swiftthistle.TimeBubble.class).reset();
+
+            if (Dungeon.level.locked) {
+                Buff.prolong(this, Haste.class, 2);
+            } else {
+                Buff.affect(this, Healing.class).setHeal((HT - HP), 0, 1);
+                int counter = 0;
+                for (Mob mob : Dungeon.level.mobs) {
                 if (Random.Int(5) == 0) {
                     mob.beckon(this.pos);
                     if (Dungeon.level.heroFOV[pos]) {
@@ -261,6 +268,8 @@ public abstract class Mob extends Char {
             if (Dungeon.level.heroFOV[pos] && counter > 0) {
                 CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
             }
+            }
+
         }
 
         if (buff(Terror.class) != null || buff(Dread.class) != null) {
@@ -268,14 +277,6 @@ public abstract class Mob extends Char {
         }
 
         enemy = chooseEnemy();
-
-        if (enemy == null) {
-            if (Dungeon.level.locked) {
-                Buff.prolong(this, Haste.class, 2);
-            } else {
-                Buff.affect(this, Healing.class).setHeal((HT - HP), 0, 1);
-            }
-        }
 
         boolean enemyInFOV = enemy != null && enemy.isAlive() && fieldOfView[enemy.pos] && enemy.invisible <= 0;
 
