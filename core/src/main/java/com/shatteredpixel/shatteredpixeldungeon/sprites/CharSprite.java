@@ -660,8 +660,12 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
         }
 
         if (sleeping) {
+            alpha(0.0f);
+
             showSleep();
         } else {
+            alpha(1.0f);
+
             hideSleep();
         }
         synchronized (EmoIcon.class) {
