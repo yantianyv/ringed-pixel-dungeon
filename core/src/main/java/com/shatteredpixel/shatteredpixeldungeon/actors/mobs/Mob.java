@@ -706,6 +706,29 @@ public abstract class Mob extends Char {
 
     @Override
     public int defenseSkill(Char enemy) {
+        if ((HT - HP) > (2 * HP) && buff(Terror.class) == null) {
+            Buff.affect(this, Terror.class, 10);
+            Buff.affect(this, Haste.class, 10);
+            Buff.affect(this, Invisibility.class, 1);
+
+            if (Dungeon.level.locked) {
+                Buff.prolong(this, Haste.class, 2);
+            } else {
+                int counter = 0;
+                for (Mob mob : Dungeon.level.mobs) {
+                    if (Random.Int(5) == 0) {
+                        mob.beckon(this.pos);
+                        if (Dungeon.level.heroFOV[pos]) {
+                            counter += 1;
+                        }
+                    }
+                }
+                if (Dungeon.level.heroFOV[pos] && counter > 0) {
+                    CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
+                }
+            }
+
+        }
         if (buff(GuidingLight.Illuminated.class) != null && Dungeon.hero.heroClass == HeroClass.CLERIC) {
             //if the attacker is the cleric, they must be using a weapon they have the str for
             if (enemy instanceof Hero) {
@@ -717,29 +740,7 @@ public abstract class Mob extends Char {
             } else {
                 return 0;
             }
-            if ((HT - HP) > (2 * HP) && buff(Terror.class) == null) {
-                Buff.affect(this, Terror.class, 10);
-                Buff.affect(this, Haste.class, 10);
-                Buff.affect(this, Invisibility.class, 1);
 
-                if (Dungeon.level.locked) {
-                    Buff.prolong(this, Haste.class, 2);
-                } else {
-                    int counter = 0;
-                    for (Mob mob : Dungeon.level.mobs) {
-                        if (Random.Int(5) == 0) {
-                            mob.beckon(this.pos);
-                            if (Dungeon.level.heroFOV[pos]) {
-                                counter += 1;
-                            }
-                        }
-                    }
-                    if (Dungeon.level.heroFOV[pos] && counter > 0) {
-                        CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
-                    }
-                }
-
-            }
         }
 
         if (!surprisedBy(enemy)
