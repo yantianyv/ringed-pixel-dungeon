@@ -42,6 +42,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ChampionEnemy;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicalSight;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
@@ -826,7 +827,7 @@ public abstract class Level implements Bundlable {
     }
 
     public Item findPrizeItem(Class<? extends Item> match) {
-        if (itemsToSpawn.size() == 0) {
+        if (itemsToSpawn.isEmpty()) {
             return null;
         }
 
@@ -1502,7 +1503,7 @@ public abstract class Level implements Bundlable {
 
             //set mind vision chars
             for (Mob mob : mobs) {
-                if (heroMindFov[mob.pos] && !fieldOfView[mob.pos]) {
+                if (heroMindFov[mob.pos] && !fieldOfView[mob.pos] && mob.buff(Invisibility.class) == null) {
                     Dungeon.hero.mindVisionEnemies.add(mob);
                 }
             }

@@ -101,6 +101,8 @@ import java.util.HashSet;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -250,7 +252,8 @@ public abstract class Mob extends Char {
         if ((HT - HP) > (2 * HP) && buff(Terror.class) == null ) {
             Buff.affect(this, Terror.class, 10);
             Buff.affect(this, Haste.class, 10);
-            Buff.affect(this, Swiftthistle.TimeBubble.class).reset(2);
+            Buff.affect(this, Adrenaline.class,10);
+            Buff.affect(this, Invisibility.class,3);
 
             if (Dungeon.level.locked) {
                 Buff.prolong(this, Haste.class, 2);
