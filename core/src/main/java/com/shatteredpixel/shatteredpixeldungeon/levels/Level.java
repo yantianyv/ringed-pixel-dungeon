@@ -1437,7 +1437,7 @@ public abstract class Level implements Bundlable {
 
                 if (mindVisRange >= 1) {
                     for (Mob mob : mobs) {
-                        if (mob instanceof Mimic && mob.alignment == Char.Alignment.NEUTRAL && ((Mimic) mob).stealthy()) {
+                        if (mob instanceof Mimic && mob.alignment == Char.Alignment.NEUTRAL && ((Mimic) mob).stealthy()||mob.buff(Invisibility.class) != null) {
                             continue;
                         }
                         int p = mob.pos;
@@ -1503,7 +1503,7 @@ public abstract class Level implements Bundlable {
 
             //set mind vision chars
             for (Mob mob : mobs) {
-                if (heroMindFov[mob.pos] && !fieldOfView[mob.pos] && mob.buff(Invisibility.class) == null) {
+                if (heroMindFov[mob.pos] && !fieldOfView[mob.pos]) {
                     Dungeon.hero.mindVisionEnemies.add(mob);
                 }
             }

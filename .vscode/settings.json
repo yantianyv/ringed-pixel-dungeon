@@ -1,3 +1,4 @@
 {
-    "Codegeex.CompletionDelay": 3
+    "Codegeex.CompletionDelay": 3,
+    "Codegeex.CommitMessageStyle": "ConventionalCommits"
 }
