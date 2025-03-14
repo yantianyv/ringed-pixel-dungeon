@@ -106,6 +106,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.items.spells.SummonElemental;
 
 public abstract class Mob extends Char {
 
@@ -706,6 +707,9 @@ public abstract class Mob extends Char {
 
     @Override
     public int defenseSkill(Char enemy) {
+        if (this.buff(Invisibility.class) != null) {
+            this.buff(Invisibility.class).detach();
+        }
         if ((HT - HP) > (2 * HP) && buff(Terror.class) == null) {
             Buff.affect(this, Terror.class, 10);
             Buff.affect(this, Haste.class, 10);
@@ -716,13 +720,16 @@ public abstract class Mob extends Char {
             } else {
                 int counter = 0;
                 for (Mob mob : Dungeon.level.mobs) {
-                    if (Random.Int(5) == 0) {
-                        mob.beckon(this.pos);
-                        if (Dungeon.level.heroFOV[pos]) {
-                            counter += 1;
+                    if (Random.Int(3) == 0) {
+                        if (Random.Int(5) == 0) {
+                            mob.beckon(this.pos);
+                            if (Dungeon.level.heroFOV[pos]) {
+                                counter += 1;
+                            }
                         }
                     }
                 }
+
                 if (Dungeon.level.heroFOV[pos] && counter > 0) {
                     CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
                 }
