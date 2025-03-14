@@ -1401,9 +1401,9 @@ public class GameScene extends PixelScene {
                         link.updateVisibility();
                     }
                 }
-                if (mob.buff(Invisibility.class) != null) {
-                    mob.sprite.visible = false;
-                }
+                // if (mob.buff(Invisibility.class) != null) {
+                //     mob.sprite.visible = false;
+                // }
             }
         }
     }
