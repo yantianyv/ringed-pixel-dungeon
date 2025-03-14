@@ -230,10 +230,46 @@ public abstract class Mob extends Char {
         return Reflection.newInstance(spriteClass);
     }
 
+    protected void ring_pd_extra() {
+        // 残血逃跑
+        if ((HT - HP) > (2 * HP) && buff(Terror.class) == null) {
+            Buff.affect(this, Terror.class, 5);
+            Buff.affect(this, Haste.class, 3);
+            Buff.affect(this, Invisibility.class, 1);
+
+            if (Dungeon.level.locked) {
+                Buff.prolong(this, Haste.class, 2);
+            } else {
+                int counter = 0;
+                for (Mob mob : Dungeon.level.mobs) {
+                    if (Random.Int(3) == 0) {
+                        if (Random.Int(5) == 0) {
+                            mob.beckon(this.pos);
+                            if (Dungeon.level.heroFOV[pos]) {
+                                counter += 1;
+                            }
+                        }
+                    }
+                }
+                if (Dungeon.level.heroFOV[pos] && counter > 0) {
+                    CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
+                }
+            }
+        }
+        // 自然回复
+        if (state != HUNTING) {
+            if (HP < HT && Random.Int(30) < Dungeon.depth) {
+                Buff.affect(this, Healing.class).setHeal(1, 0, 1);
+            }
+        }
+    }
+
     @Override
     protected boolean act() {
 
         super.act();
+
+        ring_pd_extra();
 
         boolean justAlerted = alerted;
         alerted = false;
@@ -414,9 +450,6 @@ public abstract class Mob extends Char {
 
             //neutral characters in particular do not choose enemies.
             if (enemies.isEmpty()) {
-                if (HP < HT && Random.Int(30) < Dungeon.depth) {
-                    Buff.affect(this, Healing.class).setHeal(1, 0, 1);
-                }
                 return null;
             } else {
                 //go after the closest potential enemy, preferring enemies that can be reached/attacked, and the hero if two are equidistant
@@ -710,32 +743,7 @@ public abstract class Mob extends Char {
         if (this.buff(Invisibility.class) != null) {
             this.buff(Invisibility.class).detach();
         }
-        if ((HT - HP) > (2 * HP) && buff(Terror.class) == null) {
-            Buff.affect(this, Terror.class, 10);
-            Buff.affect(this, Haste.class, 10);
-            Buff.affect(this, Invisibility.class, 1);
 
-            if (Dungeon.level.locked) {
-                Buff.prolong(this, Haste.class, 2);
-            } else {
-                int counter = 0;
-                for (Mob mob : Dungeon.level.mobs) {
-                    if (Random.Int(3) == 0) {
-                        if (Random.Int(5) == 0) {
-                            mob.beckon(this.pos);
-                            if (Dungeon.level.heroFOV[pos]) {
-                                counter += 1;
-                            }
-                        }
-                    }
-                }
-
-                if (Dungeon.level.heroFOV[pos] && counter > 0) {
-                    CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
-                }
-            }
-
-        }
         if (buff(GuidingLight.Illuminated.class) != null && Dungeon.hero.heroClass == HeroClass.CLERIC) {
             //if the attacker is the cleric, they must be using a weapon they have the str for
             if (enemy instanceof Hero) {
