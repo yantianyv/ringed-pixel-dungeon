@@ -262,10 +262,6 @@ public abstract class Mob extends Char {
                 Buff.affect(this, Healing.class).setHeal(1, 0, 1);
             }
         }
-        // 睡眠隐身
-        if (state == SLEEPING) {
-            Buff.affect(this, Invisibility.class);
-        }
     }
 
     @Override
@@ -1161,7 +1157,7 @@ public abstract class Mob extends Char {
             }
 
             //can be awoken by the least stealthy hostile present, not necessarily just our target
-            if (enemyInFOV || (enemy != null && (enemy.invisible > 0 || enemy.buff(Invisibility.class) != null))) {
+            if (enemyInFOV || (enemy != null)) {
 
                 float closestHostileDist = Float.POSITIVE_INFINITY;
 
