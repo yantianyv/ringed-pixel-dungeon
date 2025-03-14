@@ -262,6 +262,10 @@ public abstract class Mob extends Char {
                 Buff.affect(this, Healing.class).setHeal(1, 0, 1);
             }
         }
+        // 睡眠隐身
+        if (state == SLEEPING) {
+            Buff.affect(this, Invisibility.class);
+        }
     }
 
     @Override
@@ -1145,7 +1149,6 @@ public abstract class Mob extends Char {
 
         @Override
         public boolean act(boolean enemyInFOV, boolean justAlerted) {
-
             //debuffs cause mobs to wake as well
             for (Buff b : buffs()) {
                 if (b.type == Buff.buffType.NEGATIVE) {
@@ -1158,7 +1161,7 @@ public abstract class Mob extends Char {
             }
 
             //can be awoken by the least stealthy hostile present, not necessarily just our target
-            if (enemyInFOV || (enemy != null && enemy.invisible > 0)) {
+            if (enemyInFOV || (enemy != null && (enemy.invisible > 0 || enemy.buff(Invisibility.class) != null))) {
 
                 float closestHostileDist = Float.POSITIVE_INFINITY;
 
