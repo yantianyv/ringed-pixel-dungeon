@@ -1437,7 +1437,7 @@ public abstract class Level implements Bundlable {
 
                 if (mindVisRange >= 1) {
                     for (Mob mob : mobs) {
-                        if (mob instanceof Mimic && mob.alignment == Char.Alignment.NEUTRAL && ((Mimic) mob).stealthy()||mob.buff(Invisibility.class) != null) {
+                        if (mob instanceof Mimic && mob.alignment == Char.Alignment.NEUTRAL && ((Mimic) mob).stealthy()) {
                             continue;
                         }
                         int p = mob.pos;

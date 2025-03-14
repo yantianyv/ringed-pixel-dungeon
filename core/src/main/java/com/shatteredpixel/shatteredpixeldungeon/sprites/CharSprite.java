@@ -20,19 +20,15 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
-import java.nio.Buffer;
-import java.util.HashSet;
-
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.DarkBlock;
 import com.shatteredpixel.shatteredpixeldungeon.effects.EmoIcon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
-import com.shatteredpixel.shatteredpixeldungeon.effects.GlowBlock;
 import com.shatteredpixel.shatteredpixeldungeon.effects.IceBlock;
+import com.shatteredpixel.shatteredpixeldungeon.effects.GlowBlock;
 import com.shatteredpixel.shatteredpixeldungeon.effects.ShieldHalo;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
@@ -60,6 +56,13 @@ import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
+import java.nio.Buffer;
+import java.util.HashSet;
+
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+
 public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip.Listener {
 
     // Color constants for floating text
@@ -73,20 +76,18 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
     private static float moveInterval = DEFAULT_MOVE_INTERVAL;
     private static final float FLASH_INTERVAL = 0.05f;
 
-    // the amount the sprite is raised from flat when viewed in a raised perspective
-    protected float perspectiveRaise = 6 / 16f; // 6 pixels
+    //the amount the sprite is raised from flat when viewed in a raised perspective
+    protected float perspectiveRaise = 6 / 16f; //6 pixels
 
-    // the width and height of the shadow are a percentage of sprite size
-    // offset is the number of pixels the shadow is moved down or up (handy for some
-    // animations)
+    //the width and height of the shadow are a percentage of sprite size
+    //offset is the number of pixels the shadow is moved down or up (handy for some animations)
     protected boolean renderShadow = false;
     protected float shadowWidth = 1.2f;
     protected float shadowHeight = 0.25f;
     protected float shadowOffset = 0.25f;
 
     public enum State {
-        BURNING, LEVITATING, INVISIBLE, PARALYSED, FROZEN, ILLUMINATED, CHILLED, DARKENED, MARKED, HEALING, SHIELDED,
-        HEARTS, GLOWING, AURA
+        BURNING, LEVITATING, INVISIBLE, PARALYSED, FROZEN, ILLUMINATED, CHILLED, DARKENED, MARKED, HEALING, SHIELDED, HEARTS, GLOWING, AURA
     }
 
     protected Animation idle;
@@ -127,8 +128,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 
     public Char ch;
 
-    // used to prevent the actor associated with this sprite from acting until
-    // movement completes
+    //used to prevent the actor associated with this sprite from acting until movement completes
     public volatile boolean isMoving = false;
 
     public CharSprite() {
@@ -138,13 +138,13 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 
     @Override
     public void play(Animation anim) {
-        // Shouldn't interrupt the dieing animation
+        //Shouldn't interrupt the dieing animation
         if (curAnim == null || curAnim != die) {
             super.play(anim);
         }
     }
 
-    // intended to be used for placing a character in the game world
+    //intended to be used for placing a character in the game world
     public void link(Char ch) {
         linkVisuals(ch);
 
@@ -174,10 +174,9 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
         }
     }
 
-    // used for just updating a sprite based on a given character, not linking them
-    // or placing in the game
+    //used for just updating a sprite based on a given character, not linking them or placing in the game
     public void linkVisuals(Char ch) {
-        // do nothin by default
+        //do nothin by default
     }
 
     public PointF worldToCamera(int cell) {
@@ -186,8 +185,8 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 
         return new PointF(
                 PixelScene.align(Camera.main, ((cell % Dungeon.level.width()) + 0.5f) * csize - width() * 0.5f),
-                PixelScene.align(Camera.main,
-                        ((cell / Dungeon.level.width()) + 1.0f) * csize - height() - csize * perspectiveRaise));
+                PixelScene.align(Camera.main, ((cell / Dungeon.level.width()) + 1.0f) * csize - height() - csize * perspectiveRaise)
+        );
     }
 
     public void place(int cell) {
@@ -238,8 +237,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
         moveInterval = interval;
     }
 
-    // returns where the center of this sprite will be after it completes any motion
-    // in progress
+    //returns where the center of this sprite will be after it completes any motion in progress
     public PointF destinationCenter() {
         PosTweener motion = this.motion;
         if (motion != null && motion.elapsed >= 0) {
@@ -380,7 +378,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 
     private int auraColor = 0;
 
-    // Aura needs color data too
+    //Aura needs color data too
     public void aura(int color) {
         add(State.AURA);
         auraColor = color;
@@ -409,13 +407,13 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
                 if (invisible != null) {
                     invisible.killAndErase();
                 }
-                invisible = new AlphaTweener(this, 0.0f, 0.1f);
-                if (ch instanceof Mob) {
-                    alpha(0.0f);
+                invisible = new AlphaTweener(this, 0.0f, 0.4f);
+                if (ch instanceof Hero) {
+                    alpha(0.2f);
                 } else if (parent != null) {
                     parent.add(invisible);
                 } else {
-                    alpha(0.2f);
+                    alpha(0.05f);
                 }
                 break;
             case PARALYSED:
@@ -647,7 +645,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
         if (hearts != null) {
             hearts.visible = visible;
         }
-        // shield fx updates its own visibility
+        //shield fx updates its own visibility
         if (aura != null) {
             if (aura.parent == null) {
                 aura.show(this, 0);
@@ -660,14 +658,8 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
         }
 
         if (sleeping) {
-            alpha(0.0f);
-
             showSleep();
         } else {
-            if (invisible != null) {
-                alpha(1.0f);
-            }
-
             hideSleep();
         }
         synchronized (EmoIcon.class) {
@@ -681,29 +673,50 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
     public void resetColor() {
         super.resetColor();
         if (invisible != null) {
-            alpha(0.0f);
+            alpha(0.4f);
         }
     }
 
     public void showSleep() {
-        synchronized (EmoIcon.class) {
-            if (!(emo instanceof EmoIcon.Sleep)) {
-                if (emo != null) {
-                    emo.killAndErase();
+        if (ch instanceof Hero) {
+            synchronized (EmoIcon.class) {
+                if (!(emo instanceof EmoIcon.Sleep)) {
+                    if (emo != null) {
+                        emo.killAndErase();
+                    }
+                    emo = new EmoIcon.Sleep(this);
+                    emo.visible = visible;
                 }
-                emo = new EmoIcon.Sleep(this);
-                emo.visible = visible;
+            }
+        } else if (invisible != null) {
+            invisible.killAndErase();
+
+            invisible = new AlphaTweener(this, 0.0f, 0.4f);
+            if (ch instanceof Hero) {
+                // alpha(0.2f);
+            } else if (parent != null) {
+                parent.add(invisible);
+            } else {
+                alpha(0.05f);
             }
         }
+
         idle();
     }
 
     public void hideSleep() {
-        synchronized (EmoIcon.class) {
-            if (emo instanceof EmoIcon.Sleep) {
-                emo.killAndErase();
-                emo = null;
+        if (ch instanceof Hero) {
+            synchronized (EmoIcon.class) {
+                if (emo instanceof EmoIcon.Sleep) {
+                    emo.killAndErase();
+                    emo = null;
+                }
             }
+        } else if (invisible != null && ch.buff(Invisibility.class) == null) {
+            invisible.killAndErase();
+            invisible = null;
+            alpha(1f);
+
         }
     }
 
