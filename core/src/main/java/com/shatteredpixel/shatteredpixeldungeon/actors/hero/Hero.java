@@ -989,13 +989,13 @@ public class Hero extends Char {
     }
 
     private boolean actMove(HeroAction.Move action) {
-
+        // 如果成功靠近目标位置，则返回true
         if (getCloser(action.dst)) {
             canSelfTrample = false;
             return true;
 
-            //Hero moves in place if there is grass to trample
-        } else if (pos == action.dst && canSelfTrample()) {
+        } // 处理原地踩踏
+        else if (pos == action.dst && canSelfTrample()) {
             canSelfTrample = false;
             Dungeon.level.pressCell(pos);
             spendAndNext(1 / speed());
@@ -1753,6 +1753,16 @@ public class Hero extends Char {
         return visibleEnemies.size();
     }
 
+    public int invisibilityEnemies() {
+        int inv = 0;
+        for (Mob i : Dungeon.hero.visibleEnemies) {
+            if (i.buff(Invisibility.class) != null) {
+                inv++;
+            }
+        }
+        return inv;
+    }
+
     public Mob visibleEnemy(int index) {
         return visibleEnemies.get(index % visibleEnemies.size());
     }
@@ -1799,13 +1809,8 @@ public class Hero extends Char {
                 // 如果目标为生物，则尝试交互
                 if (Actor.findChar(target) != null) {
                     Char ch = Actor.findChar(target);
-                    if (ch.buff(Invisibility.class) != null || ch.alignment == Alignment.ENEMY) {
-                        attack(ch);
-                    } else if (ch.alignment == Alignment.ALLY) {
-                        // 尝试与其交互
-                        interact(ch);
-                    }
-                    return true;
+                    handle(ch.pos);
+                    return false;
                 }
             }
         } // 如果目标不相邻
@@ -1821,6 +1826,8 @@ public class Hero extends Char {
             } // 如果 撞向生物 则特殊处理
             else if (Actor.findChar(path.get(0)) != null) {
                 Char ch = Actor.findChar(path.get(0));
+                newPath = true;
+
                 // 对于隐形的敌人
                 if (ch.buff(Invisibility.class) != null || ch.alignment == Alignment.ENEMY) {
                     attack(ch);
@@ -1832,7 +1839,6 @@ public class Hero extends Char {
                     interact(ch);
                     newPath = false;
                 }
-                newPath = true;
             } // 如果 撞向障碍 则重新寻路
             else if (!Dungeon.level.passable[path.get(0)]) {
                 newPath = true;
@@ -1869,7 +1875,7 @@ public class Hero extends Char {
             step = path.removeFirst();
 
         }
-        // 如果存在路径
+        // 如果存在下一步
         if (step != -1) {
             // 计算移动速度
             float delay = 1 / speed();
@@ -1877,7 +1883,6 @@ public class Hero extends Char {
             if (buff(GreaterHaste.class) != null) {
                 delay = 0;
             }
-            
             // 如果踩到虚空，则特殊处理
             if (Dungeon.level.pit[step] && !Dungeon.level.solid[step]
                     && (!flying || buff(Levitation.class) != null && buff(Levitation.class).detachesWithinDelay(delay))) {
@@ -1903,18 +1908,16 @@ public class Hero extends Char {
             // 移动
             sprite.move(pos, step);
             move(step);
-            
+            // 处理移动延迟
             spend(delay);
             justMoved = true;
-
+            // 自动搜索
             search(false);
 
             return true;
-            // 如果不存在路径
-        } else {
-
+        } // 如果不存在下一步
+        else {
             return false;
-
         }
 
     }

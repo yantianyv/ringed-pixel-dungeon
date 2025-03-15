@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDAction;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -33,98 +33,115 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Image;
 
 public class DangerIndicator extends Tag {
-	
-	public static final int COLOR	= 0xC03838;
-	
-	private BitmapText number;
-	private Image icon;
-	
-	private int enemyIndex = 0;
-	
-	private int lastNumber = -1;
 
-	public static int HEIGHT = 16;
-	
-	public DangerIndicator() {
-		super( COLOR );
-		
-		setSize( SIZE, HEIGHT );
-		
-		visible = false;
-	}
-	
-	@Override
-	public GameAction keyAction() {
-		return SPDAction.CYCLE;
-	}
-	
-	@Override
-	protected void createChildren() {
-		super.createChildren();
-		
-		number = new BitmapText( PixelScene.pixelFont);
-		add( number );
-		
-		icon = Icons.SKULL.get();
-		add( icon );
-	}
-	
-	@Override
-	protected void layout() {
-		super.layout();
-		
-		icon.x = right() - 10;
-		icon.y = y + (height - icon.height) / 2;
-		
-		placeNumber();
-	}
-	
-	private void placeNumber() {
-		number.x = right() - 11 - number.width();
-		number.y = y + (height - number.baseLine()) / 2f;
-		PixelScene.align(number);
-	}
-	
-	@Override
-	public void update() {
-		
-		if (Dungeon.hero.isAlive()) {
-			int v =  Dungeon.hero.visibleEnemies();
-			if (v != lastNumber) {
-				lastNumber = v;
-				if (visible = lastNumber > 0) {
-					number.text( Integer.toString( lastNumber ) );
-					number.measure();
-					placeNumber();
+    public static final int COLOR = 0xC03838;
 
-					flash();
-				}
-			}
-		} else {
-			visible = false;
-		}
-		
-		super.update();
-	}
-	
-	@Override
-	protected void onClick() {
-		super.onClick();
-		if (Dungeon.hero.visibleEnemies() > 0) {
+    private BitmapText number;
+    private Image icon;
 
-			Mob target = Dungeon.hero.visibleEnemy(++enemyIndex);
+    private int enemyIndex = 0;
 
-			QuickSlotButton.target(target);
-			if (Dungeon.hero.canAttack(target)) AttackIndicator.target(target);
+    private int lastNumber = -1;
+    private int lastI = -1;
 
-			if (Dungeon.hero.curAction == null && target.sprite != null) {
-				Camera.main.panFollow(target.sprite, 5f);
-			}
-		}
-	}
+    public static int HEIGHT = 16;
 
-	@Override
-	protected String hoverText() {
-		return Messages.titleCase(Messages.get(WndKeyBindings.class, "tag_danger"));
-	}
+    public DangerIndicator() {
+        super(COLOR);
+
+        setSize(SIZE, HEIGHT);
+
+        visible = false;
+    }
+
+    @Override
+    public GameAction keyAction() {
+        return SPDAction.CYCLE;
+    }
+
+    @Override
+    protected void createChildren() {
+        super.createChildren();
+
+        number = new BitmapText(PixelScene.pixelFont);
+        add(number);
+
+        icon = Icons.SKULL.get();
+        add(icon);
+    }
+
+    @Override
+    protected void layout() {
+        super.layout();
+
+        icon.x = right() - 10;
+        icon.y = y + (height - icon.height) / 2;
+
+        placeNumber();
+    }
+
+    private void placeNumber() {
+        number.x = right() - 11 - number.width();
+        number.y = y + (height - number.baseLine()) / 2f;
+        PixelScene.align(number);
+    }
+
+    @Override
+    public void update() {
+
+        if (Dungeon.hero.isAlive()) {
+            // 读取怪物数量
+            int inv = Dungeon.hero.invisibilityEnemies();
+            int v = Dungeon.hero.visibleEnemies() - inv;
+            // 如果数量发生变化或存在隐形怪，更新显示
+            if (v != lastNumber || inv != lastI) {
+                // 更新最近数量
+                lastNumber = v;
+                lastI = inv;
+                // 存在可见怪
+                if (visible = lastNumber > 0) {
+                    // 输出可见怪数量
+                    number.text(Integer.toString(lastNumber));
+                    // 如果存在隐形怪，则用加号提示
+                    if (inv > 0) {
+                        number.text(number.text() + "+");
+                    }
+                    flash();
+                }// 只有隐形怪，则用感叹号提示
+                else if (visible = inv > 0) {
+                    number.text("!!!");
+                }
+                // 更新显示
+                number.measure();
+                placeNumber();
+            }
+        } else {
+            visible = false;
+        }
+
+        super.update();
+    }
+
+    @Override
+    protected void onClick() {
+        super.onClick();
+        if (Dungeon.hero.visibleEnemies() > 0) {
+
+            Mob target = Dungeon.hero.visibleEnemy(++enemyIndex);
+
+            QuickSlotButton.target(target);
+            if (Dungeon.hero.canAttack(target)) {
+                AttackIndicator.target(target);
+            }
+
+            if (Dungeon.hero.curAction == null && target.sprite != null && target.buff(Invisibility.class) == null) {
+                Camera.main.panFollow(target.sprite, 5f);
+            }
+        }
+    }
+
+    @Override
+    protected String hoverText() {
+        return Messages.titleCase(Messages.get(WndKeyBindings.class, "tag_danger"));
+    }
 }
