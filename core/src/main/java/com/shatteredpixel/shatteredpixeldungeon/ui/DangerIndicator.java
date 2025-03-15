@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.ui;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDAction;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -137,6 +138,9 @@ public class DangerIndicator extends Tag {
 
             if (Dungeon.hero.curAction == null && target.sprite != null && target.buff(Invisibility.class) == null) {
                 Camera.main.panFollow(target.sprite, 5f);
+            } else {
+                Hero hero = Dungeon.hero;
+                Camera.main.panFollow(hero.sprite, 5f);
             }
         }
     }
