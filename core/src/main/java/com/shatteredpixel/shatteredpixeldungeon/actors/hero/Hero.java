@@ -1417,6 +1417,10 @@ public class Hero extends Char {
             ready();
             return false;
         }
+        // 当隐形的怪物被攻击时，先破隐
+        if (canAttack(enemy) && enemy.buff(Invisibility.class) != null) {
+            enemy.buff(Invisibility.class).detach();
+        }
 
         if (enemy.isAlive() && canAttack(enemy) && enemy.invisible == 0) {
 
