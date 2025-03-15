@@ -20,6 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.effects;
 
+import static com.badlogic.gdx.graphics.Color.alpha;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
@@ -33,8 +35,11 @@ public class EmoIcon extends Image {
     protected float timeScale = 1;
 
     protected boolean growing = true;
+    protected float timer;
 
     protected CharSprite owner;
+
+    protected int update_mode = 0;
 
     public EmoIcon(CharSprite owner) {
         super();
@@ -45,24 +50,49 @@ public class EmoIcon extends Image {
 
     @Override
     public void update() {
+
+        switch (update_mode) {
+            case 0:// 右上角
+                if (visible) {
+                    if (growing) {
+                        scale.set(Math.min(scale.x + Game.elapsed * timeScale, maxSize));
+                        if (scale.x >= maxSize) {
+                            growing = false;
+                        }
+                    } else {
+                        scale.set(Math.max(scale.x - Game.elapsed * timeScale, 1f));
+                        if (scale.x <= 1) {
+                            growing = true;
+                        }
+                    }
+
+                    x = owner.x + owner.width() - width / 2;
+                    y = owner.y - height;
+                }
+                break;
+            case 1:// 头顶
+                if (visible) {
+                    if (visible) {
+                        if (growing) {
+                            scale.set(Math.min(scale.x + Game.elapsed * timeScale, maxSize));
+                            if (scale.x >= maxSize) {
+                                growing = false;
+                            }
+                        } else {
+                            scale.set(Math.max(scale.x - Game.elapsed * timeScale * 0.5f, 0.5f));
+                            if (scale.x <= 1) {
+                                growing = true;
+                            }
+                        }
+                        x = owner.x + owner.width() / 2.2f - width / 2;
+                        y = owner.y - height * 1.2f;
+
+                    }
+                }
+                break;
+        }
         super.update();
 
-        if (visible) {
-            if (growing) {
-                scale.set(Math.min(scale.x + Game.elapsed * timeScale, maxSize));
-                if (scale.x >= maxSize) {
-                    growing = false;
-                }
-            } else {
-                scale.set(Math.max(scale.x - Game.elapsed * timeScale, 1f));
-                if (scale.x <= 1) {
-                    growing = true;
-                }
-            }
-
-            x = owner.x + owner.width() - width / 2;
-            y = owner.y - height;
-        }
     }
 
     public static class Sleep extends EmoIcon {
@@ -111,14 +141,17 @@ public class EmoIcon extends Image {
 
             copy(Icons.get(Icons.INVI_ALERT));
 
-            maxSize = 1.3f;
+            update_mode = 1;
+
+            maxSize = 1.1f;
             timeScale = 2;
 
             origin.set(2.5f, height - 2.5f);
             scale.set(Random.Float(1, maxSize));
 
-            x = owner.x + owner.width - width / 2;
+            x = owner.x + owner.width / 2 - width / 2;
             y = owner.y - height;
+
         }
     }
 
