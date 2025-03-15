@@ -99,6 +99,7 @@ public enum Icons {
     BUSY,
     COMPASS,
     SLEEP,
+    INVI_ALERT,
     ALERT,
     LOST,
     DEPTH, //depth icons have three variants, for regular, seeded, daily, and daily replay runs
@@ -332,6 +333,9 @@ public enum Icons {
                 break;
             case SLEEP:
                 icon.frame(icon.texture.uvRectBySize(16, 80, 9, 8));
+                break;
+            case INVI_ALERT:
+                icon.frame(icon.texture.uvRectBySize(8, 88, 8, 8));
                 break;
             case ALERT:
                 icon.frame(icon.texture.uvRectBySize(16, 88, 8, 8));

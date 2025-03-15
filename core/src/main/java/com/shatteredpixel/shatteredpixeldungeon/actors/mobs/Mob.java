@@ -276,7 +276,9 @@ public abstract class Mob extends Char {
         alerted = false;
 
         if (justAlerted) {
-            sprite.showAlert();
+            if (buff(Invisibility.class) != null) {
+                sprite.showAlert();
+            }
         } else {
             sprite.hideAlert();
             sprite.hideLost();
