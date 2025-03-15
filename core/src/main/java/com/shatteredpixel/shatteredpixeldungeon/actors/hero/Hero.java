@@ -1832,7 +1832,6 @@ public class Hero extends Char {
                 if (ch.buff(Invisibility.class) != null || ch.alignment == Alignment.ENEMY) {
                     attack(ch);
                     newPath = true;
-
                 } // 对于友军
                 else if (ch.alignment == Alignment.ALLY) {
                     // 尝试与其交互

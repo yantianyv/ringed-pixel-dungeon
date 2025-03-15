@@ -234,8 +234,9 @@ public abstract class Mob extends Char {
 
     protected void ring_pd_extra() {
         // 残血逃跑
-        if ((HT - HP) > (2 * HP) && buff(Terror.class) == null && num_of_escape > 0) {
+        if ((HT - HP) > (2 * HP) && state != FLEEING && num_of_escape > 0) {
             num_of_escape -= 1;
+            //boss层
             if (Dungeon.level.locked) {
                 Buff.affect(this, Terror.class, 3);
                 if (buff(ArcaneArmor.class) != null) {
@@ -243,18 +244,21 @@ public abstract class Mob extends Char {
                 } else {
                     Buff.affect(this, Invisibility.class, 20);
                 }
-            } else {
+            }// 常规层 
+            else {
                 Buff.affect(this, Invisibility.class, 20);
-                Buff.affect(this, Terror.class, 5);
+                Buff.affect(this, Terror.class, 3);
                 Buff.affect(this, Haste.class, 3);
                 int counter = 0;
                 if (Dungeon.level.heroFOV[pos] && counter > 0) {
                     CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
                 }
             }
+        } else if (HT - HP < HP && state == FLEEING && buff(Terror.class) == null) {
+            state = WANDERING;
         }
         // 自然回复
-        if (state != HUNTING && HP < HT && Random.Int(100) < Dungeon.depth) {
+        if (state != HUNTING && HP < HT && Random.Int(100) < Dungeon.depth && alignment == Alignment.ENEMY) {
             if (Dungeon.level.locked != true) {
                 Buff.affect(this, Healing.class).setHeal((HT - HP) / 30 + 1, 0, 1);
             }
@@ -441,10 +445,9 @@ public abstract class Mob extends Char {
                 }
             }
 
-            if (buff(Invisibility.class) != null) {
-                enemies.clear();
-            }
-
+            // if (buff(Invisibility.class) != null) {
+            //     enemies.clear();
+            // }
             //neutral characters in particular do not choose enemies.
             if (enemies.isEmpty()) {
                 return null;
@@ -739,6 +742,10 @@ public abstract class Mob extends Char {
     public int defenseSkill(Char enemy) {
         if (this.buff(Invisibility.class) != null) {
             this.buff(Invisibility.class).detach();
+        }
+
+        if (this.buff(Terror.class) == null) {
+            state = HUNTING;
         }
 
         if (buff(GuidingLight.Illuminated.class) != null && Dungeon.hero.heroClass == HeroClass.CLERIC) {
