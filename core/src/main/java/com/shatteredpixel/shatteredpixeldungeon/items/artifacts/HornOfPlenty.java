@@ -21,6 +21,8 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.artifacts;
 
+import java.util.ArrayList;
+
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
@@ -49,8 +51,6 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
-
-import java.util.ArrayList;
 
 public class HornOfPlenty extends Artifact {
 
@@ -235,11 +235,11 @@ public class HornOfPlenty extends Artifact {
 		}
 		if (storedFoodEnergy >= Hunger.HUNGRY){
 			int upgrades = storedFoodEnergy / (int)Hunger.HUNGRY;
-			upgrades = Math.min(upgrades, 10 - level());
+			upgrades = Math.min(upgrades, 10 - Math.min(level(),10));
 			upgrade(upgrades);
 			Catalog.countUse(HornOfPlenty.class);
 			storedFoodEnergy -= upgrades * Hunger.HUNGRY;
-			if (level() == 10){
+			if (level() >= 10){
 				storedFoodEnergy = 0;
 				GLog.p( Messages.get(this, "maxlevel") );
 			} else {

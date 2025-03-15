@@ -18,8 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.items.artifacts;
+
+import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
@@ -43,164 +44,174 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
-import java.util.ArrayList;
-
 public class ChaliceOfBlood extends Artifact {
 
-	{
-		image = ItemSpriteSheet.ARTIFACT_CHALICE1;
+    {
+        image = ItemSpriteSheet.ARTIFACT_CHALICE1;
 
-		levelCap = 10;
-	}
+        levelCap = 10;
+    }
 
-	public static final String AC_PRICK = "PRICK";
+    public static final String AC_PRICK = "PRICK";
 
-	@Override
-	public ArrayList<String> actions( Hero hero ) {
-		ArrayList<String> actions = super.actions( hero );
-		if (isEquipped( hero )
-				&& level() < levelCap
-				&& !cursed
-				&& !hero.isInvulnerable(getClass())
-				&& hero.buff(MagicImmune.class) == null)
-			actions.add(AC_PRICK);
-		return actions;
-	}
+    @Override
+    public ArrayList<String> actions(Hero hero) {
+        ArrayList<String> actions = super.actions(hero);
+        if (isEquipped(hero)
+                && level() < levelCap
+                && !cursed
+                && !hero.isInvulnerable(getClass())
+                && hero.buff(MagicImmune.class) == null) {
+            actions.add(AC_PRICK);
+        }
+        return actions;
+    }
 
-	@Override
-	public void execute(Hero hero, String action ) {
-		super.execute(hero, action);
+    @Override
+    public void execute(Hero hero, String action) {
+        super.execute(hero, action);
 
-		if (action.equals(AC_PRICK)){
+        if (action.equals(AC_PRICK)) {
 
-			int damage = 5 + 3*(level()*level());
+            int damage = 5 + 3 * (level() * level());
 
-			if (damage > hero.HP*0.75) {
+            if (damage > hero.HP * 0.75) {
 
-				GameScene.show(
-					new WndOptions(new ItemSprite(this),
-							Messages.titleCase(name()),
-							Messages.get(this, "prick_warn"),
-							Messages.get(this, "yes"),
-							Messages.get(this, "no")) {
-						@Override
-						protected void onSelect(int index) {
-							if (index == 0)
-								prick(Dungeon.hero);
-						}
-					}
-				);
+                GameScene.show(
+                        new WndOptions(new ItemSprite(this),
+                                Messages.titleCase(name()),
+                                Messages.get(this, "prick_warn"),
+                                Messages.get(this, "yes"),
+                                Messages.get(this, "no")) {
+                    @Override
+                    protected void onSelect(int index) {
+                        if (index == 0) {
+                            prick(Dungeon.hero);
+                        }
+                    }
+                }
+                );
 
-			} else {
-				prick(hero);
-			}
-		}
-	}
+            } else {
+                prick(hero);
+            }
+        }
+    }
 
-	private void prick(Hero hero){
-		int damage = 5 + 3*(level()*level());
+    private void prick(Hero hero) {
+        int damage = 5 + 3 * (level() * level());
 
-		Earthroot.Armor armor = hero.buff(Earthroot.Armor.class);
-		if (armor != null) {
-			damage = armor.absorb(damage);
-		}
+        Earthroot.Armor armor = hero.buff(Earthroot.Armor.class);
+        if (armor != null) {
+            damage = armor.absorb(damage);
+        }
 
-		WandOfLivingEarth.RockArmor rockArmor = hero.buff(WandOfLivingEarth.RockArmor.class);
-		if (rockArmor != null) {
-			damage = rockArmor.absorb(damage);
-		}
+        WandOfLivingEarth.RockArmor rockArmor = hero.buff(WandOfLivingEarth.RockArmor.class);
+        if (rockArmor != null) {
+            damage = rockArmor.absorb(damage);
+        }
 
-		damage -= hero.drRoll();
+        damage -= hero.drRoll();
 
-		hero.sprite.operate( hero.pos );
-		hero.busy();
-		hero.spend(3f);
-		GLog.w( Messages.get(this, "onprick") );
-		if (damage <= 0){
-			damage = 1;
-		} else {
-			Sample.INSTANCE.play(Assets.Sounds.CURSED);
-			hero.sprite.emitter().burst( ShadowParticle.CURSE, 4+(damage/10) );
-		}
+        hero.sprite.operate(hero.pos);
+        hero.busy();
+        hero.spend(3f);
+        GLog.w(Messages.get(this, "onprick"));
+        if (damage <= 0) {
+            damage = 1;
+        } else {
+            Sample.INSTANCE.play(Assets.Sounds.CURSED);
+            hero.sprite.emitter().burst(ShadowParticle.CURSE, 4 + (damage / 10));
+        }
 
-		hero.damage(damage, this);
+        hero.damage(damage, this);
 
-		if (!hero.isAlive()) {
-			Badges.validateDeathFromFriendlyMagic();
-			Dungeon.fail( this );
-			GLog.n( Messages.get(this, "ondeath") );
-		} else {
-			upgrade();
-			Catalog.countUse(getClass());
-		}
-	}
+        if (!hero.isAlive()) {
+            Badges.validateDeathFromFriendlyMagic();
+            Dungeon.fail(this);
+            GLog.n(Messages.get(this, "ondeath"));
+        } else {
+            upgrade();
+            Catalog.countUse(getClass());
+        }
+    }
 
-	@Override
-	public Item upgrade() {
-		if (level() >= 6)
-			image = ItemSpriteSheet.ARTIFACT_CHALICE3;
-		else if (level() >= 2)
-			image = ItemSpriteSheet.ARTIFACT_CHALICE2;
-		return super.upgrade();
-	}
+    @Override
+    public Item upgrade() {
+        if (level() >= 6) {
+            image = ItemSpriteSheet.ARTIFACT_CHALICE3;
+        } else if (level() >= 2) {
+            image = ItemSpriteSheet.ARTIFACT_CHALICE2;
+        }
+        return super.upgrade();
+    }
 
-	@Override
-	public void restoreFromBundle(Bundle bundle) {
-		super.restoreFromBundle(bundle);
-		if (level() >= 7) image = ItemSpriteSheet.ARTIFACT_CHALICE3;
-		else if (level() >= 3) image = ItemSpriteSheet.ARTIFACT_CHALICE2;
-	}
+    @Override
+    public void restoreFromBundle(Bundle bundle) {
+        super.restoreFromBundle(bundle);
+        if (level() >= 7) {
+            image = ItemSpriteSheet.ARTIFACT_CHALICE3;
+        } else if (level() >= 3) {
+            image = ItemSpriteSheet.ARTIFACT_CHALICE2;
+        }
+    }
 
-	@Override
-	protected ArtifactBuff passiveBuff() {
-		return new chaliceRegen();
-	}
-	
-	@Override
-	public void charge(Hero target, float amount) {
-		if (cursed || target.buff(MagicImmune.class) != null) return;
+    @Override
 
-		//grants 5 turns of healing up-front, if hero isn't starving
-		if (target.isStarving()) return;
+    protected ArtifactBuff passiveBuff() {
+        return new chaliceRegen();
+    }
 
-		float healDelay = 10f - (1.33f + level()*0.667f);
-		healDelay /= amount;
-		float heal = 5f/healDelay;
-		//effectively 0.5/1/1.5/2/2.5 HP per turn at +0/+6/+8/+9/+10
-		if (Random.Float() < heal%1){
-			heal++;
-		}
-		if (heal >= 1f && target.HP < target.HT) {
-			target.HP = Math.min(target.HT, target.HP + (int)heal);
-			target.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString((int)heal), FloatingText.HEALING);
+    @Override
+    public void charge(Hero target, float amount) {
+        if (cursed || target.buff(MagicImmune.class) != null) {
+            return;
+        }
 
-			if (target.HP == target.HT && target instanceof Hero) {
-				((Hero) target).resting = false;
-			}
-		}
-	}
-	
-	@Override
-	public String desc() {
-		String desc = super.desc();
+        //grants 5 turns of healing up-front, if hero isn't starving
+        if (target.isStarving()) {
+            amount /= 10;
+        }
 
-		if (isEquipped (Dungeon.hero)){
-			desc += "\n\n";
-			if (cursed)
-				desc += Messages.get(this, "desc_cursed");
-			else if (level() == 0)
-				desc += Messages.get(this, "desc_1");
-			else if (level() < levelCap)
-				desc += Messages.get(this, "desc_2");
-			else
-				desc += Messages.get(this, "desc_3");
-		}
+        float healDelay = 10f - (1.33f + (level() > levelCap ? level() : levelCap) * 0.667f);//满级时延迟为2
+        healDelay /= amount; //依据充能点数返回延迟
+        float heal = 5f / healDelay + (level() > levelCap ? level() - levelCap : 0) * amount;// 额外等级每级每充能提供1点回复
+        //effectively 0.5/1/1.5/2/2.5 HP per turn at +0/+6/+8/+9/+10
+        if (Random.Float() < heal % 1) {
+            heal++;
+        }
+        if (heal >= 1f && target.HP < target.HT) {
+            target.HP = Math.min(target.HT, target.HP + (int) heal);
+            target.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString((int) heal), FloatingText.HEALING);
 
-		return desc;
-	}
+            if (target.HP == target.HT && target instanceof Hero) {
+                ((Hero) target).resting = false;
+            }
+        }
+    }
 
-	public class chaliceRegen extends ArtifactBuff {
-		//see Regeneration.class for effect
-	}
+    @Override
+    public String desc() {
+        String desc = super.desc();
+
+        if (isEquipped(Dungeon.hero)) {
+            desc += "\n\n";
+            if (cursed) {
+                desc += Messages.get(this, "desc_cursed");
+            } else if (level() == 0) {
+                desc += Messages.get(this, "desc_1");
+            } else if (level() < levelCap) {
+                desc += Messages.get(this, "desc_2");
+            } else {
+                desc += Messages.get(this, "desc_3");
+            }
+        }
+
+        return desc;
+    }
+
+    public class chaliceRegen extends ArtifactBuff {
+        //see Regeneration.class for effect
+    }
 
 }
