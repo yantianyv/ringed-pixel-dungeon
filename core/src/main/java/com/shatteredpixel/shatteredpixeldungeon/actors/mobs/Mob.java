@@ -1124,7 +1124,11 @@ public abstract class Mob extends Char {
     }
 
     public void notice() {
-        sprite.showAlert();
+        if (buff(Invisibility.class) == null) {
+            sprite.showAlert();
+        } else {
+            Dungeon.hero.sprite.showAlert();
+        }
     }
 
     public void yell(String str) {

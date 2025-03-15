@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDAction;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
@@ -112,10 +113,14 @@ public class DangerIndicator extends Tag {
                 else if (visible = inv > 0) {
                     number.text(" ! ");
                     flash();
+                    Dungeon.hero.sprite.showAlert();
                 }
                 // 更新显示
                 number.measure();
                 placeNumber();
+            }
+            if (inv == 0) {
+                Dungeon.hero.sprite.hideAlert();
             }
         } else {
             visible = false;
