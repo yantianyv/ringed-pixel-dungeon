@@ -99,9 +99,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 
+import static com.shatteredpixel.shatteredpixeldungeon.Dungeon.depth;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArcaneArmor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 
@@ -141,7 +143,7 @@ public abstract class Mob extends Char {
 
     protected boolean firstAdded = true;
 
-    protected int heal_stock = 3;
+    protected int num_of_escape = 1;
 
     protected void onAdd() {
         if (firstAdded) {
@@ -232,34 +234,29 @@ public abstract class Mob extends Char {
 
     protected void ring_pd_extra() {
         // 残血逃跑
-        if ((HT - HP) > (2 * HP) && buff(Terror.class) == null) {
-            Buff.affect(this, Terror.class, 5);
-            Buff.affect(this, Haste.class, 3);
-            Buff.affect(this, Invisibility.class, 1);
-
+        if ((HT - HP) > (2 * HP) && buff(Terror.class) == null && num_of_escape > 0) {
+            num_of_escape -= 1;
             if (Dungeon.level.locked) {
-                Buff.prolong(this, Haste.class, 2);
-            } else {
-                int counter = 0;
-                for (Mob mob : Dungeon.level.mobs) {
-                    if (Random.Int(3) == 0) {
-                        if (Random.Int(5) == 0) {
-                            mob.beckon(this.pos);
-                            if (Dungeon.level.heroFOV[pos]) {
-                                counter += 1;
-                            }
-                        }
-                    }
+                Buff.affect(this, Terror.class, 3);
+                if (buff(ArcaneArmor.class) != null) {
+                    Buff.affect(this, ArcaneArmor.class).set(5 + Dungeon.depth / 2, 114514);
+                } else {
+                    Buff.affect(this, Invisibility.class, 20);
                 }
+            } else {
+                Buff.affect(this, Invisibility.class, 20);
+                Buff.affect(this, Terror.class, 5);
+                Buff.affect(this, Haste.class, 3);
+                int counter = 0;
                 if (Dungeon.level.heroFOV[pos] && counter > 0) {
                     CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
                 }
             }
         }
         // 自然回复
-        if (state != HUNTING) {
-            if (HP < HT && Random.Int(30) < Dungeon.depth) {
-                Buff.affect(this, Healing.class).setHeal(1, 0, 1);
+        if (state != HUNTING && HP < HT && Random.Int(100) < Dungeon.depth) {
+            if (Dungeon.level.locked != true) {
+                Buff.affect(this, Healing.class).setHeal((HT - HP) / 30 + 1, 0, 1);
             }
         }
     }
