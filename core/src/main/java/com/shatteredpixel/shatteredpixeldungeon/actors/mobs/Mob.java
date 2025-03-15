@@ -278,6 +278,8 @@ public abstract class Mob extends Char {
         if (justAlerted) {
             if (buff(Invisibility.class) != null) {
                 sprite.showAlert();
+            } else {
+                sprite.hideAlert();
             }
         } else {
             sprite.hideAlert();
@@ -1106,7 +1108,7 @@ public abstract class Mob extends Char {
         notice();
 
         if (state != HUNTING && state != FLEEING) {
-            state = WANDERING;
+            state = HUNTING;
         }
         target = cell;
     }
@@ -1129,7 +1131,8 @@ public abstract class Mob extends Char {
         if (buff(Invisibility.class) == null) {
             sprite.showAlert();
         } else {
-            Dungeon.hero.sprite.showAlert();
+            Dungeon.hero.sprite.showInviAlert();
+            sprite.hideAlert();
         }
     }
 

@@ -722,7 +722,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 
     public void showAlert() {
         synchronized (EmoIcon.class) {
-            if (!(emo instanceof EmoIcon.Alert)) {
+            if (!(emo instanceof EmoIcon.Alert)&&ch.buff(Invisibility.class) == null) {
                 if (emo != null) {
                     emo.killAndErase();
                 }
