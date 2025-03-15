@@ -1,0 +1,4 @@
+echo 
+./gradlew build
+echo 
+

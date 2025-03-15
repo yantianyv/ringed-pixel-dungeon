@@ -1,1 +1,0 @@
-.\desktop\build\libs\*.jar

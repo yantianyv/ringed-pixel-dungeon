@@ -1768,58 +1768,92 @@ public class Hero extends Char {
     public boolean justMoved = false;
 
     private boolean getCloser(final int target) {
-
+        // 禁止原地踏步
         if (target == pos) {
             return false;
         }
-
+        // 缠绕无法行动
         if (rooted) {
             PixelScene.shake(1, 1f);
             return false;
         }
-
+        // 初始化下一步目标
         int step = -1;
-
+        // 如果目标相邻
         if (Dungeon.level.adjacent(pos, target)) {
-
+            // 清空路径 
             path = null;
-
+            // 如果目标在视野内
             if (Actor.findChar(target) == null) {
+                // 如果 目标可走 则把目标设为下一步
                 if (Dungeon.level.passable[target] || Dungeon.level.avoid[target]) {
                     step = target;
                 }
+                // 如果 目标为陷阱 则返回false
                 if (walkingToVisibleTrapInFog
                         && Dungeon.level.traps.get(target) != null
                         && Dungeon.level.traps.get(target).visible
                         && Dungeon.level.traps.get(target).active) {
                     return false;
                 }
-            }
-
-        } else {
-
-            boolean newPath = false;
-            if (path == null || path.isEmpty() || !Dungeon.level.adjacent(pos, path.getFirst())) {
-                newPath = true;
-            } else if (path.getLast() != target) {
-                newPath = true;
-            } else {
-                if (!Dungeon.level.passable[path.get(0)] || Actor.findChar(path.get(0)) != null) {
-                    newPath = true;
+                // 如果目标为生物，则尝试交互
+                if (Actor.findChar(target) != null) {
+                    Char ch = Actor.findChar(target);
+                    if (ch.buff(Invisibility.class) != null || ch.alignment == Alignment.ENEMY) {
+                        attack(ch);
+                    } else if (ch.alignment == Alignment.ALLY) {
+                        // 尝试与其交互
+                        interact(ch);
+                    }
+                    return true;
                 }
             }
+        } // 如果目标不相邻
+        else {
+            // 默认不存在可用路径
+            boolean newPath = false;
+            // 如果（初次寻路、无路可走、到达附近）则重新寻路
+            if (path == null || path.isEmpty() || !Dungeon.level.adjacent(pos, path.getFirst())) {
+                newPath = true;
+            } // 如果 目标移动 则重新寻路
+            else if (path.getLast() != target) {
+                newPath = true;
+            } // 如果 撞向生物 则特殊处理
+            else if (Actor.findChar(path.get(0)) != null) {
+                Char ch = Actor.findChar(path.get(0));
+                // 对于隐形的敌人
+                if (ch.buff(Invisibility.class) != null || ch.alignment == Alignment.ENEMY) {
+                    attack(ch);
+                    newPath = false;
 
+                } // 对于友军
+                else if (ch.alignment == Alignment.ALLY) {
+                    // 尝试与其交互
+                    interact(ch);
+                    newPath = false;
+                }
+                newPath = true;
+            } // 如果 撞向障碍 则重新寻路
+            else if (!Dungeon.level.passable[path.get(0)]) {
+                newPath = true;
+            }
+            // 如果需要新的路径
             if (newPath) {
-
+                // 读取地牢地图
                 int len = Dungeon.level.length();
                 boolean[] p = Dungeon.level.passable;
                 boolean[] v = Dungeon.level.visited;
                 boolean[] m = Dungeon.level.mapped;
                 boolean[] passable = new boolean[len];
+                // 遍历获取可走路径表
                 for (int i = 0; i < len; i++) {
-                    passable[i] = p[i] && (v[i] || m[i]);
-                }
+                    // 获取隐形敌人
+                    Boolean ringpd_extra = Actor.findChar(i) != null ? findChar(i).buff(Invisibility.class) != null : false;
 
+                    // 合并本格信息
+                    passable[i] = (p[i] || ringpd_extra) && (v[i] || m[i]);
+                }
+                // 调用寻路器寻路
                 PathFinder.Path newpath = Dungeon.findPath(this, target, passable, fieldOfView, true);
                 if (newpath != null && path != null && newpath.size() > 2 * path.size()) {
                     path = null;
@@ -1827,22 +1861,24 @@ public class Hero extends Char {
                     path = newpath;
                 }
             }
-
+            // 如果规划不出路径，则返回false
             if (path == null) {
                 return false;
             }
+            // 把路径的第一步设为下一步
             step = path.removeFirst();
 
         }
-
+        // 如果存在路径
         if (step != -1) {
-
+            // 计算移动速度
             float delay = 1 / speed();
-
+            // 如果处于加速状态，则加速
             if (buff(GreaterHaste.class) != null) {
                 delay = 0;
             }
-
+            
+            // 如果踩到虚空，则特殊处理
             if (Dungeon.level.pit[step] && !Dungeon.level.solid[step]
                     && (!flying || buff(Levitation.class) != null && buff(Levitation.class).detachesWithinDelay(delay))) {
                 if (!Chasm.jumpConfirmed) {
@@ -1856,25 +1892,25 @@ public class Hero extends Char {
                 canSelfTrample = false;
                 return false;
             }
-
+            // 处理加速状态
             if (buff(GreaterHaste.class) != null) {
                 buff(GreaterHaste.class).spendMove();
             }
-
+            // 处理疾行者的动量
             if (subClass == HeroSubClass.FREERUNNER) {
                 Buff.affect(this, Momentum.class).gainStack();
             }
-
+            // 移动
             sprite.move(pos, step);
             move(step);
-
+            
             spend(delay);
             justMoved = true;
 
             search(false);
 
             return true;
-
+            // 如果不存在路径
         } else {
 
             return false;
@@ -1916,11 +1952,13 @@ public class Hero extends Char {
                 curAction = new HeroAction.Interact(ch);
             } else {
                 curAction = new HeroAction.Attack(ch);
+
             }
 
             //TODO perhaps only trigger this if hero is already adjacent? reducing mistaps
         } else if (Dungeon.level instanceof MiningLevel
-                && belongings.getItem(Pickaxe.class) != null
+                && belongings.getItem(Pickaxe.class
+                ) != null
                 && (Dungeon.level.map[cell] == Terrain.WALL
                 || Dungeon.level.map[cell] == Terrain.WALL_DECO
                 || Dungeon.level.map[cell] == Terrain.MINE_CRYSTAL
@@ -1974,55 +2012,79 @@ public class Hero extends Char {
 
         //xp granted by ascension challenge is only for on-exp gain effects
         if (source != AscensionChallenge.class) {
+
             this.exp += exp;
         }
         float percent = exp / (float) maxExp();
 
-        EtherealChains.chainsRecharge chains = buff(EtherealChains.chainsRecharge.class);
+        EtherealChains.chainsRecharge chains = buff(EtherealChains.chainsRecharge.class
+        );
         if (chains != null) {
             chains.gainExp(percent);
+
         }
 
-        HornOfPlenty.hornRecharge horn = buff(HornOfPlenty.hornRecharge.class);
+        HornOfPlenty.hornRecharge horn = buff(HornOfPlenty.hornRecharge.class
+        );
         if (horn != null) {
             horn.gainCharge(percent);
+
         }
 
-        AlchemistsToolkit.kitEnergy kit = buff(AlchemistsToolkit.kitEnergy.class);
+        AlchemistsToolkit.kitEnergy kit = buff(AlchemistsToolkit.kitEnergy.class
+        );
         if (kit != null) {
             kit.gainCharge(percent);
+
         }
 
-        MasterThievesArmband.Thievery armband = buff(MasterThievesArmband.Thievery.class);
+        MasterThievesArmband.Thievery armband = buff(MasterThievesArmband.Thievery.class
+        );
         if (armband != null) {
             armband.gainCharge(percent);
+
         }
 
-        Berserk berserk = buff(Berserk.class);
+        Berserk berserk = buff(Berserk.class
+        );
         if (berserk != null) {
             berserk.recover(percent);
+
         }
 
         if (source != PotionOfExperience.class) {
             for (Item i : belongings) {
                 i.onHeroGainExp(percent, this);
             }
-            if (buff(Talent.RejuvenatingStepsFurrow.class) != null) {
-                buff(Talent.RejuvenatingStepsFurrow.class).countDown(percent * 200f);
-                if (buff(Talent.RejuvenatingStepsFurrow.class).count() <= 0) {
-                    buff(Talent.RejuvenatingStepsFurrow.class).detach();
+
+            if (buff(Talent.RejuvenatingStepsFurrow.class
+            ) != null) {
+                buff(Talent.RejuvenatingStepsFurrow.class
+                ).countDown(percent * 200f);
+                if (buff(Talent.RejuvenatingStepsFurrow.class
+                ).count() <= 0) {
+                    buff(Talent.RejuvenatingStepsFurrow.class
+                    ).detach();
                 }
             }
-            if (buff(ElementalStrike.ElementalStrikeFurrowCounter.class) != null) {
-                buff(ElementalStrike.ElementalStrikeFurrowCounter.class).countDown(percent * 20f);
-                if (buff(ElementalStrike.ElementalStrikeFurrowCounter.class).count() <= 0) {
-                    buff(ElementalStrike.ElementalStrikeFurrowCounter.class).detach();
+            if (buff(ElementalStrike.ElementalStrikeFurrowCounter.class
+            ) != null) {
+                buff(ElementalStrike.ElementalStrikeFurrowCounter.class
+                ).countDown(percent * 20f);
+                if (buff(ElementalStrike.ElementalStrikeFurrowCounter.class
+                ).count() <= 0) {
+                    buff(ElementalStrike.ElementalStrikeFurrowCounter.class
+                    ).detach();
                 }
             }
-            if (buff(HallowedGround.HallowedFurrowTracker.class) != null) {
-                buff(HallowedGround.HallowedFurrowTracker.class).countDown(percent * 5f);
-                if (buff(HallowedGround.HallowedFurrowTracker.class).count() <= 0) {
-                    buff(HallowedGround.HallowedFurrowTracker.class).detach();
+            if (buff(HallowedGround.HallowedFurrowTracker.class
+            ) != null) {
+                buff(HallowedGround.HallowedFurrowTracker.class
+                ).countDown(percent * 5f);
+                if (buff(HallowedGround.HallowedFurrowTracker.class
+                ).count() <= 0) {
+                    buff(HallowedGround.HallowedFurrowTracker.class
+                    ).detach();
                 }
             }
         }
@@ -2031,17 +2093,21 @@ public class Hero extends Char {
         while (this.exp >= maxExp()) {
             this.exp -= maxExp();
 
-            if (buff(Talent.WandPreservationCounter.class) != null
+            if (buff(Talent.WandPreservationCounter.class
+            ) != null
                     && pointsInTalent(Talent.WAND_PRESERVATION) == 2) {
-                buff(Talent.WandPreservationCounter.class).detach();
+                buff(Talent.WandPreservationCounter.class
+                ).detach();
             }
 
             if (lvl < MAX_LEVEL) {
                 lvl++;
                 levelUp = true;
 
-                if (buff(ElixirOfMight.HTBoost.class) != null) {
-                    buff(ElixirOfMight.HTBoost.class).onLevelUp();
+                if (buff(ElixirOfMight.HTBoost.class
+                ) != null) {
+                    buff(ElixirOfMight.HTBoost.class
+                    ).onLevelUp();
                 }
 
                 updateHT(true);
@@ -2049,21 +2115,28 @@ public class Hero extends Char {
                 defenseSkill++;
 
             } else {
-                Buff.prolong(this, Bless.class, Bless.DURATION);
+                Buff.prolong(this, Bless.class,
+                        Bless.DURATION);
                 this.exp = 0;
 
                 GLog.newLine();
                 GLog.p(Messages.get(this, "level_cap"));
                 Sample.INSTANCE.play(Assets.Sounds.LEVELUP);
+
             }
 
             //如果装备了能量之戒则提供一个生命回复和充能buff
             if (RingOfEnergy.LevelUpBuff(this) > 0) {
-                Healing healing = Buff.affect(this, Healing.class);
+                Healing healing = Buff.affect(this, Healing.class
+                );
                 healing.setHeal((int) (RingOfEnergy.LevelUpBuff(this) * 0.18 * this.HT), 0.1f, 0);
                 healing.applyVialEffect();
-                Buff.affect(this, Recharging.class, (int) (RingOfEnergy.LevelUpBuff(this) * 0.5 * this.lvl));
-                Buff.affect(this, ArtifactRecharge.class).set((int) (RingOfEnergy.LevelUpBuff(this) * 0.5 * this.lvl)).ignoreHornOfPlenty = false;
+                Buff
+                        .affect(this, Recharging.class,
+                                (int) (RingOfEnergy.LevelUpBuff(this) * 0.5 * this.lvl));
+                Buff
+                        .affect(this, ArtifactRecharge.class
+                        ).set((int) (RingOfEnergy.LevelUpBuff(this) * 0.5 * this.lvl)).ignoreHornOfPlenty = false;
             }
         }
 
@@ -2072,7 +2145,9 @@ public class Hero extends Char {
             if (sprite != null) {
                 GLog.newLine();
                 GLog.p(Messages.get(this, "new_level"));
-                sprite.showStatus(CharSprite.POSITIVE, Messages.get(Hero.class, "level_up"));
+                sprite
+                        .showStatus(CharSprite.POSITIVE, Messages.get(Hero.class,
+                                "level_up"));
                 Sample.INSTANCE.play(Assets.Sounds.LEVELUP);
                 if (lvl < Talent.tierLevelThresholds[Talent.MAX_TALENT_TIERS + 1]) {
                     GLog.newLine();
@@ -2097,14 +2172,18 @@ public class Hero extends Char {
     }
 
     public boolean isStarving() {
-        return Buff.affect(this, Hunger.class).isStarving();
+        return Buff.affect(this, Hunger.class
+        ).isStarving();
     }
 
     @Override
     public boolean add(Buff buff) {
 
-        if (buff(TimekeepersHourglass.timeStasis.class) != null
-                || buff(TimeStasis.class) != null) {
+        if (buff(TimekeepersHourglass.timeStasis.class
+        ) != null
+                || buff(TimeStasis.class
+                ) != null) {
+
             return false;
         }
 
@@ -2144,8 +2223,10 @@ public class Hero extends Char {
         Ankh ankh = null;
 
         //look for ankhs in player inventory, prioritize ones which are blessed.
-        for (Ankh i : belongings.getAllItems(Ankh.class)) {
-            if (ankh == null || i.isBlessed()) {
+        for (Ankh i : belongings.getAllItems(Ankh.class
+        )) {
+            if (ankh
+                    == null || i.isBlessed()) {
                 ankh = i;
             }
         }
@@ -2157,14 +2238,18 @@ public class Hero extends Char {
                 this.HP = HT / 4;
 
                 PotionOfHealing.cure(this);
-                Buff.prolong(this, Invulnerability.class, Invulnerability.DURATION);
+                Buff
+                        .prolong(this, Invulnerability.class,
+                                Invulnerability.DURATION);
 
                 SpellSprite.show(this, SpellSprite.ANKH);
                 GameScene.flash(0x80FFFF40);
                 Sample.INSTANCE.play(Assets.Sounds.TELEPORT);
                 GLog.w(Messages.get(this, "revive"));
                 Statistics.ankhsUsed++;
-                Catalog.countUse(Ankh.class);
+                Catalog
+                        .countUse(Ankh.class
+                        );
 
                 ankh.detach(belongings.backpack);
 
@@ -2191,9 +2276,11 @@ public class Hero extends Char {
 
                 if (cause instanceof Hero.Doom) {
                     ((Hero.Doom) cause).onDeath();
+
                 }
 
-                SacrificialFire.Marked sacMark = buff(SacrificialFire.Marked.class);
+                SacrificialFire.Marked sacMark = buff(SacrificialFire.Marked.class
+                );
                 if (sacMark != null) {
                     sacMark.detach();
                 }
@@ -2287,7 +2374,8 @@ public class Hero extends Char {
 
         if (HP <= 0) {
             if (berserk == null) {
-                berserk = buff(Berserk.class);
+                berserk = buff(Berserk.class
+                );
             }
             return berserk != null && berserk.berserking();
         } else {
@@ -2340,11 +2428,14 @@ public class Hero extends Char {
         spend(attackDelay());
 
         if (hit && subClass == HeroSubClass.GLADIATOR && wasEnemy) {
-            Buff.affect(this, Combo.class).hit(enemy);
+            Buff.affect(this, Combo.class
+            ).hit(enemy);
+
         }
 
         if (hit && heroClass == HeroClass.DUELIST && wasEnemy) {
-            Buff.affect(this, Sai.ComboStrikeTracker.class).addHit();
+            Buff.affect(this, Sai.ComboStrikeTracker.class
+            ).addHit();
         }
 
         curAction = null;
@@ -2434,9 +2525,11 @@ public class Hero extends Char {
         int distance = heroClass == HeroClass.ROGUE ? 2 : 1;
         if (hasTalent(Talent.WIDE_SEARCH)) {
             distance++;
+
         }
 
-        boolean foresight = buff(Foresight.class) != null;
+        boolean foresight = buff(Foresight.class
+        ) != null;
         boolean foresightScan = foresight && !Dungeon.level.mapped[pos];
 
         if (foresightScan) {
@@ -2450,7 +2543,8 @@ public class Hero extends Char {
 
         Point c = Dungeon.level.cellToPoint(pos);
 
-        TalismanOfForesight.Foresight talisman = buff(TalismanOfForesight.Foresight.class);
+        TalismanOfForesight.Foresight talisman = buff(TalismanOfForesight.Foresight.class
+        );
         boolean cursed = talisman != null && talisman.isCursed();
 
         int[] rounding = ShadowCaster.rounding[distance];
@@ -2553,9 +2647,13 @@ public class Hero extends Char {
             if (!Dungeon.level.locked) {
                 if (cursed) {
                     GLog.n(Messages.get(this, "search_distracted"));
-                    Buff.affect(this, Hunger.class).affectHunger(TIME_TO_SEARCH - (2 * HUNGER_FOR_SEARCH));
+                    Buff
+                            .affect(this, Hunger.class
+                            ).affectHunger(TIME_TO_SEARCH - (2 * HUNGER_FOR_SEARCH));
+
                 } else {
-                    Buff.affect(this, Hunger.class).affectHunger(TIME_TO_SEARCH - HUNGER_FOR_SEARCH);
+                    Buff.affect(this, Hunger.class
+                    ).affectHunger(TIME_TO_SEARCH - HUNGER_FOR_SEARCH);
                 }
             }
             spendAndNext(TIME_TO_SEARCH);
@@ -2583,10 +2681,15 @@ public class Hero extends Char {
         HP = HT;
         live();
 
-        MagicalHolster holster = belongings.getItem(MagicalHolster.class);
+        MagicalHolster holster = belongings.getItem(MagicalHolster.class
+        );
 
-        Buff.affect(this, LostInventory.class);
-        Buff.affect(this, Invisibility.class, 3f);
+        Buff
+                .affect(this, LostInventory.class
+                );
+        Buff
+                .affect(this, Invisibility.class,
+                        3f);
         //lost inventory is dropped in interlevelscene
 
         //activate items that persist after lost inventory
@@ -2617,6 +2720,7 @@ public class Hero extends Char {
     public void next() {
         if (isAlive()) {
             super.next();
+
         }
     }
 
