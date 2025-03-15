@@ -42,7 +42,7 @@ public class DangerIndicator extends Tag {
     private int enemyIndex = 0;
 
     private int lastNumber = -1;
-    private int lastI = -1;
+    private boolean lastI = false;
 
     public static int HEIGHT = 16;
 
@@ -94,10 +94,10 @@ public class DangerIndicator extends Tag {
             int inv = Dungeon.hero.invisibilityEnemies();
             int v = Dungeon.hero.visibleEnemies() - inv;
             // 如果数量发生变化或存在隐形怪，更新显示
-            if (v != lastNumber || inv != lastI) {
+            if (v != lastNumber || inv != 0 != lastI) {
                 // 更新最近数量
                 lastNumber = v;
-                lastI = inv;
+                lastI = inv != 0;
                 // 存在可见怪
                 if (visible = lastNumber > 0) {
                     // 输出可见怪数量
@@ -109,7 +109,8 @@ public class DangerIndicator extends Tag {
                     flash();
                 }// 只有隐形怪，则用感叹号提示
                 else if (visible = inv > 0) {
-                    number.text("!!!");
+                    number.text(" ! ");
+                    flash();
                 }
                 // 更新显示
                 number.measure();
