@@ -158,7 +158,8 @@ public abstract class Level implements Bundlable {
 
     public boolean[] heroFOV;
 
-    public boolean[] passable;
+    public boolean[] passable;          // 原生可通过表
+    public boolean[] passable_expand;   // 加入了隐形敌人的可通过表
     public boolean[] losBlocking;
     public boolean[] flamable;
     public boolean[] secret;

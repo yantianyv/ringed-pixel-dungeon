@@ -1089,7 +1089,7 @@ public class Dungeon {
                 // 对于存在角色的位置
                 if (vis[c.pos]) {
                     // 如果没有隐身就直接设置为不可通行
-                    if ((c.buff(Invisibility.class) == null)) {
+                    if ((c.buff(Invisibility.class) == null || ch instanceof Hero)) {
                         passable[c.pos] = false;
                     } else {
                         passable[c.pos] = true;
