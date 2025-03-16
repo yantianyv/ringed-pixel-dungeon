@@ -150,7 +150,7 @@ public enum HeroClass {
                 initCleric(hero);
                 break;
         }
-
+        Dungeon.is_developer_mode(); // 初始化开发者模式
         if (SPDSettings.quickslotWaterskin()) {
             for (int s = 0; s < QuickSlot.SIZE; s++) {
                 if (Dungeon.quickslot.getItem(s) == null) {

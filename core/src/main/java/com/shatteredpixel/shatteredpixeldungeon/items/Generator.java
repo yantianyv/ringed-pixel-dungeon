@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
@@ -960,5 +961,13 @@ public class Generator {
             }
         }
 
+    }
+
+    public static List<Item> getItemList(Category category) {
+        List<Item> items = new ArrayList<>();
+        for (Class<?> itemClass : category.classes) {
+            items.add((Item) Reflection.newInstance(itemClass));
+        }
+        return items;
     }
 }

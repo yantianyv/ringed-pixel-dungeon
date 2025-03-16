@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -56,10 +57,18 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Amulet;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.RingString;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
+import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfRegrowth;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
@@ -82,6 +91,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Plant.Seed;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
@@ -230,6 +240,7 @@ public class Dungeon {
         } else if (!SPDSettings.customSeed().isEmpty()) {
             customSeedText = SPDSettings.customSeed();
             seed = DungeonSeed.convertFromText(customSeedText);
+
         } else {
             customSeedText = "";
             seed = DungeonSeed.randomSeed();
@@ -1135,4 +1146,120 @@ public class Dungeon {
 
     }
 
+    public static boolean is_developer_mode() {
+        if (!"114514".equals(customSeedText)) {
+            return false;
+        }
+        Dungeon.hero.HT = 999999;
+        Dungeon.hero.HP = 999999;
+        Dungeon.hero.STR = 20;
+        // 获得所有背包
+        Item ScrollHolder = new ScrollHolder();
+        ScrollHolder.collect();
+        Item PotionBandolier = new PotionBandolier();
+        PotionBandolier.collect();
+        Item MagicalHolster = new MagicalHolster();
+        MagicalHolster.collect();
+        Item RingString = new RingString();
+        RingString.collect();
+        // 获得所有戒指
+        List rings = Generator.getItemList(Generator.Category.RING);
+        for (int i = 0; i < rings.size(); i++) {
+            Item ring = (Item) rings.get(i);
+            if (ring instanceof Ring) {
+                ring.upgrade(100);
+                ring.identify();
+                ring.collect();
+            }
+        }
+        // 获得所有戒指的诅咒版
+        List cursedRings = Generator.getItemList(Generator.Category.RING);
+        for (int i = 0; i < cursedRings.size(); i++) {
+            Item cursedRing = (Item) cursedRings.get(i);
+            if (cursedRing instanceof Ring) {
+                cursedRing.upgrade(100);
+                cursedRing.identify();
+                cursedRing.collect();
+                cursedRing.cursed = true;
+            }
+        }
+        // 获得每种神器10级各一个
+        List artifacts = Generator.getItemList(Generator.Category.ARTIFACT);
+        for (int i = 0; i < artifacts.size(); i++) {
+            Item artifact = (Item) artifacts.get(i);
+            if (artifact instanceof Artifact) {
+                while (!((Artifact) artifact).isUpgradable()) {
+                    artifact.upgrade();
+                }
+                artifact.upgrade();
+                artifact.identify();
+                artifact.collect();
+            }
+        }
+        //获得每种法杖100级
+        List wands = Generator.getItemList(Generator.Category.WAND);
+        for (int i = 0; i < wands.size(); i++) {
+            Item wand = (Item) wands.get(i);
+            if (wand instanceof Wand) {
+                wand.upgrade(100);
+                wand.identify();
+                wand.collect();
+            }
+        }
+        // 获得每种药水10000个
+        List potions = Generator.getItemList(Generator.Category.POTION);
+        for (int i = 0; i < potions.size(); i++) {
+            Item potion = (Item) potions.get(i);
+            if (potion instanceof Potion) {
+                for (int j = 0; i < 10000; i++) {
+                    potion.identify();
+                    potion.collect();
+                }
+            }
+        }
+        // 获得每种卷轴10000个
+        List scrolls = Generator.getItemList(Generator.Category.SCROLL);
+        for (int i = 0; i < scrolls.size(); i++) {
+            Item scroll = (Item) scrolls.get(i);
+            if (scroll instanceof Scroll) {
+                for (int j = 0; i < 10000; i++) {
+                    scroll.identify();
+                    scroll.collect();
+                }
+            }
+        }
+        // 获得每种种子10000个
+        List seeds = Generator.getItemList(Generator.Category.SEED);
+        for (int i = 0; i < seeds.size(); i++) {
+
+            Item seed = (Item) seeds.get(i);
+            if (seed instanceof Seed) {
+                for (int j = 0; i < 10000; i++) {
+                    seed.collect();
+                }
+            }
+        }
+        // 获得每种TRINKET
+        List trinkets = Generator.getItemList(Generator.Category.TRINKET);
+        for (int i = 0; i < trinkets.size(); i++) {
+            Item trinket = (Item) trinkets.get(i);
+            trinket.collect();
+        }
+        // 获得每种食物10000个
+        List foods = Generator.getItemList(Generator.Category.FOOD);
+        for (int i = 0; i < foods.size(); i++) {
+            Item food = (Item) foods.get(i);
+            if (food instanceof Food) {
+                for (int j = 0; i < 10000; i++) {
+                    food.collect();
+                }
+            }
+        }
+        // 获得升级卷轴10000个
+        for (int i = 0; i < 10000; i++) {
+            ScrollOfUpgrade scroll = new ScrollOfUpgrade();
+            scroll.collect();
+        }
+        return true;
+    }
 }

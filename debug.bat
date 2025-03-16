@@ -1,5 +1,5 @@
 @echo off
 echo 
-./gradlew build
+./gradlew debug
 echo 
 
