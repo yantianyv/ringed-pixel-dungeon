@@ -1780,26 +1780,32 @@ public class Hero extends Char {
     //history of hero actions
     public boolean justMoved = false;
 
+    // 靠近某个目标
     private boolean getCloser(final int target) {
         // 禁止原地踏步
         if (target == pos) {
+            GLog.h("我本来就在这里");
             return false;
         }
         // 缠绕无法行动
         if (rooted) {
+            GLog.h("我无法移动");
             PixelScene.shake(1, 1f);
             return false;
         }
         // 初始化下一步目标
         int step = -1;
-        // 如果目标相邻
+        // 如果终点相邻
         if (Dungeon.level.adjacent(pos, target)) {
+            GLog.h("终点就在我旁边");
             // 清空路径 
             path = null;
-            // 如果目标在视野内
-            if (Actor.findChar(target) == null) {
+            // 如果目标不是生物
+            if (findChar(target) == null) {
+                GLog.h("终点不是生物");
                 // 如果 目标可走 则把目标设为下一步
                 if (Dungeon.level.passable[target] || Dungeon.level.avoid[target]) {
+                    GLog.h("这就过去");
                     step = target;
                 }
                 // 如果 目标为陷阱 则返回false
@@ -1807,42 +1813,53 @@ public class Hero extends Char {
                         && Dungeon.level.traps.get(target) != null
                         && Dungeon.level.traps.get(target).visible
                         && Dungeon.level.traps.get(target).active) {
+                    GLog.h("我才不会踩呢");
                     return false;
                 }
-                // 如果目标为生物，则尝试交互
-                if (Actor.findChar(target) != null) {
-                    Char ch = Actor.findChar(target);
-                    handle(ch.pos);
-                    return false;
-                }
+            } // 如果目标是生物   
+            else if (findChar(target).buff(Invisibility.class) != null) {
+                GLog.h("终点是生物");
+                handle(target);
+                act();
+
             }
-        } // 如果目标不相邻
+        } // 如果终点不相邻
         else {
-            // 默认不存在可用路径
+            GLog.h("终点不在我旁边");
+            // 默认不需要新路径
             boolean newPath = false;
             // 如果（初次寻路、无路可走、到达附近）则重新寻路
             if (path == null || path.isEmpty() || !Dungeon.level.adjacent(pos, path.getFirst())) {
+                GLog.h("正在规划...");
                 newPath = true;
             } // 如果 目标移动 则重新寻路
             else if (path.getLast() != target) {
+                GLog.h("它跑了...");
                 newPath = true;
-            } // 如果 撞向生物 则尝试交互
-            else if (Actor.findChar(path.get(0)) != null) {
-                Char ch = Actor.findChar(path.get(0));
+            } // 如果 有生物阻挡 则特殊处理
+            else if (findChar(path.get(0)) != null) {
+                Char ch = findChar(path.get(0));
                 newPath = true;
-
                 // 对于隐形的敌人
                 if (ch.buff(Invisibility.class) != null || ch.alignment == Alignment.ENEMY) {
-                    handle(ch.pos);
+                    GLog.h("这啥玩意？");
+                    attack(ch);
+
                     newPath = true;
                 } // 对于友军
                 else if (ch.alignment == Alignment.ALLY) {
+                    GLog.h("你好，麻烦让让");
                     // 尝试与其交互
-                    handle(ch.pos);
+                    interact(ch);
+
                     newPath = false;
+                } else {
+                    GLog.h("它挡着我了");
+                    newPath = true;
                 }
-            } // 如果 撞向障碍 则重新寻路
+            } // 如果 目标不可走 则重新寻路
             else if (!Dungeon.level.passable[path.get(0)]) {
+                GLog.h("这里走不通");
                 newPath = true;
             }
             // 如果需要新的路径
@@ -1856,8 +1873,10 @@ public class Hero extends Char {
                 // 遍历获取可走路径表
                 for (int i = 0; i < len; i++) {
                     // 获取隐形敌人
-                    Boolean ringpd_extra = Actor.findChar(i) != null ? findChar(i).buff(Invisibility.class) != null : false;
-
+                    Boolean ringpd_extra = findChar(i) != null ? findChar(i).buff(Invisibility.class) != null : false;
+                    if (ringpd_extra) {
+                        GLog.h("隐形敌人");
+                    }
                     // 合并本格信息
                     passable[i] = (p[i] || ringpd_extra) && (v[i] || m[i]);
                 }
@@ -1865,12 +1884,14 @@ public class Hero extends Char {
                 PathFinder.Path newpath = Dungeon.findPath(this, target, passable, fieldOfView, true);
                 if (newpath != null && path != null && newpath.size() > 2 * path.size()) {
                     path = null;
+                    GLog.h("太远了");
                 } else {
                     path = newpath;
                 }
             }
             // 如果规划不出路径，则返回false
             if (path == null) {
+                GLog.h("过不去");
                 return false;
             }
             // 把路径的第一步设为下一步
@@ -1900,10 +1921,12 @@ public class Hero extends Char {
                 return false;
             }
             // 如果撞到生物
-            if (findChar(step) instanceof Char) {
-                Char ch = findChar(step);
+            if (findChar(step) != null) {
+                GLog.h("它挡着我了");
+
                 // 与目标交互
                 handle(step);
+                act();
                 return false;
             }
             // 处理加速状态
@@ -1931,17 +1954,19 @@ public class Hero extends Char {
 
     }
 
+    //与特定格子交互
     public boolean handle(int cell) {
 
+        // 如果格子不存在就直接返回
         if (cell == -1) {
             return false;
         }
-
+        // 如果视野异常则更新视野
         if (fieldOfView == null || fieldOfView.length != Dungeon.level.length()) {
             fieldOfView = new boolean[Dungeon.level.length()];
             Dungeon.level.updateFieldOfView(this, fieldOfView);
         }
-
+        // 处理走向陷阱的逻辑
         if (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell]
                 && Dungeon.level.traps.get(cell) != null
                 && Dungeon.level.traps.get(cell).visible
@@ -1950,40 +1975,39 @@ public class Hero extends Char {
         } else {
             walkingToVisibleTrapInFog = false;
         }
-
+        // 尝试从格子中寻找生物与掉落物
         Char ch = Actor.findChar(cell);
         Heap heap = Dungeon.level.heaps.get(cell);
-
+        // 处理与炼金台的交互
         if (Dungeon.level.map[cell] == Terrain.ALCHEMY && cell != pos) {
-
             curAction = new HeroAction.Alchemy(cell);
-
-        } else if (fieldOfView[cell] && ch instanceof Mob) {
-
+        } // 处理与生物的交互
+        else if (fieldOfView[cell] && ch instanceof Mob) {
+            // 如果生物可交互则交互，否则攻击
             if (((Mob) ch).heroShouldInteract()) {
+                GLog.h("正在交互...");
+
                 curAction = new HeroAction.Interact(ch);
             } else {
+                GLog.h("正在攻击...");
+
                 curAction = new HeroAction.Attack(ch);
-
             }
-
-            //TODO perhaps only trigger this if hero is already adjacent? reducing mistaps
-        } else if (Dungeon.level instanceof MiningLevel
-                && belongings.getItem(Pickaxe.class
-                ) != null
+            //TODO 或许只有当英雄已经相邻时才会触发此操作？减少失误
+        } // 处理挖矿层的逻辑
+        else if (Dungeon.level instanceof MiningLevel
+                && belongings.getItem(Pickaxe.class) != null
                 && (Dungeon.level.map[cell] == Terrain.WALL
                 || Dungeon.level.map[cell] == Terrain.WALL_DECO
                 || Dungeon.level.map[cell] == Terrain.MINE_CRYSTAL
                 || Dungeon.level.map[cell] == Terrain.MINE_BOULDER)) {
-
             curAction = new HeroAction.Mine(cell);
-
-        } else if (heap != null
+        } // 处理与掉落物的交互
+        else if (heap != null
                 //moving to an item doesn't auto-pickup when enemies are near...
                 && (visibleEnemies.size() == 0 || cell == pos
                 || //...but only for standard heaps. Chests and similar open as normal.
                 (heap.type != Type.HEAP && heap.type != Type.FOR_SALE))) {
-
             switch (heap.type) {
                 case HEAP:
                     curAction = new HeroAction.PickUp(cell);
@@ -1996,12 +2020,11 @@ public class Hero extends Char {
                 default:
                     curAction = new HeroAction.OpenChest(cell);
             }
-
-        } else if (Dungeon.level.map[cell] == Terrain.LOCKED_DOOR || Dungeon.level.map[cell] == Terrain.CRYSTAL_DOOR || Dungeon.level.map[cell] == Terrain.LOCKED_EXIT) {
-
+        } // 处理与锁的交互
+        else if (Dungeon.level.map[cell] == Terrain.LOCKED_DOOR || Dungeon.level.map[cell] == Terrain.CRYSTAL_DOOR || Dungeon.level.map[cell] == Terrain.LOCKED_EXIT) {
             curAction = new HeroAction.Unlock(cell);
-
-        } else if (Dungeon.level.getTransition(cell) != null
+        } // 处理与传送门的交互
+        else if (Dungeon.level.getTransition(cell) != null
                 //moving to a transition doesn't automatically trigger it when enemies are near
                 && (visibleEnemies.size() == 0 || cell == pos)
                 && !Dungeon.level.locked
@@ -2009,14 +2032,11 @@ public class Hero extends Char {
                 && (Dungeon.depth < 26 || Dungeon.level.getTransition(cell).type == LevelTransition.Type.REGULAR_ENTRANCE)) {
 
             curAction = new HeroAction.LvlTransition(cell);
-
+            // 处理移动
         } else {
-
             curAction = new HeroAction.Move(cell);
             lastAction = null;
-
         }
-
         return true;
     }
 

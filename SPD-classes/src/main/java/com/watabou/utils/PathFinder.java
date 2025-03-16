@@ -73,9 +73,9 @@ public class PathFinder {
 		CIRCLE4 = new int[]{-width, +1, +width, -1};
 		CIRCLE8 = new int[]{-width-1, -width, -width+1, +1, +width+1, +width, +width-1, -1};
 	}
-
+	// 寻路器，用于计算两个点之间的最短路径
 	public static Path find( int from, int to, boolean[] passable ) {
-
+		// 如果没有成功创建距离地图则返回null
 		if (!buildDistanceMap( from, to, passable )) {
 			return null;
 		}
@@ -201,33 +201,36 @@ public class PathFinder {
 		return mins;
 	}
 	
+	// 创建最小距离计算地图
 	private static boolean buildDistanceMap( int from, int to, boolean[] passable ) {
-		
+		// 起点不能和终点一致
 		if (from == to) {
 			return false;
 		}
-
+		// 将距离数组初始化为最大值
 		System.arraycopy(maxVal, 0, distance, 0, maxVal.length);
-		
+		// 默认没找到路径
 		boolean pathFound = false;
 		
+		// 初始化头和尾
 		int head = 0;
 		int tail = 0;
 		
-		// Add to queue
+		// 初始化列表（终点的距离为0）
 		queue[tail++] = to;
 		distance[to] = 0;
-		
+		// 从头读到尾
 		while (head < tail) {
 			
-			// Remove from queue
+			// 读取下一个
 			int step = queue[head++];
+			// 如果读到起点就返回路径
 			if (step == from) {
 				pathFound = true;
 				break;
 			}
+			// 下一步的距离比这一步+1
 			int nextDistance = distance[step] + 1;
-			
 			int start = (step % width == 0 ? 3 : 0);
 			int end   = ((step+1) % width == 0 ? 3 : 0);
 			for (int i = start; i < dirLR.length - end; i++) {
