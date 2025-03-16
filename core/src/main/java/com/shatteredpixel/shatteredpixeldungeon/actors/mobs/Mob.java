@@ -265,7 +265,10 @@ public abstract class Mob extends Char {
         }
         // 挑战
         if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
-            Buff.affect(this, Invisibility.class, 20);
+            if (Random.Int(3) == 0) {
+                Buff.affect(this, Invisibility.class, 3);
+
+            }
         }
     }
 
@@ -280,7 +283,7 @@ public abstract class Mob extends Char {
         alerted = false;
 
         if (justAlerted) {
-            if (buff(Invisibility.class) != null) {
+            if (buff(Invisibility.class) != null || Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
                 sprite.showAlert();
             } else {
                 sprite.hideAlert();
@@ -686,6 +689,9 @@ public abstract class Mob extends Char {
             }
         }
         if (step != -1) {
+            if (findChar(step) instanceof Char) {
+                return false;
+            }
             move(step);
             return true;
         } else {
@@ -729,10 +735,9 @@ public abstract class Mob extends Char {
         if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
             sprite.attack(enemy.pos);
             return false;
-
         } else {
-            attack(enemy);
             Invisibility.dispel(this);
+            attack(enemy);
             spend(attackDelay());
             return true;
         }
@@ -747,7 +752,7 @@ public abstract class Mob extends Char {
         spend(attackDelay());
         super.onAttackComplete();
         if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
-            Buff.affect(this, Invisibility.class, 20);
+            Buff.affect(this, Invisibility.class, 1);
         }
     }
 
@@ -759,7 +764,7 @@ public abstract class Mob extends Char {
 
         // 挑战
         if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
-            Buff.affect(this, Invisibility.class, 20);
+            Buff.affect(this, Invisibility.class, 1);
         }
 
         if (this.buff(Terror.class) == null) {
@@ -1144,7 +1149,7 @@ public abstract class Mob extends Char {
     }
 
     public void notice() {
-        if (buff(Invisibility.class) == null) {
+        if (buff(Invisibility.class) == null && !Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
             sprite.showAlert();
         } else {
             Dungeon.hero.sprite.showInviAlert();

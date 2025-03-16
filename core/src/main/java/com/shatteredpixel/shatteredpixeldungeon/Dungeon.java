@@ -1086,8 +1086,15 @@ public class Dungeon {
 
         if (chars) {
             for (Char c : Actor.chars()) {
-                if (vis[c.pos] && c.buff(Invisibility.class) == null) {
-                    passable[c.pos] = false;
+                // 对于存在角色的位置
+                if (vis[c.pos]) {
+                    // 如果没有隐身就直接设置为不可同行
+                    if ((c.buff(Invisibility.class) == null)) {
+                        passable[c.pos] = false;
+                    }// 如果两者相邻
+                    else if (level.adjacent(ch.pos, c.pos)) {
+                        passable[c.pos] = false;
+                    }
                 }
             }
         }

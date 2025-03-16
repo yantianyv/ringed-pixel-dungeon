@@ -1826,19 +1826,19 @@ public class Hero extends Char {
             } // 如果 目标移动 则重新寻路
             else if (path.getLast() != target) {
                 newPath = true;
-            } // 如果 撞向生物 则特殊处理
+            } // 如果 撞向生物 则尝试交互
             else if (Actor.findChar(path.get(0)) != null) {
                 Char ch = Actor.findChar(path.get(0));
                 newPath = true;
 
                 // 对于隐形的敌人
                 if (ch.buff(Invisibility.class) != null || ch.alignment == Alignment.ENEMY) {
-                    attack(ch);
+                    handle(ch.pos);
                     newPath = true;
                 } // 对于友军
                 else if (ch.alignment == Alignment.ALLY) {
                     // 尝试与其交互
-                    interact(ch);
+                    handle(ch.pos);
                     newPath = false;
                 }
             } // 如果 撞向障碍 则重新寻路
@@ -1897,6 +1897,13 @@ public class Hero extends Char {
                     Chasm.heroFall(target);
                 }
                 canSelfTrample = false;
+                return false;
+            }
+            // 如果撞到生物
+            if (findChar(step) instanceof Char) {
+                Char ch = findChar(step);
+                // 与目标交互
+                handle(step);
                 return false;
             }
             // 处理加速状态
