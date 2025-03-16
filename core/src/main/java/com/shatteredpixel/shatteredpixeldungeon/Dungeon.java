@@ -96,6 +96,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
 import com.watabou.noosa.Game;
 import com.watabou.utils.BArray;
@@ -1150,9 +1151,9 @@ public class Dungeon {
         if (!"114514".equals(customSeedText)) {
             return false;
         }
-        Dungeon.hero.HT = 999999;
-        Dungeon.hero.HP = 999999;
-        Dungeon.hero.STR = 20;
+        Dungeon.hero.HT = 951629632;
+        Dungeon.hero.HP = 951629632;
+        Dungeon.hero.STR = 666;
         // 获得所有背包
         Item ScrollHolder = new ScrollHolder();
         ScrollHolder.collect();
@@ -1206,36 +1207,35 @@ public class Dungeon {
                 wand.collect();
             }
         }
-        // 获得每种药水10000个
-        List potions = Generator.getItemList(Generator.Category.POTION);
-        for (int i = 0; i < potions.size(); i++) {
-            Item potion = (Item) potions.get(i);
-            if (potion instanceof Potion) {
-                for (int j = 0; i < 10000; i++) {
+        // 获得每种药水
+        for (int j = 0; j < 6666; j++) {
+            List<Item> potions = Generator.getItemList(Generator.Category.POTION);
+            for (int i = 0; i < potions.size(); i++) {
+                Item potion = (Item) potions.get(i);
+                if (potion instanceof Potion) {
                     potion.identify();
                     potion.collect();
                 }
             }
         }
-        // 获得每种卷轴10000个
-        List scrolls = Generator.getItemList(Generator.Category.SCROLL);
-        for (int i = 0; i < scrolls.size(); i++) {
-            Item scroll = (Item) scrolls.get(i);
-            if (scroll instanceof Scroll) {
-                for (int j = 0; i < 10000; i++) {
+        // 获得每种卷轴
+        for (int j = 0; j < 6666; j++) {
+            List<Item> scrolls = Generator.getItemList(Generator.Category.SCROLL);
+            for (int i = 0; i < scrolls.size(); i++) {
+                Item scroll = (Item) scrolls.get(i);
+                if (scroll instanceof Scroll) {
                     scroll.identify();
                     scroll.collect();
                 }
             }
         }
-        // 获得每种种子10000个
-        List seeds = Generator.getItemList(Generator.Category.SEED);
-        for (int i = 0; i < seeds.size(); i++) {
-
-            Item seed = (Item) seeds.get(i);
-            if (seed instanceof Seed) {
-                for (int j = 0; i < 10000; i++) {
-                    seed.collect();
+        // 获得每种种子
+        for (int j = 0; j < 6666; j++) {
+            List<Item> seeds = Generator.getItemList(Generator.Category.SEED);
+            for (int i = 0; i < seeds.size(); i++) {
+                Item the_seed = (Item) seeds.get(i);
+                if (the_seed instanceof Seed) {
+                    the_seed.collect();
                 }
             }
         }
@@ -1243,20 +1243,21 @@ public class Dungeon {
         List trinkets = Generator.getItemList(Generator.Category.TRINKET);
         for (int i = 0; i < trinkets.size(); i++) {
             Item trinket = (Item) trinkets.get(i);
+            trinket.identify();
             trinket.collect();
         }
-        // 获得每种食物10000个
-        List foods = Generator.getItemList(Generator.Category.FOOD);
-        for (int i = 0; i < foods.size(); i++) {
-            Item food = (Item) foods.get(i);
-            if (food instanceof Food) {
-                for (int j = 0; i < 10000; i++) {
+        // 获得每种食物10000个           
+        for (int j = 0; j < 6666; j++) {
+            List foods = Generator.getItemList(Generator.Category.FOOD);
+            for (int i = 0; i < foods.size(); i++) {
+                Item food = (Item) foods.get(i);
+                if (food instanceof Food) {
                     food.collect();
                 }
             }
         }
         // 获得升级卷轴10000个
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < (114514 - 6666); i++) {
             ScrollOfUpgrade scroll = new ScrollOfUpgrade();
             scroll.collect();
         }

@@ -97,7 +97,7 @@ public enum HeroClass {
     CLERIC(HeroSubClass.PRIEST, HeroSubClass.PALADIN);
 
     private HeroSubClass[] subClasses;
-
+    public boolean develop_mode = false;
     HeroClass(HeroSubClass... subClasses) {
         this.subClasses = subClasses;
     }
@@ -150,7 +150,7 @@ public enum HeroClass {
                 initCleric(hero);
                 break;
         }
-        Dungeon.is_developer_mode(); // 初始化开发者模式
+        develop_mode = Dungeon.is_developer_mode(); // 初始化开发者模式
         if (SPDSettings.quickslotWaterskin()) {
             for (int s = 0; s < QuickSlot.SIZE; s++) {
                 if (Dungeon.quickslot.getItem(s) == null) {
