@@ -1093,7 +1093,9 @@ public abstract class Level implements Bundlable {
         if (trap != null) {
             trap.reveal();
         }
-        findMob(cell).buff(Invisibility.class).detach();
+        if (findMob(cell) != null) {
+            findMob(cell).beFound();
+        }
         GameScene.updateMap(cell);
     }
 
@@ -1390,10 +1392,12 @@ public abstract class Level implements Bundlable {
             int range = 1 + (Dungeon.hero.pointsInTalent(Talent.EAGLE_EYE) - 2);
             for (Mob mob : mobs) {
                 int p = mob.pos;
-                if (!fieldOfView[p] && distance(c.pos, p) <= range) {
+                if (distance(c.pos, p) <= range) {
                     for (int i : PathFinder.NEIGHBOURS9) {
                         fieldOfView[mob.pos + i] = true;
-                        findMob(p).buff(Invisibility.class).detach();
+                        if (findMob(mob.pos + i) != null) {
+                            findMob(mob.pos + i).beFound();
+                        }
                     }
                 }
             }
@@ -1416,7 +1420,7 @@ public abstract class Level implements Bundlable {
                         continue;
                     }
                     for (int i : PathFinder.NEIGHBOURS9) {
-                        mob.buff(Invisibility.class).detach();
+                        mob.beFound();
                         heroMindFov[mob.pos + i] = true;
                     }
                 }
@@ -1447,9 +1451,12 @@ public abstract class Level implements Bundlable {
                             continue;
                         }
                         int p = mob.pos;
-                        if (!fieldOfView[p] && (distance(c.pos, p) <= mindVisRange || (ally != null && distance(ally.pos, p) <= mindVisRange))) {
+                        if ((distance(c.pos, p) <= mindVisRange || (ally != null && distance(ally.pos, p) <= mindVisRange))) {
                             for (int i : PathFinder.NEIGHBOURS9) {
-                                findMob(p).buff(Invisibility.class).detach();
+                                fieldOfView[mob.pos + i] = true;
+                                if (findMob(mob.pos + i) != null) {
+                                    findMob(mob.pos + i).beFound();
+                                }
                                 heroMindFov[mob.pos + i] = true;
                             }
                         }
@@ -1461,7 +1468,10 @@ public abstract class Level implements Bundlable {
                 for (Heap heap : heaps.valueList()) {
                     int p = heap.pos;
                     for (int i : PathFinder.NEIGHBOURS9) {
-                        findMob(p).buff(Invisibility.class).detach();
+                        fieldOfView[p + i] = true;
+                        if (findMob(p + i) != null) {
+                            findMob(p + i).beFound();
+                        }
                         heroMindFov[p + i] = true;
                     }
                 }
@@ -1475,6 +1485,9 @@ public abstract class Level implements Bundlable {
                 int p = ch.pos;
                 for (int i : PathFinder.NEIGHBOURS9) {
                     heroMindFov[p + i] = true;
+                    if (findMob(p + i) != null) {
+                        findMob(p + i).beFound();
+                    }
                 }
             }
 
@@ -1484,6 +1497,9 @@ public abstract class Level implements Bundlable {
                 }
                 for (int i : PathFinder.NEIGHBOURS9) {
                     heroMindFov[h.pos + i] = true;
+                    if (findMob(h.pos + i) != null) {
+                        findMob(h.pos + i).beFound();
+                    }
                 }
             }
 
@@ -1495,7 +1511,9 @@ public abstract class Level implements Bundlable {
                     if (m.fieldOfView == null || m.fieldOfView.length != length()) {
                         m.fieldOfView = new boolean[length()];
                         Dungeon.level.updateFieldOfView(m, m.fieldOfView);
+                        m.beFound();
                     }
+
                     BArray.or(heroMindFov, m.fieldOfView, heroMindFov);
                 }
             }
@@ -1506,6 +1524,9 @@ public abstract class Level implements Bundlable {
                 }
                 for (int i : PathFinder.NEIGHBOURS9) {
                     heroMindFov[a.pos + i] = true;
+                    if (findMob(a.pos + i) != null) {
+                        findMob(a.pos + i).beFound();
+                    }
                 }
             }
 
@@ -1513,6 +1534,7 @@ public abstract class Level implements Bundlable {
             for (Mob mob : mobs) {
                 if (heroMindFov[mob.pos] && !fieldOfView[mob.pos]) {
                     Dungeon.hero.mindVisionEnemies.add(mob);
+                    mob.beFound();
                 }
             }
 

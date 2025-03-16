@@ -2696,15 +2696,10 @@ public class Hero extends Char {
         HP = HT;
         live();
 
-        MagicalHolster holster = belongings.getItem(MagicalHolster.class
-        );
+        MagicalHolster holster = belongings.getItem(MagicalHolster.class);
 
-        Buff
-                .affect(this, LostInventory.class
-                );
-        Buff
-                .affect(this, Invisibility.class,
-                        3f);
+        Buff.affect(this, LostInventory.class);
+        Buff.affect(this, Invisibility.class, 3f);
         //lost inventory is dropped in interlevelscene
 
         //activate items that persist after lost inventory
