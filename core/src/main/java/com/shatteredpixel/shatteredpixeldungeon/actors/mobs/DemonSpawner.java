@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -41,136 +40,139 @@ import java.util.ArrayList;
 
 public class DemonSpawner extends Mob {
 
-	{
-		spriteClass = SpawnerSprite.class;
+    {
+        spriteClass = SpawnerSprite.class;
 
-		HP = HT = 120;
-		defenseSkill = 0;
+        HP = HT = 120;
+        defenseSkill = 0;
 
-		EXP = 15;
-		maxLvl = 29;
+        EXP = 15;
+        maxLvl = 29;
 
-		state = PASSIVE;
+        state = PASSIVE;
 
-		loot = PotionOfHealing.class;
-		lootChance = 1f;
+        loot = PotionOfHealing.class;
+        lootChance = 1f;
 
-		properties.add(Property.IMMOVABLE);
-		properties.add(Property.MINIBOSS);
-		properties.add(Property.DEMONIC);
-		properties.add(Property.STATIC);
-	}
+        properties.add(Property.IMMOVABLE);
+        properties.add(Property.MINIBOSS);
+        properties.add(Property.DEMONIC);
+        properties.add(Property.STATIC);
 
-	@Override
-	public int drRoll() {
-		return super.drRoll() + Random.NormalIntRange(0, 12);
-	}
+        num_of_escape = 0;
 
-	@Override
-	public void beckon(int cell) {
-		//do nothing
-	}
+    }
 
-	@Override
-	public boolean reset() {
-		return true;
-	}
+    @Override
+    public int drRoll() {
+        return super.drRoll() + Random.NormalIntRange(0, 12);
+    }
 
-	private float spawnCooldown = 0;
+    @Override
+    public void beckon(int cell) {
+        //do nothing
+    }
 
-	public boolean spawnRecorded = false;
+    @Override
+    public boolean reset() {
+        return true;
+    }
 
-	@Override
-	protected boolean act() {
-		if (!spawnRecorded){
-			Statistics.spawnersAlive++;
-			spawnRecorded = true;
-		}
+    private float spawnCooldown = 0;
 
-		if (Dungeon.hero.buff(AscensionChallenge.class) != null && spawnCooldown > 20){
-			spawnCooldown = 20;
-		}
+    public boolean spawnRecorded = false;
 
-		spawnCooldown--;
-		if (spawnCooldown <= 0){
+    @Override
+    protected boolean act() {
+        if (!spawnRecorded) {
+            Statistics.spawnersAlive++;
+            spawnRecorded = true;
+        }
 
-			//we don't want spawners to store multiple ripper demons
-			if (spawnCooldown < -20){
-				spawnCooldown = -20;
-			}
+        if (Dungeon.hero.buff(AscensionChallenge.class) != null && spawnCooldown > 20) {
+            spawnCooldown = 20;
+        }
 
-			ArrayList<Integer> candidates = new ArrayList<>();
-			for (int n : PathFinder.NEIGHBOURS8) {
-				if (Dungeon.level.passable[pos+n] && Actor.findChar( pos+n ) == null) {
-					candidates.add( pos+n );
-				}
-			}
+        spawnCooldown--;
+        if (spawnCooldown <= 0) {
 
-			if (!candidates.isEmpty()) {
-				RipperDemon spawn = new RipperDemon();
+            //we don't want spawners to store multiple ripper demons
+            if (spawnCooldown < -20) {
+                spawnCooldown = -20;
+            }
 
-				spawn.pos = Random.element( candidates );
-				spawn.state = spawn.HUNTING;
+            ArrayList<Integer> candidates = new ArrayList<>();
+            for (int n : PathFinder.NEIGHBOURS8) {
+                if (Dungeon.level.passable[pos + n] && Actor.findChar(pos + n) == null) {
+                    candidates.add(pos + n);
+                }
+            }
 
-				GameScene.add( spawn, 1 );
-				Dungeon.level.occupyCell(spawn);
+            if (!candidates.isEmpty()) {
+                RipperDemon spawn = new RipperDemon();
 
-				if (sprite.visible) {
-					Actor.add(new Pushing(spawn, pos, spawn.pos));
-				}
+                spawn.pos = Random.element(candidates);
+                spawn.state = spawn.HUNTING;
 
-				spawnCooldown += 60;
-				if (Dungeon.depth > 21){
-					//60/53.33/46.67/40 turns to spawn on floor 21/22/23/24
-					spawnCooldown -= Math.min(20, (Dungeon.depth-21)*6.67);
-				}
-			}
-		}
-		alerted = false;
-		return super.act();
-	}
+                GameScene.add(spawn, 1);
+                Dungeon.level.occupyCell(spawn);
 
-	@Override
-	public void damage(int dmg, Object src) {
-		if (dmg >= 20){
-			//takes 20/21/22/23/24/25/26/27/28/29/30 dmg
-			// at   20/22/25/29/34/40/47/55/64/74/85 incoming dmg
-			dmg = 19 + (int)(Math.sqrt(8*(dmg - 19) + 1) - 1)/2;
-		}
-		spawnCooldown -= dmg;
-		super.damage(dmg, src);
-	}
+                if (sprite.visible) {
+                    Actor.add(new Pushing(spawn, pos, spawn.pos));
+                }
 
-	@Override
-	public Notes.Landmark landmark() {
-		return Notes.Landmark.DEMON_SPAWNER;
-	}
+                spawnCooldown += 60;
+                if (Dungeon.depth > 21) {
+                    //60/53.33/46.67/40 turns to spawn on floor 21/22/23/24
+                    spawnCooldown -= Math.min(20, (Dungeon.depth - 21) * 6.67);
+                }
+            }
+        }
+        alerted = false;
+        return super.act();
+    }
 
-	@Override
-	public void die(Object cause) {
-		if (spawnRecorded){
-			Statistics.spawnersAlive--;
-			Notes.remove(landmark());
-		}
-		GLog.h(Messages.get(this, "on_death"));
-		super.die(cause);
-	}
+    @Override
+    public void damage(int dmg, Object src) {
+        if (dmg >= 20) {
+            //takes 20/21/22/23/24/25/26/27/28/29/30 dmg
+            // at   20/22/25/29/34/40/47/55/64/74/85 incoming dmg
+            dmg = 19 + (int) (Math.sqrt(8 * (dmg - 19) + 1) - 1) / 2;
+        }
+        spawnCooldown -= dmg;
+        super.damage(dmg, src);
+    }
 
-	public static final String SPAWN_COOLDOWN = "spawn_cooldown";
-	public static final String SPAWN_RECORDED = "spawn_recorded";
+    @Override
+    public Notes.Landmark landmark() {
+        return Notes.Landmark.DEMON_SPAWNER;
+    }
 
-	@Override
-	public void storeInBundle(Bundle bundle) {
-		super.storeInBundle(bundle);
-		bundle.put(SPAWN_COOLDOWN, spawnCooldown);
-		bundle.put(SPAWN_RECORDED, spawnRecorded);
-	}
+    @Override
+    public void die(Object cause) {
+        if (spawnRecorded) {
+            Statistics.spawnersAlive--;
+            Notes.remove(landmark());
+        }
+        GLog.h(Messages.get(this, "on_death"));
+        super.die(cause);
+    }
 
-	@Override
-	public void restoreFromBundle(Bundle bundle) {
-		super.restoreFromBundle(bundle);
-		spawnCooldown = bundle.getFloat(SPAWN_COOLDOWN);
-		spawnRecorded = bundle.getBoolean(SPAWN_RECORDED);
-	}
+    public static final String SPAWN_COOLDOWN = "spawn_cooldown";
+    public static final String SPAWN_RECORDED = "spawn_recorded";
+
+    @Override
+    public void storeInBundle(Bundle bundle) {
+        super.storeInBundle(bundle);
+        bundle.put(SPAWN_COOLDOWN, spawnCooldown);
+        bundle.put(SPAWN_RECORDED, spawnRecorded);
+    }
+
+    @Override
+    public void restoreFromBundle(Bundle bundle) {
+        super.restoreFromBundle(bundle);
+        spawnCooldown = bundle.getFloat(SPAWN_COOLDOWN);
+        spawnRecorded = bundle.getBoolean(SPAWN_RECORDED);
+    }
 
 }

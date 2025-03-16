@@ -74,6 +74,9 @@ public class CrystalSpire extends Mob {
         properties.add(Property.BOSS);
         properties.add(Property.INORGANIC);
         properties.add(Property.STATIC);
+
+        num_of_escape = 0;
+
     }
 
     private float abilityCooldown;

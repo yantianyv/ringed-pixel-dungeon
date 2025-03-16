@@ -63,6 +63,7 @@ public class Mimic extends Mob {
         //mimics are neutral when hidden
         alignment = Alignment.NEUTRAL;
         state = PASSIVE;
+        num_of_escape =0;
     }
 
     public ArrayList<Item> items;

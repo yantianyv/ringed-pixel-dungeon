@@ -78,9 +78,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfIntuition;
@@ -1093,6 +1093,7 @@ public abstract class Level implements Bundlable {
         if (trap != null) {
             trap.reveal();
         }
+        findMob(cell).buff(Invisibility.class).detach();
         GameScene.updateMap(cell);
     }
 
@@ -1288,6 +1289,7 @@ public abstract class Level implements Bundlable {
 
     private static boolean[] modifiableBlocking;
 
+    // 更新视野
     public void updateFieldOfView(Char c, boolean[] fieldOfView) {
 
         int cx = c.pos % width();
@@ -1391,6 +1393,7 @@ public abstract class Level implements Bundlable {
                 if (!fieldOfView[p] && distance(c.pos, p) <= range) {
                     for (int i : PathFinder.NEIGHBOURS9) {
                         fieldOfView[mob.pos + i] = true;
+                        findMob(p).buff(Invisibility.class).detach();
                     }
                 }
             }
@@ -1408,10 +1411,12 @@ public abstract class Level implements Bundlable {
             Dungeon.hero.mindVisionEnemies.clear();
             if (c.buff(MindVision.class) != null) {
                 for (Mob mob : mobs) {
+
                     if (mob instanceof Mimic && mob.alignment == Char.Alignment.NEUTRAL && ((Mimic) mob).stealthy()) {
                         continue;
                     }
                     for (int i : PathFinder.NEIGHBOURS9) {
+                        mob.buff(Invisibility.class).detach();
                         heroMindFov[mob.pos + i] = true;
                     }
                 }
@@ -1444,6 +1449,7 @@ public abstract class Level implements Bundlable {
                         int p = mob.pos;
                         if (!fieldOfView[p] && (distance(c.pos, p) <= mindVisRange || (ally != null && distance(ally.pos, p) <= mindVisRange))) {
                             for (int i : PathFinder.NEIGHBOURS9) {
+                                findMob(p).buff(Invisibility.class).detach();
                                 heroMindFov[mob.pos + i] = true;
                             }
                         }
@@ -1455,6 +1461,7 @@ public abstract class Level implements Bundlable {
                 for (Heap heap : heaps.valueList()) {
                     int p = heap.pos;
                     for (int i : PathFinder.NEIGHBOURS9) {
+                        findMob(p).buff(Invisibility.class).detach();
                         heroMindFov[p + i] = true;
                     }
                 }
