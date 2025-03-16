@@ -56,6 +56,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Challenge;
+
 public enum Rankings {
 
     INSTANCE;
@@ -230,6 +232,9 @@ public enum Rankings {
         }
 
         Statistics.chalMultiplier = (float) Math.pow(1.25, Challenges.activeChallenges());
+        if (Challenges.activeChallenges() == -1) {
+            Statistics.chalMultiplier = 0;
+        }
         Statistics.chalMultiplier = Math.round(Statistics.chalMultiplier * 20f) / 20f;
 
         Statistics.totalScore = Statistics.progressScore + Statistics.treasureScore + Statistics.exploreScore
