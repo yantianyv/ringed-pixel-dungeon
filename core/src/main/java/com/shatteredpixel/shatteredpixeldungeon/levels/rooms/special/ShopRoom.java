@@ -266,7 +266,7 @@ public class ShopRoom extends SpecialRoom {
         itemsToSpawn.add(new Alchemize().quantity(Random.IntRange(2, 3)));
 
         Bag bag = ChooseBag(Dungeon.hero.belongings);
-        if (Random.Int(20) < Dungeon.depth) {
+        if (Random.Int(Dungeon.depth / 5) + 2 > Random.Int(no_drop_bag_num())) {
             if (bag != null) {
                 itemsToSpawn.add(bag);
             }
@@ -421,6 +421,14 @@ public class ShopRoom extends SpecialRoom {
 
         return bestBag;
 
+    }
+
+    protected static int no_drop_bag_num() {
+        return ((!Dungeon.LimitedDrops.VELVET_POUCH.dropped() ? 1 : 0)
+                + (!Dungeon.LimitedDrops.SCROLL_HOLDER.dropped() ? 1 : 0)
+                + (!Dungeon.LimitedDrops.POTION_BANDOLIER.dropped() ? 1 : 0)
+                + (!Dungeon.LimitedDrops.MAGICAL_HOLSTER.dropped() ? 1 : 0)
+                + (!Dungeon.LimitedDrops.RING_STRING.dropped() ? 1 : 0));
     }
 
 }
