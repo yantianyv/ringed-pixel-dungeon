@@ -142,7 +142,7 @@ public abstract class Mob extends Char {
             //modify health for ascension challenge if applicable, only on first add
             float percent = HP / (float) HT;
             HT = (int) Math.round(HT * AscensionChallenge.statModifier(this) * (1 + 0.1 * Dungeon.depth));
-            HP = (int) Math.round(HT * percent * (1 + 0.1 * Dungeon.depth));
+            HP = (int) Math.round(HT * percent);
             firstAdded = false;
         }
     }
