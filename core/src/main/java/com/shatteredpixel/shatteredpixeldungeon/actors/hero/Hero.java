@@ -183,6 +183,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+
 public class Hero extends Char {
 
     {
@@ -2010,7 +2013,21 @@ public class Hero extends Char {
         return true;
     }
 
+    // 获取经验的处理
     public void earnExp(int exp, Class source) {
+        // 处理挑战
+        if (Dungeon.isChallenged(Challenges.XP_DUNGEON)) {
+            while (exp > 100) {
+                exp -= 100;
+                Item item = new ScrollOfUpgrade();
+                Dungeon.level.drop(item, pos).sprite.drop();
+            }
+            if (Random.Int(100) < exp) {
+                // 掉落一个升级卷轴
+                Item item = new ScrollOfUpgrade();
+                Dungeon.level.drop(item, pos).sprite.drop();
+            }
+        }
 
         //xp granted by ascension challenge is only for on-exp gain effects
         if (source != AscensionChallenge.class) {
@@ -2102,7 +2119,8 @@ public class Hero extends Char {
                 ).detach();
             }
 
-            if (lvl < MAX_LEVEL) {
+            if (lvl < MAX_LEVEL || Dungeon.isChallenged(Challenges.XP_DUNGEON)) {
+
                 lvl++;
                 levelUp = true;
 

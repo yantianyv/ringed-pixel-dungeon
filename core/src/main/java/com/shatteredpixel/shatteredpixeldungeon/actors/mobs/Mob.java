@@ -150,7 +150,7 @@ public abstract class Mob extends Char {
             //modify health for ascension challenge if applicable, only on first add
             float percent = HP / (float) HT;
             HT = Math.round(HT * AscensionChallenge.statModifier(this));
-            HP = (int) Math.round(HT * percent*(1+0.1*Dungeon.depth));
+            HP = (int) Math.round(HT * percent * (1 + 0.1 * Dungeon.depth));
             firstAdded = false;
         }
     }
@@ -262,6 +262,10 @@ public abstract class Mob extends Char {
             if (Dungeon.level.locked != true) {
                 Buff.affect(this, Healing.class).setHeal((HT - HP) / 30 + 1, 0, 1);
             }
+        }
+        // 挑战
+        if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
+            Buff.affect(this, Invisibility.class, 20);
         }
     }
 
@@ -732,6 +736,8 @@ public abstract class Mob extends Char {
             spend(attackDelay());
             return true;
         }
+// 挑战
+
     }
 
     @Override
@@ -740,12 +746,20 @@ public abstract class Mob extends Char {
         Invisibility.dispel(this);
         spend(attackDelay());
         super.onAttackComplete();
+        if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
+            Buff.affect(this, Invisibility.class, 20);
+        }
     }
 
     @Override
     public int defenseSkill(Char enemy) {
         if (this.buff(Invisibility.class) != null) {
             this.buff(Invisibility.class).detach();
+        }
+
+        // 挑战
+        if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
+            Buff.affect(this, Invisibility.class, 20);
         }
 
         if (this.buff(Terror.class) == null) {
@@ -923,7 +937,9 @@ public abstract class Mob extends Char {
                 AscensionChallenge.processEnemyKill(this);
 
                 int exp = Dungeon.hero.lvl <= maxLvl ? EXP : 0;
-
+                if (Dungeon.isChallenged(Challenges.XP_DUNGEON)) {
+                    exp = EXP;
+                }
                 //during ascent, under-levelled enemies grant 10 xp each until level 30
                 // after this enemy kills which reduce the amulet curse still grant 10 effective xp
                 // for the purposes of on-exp effects, see AscensionChallenge.processEnemyKill
