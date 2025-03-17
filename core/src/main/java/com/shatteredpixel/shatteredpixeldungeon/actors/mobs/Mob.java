@@ -34,7 +34,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AllyBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArcaneArmor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ChampionEnemy;
@@ -42,7 +41,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Dread;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.GreaterHaste;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
@@ -66,7 +64,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.DirectableAlly;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Surprise;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Wound;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
@@ -77,6 +74,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.ExoticPotion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ExoticScroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAggression;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ExoticCrystals;
@@ -115,6 +113,8 @@ public abstract class Mob extends Char {
     public AiState WANDERING = new Wandering();
     public AiState FLEEING = new Fleeing();
     public AiState PASSIVE = new Passive();
+    public AiState ESCAPING = new Escaping();
+
     public AiState state = SLEEPING;
 
     public Class<? extends CharSprite> spriteClass;
@@ -159,7 +159,6 @@ public abstract class Mob extends Char {
     private static final String SEEN = "seen";
     private static final String TARGET = "target";
     private static final String MAX_LVL = "max_lvl";
-
     private static final String ENEMY_ID = "enemy_id";
 
     @Override
@@ -177,7 +176,10 @@ public abstract class Mob extends Char {
             bundle.put(STATE, Fleeing.TAG);
         } else if (state == PASSIVE) {
             bundle.put(STATE, Passive.TAG);
+        } else if (state == ESCAPING) {
+            bundle.put(STATE, Escaping.TAG);
         }
+
         bundle.put(SEEN, enemySeen);
         bundle.put(TARGET, target);
         bundle.put(MAX_LVL, maxLvl);
@@ -203,6 +205,8 @@ public abstract class Mob extends Char {
             this.state = FLEEING;
         } else if (state.equals(Passive.TAG)) {
             this.state = PASSIVE;
+        } else if (state.equals(Escaping.TAG)) {
+            this.state = ESCAPING;
         }
 
         enemySeen = bundle.getBoolean(SEEN);
@@ -232,32 +236,15 @@ public abstract class Mob extends Char {
         return Reflection.newInstance(spriteClass);
     }
 
-    protected void ring_pd_extra() {
+    protected void ringpd_extra(boolean enemyInFOV) {
         // 残血逃跑
-        if ((HT - HP) > (2 * HP) && state != FLEEING && num_of_escape > 0) {
+        if ((HT - HP) > (2 * HP) && state != ESCAPING && num_of_escape > 0 && !Dungeon.level.locked) {
+            state = ESCAPING;
             num_of_escape -= 1;
-            //boss层
-            if (Dungeon.level.locked) {
-                Buff.affect(this, Terror.class, 3);
-                if (buff(ArcaneArmor.class) != null) {
-                    Buff.affect(this, ArcaneArmor.class).set(5 + Dungeon.depth / 2, 114514);
-                } else {
-                    Buff.affect(this, Invisibility.class, 20);
-                }
-            }// 常规层 
-            else {
-                Buff.affect(this, Invisibility.class, 20);
-                Buff.affect(this, Terror.class, 5);
-                Buff.affect(this, Haste.class, 1);
-                Buff.affect(this,Healing.class).setHeal(HT / 10, 0, 1);
-                int counter = 0;
-                if (Dungeon.level.heroFOV[pos] && counter > 0) {
-                    CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
-                }
-            }
         }
+
         // 自然回复
-        if (state != HUNTING && HP < HT && Random.Int(100) < Dungeon.depth && alignment == Alignment.ENEMY) {
+        if (!enemyInFOV) {
             if (Dungeon.level.locked != true) {
                 Buff.affect(this, Healing.class).setHeal((HT - HP) / 30 + 1, 0, 1);
             }
@@ -275,8 +262,6 @@ public abstract class Mob extends Char {
     protected boolean act() {
 
         super.act();
-
-        ring_pd_extra();
 
         boolean justAlerted = alerted;
         alerted = false;
@@ -312,6 +297,7 @@ public abstract class Mob extends Char {
             spend(TICK);
             return true;
         }
+        ringpd_extra(enemyInFOV);
 
         boolean result = state.act(enemyInFOV, justAlerted);
 
@@ -1445,6 +1431,68 @@ public abstract class Mob extends Char {
                 } else {
                     state = WANDERING;
                 }
+            }
+        }
+    }
+
+    // 新增逃脱类
+    protected class Escaping implements AiState {
+
+        public static final String TAG = "ESCAPING";
+
+        @Override
+        public boolean act(boolean enemyInFOV, boolean justAlerted) {
+            enemySeen = enemyInFOV;
+            if (Dungeon.level.locked) {
+                escaped();
+                if (state != ESCAPING) {
+                    spend(TICK);
+                    return true;
+                }
+            }
+            // 如果已经逃脱
+            if (enemy == null || HP > (HT - HP)) {
+                escaped();
+                if (state != ESCAPING) {
+                    spend(TICK);
+                    return true;
+                }
+            }// 如果敌人在视野内
+            if (enemyInFOV) {
+                target = enemy.pos;
+            } else if (HP < HT) {
+                HP += 1;
+            }
+            int oldPos = pos;
+            // 如果可以继续逃脱
+            if (target != -1 && getFurther(target)) {
+                spend(0.5f / speed());
+                return moveSprite(oldPos, pos);
+            } // 如果没地方走了
+            else {
+                spend(TICK);
+                nowhereToRun();
+                return true;
+            }
+        }
+
+        protected void escaped() {
+            //does nothing by default, some enemies have special logic for this
+            if (buff(Invisibility.class) != null) {
+                buff(Invisibility.class).detach();
+            }
+            if (enemySeen) {
+                sprite.showStatus(CharSprite.WARNING, Messages.get(Mob.class, "rage"));
+                state = HUNTING;
+            } else {
+                state = WANDERING;
+            }
+        }
+
+        //enemies will turn and fight if they have nowhere to run and aren't affect by terror
+        protected void nowhereToRun() {
+            if (buff(Terror.class) == null && buff(Dread.class) == null) {
+                ScrollOfTeleportation.teleportChar(Mob.this);
             }
         }
     }

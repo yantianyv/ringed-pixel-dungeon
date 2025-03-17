@@ -84,6 +84,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMirrorImag
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRage;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfDeveloper;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
@@ -526,6 +527,10 @@ public enum HeroClass {
         // 把一个断肠苔种子放入第五个快捷栏
         Item slot4 = Dungeon.hero.belongings.getItem(Sorrowmoss.Seed.class);
         if (slot4 != null) Dungeon.quickslot.setSlot(4, slot4);
+        // 把开发者密卷放入第六个快捷栏
+        Item slot5 = Dungeon.hero.belongings.getItem(ScrollOfDeveloper.class);
+        if (slot5 != null) Dungeon.quickslot.setSlot(5, slot5);
+
 
     }
 }
