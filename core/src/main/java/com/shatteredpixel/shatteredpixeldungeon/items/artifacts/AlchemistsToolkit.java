@@ -79,8 +79,8 @@ public class AlchemistsToolkit extends Artifact {
             return;
         }
 
-        if (action.equals(AC_BREW) && level() < 10) {
-            if (!isEquipped(hero)) {
+        if (action.equals(AC_BREW) ) {
+            if (!isEquipped(hero)&&level() <10) {
                 GLog.i(Messages.get(this, "need_to_equip"));
             } else if (cursed) {
                 GLog.w(Messages.get(this, "cursed"));
