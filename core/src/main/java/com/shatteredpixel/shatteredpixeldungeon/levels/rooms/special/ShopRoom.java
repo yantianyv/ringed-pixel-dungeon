@@ -265,12 +265,10 @@ public class ShopRoom extends SpecialRoom {
 
         itemsToSpawn.add(new Alchemize().quantity(Random.IntRange(2, 3)));
 
-        Bag bag = ChooseBag(Dungeon.hero.belongings);
-        for (int i = 0; i <= no_drop_bag_num() - (Dungeon.depth / 5); i++) {
-            bag = ChooseBag(Dungeon.hero.belongings);
-            if (bag != null) {
-                itemsToSpawn.add(bag);
-            }
+        Bag bag = null;
+        bag = ChooseBag(Dungeon.hero.belongings);
+        if (bag != null) {
+            itemsToSpawn.add(bag);
         }
 
         itemsToSpawn.add(new PotionOfHealing());
@@ -364,7 +362,7 @@ public class ShopRoom extends SpecialRoom {
 
     protected static Bag ChooseBag(Belongings pack) {
 
-        //generate a hashmap of all valid bags.
+        //未所有
         HashMap<Bag, Integer> bags = new HashMap<>();
         if (!Dungeon.LimitedDrops.VELVET_POUCH.dropped()) {
             bags.put(new VelvetPouch(), 1);
