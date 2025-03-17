@@ -85,6 +85,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRage;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfDeveloper;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfPassage;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
@@ -509,28 +510,50 @@ public enum HeroClass {
         }
         // 获得升级卷轴10000个
         for (int i = 0; i < (114514 - 6666); i++) {
-            ScrollOfUpgrade scroll = new ScrollOfUpgrade();
-            scroll.collect();
+            ScrollOfUpgrade scroll1 = new ScrollOfUpgrade();
+            scroll1.collect();
         }
+        // 获得归反密卷10000个
+        for (int i = 0; i < (100); i++) {
+            ScrollOfPassage scroll2 = new ScrollOfPassage();
+            scroll2.collect();
+        }
+        // 获得开发者秘卷10000个
+        for (int i = 0; i < (100); i++) {
+            ScrollOfDeveloper scroll3 = new ScrollOfDeveloper();
+            scroll3.collect();
+        }
+
         // 把一个升级卷轴放入第一个快捷栏
         Item slot0 = Dungeon.hero.belongings.getItem(ScrollOfUpgrade.class);
-        if (slot0 != null) Dungeon.quickslot.setSlot(0, slot0);
+        if (slot0 != null) {
+            Dungeon.quickslot.setSlot(0, slot0);
+        }
         // 把一个驱邪卷轴放入第二个快捷栏
         Item slot1 = Dungeon.hero.belongings.getItem(ScrollOfRemoveCurse.class);
-        if (slot1 != null) Dungeon.quickslot.setSlot(1, slot1);
+        if (slot1 != null) {
+            Dungeon.quickslot.setSlot(1, slot1);
+        }
         // 把一个经验药水放入第三个快捷栏
         Item slot2 = Dungeon.hero.belongings.getItem(PotionOfExperience.class);
-        if (slot2 != null) Dungeon.quickslot.setSlot(2, slot2);
+        if (slot2 != null) {
+            Dungeon.quickslot.setSlot(2, slot2);
+        }
         // 把一个力量药水放入第四个快捷栏
         Item slot3 = Dungeon.hero.belongings.getItem(PotionOfStrength.class);
-        if (slot3 != null) Dungeon.quickslot.setSlot(3, slot3);
+        if (slot3 != null) {
+            Dungeon.quickslot.setSlot(3, slot3);
+        }
         // 把一个断肠苔种子放入第五个快捷栏
         Item slot4 = Dungeon.hero.belongings.getItem(Sorrowmoss.Seed.class);
-        if (slot4 != null) Dungeon.quickslot.setSlot(4, slot4);
+        if (slot4 != null) {
+            Dungeon.quickslot.setSlot(4, slot4);
+        }
         // 把开发者密卷放入第六个快捷栏
         Item slot5 = Dungeon.hero.belongings.getItem(ScrollOfDeveloper.class);
-        if (slot5 != null) Dungeon.quickslot.setSlot(5, slot5);
-
+        if (slot5 != null) {
+            Dungeon.quickslot.setSlot(5, slot5);
+        }
 
     }
 }

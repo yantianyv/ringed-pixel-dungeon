@@ -142,14 +142,12 @@ public abstract class Mob extends Char {
             //modify health for ascension challenge if applicable, only on first add
             float percent = HP / (float) HT;
             //依据层数添加血量上限
-            if (properties.contains(Property.BOSS)) {
-
-                HT = (int) Math.round(HT * AscensionChallenge.statModifier(this) * (1 + 0.1 * Dungeon.depth));
-                HP = (int) Math.round(HT * percent);
-            } else {
+            if (Dungeon.level.locked) {
                 HT = (int) Math.round(HT * AscensionChallenge.statModifier(this));
                 HP = (int) Math.round(HT * percent);
-
+            } else {
+                HT = (int) Math.round(HT * AscensionChallenge.statModifier(this) * (1 + 0.05 * Dungeon.depth));
+                HP = (int) Math.round(HT * percent);
             }
             firstAdded = false;
         }
@@ -245,8 +243,8 @@ public abstract class Mob extends Char {
 
         // 自然回复
         if (!enemyInFOV) {
-            if (Dungeon.level.locked != true) {
-                Buff.affect(this, Healing.class).setHeal((HT - HP) / 30 + 1, 0, 1);
+            if (Dungeon.level.locked != true || HP < HT) {
+                HP += (HT - HP) / 30 + 1;
             }
         }
         // 挑战
