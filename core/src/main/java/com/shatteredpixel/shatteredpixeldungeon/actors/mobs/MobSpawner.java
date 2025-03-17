@@ -226,7 +226,7 @@ public class MobSpawner extends Actor {
 
             // Sewers
             default:
-                if (Random.Float() < 0.1f) {
+                if (Random.Float() < 0.001f) {
                     rotation.add(SlimeWithRing.class);
                 }
                 return;

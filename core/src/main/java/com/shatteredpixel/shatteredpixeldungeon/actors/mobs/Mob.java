@@ -1471,7 +1471,7 @@ public abstract class Mob extends Char {
             int oldPos = pos;
             // 如果可以继续逃脱
             if (target != -1 && getFurther(target)) {
-                spend(0.2f / speed());
+                spend(0.721f / speed());
                 return moveSprite(oldPos, pos);
             } // 如果没地方走了
             else {
@@ -1485,7 +1485,7 @@ public abstract class Mob extends Char {
             //does nothing by default, some enemies have special logic for this
             if (buff(Invisibility.class) != null) {
                 buff(Invisibility.class).detach();
-                Buff.affect(Mob.this, Invisibility.class, 3f);
+                Buff.affect(Mob.this, Invisibility.class, 10f);
             }
             if (enemySeen) {
                 sprite.showStatus(CharSprite.WARNING, Messages.get(Mob.class, "rage"));
