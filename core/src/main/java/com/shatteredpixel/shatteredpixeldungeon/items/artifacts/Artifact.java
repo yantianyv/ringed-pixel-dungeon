@@ -311,4 +311,25 @@ public class Artifact extends KindofMisc {
         }
         partialCharge = bundle.getFloat(PARTIALCHARGE);
     }
+
+    @Override
+    public String title() {
+
+        String name = name();
+
+        if (visiblyUpgraded() != 0) {
+            name = Messages.format(TXT_TO_STRING_LVL, name, visiblyUpgraded());
+        }
+
+        if (quantity > 1) {
+            name = Messages.format(TXT_TO_STRING_X, name, quantity);
+        }
+
+        if (level() > levelCap) {
+            name = Messages.get(this, "ultra") + name;
+        }
+
+        return name;
+
+    }
 }
