@@ -1464,28 +1464,23 @@ public abstract class Mob extends Char {
                 Buff.affect(Mob.this, Invisibility.class, 1.1f);
                 Buff.affect(Mob.this, Haste.class, 1f);
             } else if (HP < HT / 2) {
-                HP += HT / 30;
-                if (HT % 30 > Random.Int(100)) {
+                HP += HT / 100;
+                if (HT % 100 > Random.Int(100)) {
                     HP++;
                 }
-                int oldPos = pos;
-                // 如果可以继续逃脱
-                if (target != -1 && getFurther(target)) {
-                    spend(0.5f / speed());
-                    return moveSprite(oldPos, pos);
-                } // 如果没地方走了
-                else {
-                    spend(TICK);
-                    nowhereToRun();
-                    return true;
-                }
             }
-
-        
-
-        
-
-        
+            int oldPos = pos;
+            // 如果可以继续逃脱
+            if (target != -1 && getFurther(target)) {
+                spend(0.5f / speed());
+                return moveSprite(oldPos, pos);
+            } // 如果没地方走了
+            else {
+                spend(TICK);
+                nowhereToRun();
+                return true;
+            }
+        }
 
         protected void escaped() {
             //does nothing by default, some enemies have special logic for this
