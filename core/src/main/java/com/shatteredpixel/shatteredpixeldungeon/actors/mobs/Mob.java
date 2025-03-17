@@ -245,7 +245,7 @@ public abstract class Mob extends Char {
         // 自然回复
         if (!enemyInFOV) {
             if (!Dungeon.level.locked && HP < HT) {
-                HP += (HT - HP) / 100 + 1;
+                HP += (HT - HP) / 50 + 1;
             }
         }
         // 挑战
