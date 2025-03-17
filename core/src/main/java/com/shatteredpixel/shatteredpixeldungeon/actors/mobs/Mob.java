@@ -247,15 +247,14 @@ public abstract class Mob extends Char {
             }// 常规层 
             else {
                 Buff.affect(this, Invisibility.class, 20);
-                Buff.affect(this, Terror.class, 3);
-                Buff.affect(this, Haste.class, 3);
+                Buff.affect(this, Terror.class, 5);
+                Buff.affect(this, Haste.class, 1);
+                Buff.affect(this,Healing.class).setHeal(HT / 10, 0, 1);
                 int counter = 0;
                 if (Dungeon.level.heroFOV[pos] && counter > 0) {
                     CellEmitter.center(pos).start(Speck.factory(Speck.SCREAM), 0.1f, counter);
                 }
             }
-        } else if (HT - HP < HP && state == FLEEING && buff(Terror.class) == null) {
-            state = WANDERING;
         }
         // 自然回复
         if (state != HUNTING && HP < HT && Random.Int(100) < Dungeon.depth && alignment == Alignment.ENEMY) {
