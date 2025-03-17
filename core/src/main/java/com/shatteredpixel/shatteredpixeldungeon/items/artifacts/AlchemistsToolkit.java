@@ -61,7 +61,7 @@ public class AlchemistsToolkit extends Artifact {
     @Override
     public ArrayList<String> actions(Hero hero) {
         ArrayList<String> actions = super.actions(hero);
-        if (isEquipped(hero) && !cursed && hero.buff(MagicImmune.class) == null) {
+        if ((isEquipped(hero) || level() >= 10) && !cursed && hero.buff(MagicImmune.class) == null) {
             actions.add(AC_BREW);
             if (level() < levelCap) {
                 actions.add(AC_ENERGIZE);
@@ -79,8 +79,8 @@ public class AlchemistsToolkit extends Artifact {
             return;
         }
 
-        if (action.equals(AC_BREW) ) {
-            if (!isEquipped(hero)&&level() <10) {
+        if (action.equals(AC_BREW)) {
+            if (!isEquipped(hero) && level() < 10) {
                 GLog.i(Messages.get(this, "need_to_equip"));
             } else if (cursed) {
                 GLog.w(Messages.get(this, "cursed"));
