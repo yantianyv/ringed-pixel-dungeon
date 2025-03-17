@@ -29,8 +29,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
-import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
@@ -39,14 +37,12 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
-import com.watabou.utils.Random;
 
 public class ChaliceOfBlood extends Artifact {
 
@@ -172,12 +168,12 @@ public class ChaliceOfBlood extends Artifact {
 
     // 新增主动技能 祈祷
     private void pray(Hero hero) {
-        if (charge >= 10 && level() >= 1) {
+        if (charge >= 10 && level() >= 1 && hero.buff(Healing.class) == null && hero.HP < hero.HT && !cursed) {
             int extra_level = level() - levelCap;
             extra_level = extra_level > 0 ? extra_level : 0;
             last_charge = charge;
             GLog.p(Messages.get(this, "onpray"));
-            Buff.affect(hero, Healing.class).setHeal((level() + 1 + extra_level * (hero.HT - hero.HP) / 300) * charge / 100, 0.1f, 0);
+            Buff.affect(hero, Healing.class).setHeal(((level() + 1) * (level() - extra_level) / 2 + extra_level * (hero.HT - hero.HP) / 300) * charge / 100 + 1, 0.1f, 0);
             charge = 0;
             status();
             updateQuickslot();

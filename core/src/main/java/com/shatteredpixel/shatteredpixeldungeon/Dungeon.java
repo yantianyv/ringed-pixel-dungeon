@@ -230,7 +230,10 @@ public class Dungeon {
         } else if (!SPDSettings.customSeed().isEmpty()) {
             customSeedText = SPDSettings.customSeed();
             seed = DungeonSeed.convertFromText(customSeedText);
-
+            //特殊种子文本使用随机种子
+            if (is_developer_mode()) {
+                seed = DungeonSeed.randomSeed();
+            }
         } else {
             customSeedText = "";
             seed = DungeonSeed.randomSeed();
@@ -1140,7 +1143,6 @@ public class Dungeon {
         if ("114514".equals(customSeedText)) {
             return true;
         }
-        return true;
-
+        return false;
     }
 }
