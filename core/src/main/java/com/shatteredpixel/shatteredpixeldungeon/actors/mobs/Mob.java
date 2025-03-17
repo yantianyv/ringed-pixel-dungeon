@@ -41,6 +41,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Dread;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.GreaterHaste;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
@@ -1449,7 +1450,7 @@ public abstract class Mob extends Char {
                 }
             }
             // 如果已经逃脱
-            if (enemy == null || HP > (HT - HP)) {
+            if (enemy == null || HP > HT / 2 - 1) {
                 escaped();
                 if (state != ESCAPING) {
                     spend(TICK);
@@ -1458,7 +1459,9 @@ public abstract class Mob extends Char {
             }// 如果敌人在视野内
             if (enemyInFOV) {
                 target = enemy.pos;
-            } else if (HP < HT) {
+                Buff.affect(Mob.this, Invisibility.class, 1.1f);
+                Buff.affect(Mob.this, Haste.class, 1f);
+            } else if (HP < HT / 2) {
                 HP += 1;
             }
             int oldPos = pos;
