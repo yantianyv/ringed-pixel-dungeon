@@ -145,7 +145,7 @@ public class ChaliceOfBlood extends Artifact {
         }
         if (level() >= 10) {
             damage = Dungeon.hero.HP / 2;
-            prick_cooldown = damage;
+            prick_cooldown = damage > 100 ? 100 : damage;
         } else {
             prick_cooldown = 0;
         }
