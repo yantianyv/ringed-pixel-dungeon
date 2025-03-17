@@ -20,15 +20,20 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
+import java.nio.Buffer;
+import java.util.HashSet;
+
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.DarkBlock;
 import com.shatteredpixel.shatteredpixeldungeon.effects.EmoIcon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
-import com.shatteredpixel.shatteredpixeldungeon.effects.IceBlock;
 import com.shatteredpixel.shatteredpixeldungeon.effects.GlowBlock;
+import com.shatteredpixel.shatteredpixeldungeon.effects.IceBlock;
 import com.shatteredpixel.shatteredpixeldungeon.effects.ShieldHalo;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
@@ -55,13 +60,6 @@ import com.watabou.noosa.tweeners.Tweener;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
-
-import java.nio.Buffer;
-import java.util.HashSet;
-
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 
 public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip.Listener {
 
@@ -678,7 +676,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
     }
 
     public void showSleep() {
-        if (ch instanceof Hero) {
+        if (ch instanceof Hero || ch.buff(Invisibility.class) == null) {
             synchronized (EmoIcon.class) {
                 if (!(emo instanceof EmoIcon.Sleep)) {
                     if (emo != null) {
@@ -688,41 +686,22 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
                     emo.visible = visible;
                 }
             }
-        } else if (invisible != null) {
-            invisible.killAndErase();
-
-            invisible = new AlphaTweener(this, 0.0f, 0.4f);
-            if (ch instanceof Hero) {
-                // alpha(0.2f);
-            } else if (parent != null) {
-                parent.add(invisible);
-            } else {
-                alpha(0.05f);
-            }
         }
-
         idle();
     }
 
     public void hideSleep() {
-        if (ch instanceof Hero) {
-            synchronized (EmoIcon.class) {
-                if (emo instanceof EmoIcon.Sleep) {
-                    emo.killAndErase();
-                    emo = null;
-                }
+        synchronized (EmoIcon.class) {
+            if (emo instanceof EmoIcon.Sleep) {
+                emo.killAndErase();
+                emo = null;
             }
-        } else if (invisible != null && ch.buff(Invisibility.class) == null) {
-            invisible.killAndErase();
-            invisible = null;
-            alpha(1f);
-
         }
     }
 
     public void showAlert() {
         synchronized (EmoIcon.class) {
-            if (!(emo instanceof EmoIcon.Alert)&&ch.buff(Invisibility.class) == null) {
+            if (!(emo instanceof EmoIcon.Alert) && ch.buff(Invisibility.class) == null) {
                 if (emo != null) {
                     emo.killAndErase();
                 }

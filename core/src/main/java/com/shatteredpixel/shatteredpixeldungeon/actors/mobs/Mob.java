@@ -141,8 +141,16 @@ public abstract class Mob extends Char {
         if (firstAdded) {
             //modify health for ascension challenge if applicable, only on first add
             float percent = HP / (float) HT;
-            HT = (int) Math.round(HT * AscensionChallenge.statModifier(this) * (1 + 0.1 * Dungeon.depth));
-            HP = (int) Math.round(HT * percent);
+            //依据层数添加血量上限
+            if (properties.contains(Property.BOSS)) {
+
+                HT = (int) Math.round(HT * AscensionChallenge.statModifier(this) * (1 + 0.1 * Dungeon.depth));
+                HP = (int) Math.round(HT * percent);
+            } else {
+                HT = (int) Math.round(HT * AscensionChallenge.statModifier(this));
+                HP = (int) Math.round(HT * percent);
+
+            }
             firstAdded = false;
         }
     }
@@ -448,9 +456,6 @@ public abstract class Mob extends Char {
                 }
             }
 
-            // if (buff(Invisibility.class) != null) {
-            //     enemies.clear();
-            // }
             //neutral characters in particular do not choose enemies.
             if (enemies.isEmpty()) {
                 return null;
@@ -762,10 +767,6 @@ public abstract class Mob extends Char {
         // 挑战
         if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
             Buff.affect(this, Invisibility.class, 1);
-        }
-
-        if (this.buff(Terror.class) == null) {
-            state = HUNTING;
         }
 
         if (buff(GuidingLight.Illuminated.class) != null && Dungeon.hero.heroClass == HeroClass.CLERIC) {
@@ -1126,7 +1127,7 @@ public abstract class Mob extends Char {
         notice();
 
         if (state != HUNTING && state != FLEEING) {
-            state = HUNTING;
+            state = WANDERING;
         }
         target = cell;
     }
@@ -1434,7 +1435,6 @@ public abstract class Mob extends Char {
 
         protected void escaped() {
             //does nothing by default, some enemies have special logic for this
-            // 给怪物添加一个回复效果
         }
 
         //enemies will turn and fight if they have nowhere to run and aren't affect by terror
