@@ -245,14 +245,16 @@ public abstract class Mob extends Char {
         // 自然回复
         if (!enemyInFOV) {
             if (!Dungeon.level.locked && HP < HT) {
-                HP += (HT - HP) / 50 + 1;
+                HP += (HT - HP) / 50;
+                if (Random.Int(50) < (HT - HP) % 50) {
+                    HP += 1;
+                }
             }
         }
         // 挑战
         if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
             if (Random.Int(3) == 0) {
                 Buff.affect(this, Invisibility.class, 3);
-
             }
         }
     }
@@ -1462,20 +1464,28 @@ public abstract class Mob extends Char {
                 Buff.affect(Mob.this, Invisibility.class, 1.1f);
                 Buff.affect(Mob.this, Haste.class, 1f);
             } else if (HP < HT / 2) {
-                HP += 1;
+                HP += HT / 30;
+                if (HT % 30 > Random.Int(100)) {
+                    HP++;
+                }
+                int oldPos = pos;
+                // 如果可以继续逃脱
+                if (target != -1 && getFurther(target)) {
+                    spend(0.5f / speed());
+                    return moveSprite(oldPos, pos);
+                } // 如果没地方走了
+                else {
+                    spend(TICK);
+                    nowhereToRun();
+                    return true;
+                }
             }
-            int oldPos = pos;
-            // 如果可以继续逃脱
-            if (target != -1 && getFurther(target)) {
-                spend(0.5f / speed());
-                return moveSprite(oldPos, pos);
-            } // 如果没地方走了
-            else {
-                spend(TICK);
-                nowhereToRun();
-                return true;
-            }
-        }
+
+        
+
+        
+
+        
 
         protected void escaped() {
             //does nothing by default, some enemies have special logic for this
