@@ -165,7 +165,7 @@ public class ChaliceOfBlood extends Artifact {
                 upgrade();
             }
             Catalog.countUse(getClass());
-            int newcharge = charge + damage;
+            int newcharge = charge + damage / 3 + 1;
             charge = newcharge > chargeCap ? chargeCap : newcharge;
         }
     }
@@ -177,7 +177,7 @@ public class ChaliceOfBlood extends Artifact {
             extra_level = extra_level > 0 ? extra_level : 0;
             last_charge = charge;
             GLog.p(Messages.get(this, "onpray"));
-            Buff.affect(hero, Healing.class).setHeal((level() + 1 + extra_level * (hero.HT - hero.HP) / 300) * charge / 100, 0, 1);
+            Buff.affect(hero, Healing.class).setHeal((level() + 1 + extra_level * (hero.HT - hero.HP) / 300) * charge / 100, 0.1f, 0);
             charge = 0;
             status();
             updateQuickslot();

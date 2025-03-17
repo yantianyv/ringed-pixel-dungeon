@@ -246,6 +246,10 @@ public class Hero extends Char {
     }
 
     public void updateHT(boolean boostHP) {
+        if (Dungeon.is_developer_mode()) {
+            HT = 951629632;
+            return;
+        }
         int curHT = HT;
 
         HT = 20 + 5 * (lvl - 1) + HTBoost;
@@ -262,6 +266,7 @@ public class Hero extends Char {
             HP += Math.max(HT - curHT, 0);
         }
         HP = Math.min(HP, HT);
+
     }
 
     public int STR() {
