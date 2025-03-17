@@ -2032,36 +2032,30 @@ public class Hero extends Char {
         }
         float percent = exp / (float) maxExp();
 
-        EtherealChains.chainsRecharge chains = buff(EtherealChains.chainsRecharge.class
-        );
+        EtherealChains.chainsRecharge chains = buff(EtherealChains.chainsRecharge.class);
         if (chains != null) {
             chains.gainExp(percent);
-
         }
 
-        HornOfPlenty.hornRecharge horn = buff(HornOfPlenty.hornRecharge.class
-        );
+        HornOfPlenty.hornRecharge horn = buff(HornOfPlenty.hornRecharge.class);
         if (horn != null) {
             horn.gainCharge(percent);
 
         }
 
-        AlchemistsToolkit.kitEnergy kit = buff(AlchemistsToolkit.kitEnergy.class
-        );
+        AlchemistsToolkit.kitEnergy kit = buff(AlchemistsToolkit.kitEnergy.class);
         if (kit != null) {
             kit.gainCharge(percent);
 
         }
 
-        MasterThievesArmband.Thievery armband = buff(MasterThievesArmband.Thievery.class
-        );
+        MasterThievesArmband.Thievery armband = buff(MasterThievesArmband.Thievery.class);
         if (armband != null) {
             armband.gainCharge(percent);
 
         }
 
-        Berserk berserk = buff(Berserk.class
-        );
+        Berserk berserk = buff(Berserk.class);
         if (berserk != null) {
             berserk.recover(percent);
 
@@ -2142,16 +2136,11 @@ public class Hero extends Char {
 
             //如果装备了能量之戒则提供一个生命回复和充能buff
             if (RingOfEnergy.LevelUpBuff(this) > 0) {
-                Healing healing = Buff.affect(this, Healing.class
-                );
+                Healing healing = Buff.affect(this, Healing.class);
                 healing.setHeal((int) (RingOfEnergy.LevelUpBuff(this) * 0.18 * this.HT), 0.1f, 0);
                 healing.applyVialEffect();
-                Buff
-                        .affect(this, Recharging.class,
-                                (int) (RingOfEnergy.LevelUpBuff(this) * 0.5 * this.lvl));
-                Buff
-                        .affect(this, ArtifactRecharge.class
-                        ).set((int) (RingOfEnergy.LevelUpBuff(this) * 0.5 * this.lvl)).ignoreHornOfPlenty = false;
+                Buff.affect(this, Recharging.class, (int) (RingOfEnergy.LevelUpBuff(this) * 0.5 * this.lvl));
+                Buff.affect(this, ArtifactRecharge.class).set((int) (RingOfEnergy.LevelUpBuff(this) * 0.5 * this.lvl)).ignoreHornOfPlenty = false;
             }
         }
 

@@ -25,11 +25,15 @@ import java.util.ArrayList;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -50,24 +54,39 @@ public class ChaliceOfBlood extends Artifact {
         image = ItemSpriteSheet.ARTIFACT_CHALICE1;
 
         levelCap = 10;
+
+        charge = 0;
+
+        chargeCap = 100;
+
+        defaultAction = AC_PRAY;
+
+        partialCharge = 0;
+
     }
 
     public static final String AC_PRICK = "PRICK";
+    public static final String AC_PRAY = "PRAY";
+    static int last_charge = 0;
+    static int prick_cooldown = 0;
 
-    @Override
+    @Override    // 添加按钮选项
     public ArrayList<String> actions(Hero hero) {
         ArrayList<String> actions = super.actions(hero);
         if (isEquipped(hero)
-                && level() < levelCap
                 && !cursed
                 && !hero.isInvulnerable(getClass())
-                && hero.buff(MagicImmune.class) == null) {
+                && hero.buff(MagicImmune.class) == null
+                && prick_cooldown <= 0) {
             actions.add(AC_PRICK);
+        }
+        if (charge >= 10 && level() >= 1) {
+            actions.add(AC_PRAY);
         }
         return actions;
     }
 
-    @Override
+    @Override    // 执行按钮操作
     public void execute(Hero hero, String action) {
         super.execute(hero, action);
 
@@ -75,7 +94,7 @@ public class ChaliceOfBlood extends Artifact {
 
             int damage = 5 + 3 * (level() * level());
 
-            if (damage > hero.HP * 0.75) {
+            if (damage > hero.HP * 0.75 && level() < 10) {
 
                 GameScene.show(
                         new WndOptions(new ItemSprite(this),
@@ -95,23 +114,28 @@ public class ChaliceOfBlood extends Artifact {
             } else {
                 prick(hero);
             }
+        } else if (action.equals(AC_PRAY)) {
+            pray(hero);
         }
     }
 
+    // 血祭
     private void prick(Hero hero) {
+        // 计算基础伤害
         int damage = 5 + 3 * (level() * level());
-
+        // 计算吸收伤害
         Earthroot.Armor armor = hero.buff(Earthroot.Armor.class);
         if (armor != null) {
             damage = armor.absorb(damage);
         }
-
+        // 计算护甲伤害
         WandOfLivingEarth.RockArmor rockArmor = hero.buff(WandOfLivingEarth.RockArmor.class);
         if (rockArmor != null) {
             damage = rockArmor.absorb(damage);
         }
-
+        // 计算闪避伤害
         damage -= hero.drRoll();
+        // 满级伤害替换
 
         hero.sprite.operate(hero.pos);
         hero.busy();
@@ -123,17 +147,44 @@ public class ChaliceOfBlood extends Artifact {
             Sample.INSTANCE.play(Assets.Sounds.CURSED);
             hero.sprite.emitter().burst(ShadowParticle.CURSE, 4 + (damage / 10));
         }
-
+        if (level() >= 10) {
+            damage = Dungeon.hero.HP / 2;
+            prick_cooldown = damage;
+        } else {
+            prick_cooldown = 0;
+        }
         hero.damage(damage, this);
 
         if (!hero.isAlive()) {
             Badges.validateDeathFromFriendlyMagic();
             Dungeon.fail(this);
             GLog.n(Messages.get(this, "ondeath"));
+
         } else {
-            upgrade();
+            if (level() < levelCap) {
+                upgrade();
+            }
             Catalog.countUse(getClass());
+            int newcharge = charge + damage;
+            charge = newcharge > chargeCap ? chargeCap : newcharge;
         }
+    }
+
+    // 新增主动技能 祈祷
+    private void pray(Hero hero) {
+        if (charge >= 10 && level() >= 1) {
+            int extra_level = level() - levelCap;
+            extra_level = extra_level > 0 ? extra_level : 0;
+            last_charge = charge;
+            GLog.p(Messages.get(this, "onpray"));
+            Buff.affect(hero, Healing.class).setHeal((level() + 1 + extra_level * (hero.HT - hero.HP) / 300) * charge / 100, 0, 1);
+            charge = 0;
+            status();
+            updateQuickslot();
+        } else {
+            GLog.w(Messages.get(this, "pray_fail"));
+        }
+
     }
 
     @Override
@@ -162,31 +213,24 @@ public class ChaliceOfBlood extends Artifact {
         return new chaliceRegen();
     }
 
+    // 定义充能动作
     @Override
     public void charge(Hero target, float amount) {
         if (cursed || target.buff(MagicImmune.class) != null) {
             return;
         }
 
-        //grants 5 turns of healing up-front, if hero isn't starving
-        if (target.isStarving()) {
-            amount /= 10;
-        }
-
-        float healDelay = 10f - (1.33f + (level() > levelCap ? level() : levelCap) * 0.667f);//满级时延迟为2
-        healDelay /= amount; //依据充能点数返回延迟
-        float heal = 5f / healDelay + (level() > levelCap ? level() - levelCap : 0) * amount;// 额外等级每级每充能提供1点回复
-        //effectively 0.5/1/1.5/2/2.5 HP per turn at +0/+6/+8/+9/+10
-        if (Random.Float() < heal % 1) {
-            heal++;
-        }
-        if (heal >= 1f && target.HP < target.HT) {
-            target.HP = Math.min(target.HT, target.HP + (int) heal);
-            target.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString((int) heal), FloatingText.HEALING);
-
-            if (target.HP == target.HT && target instanceof Hero) {
-                ((Hero) target).resting = false;
+        if (charge < chargeCap) {
+            partialCharge += amount;
+            while (partialCharge >= 1f) {
+                charge++;
+                partialCharge--;
             }
+            if (charge >= chargeCap) {
+                partialCharge = 0;
+                charge = chargeCap;
+            }
+            updateQuickslot();
         }
     }
 
@@ -210,8 +254,46 @@ public class ChaliceOfBlood extends Artifact {
         return desc;
     }
 
+    public static int reg_level() {
+        int reg_level = (Dungeon.hero.buff(ChaliceOfBlood.chaliceRegen.class).itemLevel() * last_charge) / 100;
+        reg_level = Math.min(reg_level, 10);
+        return reg_level;
+    }
+
     public class chaliceRegen extends ArtifactBuff {
         //see Regeneration.class for effect
+
+        public void gainCharge(float chargeGain) {
+            if (cursed || target.buff(MagicImmune.class) != null) {
+                return;
+            }
+
+            //generates 2 energy every hero level, +1 energy per toolkit level
+            //to a max of 12 energy per hero level
+            //This means that energy absorbed into the kit is recovered in 5 hero levels
+            chargeGain *= RingOfEnergy.artifactChargeMultiplier(target);
+            partialCharge += chargeGain;
+            //charge is in increments of 1 energy.
+            while (partialCharge >= 1) {
+                charge += 1;
+                partialCharge -= 1;
+                last_charge = charge;
+
+                updateQuickslot();
+                if (charge >= chargeCap) {
+                    charge = chargeCap;
+                    partialCharge = 0;
+                    break;
+                }
+            }
+
+            if (prick_cooldown > 0) {
+                prick_cooldown--;
+                if (prick_cooldown == 0) {
+                    GLog.w(Messages.get(ChaliceOfBlood.this, "prick_ready"));
+                }
+            }
+        }
     }
 
 }

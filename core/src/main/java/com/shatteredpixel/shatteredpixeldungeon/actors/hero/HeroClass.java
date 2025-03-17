@@ -20,6 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
+import java.util.List;
+
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
@@ -46,25 +48,35 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.En
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.HeroicLeap;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Shockwave;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.Waterskin;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.RingString;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMindVision;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfPurity;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfLighting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
@@ -72,6 +84,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMirrorImag
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRage;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Cudgel;
@@ -85,6 +98,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSp
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Plant.Seed;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Sorrowmoss;
 import com.watabou.utils.DeviceCompat;
 
 public enum HeroClass {
@@ -98,6 +113,7 @@ public enum HeroClass {
 
     private HeroSubClass[] subClasses;
     public boolean develop_mode = false;
+
     HeroClass(HeroSubClass... subClasses) {
         this.subClasses = subClasses;
     }
@@ -150,7 +166,9 @@ public enum HeroClass {
                 initCleric(hero);
                 break;
         }
-        develop_mode = Dungeon.is_developer_mode(); // 初始化开发者模式
+        if (Dungeon.is_developer_mode()) {
+            develop_mode(); // 初始化开发者模式
+        }
         if (SPDSettings.quickslotWaterskin()) {
             for (int s = 0; s < QuickSlot.SIZE; s++) {
                 if (Dungeon.quickslot.getItem(s) == null) {
@@ -286,7 +304,6 @@ public enum HeroClass {
         new PotionOfPurity().identify();
         new ScrollOfRemoveCurse().identify();
 
-
     }
     // ——————————————————————————————————————————
 
@@ -387,4 +404,128 @@ public enum HeroClass {
         return shortDesc() + "\n\n" + Messages.get(HeroClass.class, name() + "_unlock");
     }
 
+// 开发者模式
+    private void develop_mode() {
+        // 获得所有背包
+        Item ScrollHolder = new ScrollHolder();
+        ScrollHolder.collect();
+        Item PotionBandolier = new PotionBandolier();
+        PotionBandolier.collect();
+        Item MagicalHolster = new MagicalHolster();
+        MagicalHolster.collect();
+        Item RingString = new RingString();
+        RingString.collect();
+        // 获得所有戒指
+        List rings = Generator.getItemList(Generator.Category.RING);
+        for (int i = 0; i < rings.size(); i++) {
+            Item ring = (Item) rings.get(i);
+            if (ring instanceof Ring) {
+                ring.upgrade(100);
+                ring.identify();
+                ring.collect();
+                ring.cursed = true;
+            }
+        }
+        // 获得所有戒指的诅咒版
+        List cursedRings = Generator.getItemList(Generator.Category.RING);
+        for (int i = 0; i < cursedRings.size(); i++) {
+            Item cursedRing = (Item) cursedRings.get(i);
+            if (cursedRing instanceof Ring) {
+                cursedRing.upgrade(10);
+                cursedRing.identify();
+                cursedRing.collect();
+                cursedRing.cursed = true;
+            }
+        }
+        // 获得每种神器各一个
+        List artifacts = Generator.getItemList(Generator.Category.ARTIFACT);
+        for (int i = 0; i < artifacts.size(); i++) {
+            Item artifact = (Item) artifacts.get(i);
+            if (artifact instanceof Artifact) {
+                artifact.identify();
+                artifact.cursed = true;
+                artifact.collect();
+            }
+        }
+        //获得每种法杖100级
+        List wands = Generator.getItemList(Generator.Category.WAND);
+        for (int i = 0; i < wands.size(); i++) {
+            Item wand = (Item) wands.get(i);
+            if (wand instanceof Wand) {
+                wand.upgrade(100);
+                wand.identify();
+                wand.collect();
+            }
+        }
+        // 获得每种药水
+        for (int j = 0; j < 6666; j++) {
+            List<Item> potions = Generator.getItemList(Generator.Category.POTION);
+            for (int i = 0; i < potions.size(); i++) {
+                Item potion = (Item) potions.get(i);
+                if (potion instanceof Potion) {
+                    potion.identify();
+                    potion.collect();
+                }
+            }
+        }
+        // 获得每种卷轴
+        for (int j = 0; j < 6666; j++) {
+            List<Item> scrolls = Generator.getItemList(Generator.Category.SCROLL);
+            for (int i = 0; i < scrolls.size(); i++) {
+                Item scroll = (Item) scrolls.get(i);
+                if (scroll instanceof Scroll) {
+                    scroll.identify();
+                    scroll.collect();
+                }
+            }
+        }
+        // 获得每种种子
+        for (int j = 0; j < 6666; j++) {
+            List<Item> seeds = Generator.getItemList(Generator.Category.SEED);
+            for (int i = 0; i < seeds.size(); i++) {
+                Item the_seed = (Item) seeds.get(i);
+                if (the_seed instanceof Seed) {
+                    the_seed.collect();
+                }
+            }
+        }
+        // 获得每种TRINKET
+        List trinkets = Generator.getItemList(Generator.Category.TRINKET);
+        for (int i = 0; i < trinkets.size(); i++) {
+            Item trinket = (Item) trinkets.get(i);
+            trinket.identify();
+            trinket.collect();
+        }
+        // 获得每种食物10000个           
+        for (int j = 0; j < 6666; j++) {
+            List foods = Generator.getItemList(Generator.Category.FOOD);
+            for (int i = 0; i < foods.size(); i++) {
+                Item food = (Item) foods.get(i);
+                if (food instanceof Food) {
+                    food.collect();
+                }
+            }
+        }
+        // 获得升级卷轴10000个
+        for (int i = 0; i < (114514 - 6666); i++) {
+            ScrollOfUpgrade scroll = new ScrollOfUpgrade();
+            scroll.collect();
+        }
+        // 把一个升级卷轴放入第一个快捷栏
+        Item slot0 = Dungeon.hero.belongings.getItem(ScrollOfUpgrade.class);
+        if (slot0 != null) Dungeon.quickslot.setSlot(0, slot0);
+        // 把一个驱邪卷轴放入第二个快捷栏
+        Item slot1 = Dungeon.hero.belongings.getItem(ScrollOfRemoveCurse.class);
+        if (slot1 != null) Dungeon.quickslot.setSlot(1, slot1);
+        // 把一个经验药水放入第三个快捷栏
+        Item slot2 = Dungeon.hero.belongings.getItem(PotionOfExperience.class);
+        if (slot2 != null) Dungeon.quickslot.setSlot(2, slot2);
+        // 把一个力量药水放入第四个快捷栏
+        Item slot3 = Dungeon.hero.belongings.getItem(PotionOfStrength.class);
+        if (slot3 != null) Dungeon.quickslot.setSlot(3, slot3);
+        // 把一个断肠苔种子放入第五个快捷栏
+        Item slot4 = Dungeon.hero.belongings.getItem(Sorrowmoss.Seed.class);
+        if (slot4 != null) Dungeon.quickslot.setSlot(4, slot4);
+
+    }
 }
