@@ -122,6 +122,7 @@ public class Dungeon {
         BLANDFRUIT_SEED,
         //Other limited enemy drops
         SLIME_WEP,
+        SLIME_RING,
         SKELE_WEP,
         THEIF_MISC,
         GUARD_ARM,
