@@ -35,7 +35,7 @@ public class SlimeWithRing extends Slime {
         defenseSkill = 4 + Dungeon.depth;
 
         EXP = 5;
-        maxLvl = 10;
+        maxLvl = 31;
 
         lootChance = 1f; //by default, see lootChance()
     }
