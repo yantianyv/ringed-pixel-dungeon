@@ -76,25 +76,44 @@ public class Piranha extends Mob {
 
     @Override
     protected boolean act() {
-        if (Dungeon.hero.buff(Invisibility.class) != null) {
+        // 跟随英雄隐身
+        if (Dungeon.hero.invisible > 0) {
             Buff.affect(this, Invisibility.class, 3);
+            // 在周围随机位置产生涟漪
+            for (int i : PathFinder.NEIGHBOURS9) {
+                if (Random.Float() < 0.1f) {
+                    GameScene.ripple(pos + i);
+                }
+            }
+            if (Random.Float() < 0.1f) {
+                GameScene.ripple(pos);
+            }
+
         }
+        // 不在水中或正在飞行则触发窒息
         if (pos != 0 && (!Dungeon.level.water[pos] || flying)) {
             if (sprite != null && buff(Levitation.class) != null) {
                 sprite.emitter().burst(Speck.factory(Speck.JET), 10);
             }
             dieOnLand();
             return true;
-        } else if (Dungeon.hero.flying == true) {
+        }// 如果英雄在飞行则移出游戏并在原地显示涟漪
+        else if (Dungeon.hero.flying == true) {
+            // 记录位置并移出游戏
             true_pos = pos == 0 ? true_pos : pos;
             pos = 0;
+            // 显示涟漪
             GameScene.ripple(true_pos);
-            spend(TICK);
+            // 消耗回合避免卡死
+            spend(0.1f);
             return true;
-        } else {
+        }// 如果英雄没有处于飞行状态
+        else {
+            // 如果位置为0则移入游戏
             if (pos == 0) {
                 pos = true_pos;
             }
+            // 执行其余行为
             return super.act();
         }
     }
@@ -187,7 +206,9 @@ public class Piranha extends Mob {
 
     @Override
     public void storeInBundle(Bundle bundle) {
-        pos = true_pos;
+        if (pos == 0) {
+            pos = true_pos;
+        }
         super.storeInBundle(bundle);
     }
 

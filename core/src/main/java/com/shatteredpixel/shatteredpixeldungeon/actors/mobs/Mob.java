@@ -101,7 +101,6 @@ import com.watabou.utils.Reflection;
 
 public abstract class Mob extends Char {
 
-
     {
         actPriority = MOB_PRIO;
 
@@ -1135,7 +1134,7 @@ public abstract class Mob extends Char {
     }
 
     public void notice() {
-        if (buff(Invisibility.class) == null && !Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
+        if (buff(Invisibility.class) == null || Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
             sprite.showAlert();
         } else {
             Dungeon.hero.sprite.showInviAlert();

@@ -24,6 +24,7 @@ import java.nio.Buffer;
 import java.util.HashSet;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
@@ -676,7 +677,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
     }
 
     public void showSleep() {
-        if (ch instanceof Hero || ch.buff(Invisibility.class) == null) {
+        if (ch instanceof Hero || ch.invisible == 0 || Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
             synchronized (EmoIcon.class) {
                 if (!(emo instanceof EmoIcon.Sleep)) {
                     if (emo != null) {

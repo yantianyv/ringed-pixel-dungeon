@@ -727,7 +727,10 @@ public abstract class Level implements Bundlable {
 
     public Mob findMob(int pos) {
         for (Mob mob : mobs) {
-            if (mob.pos == pos || pos != 0) {
+            if (mob.pos == pos) {
+                if (mob.pos == 0||mob.true_pos !=0) {
+                    return null;
+                }
                 return mob;
             }
         }

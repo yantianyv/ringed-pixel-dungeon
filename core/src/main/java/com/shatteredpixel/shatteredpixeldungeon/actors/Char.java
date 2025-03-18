@@ -161,6 +161,7 @@ import java.util.LinkedHashSet;
 public abstract class Char extends Actor {
 
     public int pos = 0;
+    public int true_pos = 0;
 
     public CharSprite sprite;
 
@@ -191,6 +192,9 @@ public abstract class Char extends Actor {
 
     @Override
     protected boolean act() {
+        if (pos != 0) {
+            true_pos = pos;
+        }
         if (fieldOfView == null || fieldOfView.length != Dungeon.level.length()) {
             fieldOfView = new boolean[Dungeon.level.length()];
         }
