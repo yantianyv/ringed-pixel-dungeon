@@ -69,10 +69,10 @@ public class RingOfDefender extends Ring {
     public String statsInfo() {
         if (isIdentified()) {
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.9f, soloBuffedBonus()))));
+                    Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, soloBuffedBonus()))));
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.9f, combinedBuffedBonus(Dungeon.hero)))));
+                        Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, combinedBuffedBonus(Dungeon.hero)))));
             }
             return info;
         } else {
@@ -84,7 +84,7 @@ public class RingOfDefender extends Ring {
         if (cursed && cursedKnown) {
             level = Math.min(-1, level - 3);
         }
-        return Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.9f, level + 1))) + "%";
+        return Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, level + 1))) + "%";
     }
 
     @Override
@@ -94,7 +94,9 @@ public class RingOfDefender extends Ring {
 
     public static float damageMultiplier(Char t) {
         //(HT - HP)/HT = heroes current % missing health.
-        return (float) Math.pow(0.9, getBuffedBonus(t, Defender.class) * ((float) (t.HT - t.HP) / t.HT));
+        float effect_rate = Math.max(((float) (t.HT - t.HP) / t.HT), getBuffedBonus(t, Defender.class) * 0.01f);
+        effect_rate = effect_rate < 1f ? effect_rate : 1f;
+        return (float) Math.pow(0.85, getBuffedBonus(t, Defender.class) * effect_rate);
     }
 
     public static final HashSet<Class> RESISTS = new HashSet<>();
@@ -121,7 +123,9 @@ public class RingOfDefender extends Ring {
 
         for (Class c : RESISTS) {
             if (c.isAssignableFrom(effect)) {
-                return (float) Math.pow(0.9, getBuffedBonus(target, Resistance.class));
+                float effect_rate = Math.max(((float) (target.HP) / target.HT), getBuffedBonus(target, Defender.class) * 0.01f);
+                effect_rate = effect_rate < 1f ? effect_rate : 1f;
+                return (float) Math.pow(0.85, getBuffedBonus(target, Resistance.class) * effect_rate);
             }
         }
 
