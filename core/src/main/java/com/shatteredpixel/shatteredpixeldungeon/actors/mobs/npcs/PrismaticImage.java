@@ -163,6 +163,8 @@ public class PrismaticImage extends NPC {
             //same base attack skill as hero, benefits from accuracy ring
             if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
                 return INFINITE_ACCURACY;
+            }else if(Random.Float(1) < - RingOfAgility.agilityChance(this)){
+                return 0;
             }
             return (int) ((9 + hero.lvl) );
         } else {
@@ -177,6 +179,8 @@ public class PrismaticImage extends NPC {
             int heroEvasion = (int) ((4 + hero.lvl));
             if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
                 return INFINITE_EVASION;
+            }else if(Random.Float(1)< - RingOfAgility.agilityChance(this)){
+                return 0;
             }
             if (hero.belongings.armor() != null) {
                 heroEvasion = (int) hero.belongings.armor().evasionFactor(this, heroEvasion);

@@ -116,6 +116,8 @@ public class MirrorImage extends NPC {
         int attackSkill = 9 + hero.lvl;
         if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
             return INFINITE_ACCURACY;
+        } else if (Random.Float(1) < -RingOfAgility.agilityChance(this)) {
+            return 0;
         }
         if (hero.belongings.attackingWeapon() != null) {
             attackSkill *= hero.belongings.attackingWeapon().accuracyFactor(this, target);
@@ -130,6 +132,8 @@ public class MirrorImage extends NPC {
             int heroEvasion = (int) ((4 + hero.lvl));
             if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
                 return INFINITE_EVASION;
+            } else if (Random.Float(1) < -RingOfAgility.agilityChance(this)) {
+                return 0;
             }
 
             //if the hero has more/less evasion, 50% of it is applied
