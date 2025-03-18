@@ -183,6 +183,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+
 public class Hero extends Char {
 
     {
@@ -2029,12 +2033,27 @@ public class Hero extends Char {
     }
 
     public void earnExp(int exp, Class source) {
-
+        boolean dropsuccess = false;
+        if (Dungeon.isChallenged(Challenges.XP_DUNGEON)) {
+            for (int i = 0; i < exp / 100; i++) {
+                Item scroll = new ScrollOfUpgrade();
+                Dungeon.level.drop(scroll, pos);
+                dropsuccess = true;
+            }
+            if (Random.Int(100) < exp) {
+                Item scroll = new ScrollOfUpgrade();
+                Dungeon.level.drop(scroll, pos);
+                dropsuccess = true;
+            }
+            if (dropsuccess) {
+                new Flare(6, 20).color(0x00FF00, true).show(sprite, 1f);
+            }
+        }
         //xp granted by ascension challenge is only for on-exp gain effects
         if (source != AscensionChallenge.class) {
-
             this.exp += exp;
         }
+
         float percent = exp / (float) maxExp();
 
         EtherealChains.chainsRecharge chains = buff(EtherealChains.chainsRecharge.class);

@@ -146,16 +146,15 @@ public abstract class Mob extends Char {
             float percent = HP / (float) HT;
             // 如果不是敌人就忽略
             if (alignment != alignment.ENEMY) {
-                // pass
+                HT = (int) Math.round(HT * AscensionChallenge.statModifier(this));
             }// 如果是BOSS就按正常血量设置
             else if (Dungeon.level.locked) {
                 HT = (int) Math.round(HT * AscensionChallenge.statModifier(this));
-                HP = (int) Math.round(HT * percent);
             }// 如果是普通敌人就倍增血量上限 
             else {
                 HT = (int) Math.round(HT * AscensionChallenge.statModifier(this) * (1 + 0.05 * Dungeon.depth));
-                HP = (int) Math.round(HT * percent);
             }
+            HP = (int) Math.round(HT * percent);
             firstAdded = false;
         }
     }
