@@ -1023,7 +1023,7 @@ public abstract class Mob extends Char {
     }
 
     public void rollToDropLoot() {
-        if (Dungeon.hero.lvl > maxLvl + 2) {
+        if (Dungeon.hero.lvl > maxLvl + 2 && !Dungeon.isChallenged(Challenges.XP_DUNGEON)) {
             return;
         }
 
