@@ -37,7 +37,7 @@ public class RingOfNahida extends Ring {
         return new Nahida();
     }
 
-    public static float grassBonusChance(Char target) {// 触发进食的几率
+    public static float grassBonusChance(Char target) {// 触发踩草的几率
         return (float) (1 - Math.pow(0.95, getBuffedBonus(target, Nahida.class)));
     }
 

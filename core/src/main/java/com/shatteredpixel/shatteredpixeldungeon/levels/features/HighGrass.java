@@ -137,66 +137,68 @@ public class HighGrass {
                     lootChance /= 2;
                 }
 
-                if (Random.Float() < lootChance) {
+                if (Random.Float() < lootChance) {  // 掉落露水并判定纳西妲之戒的效果
                     level.drop(new Dewdrop(), pos).sprite.drop();
-
-                    if (Random.Float() < lootChance) {  // 掉落露水并判定纳西妲之戒的效果
-                        level.drop(new Dewdrop(), pos).sprite.drop();
-                        if (ch != null) {
-                            Hero hero = Dungeon.hero;
-                            if (hero.buff(RingOfNahida.Nahida.class) != null) {	// 触发纳西妲之戒
-                                if (Random.Float() < RingOfNahida.grassBonusChance(hero) && RingOfNahida.grassBonusChance(hero) > 0) {
-                                    // 触发掉落
-                                    Item i = new Gold().random();
-                                    switch (Random.Int(4)) {
-                                        case 0:
-                                        default:
-                                            i.quantity(i.quantity() / 2);
-                                            Dungeon.level.drop(i, pos);
-                                            break;
-                                        case 1:
-                                            i = Generator.randomUsingDefaults(Generator.Category.STONE);
-                                            break;
-                                        case 2:
-                                            i = Generator.randomUsingDefaults(Generator.Category.POTION);
-                                            break;
-                                        case 3:
-                                            i = Generator.randomUsingDefaults(Generator.Category.SCROLL);
-                                            break;
-                                        case 4:
-                                            i = Generator.randomUsingDefaults(Generator.Category.SEED);
-                                            break;
-                                        case 5:
-                                            i = Generator.randomUsingDefaults(Generator.Category.MISSILE);
-                                    }
-                                    Dungeon.level.drop(i, pos);
-                                    // 播放特效
-                                    new Flare(6, 20).color(0x00FF00, true).show(hero.sprite, 3f);
-                                    // 触发经验获取
-                                    Dungeon.hero.earnExp(1, RingOfNahida.class);
-                                } else if (Random.Float() > (-RingOfNahida.grassBonusChance(hero)) && RingOfNahida.grassBonusChance(hero) < 0) {
-                                    // 触发刷怪惩罚
-                                    Sample.INSTANCE.play(Assets.Sounds.CURSED);
-                                    // Mob mob = Dungeon.level.createMob();
-                                    // ScrollOfTeleportation.appear(mob, pos);
-                                    int snake_pose = 0;
-                                    for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
-                                        snake_pose = pos + PathFinder.NEIGHBOURS8[i];
-                                        if (Actor.findChar(snake_pose) == null && (Dungeon.level.passable[snake_pose] || Dungeon.level.avoid[snake_pose])) {
-                                            break;
-                                        }
-                                    }
-                                    Mob snake = new Viper();
-                                    snake.state = snake.HUNTING;
-                                    snake.HT = Dungeon.depth;
-                                    snake.HP = snake.HT;
-                                    snake.yell("!!!!!!");
-                                    snake.flying = true;
-                                    snake.pos = snake_pose;
-                                    GameScene.add(snake);
-                                    ScrollOfTeleportation.appear(snake, snake_pose);
-                                    Dungeon.level.occupyCell(snake);
+                    if (ch != null) {
+                        Hero hero = Dungeon.hero;
+                        if (hero.buff(RingOfNahida.Nahida.class) != null) {	// 触发纳西妲之戒
+                            if (Random.Float() < RingOfNahida.grassBonusChance(hero)) {
+                                // 触发掉落
+                                Item i = new Gold().random();
+                                switch (Random.Int(4)) {
+                                    case 0:
+                                    default:
+                                        i.quantity(i.quantity() / 2);
+                                        Dungeon.level.drop(i, pos);
+                                        break;
+                                    case 1:
+                                        i = Generator.randomUsingDefaults(Generator.Category.STONE);
+                                        break;
+                                    case 2:
+                                        i = Generator.randomUsingDefaults(Generator.Category.POTION);
+                                        break;
+                                    case 3:
+                                        i = Generator.randomUsingDefaults(Generator.Category.SCROLL);
+                                        break;
+                                    case 4:
+                                        i = Generator.randomUsingDefaults(Generator.Category.SEED);
+                                        break;
+                                    case 5:
+                                        i = Generator.randomUsingDefaults(Generator.Category.MISSILE);
                                 }
+                                Dungeon.level.drop(i, ch.pos);
+                                // 播放特效
+                                new Flare(6, 20).color(0x00FF00, true).show(hero.sprite, 3f);
+                                // 触发经验获取
+                                Dungeon.hero.earnExp(1, RingOfNahida.class);
+                                // 测试：触发鉴定
+                                if (Random.Int(2) == 0) {
+                                    hero.belongings.randomUnequipped().identify();
+                                } else {
+                                    hero.belongings.observe();
+                                }
+                            } else if (Random.Float() < (-RingOfNahida.grassBonusChance(hero))) {
+                                // 触发刷怪惩罚
+                                Sample.INSTANCE.play(Assets.Sounds.CURSED);
+                                // Mob mob = Dungeon.level.createMob();
+                                // ScrollOfTeleportation.appear(mob, pos);
+                                int snake_pose = 0;
+                                for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+                                    snake_pose = pos + PathFinder.NEIGHBOURS8[i];
+                                    if (Actor.findChar(snake_pose) == null && (Dungeon.level.passable[snake_pose] || Dungeon.level.avoid[snake_pose])) {
+                                        break;
+                                    }
+                                }
+                                Mob snake = new Viper();
+                                snake.state = snake.HUNTING;
+                                snake.HT = Dungeon.depth;
+                                snake.HP = snake.HT;
+                                snake.yell("!!!!!!");
+                                snake.flying = true;
+                                snake.pos = snake_pose;
+                                GameScene.add(snake);
+                                ScrollOfTeleportation.appear(snake, snake_pose);
+                                Dungeon.level.occupyCell(snake);
                             }
                         }
                     }
