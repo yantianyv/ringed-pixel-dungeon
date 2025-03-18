@@ -129,7 +129,7 @@ public class RingOfDefender extends Ring {
     }
 
     public static float HTAddition(Char target) {
-        return (float) Math.pow(getBuffedBonus(target, Defender.class), 1);
+        return (float) Math.pow(getBuffedBonus(target, Defender.class), 1.2);
     }
 
     public class Defender extends RingBuff {
