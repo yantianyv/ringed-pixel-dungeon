@@ -101,6 +101,8 @@ import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
 
+import sun.security.krb5.internal.rcache.AuthTimeWithHash;
+
 public abstract class Mob extends Char {
 
     {
@@ -142,11 +144,15 @@ public abstract class Mob extends Char {
         if (firstAdded) {
             //modify health for ascension challenge if applicable, only on first add
             float percent = HP / (float) HT;
-            //依据层数添加血量上限
-            if (Dungeon.level.locked) {
+            // 如果不是敌人就忽略
+            if (alignment != alignment.ENEMY) {
+                // pass
+            }// 如果是BOSS就按正常血量设置
+            else if (Dungeon.level.locked) {
                 HT = (int) Math.round(HT * AscensionChallenge.statModifier(this));
                 HP = (int) Math.round(HT * percent);
-            } else {
+            }// 如果是普通敌人就倍增血量上限 
+            else {
                 HT = (int) Math.round(HT * AscensionChallenge.statModifier(this) * (1 + 0.05 * Dungeon.depth));
                 HP = (int) Math.round(HT * percent);
             }
