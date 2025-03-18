@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Electricity;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Freezing;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.BlobImmunity;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
@@ -59,7 +60,9 @@ public class Piranha extends Mob {
         state = SLEEPING;
 
         num_of_escape = 0;
+
     }
+    protected int true_pos = 0;
 
     public Piranha() {
         super();
@@ -71,13 +74,22 @@ public class Piranha extends Mob {
 
     @Override
     protected boolean act() {
-        Buff.affect(this, Invisibility.class, 3);
+        if (Dungeon.hero.buff(Invisibility.class) != null) {
+            Buff.affect(this, Invisibility.class, 3);
+        }
 
         if (!Dungeon.level.water[pos] || flying) {
+            if (pos == -1) {
+                pos = true_pos;
+            }
             if (sprite != null && buff(Levitation.class) != null) {
                 sprite.emitter().burst(Speck.factory(Speck.JET), 10);
             }
             dieOnLand();
+            return true;
+        } else if (Dungeon.hero.flying == true) {
+            true_pos = pos;
+            pos = -1;
             return true;
         } else {
             return super.act();
@@ -112,7 +124,8 @@ public class Piranha extends Mob {
     }
 
     public void dieOnLand() {
-        die(null);
+        // die(null);
+        Buff.affect(this, Bleeding.class).extend(1.1f);
     }
 
     @Override

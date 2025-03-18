@@ -1816,7 +1816,7 @@ public class Hero extends Char {
                     return false;
                 }
                 // 如果目标为生物，则尝试交互
-                if (Actor.findChar(target) != null) {
+                if (Actor.findChar(target) != null ) {
                     Char ch = Actor.findChar(target);
                     handle(ch.pos);
                     return false;
