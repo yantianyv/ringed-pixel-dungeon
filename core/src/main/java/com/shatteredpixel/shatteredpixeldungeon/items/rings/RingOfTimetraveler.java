@@ -25,20 +25,21 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
-public class RingOfLighting extends Ring {
+public class RingOfTimetraveler extends Ring {
 
     {
         icon = ItemSpriteSheet.Icons.RING_HASTE;
-        buffClass = Lighting.class;
+        buffClass = TimeCompression.class;
     }
 
+    @Override
     public String statsInfo() {
         if (isIdentified()) {
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100f * (Math.pow(1.08f, soloBuffedBonus()) - 1f)));
+                    Messages.decimalFormat("#.##", 100f * (Math.pow(0.9f, soloBuffedBonus()))));
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100f * (Math.pow(1.08f, combinedBuffedBonus(Dungeon.hero)) - 1f)));
+                        Messages.decimalFormat("#.##", 100f * (Math.pow(0.9f, combinedBuffedBonus(Dungeon.hero)))));
             }
             return info;
         } else {
@@ -46,26 +47,23 @@ public class RingOfLighting extends Ring {
         }
     }
 
+    @Override
     public String upgradeStat1(int level) {
         if (cursed && cursedKnown) {
             level = Math.min(-1, level - 3);
         }
-        return Messages.decimalFormat("#.##", 100f * (Math.pow(1.08f, level + 1) - 1f)) + "%";
+        return Messages.decimalFormat("#.##", 100f * (Math.pow(0.9f, level) - 1f)) + "%";
     }
 
     @Override
     protected RingBuff buff() {
-        return new Lighting();
+        return new TimeCompression();
     }
 
-    public static float speedMultiplier(Char target) {
-        return (float) Math.pow(1.08, getBuffedBonus(target, Lighting.class));
+    public static float timeMultiplier(Char target) {
+        return (float) Math.pow(0.9, getBuffedBonus(target, TimeCompression.class));
     }
 
-    public static float attackSpeedMultiplier(Char target) {
-        return (float) Math.pow(1.08, getBuffedBonus(target, Lighting.class));
-    }
-
-    public class Lighting extends RingBuff {
+    public class TimeCompression extends RingBuff {
     }
 }

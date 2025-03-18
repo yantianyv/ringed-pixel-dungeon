@@ -78,7 +78,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfLighting;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfNahida;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
@@ -533,7 +533,7 @@ public class Generator {
                 RingOfAgility.class,
                 RingOfMagicshooting.class,
                 RingOfEnergy.class,
-                RingOfLighting.class,
+                RingOfTimetraveler.class,
                 RingOfKungfu.class,
                 RingOfDefender.class,
                 RingOfTakeout.class,

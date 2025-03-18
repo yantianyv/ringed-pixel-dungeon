@@ -73,7 +73,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfLighting;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
@@ -248,7 +248,7 @@ public enum HeroClass {
         ThrowingKnife knives = new ThrowingKnife();
         knives.quantity(3).collect();
         // 戒指
-        (hero.belongings.ring1 = new RingOfLighting()).identify();
+        (hero.belongings.ring1 = new RingOfTimetraveler()).identify();
         // 装进包里
         Dungeon.quickslot.setSlot(0, cloak);
         Dungeon.quickslot.setSlot(1, knives);

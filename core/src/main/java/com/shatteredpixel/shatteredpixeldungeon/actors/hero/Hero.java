@@ -120,7 +120,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.PotionOfDiv
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.DarkGold;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfLighting;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
@@ -725,8 +725,6 @@ public class Hero extends Char {
 
         float speed = super.speed();
 
-        speed *= RingOfLighting.speedMultiplier(this);
-
         if (belongings.armor() != null) {
             speed = belongings.armor().speedFactor(this, speed);
         }
@@ -815,7 +813,7 @@ public class Hero extends Char {
             //Normally putting furor speed on unarmed attacks would be unnecessary
             //But there's going to be that one guy who gets a furor+force ring combo
             //This is for that one guy, you shall get your fists of fury!
-            float speed = RingOfLighting.attackSpeedMultiplier(this);
+            float speed = 1;
 
             //ditto for furor + sword dance!
             if (buff(Scimitar.SwordDance.class) != null) {
@@ -833,6 +831,8 @@ public class Hero extends Char {
 
     @Override
     public void spend(float time) {
+        time = time * RingOfTimetraveler.timeMultiplier(this);
+        time = time > 0.000001f ? time : 0.000001f;
         super.spend(time);
     }
 

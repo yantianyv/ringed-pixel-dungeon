@@ -75,7 +75,7 @@ public class RingOfAgility extends Ring {
             return (float) (1 - Math.pow(0.9f, getBuffedBonus(target, Agility.class)));
 
         } else {
-            return (float) (Math.pow(0.9f, -getBuffedBonus(target, Agility.class)) - 1);
+            return (float) (Math.pow(0.9f, -getBuffedBonus(target, Agility.class))-1);
 
         }
     }
