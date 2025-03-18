@@ -172,12 +172,8 @@ public class HighGrass {
                                     Dungeon.level.drop(i, pos);
                                     // 播放特效
                                     new Flare(6, 20).color(0x00FF00, true).show(hero.sprite, 3f);
-                                    // 触发鉴定
-                                    if (Random.Int(2) == 0) {
-                                        hero.belongings.randomUnequipped().identify();
-                                    } else {
-                                        hero.belongings.observe();
-                                    }
+                                    // 触发经验获取
+                                    Dungeon.hero.earnExp(1, RingOfNahida.class);
                                 } else if (Random.Float() > (-RingOfNahida.grassBonusChance(hero)) && RingOfNahida.grassBonusChance(hero) < 0) {
                                     // 触发刷怪惩罚
                                     Sample.INSTANCE.play(Assets.Sounds.CURSED);

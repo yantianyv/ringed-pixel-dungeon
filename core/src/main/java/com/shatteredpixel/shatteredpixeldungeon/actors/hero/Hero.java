@@ -2046,7 +2046,10 @@ public class Hero extends Char {
                 dropsuccess = true;
             }
             if (dropsuccess) {
-                new Flare(6, 20).color(0x00FF00, true).show(sprite, 5f);
+                new Flare(7, 100).color(0x00FF00, true).show(sprite, 5f);
+                new Flare(11, 100).color(0xFF0000, true).show(sprite, 5f);
+                new Flare(13, 100).color(0x0000FF, true).show(sprite, 5f);
+
             }
         }
         //xp granted by ascension challenge is only for on-exp gain effects
