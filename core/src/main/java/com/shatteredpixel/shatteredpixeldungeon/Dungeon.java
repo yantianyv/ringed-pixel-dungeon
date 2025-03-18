@@ -977,6 +977,11 @@ public class Dungeon {
 
         if (hero.buff(MindVision.class) != null || hero.buff(DivineSense.DivineSenseTracker.class) != null) {
             for (Mob m : level.mobs.toArray(new Mob[0])) {
+                if (m.pos == 0) {
+                        continue;
+
+                }
+
                 if (m instanceof Mimic && m.alignment == Char.Alignment.NEUTRAL && ((Mimic) m).stealthy()) {
                     continue;
                 }

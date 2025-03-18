@@ -227,10 +227,12 @@ public abstract class Char extends Actor {
     public boolean canInteract(Char c) {
         if (Dungeon.level.adjacent(pos, c.pos)) {
             return true;
-        } else return c instanceof Hero
-                && alignment == Alignment.ALLY
-                && !hasProp(this, Property.IMMOVABLE)
-                && Dungeon.level.distance(pos, c.pos) <= 2 * Dungeon.hero.pointsInTalent(Talent.ALLY_WARP);
+        } else {
+            return c instanceof Hero
+                    && alignment == Alignment.ALLY
+                    && !hasProp(this, Property.IMMOVABLE)
+                    && Dungeon.level.distance(pos, c.pos) <= 2 * Dungeon.hero.pointsInTalent(Talent.ALLY_WARP);
+        }
     }
 
     //swaps places by default
@@ -1286,8 +1288,8 @@ public abstract class Char extends Actor {
             if (!(Dungeon.level.passable[newPos] || Dungeon.level.avoid[newPos])
                     || (properties().contains(Property.LARGE) && !Dungeon.level.openSpace[newPos])
                     || Actor.findChar(newPos) != null) {
-                return; 
-            }else {
+                return;
+            } else {
                 sprite.move(pos, newPos);
                 step = newPos;
             }

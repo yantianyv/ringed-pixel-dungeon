@@ -42,7 +42,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ChampionEnemy;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicalSight;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
@@ -728,7 +727,7 @@ public abstract class Level implements Bundlable {
 
     public Mob findMob(int pos) {
         for (Mob mob : mobs) {
-            if (mob.pos == pos) {
+            if (mob.pos == pos || pos != 0) {
                 return mob;
             }
         }
@@ -1392,6 +1391,9 @@ public abstract class Level implements Bundlable {
             int range = 1 + (Dungeon.hero.pointsInTalent(Talent.EAGLE_EYE) - 2);
             for (Mob mob : mobs) {
                 int p = mob.pos;
+                if (p == 0) {
+                    continue;
+                }
                 if (distance(c.pos, p) <= range) {
                     for (int i : PathFinder.NEIGHBOURS9) {
                         fieldOfView[mob.pos + i] = true;
@@ -1415,7 +1417,9 @@ public abstract class Level implements Bundlable {
             Dungeon.hero.mindVisionEnemies.clear();
             if (c.buff(MindVision.class) != null) {
                 for (Mob mob : mobs) {
-
+                    if (mob.pos == 0) {
+                        continue;
+                    }
                     if (mob instanceof Mimic && mob.alignment == Char.Alignment.NEUTRAL && ((Mimic) mob).stealthy()) {
                         continue;
                     }
@@ -1447,6 +1451,9 @@ public abstract class Level implements Bundlable {
 
                 if (mindVisRange >= 1) {
                     for (Mob mob : mobs) {
+                        if (mob.pos == 0) {
+                            continue;
+                        }
                         if (mob instanceof Mimic && mob.alignment == Char.Alignment.NEUTRAL && ((Mimic) mob).stealthy()) {
                             continue;
                         }
@@ -1532,6 +1539,9 @@ public abstract class Level implements Bundlable {
 
             //set mind vision chars
             for (Mob mob : mobs) {
+                if (mob.pos == 0) {
+                    continue;
+                }
                 if (heroMindFov[mob.pos] && !fieldOfView[mob.pos]) {
                     Dungeon.hero.mindVisionEnemies.add(mob);
                     mob.beFound();

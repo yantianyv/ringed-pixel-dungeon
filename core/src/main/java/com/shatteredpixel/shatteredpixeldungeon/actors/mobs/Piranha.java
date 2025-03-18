@@ -36,8 +36,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.PiranhaSprite;
 import com.watabou.utils.BArray;
+import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
@@ -77,21 +79,22 @@ public class Piranha extends Mob {
         if (Dungeon.hero.buff(Invisibility.class) != null) {
             Buff.affect(this, Invisibility.class, 3);
         }
-
-        if (!Dungeon.level.water[pos] || flying) {
-            if (pos == -1) {
-                pos = true_pos;
-            }
+        if (pos != 0 && (!Dungeon.level.water[pos] || flying)) {
             if (sprite != null && buff(Levitation.class) != null) {
                 sprite.emitter().burst(Speck.factory(Speck.JET), 10);
             }
             dieOnLand();
             return true;
         } else if (Dungeon.hero.flying == true) {
-            true_pos = pos;
-            pos = -1;
+            true_pos = pos == 0 ? true_pos : pos;
+            pos = 0;
+            GameScene.ripple(true_pos);
+            spend(TICK);
             return true;
         } else {
+            if (pos == 0) {
+                pos = true_pos;
+            }
             return super.act();
         }
     }
@@ -180,6 +183,12 @@ public class Piranha extends Mob {
             }
         }
         immunities.add(Burning.class);
+    }
+
+    @Override
+    public void storeInBundle(Bundle bundle) {
+        pos = true_pos;
+        super.storeInBundle(bundle);
     }
 
     //if there is not a path to the enemy, piranhas act as if they can't see them

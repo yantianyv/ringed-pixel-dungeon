@@ -101,6 +101,7 @@ import com.watabou.utils.Reflection;
 
 public abstract class Mob extends Char {
 
+
     {
         actPriority = MOB_PRIO;
 
