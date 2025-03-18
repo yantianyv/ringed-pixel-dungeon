@@ -32,7 +32,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MirrorSprite;
@@ -115,7 +114,9 @@ public class MirrorImage extends NPC {
     public int attackSkill(Char target) {
         //same base attack skill as hero, benefits from accuracy ring and weapon
         int attackSkill = 9 + hero.lvl;
-        attackSkill *= RingOfAgility.accuracyMultiplier(hero);
+        if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
+            return INFINITE_ACCURACY;
+        }
         if (hero.belongings.attackingWeapon() != null) {
             attackSkill *= hero.belongings.attackingWeapon().accuracyFactor(this, target);
         }
@@ -126,7 +127,10 @@ public class MirrorImage extends NPC {
     public int defenseSkill(Char enemy) {
         if (hero != null) {
             int baseEvasion = 4 + hero.lvl;
-            int heroEvasion = (int) ((4 + hero.lvl) * RingOfAgility.evasionMultiplier(hero));
+            int heroEvasion = (int) ((4 + hero.lvl));
+            if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
+                return INFINITE_EVASION;
+            }
 
             //if the hero has more/less evasion, 50% of it is applied
             //includes ring of evasion boost

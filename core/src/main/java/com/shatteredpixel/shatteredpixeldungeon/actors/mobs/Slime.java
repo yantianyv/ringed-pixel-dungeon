@@ -78,7 +78,6 @@ public class Slime extends Mob {
         Dungeon.LimitedDrops.SLIME_WEP.count++;
         Generator.Category c = Generator.Category.WEP_T2;
         MeleeWeapon w = (MeleeWeapon) Generator.randomUsingDefaults(Generator.Category.WEP_T2);
-        w.level(-2);
         return w;
     }
 }

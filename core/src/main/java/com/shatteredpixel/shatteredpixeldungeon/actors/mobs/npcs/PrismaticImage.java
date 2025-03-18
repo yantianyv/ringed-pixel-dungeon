@@ -35,7 +35,6 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.PrismaticSprite;
@@ -162,7 +161,10 @@ public class PrismaticImage extends NPC {
     public int attackSkill(Char target) {
         if (hero != null) {
             //same base attack skill as hero, benefits from accuracy ring
-            return (int) ((9 + hero.lvl) * RingOfAgility.accuracyMultiplier(hero));
+            if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
+                return INFINITE_ACCURACY;
+            }
+            return (int) ((9 + hero.lvl) );
         } else {
             return 0;
         }
@@ -172,7 +174,10 @@ public class PrismaticImage extends NPC {
     public int defenseSkill(Char enemy) {
         if (hero != null) {
             int baseEvasion = 4 + hero.lvl;
-            int heroEvasion = (int) ((4 + hero.lvl) * RingOfAgility.evasionMultiplier(hero));
+            int heroEvasion = (int) ((4 + hero.lvl));
+            if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
+                return INFINITE_EVASION;
+            }
             if (hero.belongings.armor() != null) {
                 heroEvasion = (int) hero.belongings.armor().evasionFactor(this, heroEvasion);
             }

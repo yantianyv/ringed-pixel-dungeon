@@ -62,8 +62,8 @@ public class RingOfAgility extends Ring {
         return (float) Math.pow(1.2f, getBuffedBonus(target, Agility.class));
     }
 
-    public static float evasionMultiplier(Char target) {
-        return (float) Math.pow(1.2f, getBuffedBonus(target, Agility.class));
+    public static float agilityChance(Char target) {
+        return (float) (1 - Math.pow(0.95f, getBuffedBonus(target, Agility.class)));
     }
 
     public class Agility extends RingBuff {

@@ -502,8 +502,9 @@ public class Hero extends Char {
         KindOfWeapon wep = belongings.attackingWeapon();
 
         float accuracy = 1;
-        accuracy *= RingOfAgility.accuracyMultiplier(this);
-
+        if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
+            return INFINITE_ACCURACY;
+        }
         if (wep instanceof MissileWeapon) {
             if (Dungeon.level.adjacent(pos, target.pos)) {
                 accuracy *= (0.5f + 0.2f * pointsInTalent(Talent.POINT_BLANK));
@@ -580,7 +581,9 @@ public class Hero extends Char {
 
         float evasion = defenseSkill;
 
-        evasion *= RingOfAgility.evasionMultiplier(this);
+        if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
+            return INFINITE_EVASION;
+        }
 
         if (buff(Talent.LiquidAgilEVATracker.class) != null) {
             if (pointsInTalent(Talent.LIQUID_AGILITY) == 1) {
@@ -1816,7 +1819,7 @@ public class Hero extends Char {
                     return false;
                 }
                 // 如果目标为生物，则尝试交互
-                if (Actor.findChar(target) != null ) {
+                if (Actor.findChar(target) != null) {
                     Char ch = Actor.findChar(target);
                     handle(ch.pos);
                     return false;
