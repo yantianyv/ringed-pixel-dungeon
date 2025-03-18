@@ -37,7 +37,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Affection;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.MimicTooth;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -63,7 +62,7 @@ public class Mimic extends Mob {
         //mimics are neutral when hidden
         alignment = Alignment.NEUTRAL;
         state = PASSIVE;
-        num_of_escape =0;
+        num_of_escape = 0;
     }
 
     public ArrayList<Item> items;
@@ -189,6 +188,8 @@ public class Mimic extends Mob {
             alignment = Alignment.ENEMY;
             Dungeon.hero.spendAndNext(1f);
         }
+        Buff.affect(this, Invisibility.class, 10);
+
     }
 
     @Override
@@ -207,7 +208,6 @@ public class Mimic extends Mob {
             stopHiding();
         }
         super.damage(dmg, src);
-        Buff.affect(this,Invisibility.class,10);
     }
 
     @Override

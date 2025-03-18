@@ -709,7 +709,7 @@ public abstract class Mob extends Char {
     public void beFound() {
         if (buff(Invisibility.class) != null) {
             buff(Invisibility.class).detach();
-            yell("你能看到我？");
+            sprite.emitter().start(ShadowParticle.UP, 0.5f, 3);
         }
     }
 

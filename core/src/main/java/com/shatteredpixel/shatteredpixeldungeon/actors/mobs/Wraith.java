@@ -20,9 +20,13 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
+import java.util.ArrayList;
+
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ChallengeParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull;
@@ -33,11 +37,6 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
-
-import java.util.ArrayList;
-
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 
 public class Wraith extends Mob {
 
@@ -85,8 +84,13 @@ public class Wraith extends Mob {
 
     @Override
     public int attackSkill(Char target) {
-        Buff.affect(this, Invisibility.class, 10);
         return 10 + level;
+    }
+
+    @Override
+    public void onAttackComplete() {
+        Buff.affect(this, Invisibility.class, 10);
+        super.onAttackComplete();
     }
 
     public void adjustStats(int level) {
