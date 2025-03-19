@@ -28,17 +28,19 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 public class RingOfMagicshooting extends Ring {
 
     {
+        // 设置戒指的图标和关联的增益类
         icon = ItemSpriteSheet.Icons.RING_SHARPSHOOT;
         buffClass = Aim.class;
     }
 
+    // 返回戒指的统计信息
     public String statsInfo() {
         if (isIdentified()) {
             String info = Messages.get(this, "stats",
-                    soloBuffedBonus(), Messages.decimalFormat("#.##", 100f * (Math.pow(1.1, soloBonus()) - 1f)));
+                    soloBuffedBonus(), Messages.decimalFormat("#.##", 100f * (Math.pow(1.15, soloBonus()) - 1f)));
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        combinedBuffedBonus(Dungeon.hero), Messages.decimalFormat("#.##", 100f * (Math.pow(1.1, combinedBonus(Dungeon.hero)) - 1f)));
+                        combinedBuffedBonus(Dungeon.hero), Messages.decimalFormat("#.##", 100f * (Math.pow(1.15, combinedBonus(Dungeon.hero)) - 1f)));
             }
             return info;
         } else {
@@ -46,6 +48,7 @@ public class RingOfMagicshooting extends Ring {
         }
     }
 
+    // 返回戒指第一个升级属性的字符串表示
     @Override
     public String upgradeStat1(int level) {
         if (cursed && cursedKnown) {
@@ -54,29 +57,34 @@ public class RingOfMagicshooting extends Ring {
         return Integer.toString(level + 1);
     }
 
+    // 返回戒指第二个升级属性的字符串表示
     @Override
     public String upgradeStat2(int level) {
         if (cursed && cursedKnown) {
             level = Math.min(-1, level - 3);
         }
-        return Messages.decimalFormat("#.##", 100f * (Math.pow(1.1, level + 1) - 1f)) + "%";
+        return Messages.decimalFormat("#.##", 100f * (Math.pow(1.15, level + 1) - 1f)) + "%";
     }
 
+    // 创建并返回一个 Aim 增益实例
     @Override
     protected RingBuff buff() {
         return new Aim();
     }
 
+    // 获取目标角色的 Aim 增益的单独加成
     public static int levelDamageBonus(Char target) {
         return getBuffedBonus(target, RingOfMagicshooting.Aim.class);
     }
 
+    // 获取目标角色的 Aim 增益的耐久度乘数
     public static float durabilityMultiplier(Char target) {
-        return (float) (Math.pow(1.1, getBonus(target, Aim.class)));
+        return (float) (Math.pow(1.15f, getBonus(target, Aim.class)));
     }
 
+    // 获取目标角色的 Aim 增益的魔力加成乘数
     public static float enchantPowerMultiplier(Char target) {
-        return (float) Math.pow(1.1f, getBuffedBonus(target, Aim.class));
+        return (float) Math.pow(1.15f, getBuffedBonus(target, Aim.class));
     }
 
     public class Aim extends RingBuff {
