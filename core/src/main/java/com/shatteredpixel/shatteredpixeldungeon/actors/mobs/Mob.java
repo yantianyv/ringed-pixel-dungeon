@@ -148,7 +148,7 @@ public abstract class Mob extends Char {
                 HT = (int) Math.round(HT * AscensionChallenge.statModifier(this));
             }// 如果是普通敌人就倍增血量上限 
             else {
-                HT = (int) Math.round(HT * AscensionChallenge.statModifier(this) * (1 + 0.05 * Dungeon.depth));
+                HT = (int) Math.round(HT * AscensionChallenge.statModifier(this) * (1 + 0.1 * Math.pow(Dungeon.depth, 0.5)));
             }
             HP = (int) Math.round(HT * percent);
             firstAdded = false;
