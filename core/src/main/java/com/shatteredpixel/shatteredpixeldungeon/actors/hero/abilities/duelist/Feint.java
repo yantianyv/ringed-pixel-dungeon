@@ -58,10 +58,14 @@ public class Feint extends ArmorAbility {
         baseChargeUse = 50;
     }
 
-    @Override
-    public int icon() {
-        return HeroIcon.FEINT;
-    }
+	@Override
+	public int icon() {
+		return HeroIcon.FEINT;
+	}
+
+	public boolean useTargeting(){
+		return false;
+	}
 
     @Override
     public String targetingPrompt() {

@@ -353,47 +353,43 @@ public enum HeroClass {
         }
     }
 
-    public String spritesheet() {
-        switch (this) {
-            case WARRIOR:
-            default:
-                return Assets.Sprites.WARRIOR;
-            case MAGE:
-                return Assets.Sprites.MAGE;
-            case ROGUE:
-                return Assets.Sprites.ROGUE;
-            case HUNTRESS:
-                return Assets.Sprites.HUNTRESS;
-            case DUELIST:
-                return Assets.Sprites.DUELIST;
-            case CLERIC: //TODO CLERIC finish sprite sheet
-                return Assets.Sprites.CLERIC;
-        }
-    }
+	public String spritesheet() {
+		switch (this) {
+			case WARRIOR: default:
+				return Assets.Sprites.WARRIOR;
+			case MAGE:
+				return Assets.Sprites.MAGE;
+			case ROGUE:
+				return Assets.Sprites.ROGUE;
+			case HUNTRESS:
+				return Assets.Sprites.HUNTRESS;
+			case DUELIST:
+				return Assets.Sprites.DUELIST;
+			case CLERIC:
+				return Assets.Sprites.CLERIC;
+		}
+	}
 
-    public String splashArt() {
-        switch (this) {
-            case WARRIOR:
-            default:
-                return Assets.Splashes.WARRIOR;
-            case MAGE:
-                return Assets.Splashes.MAGE;
-            case ROGUE:
-                return Assets.Splashes.ROGUE;
-            case HUNTRESS:
-                return Assets.Splashes.HUNTRESS;
-            case DUELIST:
-                return Assets.Splashes.DUELIST;
-            case CLERIC: //TODO CLERIC finish cleric splash
-                return Assets.Splashes.CLERIC;
-        }
-    }
-
-    public boolean isUnlocked() {
-        //always unlock on debug builds
-        if (DeviceCompat.isDebug()) {
-            return true;
-        }
+	public String splashArt(){
+		switch (this) {
+			case WARRIOR: default:
+				return Assets.Splashes.WARRIOR;
+			case MAGE:
+				return Assets.Splashes.MAGE;
+			case ROGUE:
+				return Assets.Splashes.ROGUE;
+			case HUNTRESS:
+				return Assets.Splashes.HUNTRESS;
+			case DUELIST:
+				return Assets.Splashes.DUELIST;
+			case CLERIC:
+				return Assets.Splashes.CLERIC;
+		}
+	}
+	
+	public boolean isUnlocked(){
+		//always unlock on debug builds
+		if (DeviceCompat.isDebug()) return true;
 
         switch (this) {
             case WARRIOR:

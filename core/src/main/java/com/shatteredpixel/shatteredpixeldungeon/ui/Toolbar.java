@@ -600,11 +600,18 @@ public class Toolbar extends Component {
             }
         }
 
-        float shift = 0;
-        switch (Mode.valueOf(SPDSettings.toolbarMode())) {
-            case SPLIT:
-                btnWait.setPos(x, y);
-                btnSearch.setPos(btnWait.right(), y);
+		float shift = 0;
+		Toolbar.Mode mode;
+		try {
+			mode = Mode.valueOf(SPDSettings.toolbarMode());
+		} catch (Exception e){
+			Game.reportException(e);
+			mode = PixelScene.landscape() ? Mode.GROUP : Mode.SPLIT;
+		}
+		switch(mode){
+			case SPLIT:
+				btnWait.setPos(x, y);
+				btnSearch.setPos(btnWait.right(), y);
 
                 btnInventory.setPos(right - btnInventory.width(), y);
 

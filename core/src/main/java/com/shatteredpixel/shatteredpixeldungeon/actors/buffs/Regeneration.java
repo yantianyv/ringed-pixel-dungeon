@@ -65,17 +65,21 @@ public class Regeneration extends Buff {
                     }
                 }
 
-                float delay = REGENERATION_DELAY;
-                if (chaliceLevel != -1 && target.buff(MagicImmune.class) == null) {
-                    if (chaliceCursed) {
-                        delay *= 1.5f;
-                    } else {
-                        //15% boost at +0, scaling to a 500% boost at +10
-                        delay -= 1.33f + chaliceLevel * 0.667f;
-                        delay /= RingOfEnergy.artifactChargeMultiplier(target);
-                    }
-                }
-                delay /= SaltCube.healthRegenMultiplier();
+				float delay = REGENERATION_DELAY;
+				if (chaliceLevel != -1 && target.buff(MagicImmune.class) == null) {
+					if (chaliceCursed) {
+						delay *= 1.5f;
+					} else {
+						//15% boost at +0, scaling to a 500% boost at +10
+						delay -= 1.33f + chaliceLevel*0.667f;
+						delay /= RingOfEnergy.artifactChargeMultiplier(target);
+					}
+				}
+
+				//salt cube is turned off while regen is disabled.
+				if (target.buff(LockedFloor.class) == null) {
+					delay /= SaltCube.healthRegenMultiplier();
+				}
 
                 partialRegen += 1f / delay;
 
