@@ -269,6 +269,7 @@ public class Hero extends Char {
         if (boostHP) {
             HP += Math.max(HT - curHT, 0);
         }
+        HT = HT > 10 ? HT : 10;
         HP = Math.min(HP, HT);
 
     }
