@@ -41,7 +41,7 @@ public class Swarm extends Mob {
     {
         spriteClass = SwarmSprite.class;
 
-        HP = HT = 50;
+        HP = HT = 100;
         defenseSkill = 5;
 
         EXP = 3;
@@ -111,11 +111,14 @@ public class Swarm extends Mob {
                 GameScene.add(clone, SPLIT_DELAY); //we add before assigning HP due to ascension
 
                 clone.HP = (HP - damage) / 2;
+                clone.HT = clone.HP;
+
                 Actor.add(new Pushing(clone, pos, clone.pos));
 
                 Dungeon.level.occupyCell(clone);
 
                 HP -= clone.HP;
+                HT -= clone.HT;
                 clone.num_of_escape = num_of_escape / 2;
                 if (num_of_escape % 2 == 0) {
                     num_of_escape = num_of_escape / 2;

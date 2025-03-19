@@ -148,6 +148,7 @@ public class Piranha extends Mob {
     public void dieOnLand() {
         // die(null);
         Buff.affect(this, Bleeding.class).extend(1.1f);
+        spend(1f);
     }
 
     @Override
