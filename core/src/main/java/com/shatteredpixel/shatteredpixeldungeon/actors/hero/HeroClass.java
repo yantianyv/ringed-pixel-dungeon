@@ -73,9 +73,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
@@ -213,7 +213,7 @@ public enum HeroClass {
         ThrowingStone stones = new ThrowingStone();
         stones.quantity(3).collect();
         // 戒指
-        (hero.belongings.ring1 = new RingOfTakeout()).identify();
+        (hero.belongings.ring1 = new RingOfTakeout()).identify().level(1);
         // 装进包里
         Dungeon.quickslot.setSlot(0, stones);
         // 鉴定
@@ -228,7 +228,7 @@ public enum HeroClass {
         (hero.belongings.weapon = staff).identify();
         hero.belongings.weapon.activate(hero);
         // 戒指
-        (hero.belongings.ring1 = new RingOfEnergy()).identify();
+        (hero.belongings.ring1 = new RingOfEnergy()).identify().level(1);
         // 装进包里
         Dungeon.quickslot.setSlot(0, staff);
         // 鉴定
@@ -248,7 +248,7 @@ public enum HeroClass {
         ThrowingKnife knives = new ThrowingKnife();
         knives.quantity(3).collect();
         // 戒指
-        (hero.belongings.ring1 = new RingOfTimetraveler()).identify();
+        (hero.belongings.ring1 = new RingOfTimetraveler()).identify().level(1);
         // 装进包里
         Dungeon.quickslot.setSlot(0, cloak);
         Dungeon.quickslot.setSlot(1, knives);
@@ -265,7 +265,7 @@ public enum HeroClass {
         SpiritBow bow = new SpiritBow();
         bow.identify().collect();
         // 戒指
-        (hero.belongings.ring1 = new RingOfMagicshooting()).identify();
+        (hero.belongings.ring1 = new RingOfMagicshooting()).identify().level(1);
         // 装进包里
         Dungeon.quickslot.setSlot(0, bow);
         // 鉴定
@@ -281,7 +281,7 @@ public enum HeroClass {
         ThrowingSpike spikes = new ThrowingSpike();
         spikes.quantity(2).collect();
         // 戒指
-        (hero.belongings.ring1 = new RingOfKungfu()).identify();
+        (hero.belongings.ring1 = new RingOfKungfu()).identify().level(1);
         // 装进包里
         Dungeon.quickslot.setSlot(0, hero.belongings.weapon);
         Dungeon.quickslot.setSlot(1, spikes);
@@ -299,7 +299,7 @@ public enum HeroClass {
         (hero.belongings.artifact = tome).identify();
         hero.belongings.artifact.activate(hero);
         // 戒指
-        (hero.belongings.ring1 = new RingOfDefender()).identify();
+        (hero.belongings.ring1 = new RingOfDefender()).identify().level(1);
         // 装进包里
         Dungeon.quickslot.setSlot(0, tome);
         // 鉴定
@@ -454,7 +454,6 @@ public enum HeroClass {
         for (int i = 0; i < wands.size(); i++) {
             Item wand = (Item) wands.get(i);
             if (wand instanceof Wand) {
-                wand.upgrade(100);
                 wand.identify();
                 wand.collect();
             }
