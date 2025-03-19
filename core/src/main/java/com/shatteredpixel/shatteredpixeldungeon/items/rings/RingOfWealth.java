@@ -51,6 +51,8 @@ import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class RingOfWealth extends Ring {
 
@@ -135,13 +137,28 @@ public class RingOfWealth extends Ring {
         while (triesToDrop.count() <= 0) {
             if (dropsToEquip.count() <= 0) {
                 int equipBonus = 0;
+                if (Dungeon.isChallenged(Challenges.XP_DUNGEON)) {
+                    int max_bonus = 0;
+                    for (Wealth w : target.buffs(Wealth.class)) {
+                        max_bonus = w.buffedLvl() > max_bonus ? w.buffedLvl() : max_bonus;
+                        equipBonus = w.buffedLvl() + equipBonus;
+                    }
+                    equipBonus -= (equipBonus - max_bonus) / 3;
+                } else {
+                    ArrayList<Integer> bufflevels = new ArrayList<>();
+                    for (Wealth w : target.buffs(Wealth.class)) {
+                        bufflevels.add(w.buffedLvl());
+                    }
+                    // 按从小到大排列
+                    Collections.sort(bufflevels);
+                    // 第一枚副戒提供最多2级加成，第二枚提供3级，以此类推
+                    for (int i = 0; i < bufflevels.size() - 1; i++) {
+                        int b = bufflevels.get(i);
+                        equipBonus += b > i + 2 ? i + 2 : b;
+                    }
+                    equipBonus += bufflevels.get(bufflevels.size() - 1);
 
-                int max_bonus = 0;
-                for (Wealth w : target.buffs(Wealth.class)) {
-                    max_bonus = w.buffedLvl() > max_bonus ? w.buffedLvl() : max_bonus;
-                    equipBonus = w.buffedLvl() + equipBonus;
                 }
-                equipBonus -= (equipBonus - max_bonus) / 3;
 
                 Item i;
                 do {
