@@ -214,6 +214,7 @@ public enum HeroClass {
         stones.quantity(3).collect();
         // 戒指
         (hero.belongings.ring1 = new RingOfTakeout()).identify().level(1);
+        hero.belongings.ring1.activate(hero);
         // 装进包里
         Dungeon.quickslot.setSlot(0, stones);
         // 鉴定
@@ -229,6 +230,7 @@ public enum HeroClass {
         hero.belongings.weapon.activate(hero);
         // 戒指
         (hero.belongings.ring1 = new RingOfEnergy()).identify().level(1);
+        hero.belongings.ring1.activate(hero);
         // 装进包里
         Dungeon.quickslot.setSlot(0, staff);
         // 鉴定
@@ -249,6 +251,8 @@ public enum HeroClass {
         knives.quantity(3).collect();
         // 戒指
         (hero.belongings.ring1 = new RingOfTimetraveler()).identify().level(1);
+        hero.belongings.ring1.activate(hero);
+
         // 装进包里
         Dungeon.quickslot.setSlot(0, cloak);
         Dungeon.quickslot.setSlot(1, knives);
@@ -266,6 +270,8 @@ public enum HeroClass {
         bow.identify().collect();
         // 戒指
         (hero.belongings.ring1 = new RingOfMagicshooting()).identify().level(1);
+        hero.belongings.ring1.activate(hero);
+
         // 装进包里
         Dungeon.quickslot.setSlot(0, bow);
         // 鉴定
@@ -282,6 +288,8 @@ public enum HeroClass {
         spikes.quantity(2).collect();
         // 戒指
         (hero.belongings.ring1 = new RingOfKungfu()).identify().level(1);
+        hero.belongings.ring1.activate(hero);
+
         // 装进包里
         Dungeon.quickslot.setSlot(0, hero.belongings.weapon);
         Dungeon.quickslot.setSlot(1, spikes);
@@ -300,6 +308,8 @@ public enum HeroClass {
         hero.belongings.artifact.activate(hero);
         // 戒指
         (hero.belongings.ring1 = new RingOfDefender()).identify().level(1);
+        hero.belongings.ring1.activate(hero);
+
         // 装进包里
         Dungeon.quickslot.setSlot(0, tome);
         // 鉴定
