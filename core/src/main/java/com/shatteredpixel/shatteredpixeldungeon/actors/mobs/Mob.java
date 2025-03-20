@@ -730,7 +730,8 @@ public abstract class Mob extends Char {
     }
 
     public void beFound() {
-        invisibility_cooldown = invisibility_cooldown > 10 ? invisibility_cooldown : 10;
+        int inv_ban = Dungeon.isChallenged(Challenges.INVISIBLE_WAR)?3:10;
+        invisibility_cooldown = invisibility_cooldown > inv_ban ? invisibility_cooldown : inv_ban;
         if (buff(Invisibility.class) != null) {
             GameScene.ripple(pos);
             invisibility(0);
