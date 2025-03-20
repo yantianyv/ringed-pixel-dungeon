@@ -327,6 +327,10 @@ public class RingOfWealth extends Ring {
                 result.level(minLevel);
             }
         }
+        //为戒指单独写的逻辑
+        if (result instanceof Ring) {
+            result.level(result.level() + Random.Int((level + 1) / 2));
+        }
         result.cursed = false;
         result.cursedKnown = true;
         if (result.level() >= 2) {

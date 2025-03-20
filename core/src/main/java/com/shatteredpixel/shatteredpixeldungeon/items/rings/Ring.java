@@ -495,7 +495,16 @@ public class Ring extends KindofMisc {
         }
         return bonus;
     }
+    
+    @Override
+    public boolean isUpgradable() {
 
+        if (cursedKnown && cursed) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     public class RingBuff extends Buff {
 
         @Override
@@ -523,6 +532,8 @@ public class Ring extends KindofMisc {
         public int buffedLvl() {
             return Ring.this.soloBuffedBonus();
         }
+
+
 
     }
 }
