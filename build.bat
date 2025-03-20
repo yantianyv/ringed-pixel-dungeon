@@ -5,6 +5,7 @@ set KEY_ALIAS=ringed-pixel-dungeon
 set KEYSTORE_PATH=android\key\key.jks
 set CRED_NAME=ringed-pixel-dungeon
 set CRED_NAME_EXTRACT=ringed-pixel-dungeon-extract
+del "android\key\key.jks"
 
 
 rem 检查是否存在加密的 Keystore 并解密
@@ -81,7 +82,7 @@ if not exist "android\key\key.jks" (
 
     echo [INFO] Keystore 已加密成功！
 )
-
+set KEYSTORE_PATH=key\key.jks
 echo [INFO] 开始编译...
 call gradlew assembleRelease
 if !ERRORLEVEL! NEQ 0 (
