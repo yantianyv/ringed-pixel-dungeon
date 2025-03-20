@@ -380,12 +380,12 @@ public abstract class Level implements Bundlable {
     @Override
     public void restoreFromBundle(Bundle bundle) {
 
-		version = bundle.getInt( VERSION );
-		
-		//saves from before v2.3.2 are not supported
-		if (version < ShatteredPixelDungeon.v2_3_2){
-			throw new RuntimeException("old save");
-		}
+        version = bundle.getInt(VERSION);
+
+        //saves from before v2.3.2 are not supported
+        if (version < ShatteredPixelDungeon.v2_3_2) {
+            throw new RuntimeException("old save");
+        }
 
         setSize(bundle.getInt(WIDTH), bundle.getInt(HEIGHT));
 
@@ -728,7 +728,7 @@ public abstract class Level implements Bundlable {
     public Mob findMob(int pos) {
         for (Mob mob : mobs) {
             if (mob.pos == pos) {
-                if (mob.pos == 0||mob.true_pos !=0) {
+                if (mob.pos == 0 || mob.true_pos != 0) {
                     return null;
                 }
                 return mob;
@@ -1400,11 +1400,9 @@ public abstract class Level implements Bundlable {
                 if (distance(c.pos, p) <= range) {
                     for (int i : PathFinder.NEIGHBOURS9) {
                         fieldOfView[mob.pos + i] = true;
-                        if (findMob(mob.pos + i) != null) {
-                            findMob(mob.pos + i).beFound();
-                        }
                     }
                 }
+                mob.beFound();
             }
         }
 
@@ -1427,9 +1425,9 @@ public abstract class Level implements Bundlable {
                         continue;
                     }
                     for (int i : PathFinder.NEIGHBOURS9) {
-                        mob.beFound();
                         heroMindFov[mob.pos + i] = true;
                     }
+                    mob.beFound();
                 }
             } else {
 
@@ -1464,11 +1462,9 @@ public abstract class Level implements Bundlable {
                         if ((distance(c.pos, p) <= mindVisRange || (ally != null && distance(ally.pos, p) <= mindVisRange))) {
                             for (int i : PathFinder.NEIGHBOURS9) {
                                 fieldOfView[mob.pos + i] = true;
-                                if (findMob(mob.pos + i) != null) {
-                                    findMob(mob.pos + i).beFound();
-                                }
                                 heroMindFov[mob.pos + i] = true;
                             }
+                            mob.beFound();
                         }
                     }
                 }
@@ -1479,9 +1475,6 @@ public abstract class Level implements Bundlable {
                     int p = heap.pos;
                     for (int i : PathFinder.NEIGHBOURS9) {
                         fieldOfView[p + i] = true;
-                        if (findMob(p + i) != null) {
-                            findMob(p + i).beFound();
-                        }
                         heroMindFov[p + i] = true;
                     }
                 }

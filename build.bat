@@ -1,70 +1,73 @@
 @echo off
+chcp 65001
 setlocal enabledelayedexpansion
 call ./gradlew --stop
 
 set KEY_ALIAS=ringed-pixel-dungeon
 set KEYSTORE_PATH=android\key\key.jks
 
-rem ÊÖ¶¯ÊäÈë Keystore ÃÜÂë
-set /p PASSWORD=ÇëÊäÈë Keystore ÃÜÂë£º
-set /p EXTRACT_PASSWORD=ÇëÊäÈë½âÑ¹ÃÜÂë£º
+rem æ‰‹åŠ¨è¾“å…¥ Keystore å¯†ç 
+set /p PASSWORD=è¯·è¾“å…¥ Keystore å¯†ç ï¼š
+cls
+set /p EXTRACT_PASSWORD=è¯·è¾“å…¥è§£å‹å¯†ç ï¼š
+cls
 
 del android\key\key.jks
 
-rem ¼ì²éÊÇ·ñ´æÔÚ¼ÓÃÜµÄ Keystore ²¢½âÃÜ
+rem æ£€æŸ¥æ˜¯å¦å­˜åœ¨åŠ å¯†çš„ Keystore å¹¶è§£å¯†
 if exist "android\key\key.zip" (
-    echo [INFO] ÕıÔÚ½âÃÜ...
+    echo [INFO] æ­£åœ¨è§£å¯†...
     if exist "android\key\7z.exe" (
         "android\key\7z.exe" e "android\key\key.zip" -o"android\key" -p"!EXTRACT_PASSWORD!"
     ) else (
-        echo [ERROR] ÕÒ²»µ½ 7-Zip
+        echo [ERROR] æ‰¾ä¸åˆ° 7-Zip
         pause
         exit /b
     )
 
     if not exist "android\key\key.jks" (
-        echo [INFO] ½âÑ¹Ê§°Ü£¬ÇëÖØĞÂÔËĞĞ½Å±¾²¢ÊäÈëÕıÈ·ÃÜÂë£¡
+        echo [INFO] è§£å‹å¤±è´¥ï¼Œè¯·é‡æ–°è¿è¡Œè„šæœ¬å¹¶è¾“å…¥æ­£ç¡®å¯†ç ï¼
         pause
         exit /b
     )
 
-    echo [INFO] Keystore ½âÃÜÍê³É£¡
+    echo [INFO] Keystore è§£å¯†å®Œæˆï¼
 )
 
-rem ¼ì²é Keystore ÊÇ·ñ´æÔÚ
+rem æ£€æŸ¥ Keystore æ˜¯å¦å­˜åœ¨
 if not exist "android\key\key.jks" (
-    set /p PASSWORD=ÇëÉèÖÃ Keystore ÃÜÂë£º
-    set /p EXTRACT_PASSWORD=ÇëÉèÖÃ½âÑ¹ÃÜÂë£º
+    set /p PASSWORD=è¯·è®¾ç½® Keystore å¯†ç ï¼š
+    set /p EXTRACT_PASSWORD=è¯·è®¾ç½®è§£å‹å¯†ç ï¼š
 
-    echo [INFO] Keystore ÕıÔÚ´´½¨...
+    echo [INFO] Keystore æ­£åœ¨åˆ›å»º...
     
     keytool -genkeypair -v -keystore "android\key\key.jks" -alias "!KEY_ALIAS!" -keyalg RSA -keysize 2048 -validity 10000 ^
         -storepass "!PASSWORD!" -keypass "!PASSWORD!" ^
         -dname "CN=ringed-pixel-dungeon, OU=pixel-dungeon, O=dungeon, L=China, ST=China, C=China"
 
     if !ERRORLEVEL! NEQ 0 (
-        echo [ERROR] Keystore ´´½¨Ê§°Ü£¡
+        echo [ERROR] Keystore åˆ›å»ºå¤±è´¥ï¼
         pause
         exit /b
     )
 
-    echo [INFO] Keystore ´´½¨³É¹¦£¡ÕıÔÚ¼ÓÃÜ´æ´¢...
+    echo [INFO] Keystore åˆ›å»ºæˆåŠŸï¼æ­£åœ¨åŠ å¯†å­˜å‚¨...
     "android\key\7z.exe" a -tzip "android\key\key.zip" "android\key\key.jks" -p"!EXTRACT_PASSWORD!" -mem=AES256
 
     if !ERRORLEVEL! NEQ 0 (
-        echo [ERROR] Keystore ¼ÓÃÜÊ§°Ü£¡
+        echo [ERROR] Keystore åŠ å¯†å¤±è´¥ï¼
         pause
         exit /b
     )
 
-    echo [INFO] Keystore ÒÑ¼ÓÃÜ³É¹¦£¡
+    echo [INFO] Keystore å·²åŠ å¯†æˆåŠŸï¼
 )
 
 set KEYSTORE_PATH=key\key.jks
-echo [INFO] ¿ªÊ¼±àÒë...
+echo [INFO] å¼€å§‹ç¼–è¯‘...
 call gradlew assembleRelease
 if !ERRORLEVEL! NEQ 0 (
-    echo [ERROR] ±àÒëÊ§°Ü£¬ÇëÖØĞÂÔËĞĞ½Å±¾²¢ÊäÈëÕıÈ·ÃÜÂë£¡
+    echo [ERROR] ç¼–è¯‘å¤±è´¥ï¼Œè¯·é‡æ–°è¿è¡Œè„šæœ¬å¹¶è¾“å…¥æ­£ç¡®å¯†ç ï¼
     call ./gradlew --stop
     pause
     exit /b
@@ -72,10 +75,10 @@ if !ERRORLEVEL! NEQ 0 (
 
 call ./gradlew --stop
 
-rem É¾³ıÃ÷ÎÄ Keystore
+rem åˆ é™¤æ˜æ–‡ Keystore
 del "android\key\key.jks"
 
-rem Çå³ı»·¾³±äÁ¿
+rem æ¸…é™¤ç¯å¢ƒå˜é‡
 set "PASSWORD="
 set "EXTRACT_PASSWORD="
 

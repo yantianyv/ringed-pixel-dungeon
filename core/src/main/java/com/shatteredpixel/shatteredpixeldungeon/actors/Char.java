@@ -1169,6 +1169,7 @@ public abstract class Char extends Actor {
         super.spend(time / timeScale);
     }
 
+
     public synchronized LinkedHashSet<Buff> buffs() {
         return new LinkedHashSet<>(buffs);
     }

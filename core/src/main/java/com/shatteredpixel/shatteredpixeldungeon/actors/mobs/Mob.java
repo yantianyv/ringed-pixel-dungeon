@@ -135,6 +135,7 @@ public abstract class Mob extends Char {
     protected boolean firstAdded = true;
 
     protected int num_of_escape = 1;
+    protected int invisibility_cooldown = 3;
 
     protected void onAdd() {
         if (firstAdded) {
@@ -257,6 +258,22 @@ public abstract class Mob extends Char {
             if (Random.Int(3) == 0) {
                 Buff.affect(this, Invisibility.class, 3);
             }
+        }
+        // 计算冷却
+        invisibility_cooldown = invisibility_cooldown - 1 > 0 ? invisibility_cooldown - 1 : 0;
+    }
+
+    protected boolean invisibility(float time) {
+        if (time == 0) {
+            Invisibility.dispel(this);
+            invisibility_cooldown = 1;
+            return true;
+        } else if (invisibility_cooldown == 0) {
+            Buff.affect(this, Invisibility.class, time + 0.1f);
+            invisibility_cooldown = 1;
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -708,8 +725,11 @@ public abstract class Mob extends Char {
 
     public void beFound() {
         if (buff(Invisibility.class) != null) {
-            buff(Invisibility.class).detach();
-            sprite.emitter().start(ShadowParticle.UP, 0.5f, 3);
+            GameScene.ripple(pos);
+            invisibility(0);
+            if (sprite != null) {
+                sprite.emitter().start(ShadowParticle.UP, 0.5f, 3);
+            }
         }
     }
 
@@ -727,7 +747,7 @@ public abstract class Mob extends Char {
             sprite.attack(enemy.pos);
             return false;
         } else {
-            Invisibility.dispel(this);
+            invisibility(0);
             attack(enemy);
             spend(attackDelay());
             return true;
@@ -737,23 +757,23 @@ public abstract class Mob extends Char {
     @Override
     public void onAttackComplete() {
         attack(enemy);
-        Invisibility.dispel(this);
+        invisibility(0);
         spend(attackDelay());
         super.onAttackComplete();
         if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
-            Buff.affect(this, Invisibility.class, 1);
+            invisibility(1);
         }
     }
 
     @Override
     public int defenseSkill(Char enemy) {
         if (this.buff(Invisibility.class) != null) {
-            this.buff(Invisibility.class).detach();
+            invisibility(0);
         }
 
         // 挑战
         if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
-            Buff.affect(this, Invisibility.class, 1);
+            invisibility(1);
         }
 
         if (buff(GuidingLight.Illuminated.class) != null && Dungeon.hero.heroClass == HeroClass.CLERIC) {
@@ -1462,7 +1482,7 @@ public abstract class Mob extends Char {
             }// 如果敌人在视野内
             if (enemyInFOV) {
                 target = enemy.pos;
-                Buff.affect(Mob.this, Invisibility.class, 1.1f);
+                invisibility(1);
             } else if (HP < HT / 2) {
                 HP += HT / 100;
                 if (HT % 100 > Random.Int(100)) {
@@ -1485,8 +1505,8 @@ public abstract class Mob extends Char {
         protected void escaped() {
             //does nothing by default, some enemies have special logic for this
             if (buff(Invisibility.class) != null) {
-                buff(Invisibility.class).detach();
-                Buff.affect(Mob.this, Invisibility.class, 10f);
+                Invisibility.dispel(Mob.this);
+                invisibility(1);
             }
             if (enemySeen) {
                 sprite.showStatus(CharSprite.WARNING, Messages.get(Mob.class, "rage"));

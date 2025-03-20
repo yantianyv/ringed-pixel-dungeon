@@ -91,7 +91,7 @@ public class Piranha extends Mob {
 
         }
         // 不在水中或正在飞行则触发窒息
-        if (pos != 0 && (!Dungeon.level.water[pos] || flying)) {
+        if (pos != (1 + Dungeon.level.width()) && (!Dungeon.level.water[pos] || flying)) {
             if (sprite != null && buff(Levitation.class) != null) {
                 sprite.emitter().burst(Speck.factory(Speck.JET), 10);
             }
@@ -100,8 +100,8 @@ public class Piranha extends Mob {
         }// 如果英雄在飞行则移出游戏并在原地显示涟漪
         else if (Dungeon.hero.flying == true) {
             // 记录位置并移出游戏
-            true_pos = pos == 0 ? true_pos : pos;
-            pos = 0;
+            true_pos = pos == 1 + Dungeon.level.width() ? true_pos : pos;
+            pos = 1 + Dungeon.level.width();
             // 显示涟漪
             GameScene.ripple(true_pos);
             // 消耗回合避免卡死
@@ -110,7 +110,7 @@ public class Piranha extends Mob {
         }// 如果英雄没有处于飞行状态
         else {
             // 如果位置为0则移入游戏
-            if (pos == 0) {
+            if (pos == 1 + Dungeon.level.width()) {
                 pos = true_pos;
             }
             // 执行其余行为
@@ -207,7 +207,7 @@ public class Piranha extends Mob {
 
     @Override
     public void storeInBundle(Bundle bundle) {
-        if (pos == 0) {
+        if (pos == 1 + Dungeon.level.width()) {
             pos = true_pos;
         }
         super.storeInBundle(bundle);

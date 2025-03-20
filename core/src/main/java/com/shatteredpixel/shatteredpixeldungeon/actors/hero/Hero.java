@@ -185,6 +185,7 @@ import java.util.LinkedHashMap;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 
 public class Hero extends Char {
@@ -1846,6 +1847,7 @@ public class Hero extends Char {
 
                 // 对于隐形的敌人
                 if (ch.buff(Invisibility.class) != null || ch.alignment == Alignment.ENEMY) {
+                    Invisibility.dispel(ch);
                     attack(ch);
                     newPath = true;
                 } // 对于友军
@@ -2590,6 +2592,7 @@ public class Hero extends Char {
         int left, right;
         int curr;
         for (int y = Math.max(0, c.y - distance); y <= Math.min(Dungeon.level.height() - 1, c.y + distance); y++) {
+
             if (!circular) {
                 left = c.x - distance;
             } else if (rounding[Math.abs(c.y - y)] < Math.abs(c.y - y)) {
@@ -2653,7 +2656,6 @@ public class Hero extends Char {
                         }
 
                         if (Random.Float() < chance) {
-
                             int oldValue = Dungeon.level.map[curr];
 
                             GameScene.discoverTile(curr, oldValue);
