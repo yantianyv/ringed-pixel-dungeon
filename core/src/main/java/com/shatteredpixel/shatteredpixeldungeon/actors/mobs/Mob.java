@@ -135,7 +135,7 @@ public abstract class Mob extends Char {
     protected boolean firstAdded = true;
 
     protected int num_of_escape = 1;
-    protected int invisibility_cooldown = 3;
+    protected float invisibility_cooldown = 3;
 
     protected void onAdd() {
         if (firstAdded) {
@@ -259,22 +259,28 @@ public abstract class Mob extends Char {
                 Buff.affect(this, Invisibility.class, 3);
             }
         }
-        // 计算冷却
-        invisibility_cooldown = invisibility_cooldown - 1 > 0 ? invisibility_cooldown - 1 : 0;
+
     }
 
     protected boolean invisibility(float time) {
         if (time == 0) {
             Invisibility.dispel(this);
-            invisibility_cooldown = 1;
+            invisibility_cooldown = invisibility_cooldown > 1 ? invisibility_cooldown : 1;
             return true;
         } else if (invisibility_cooldown == 0) {
             Buff.affect(this, Invisibility.class, time + 0.1f);
-            invisibility_cooldown = 1;
+            invisibility_cooldown = invisibility_cooldown > 1 ? invisibility_cooldown : 1;
             return true;
         } else {
             return false;
         }
+    }
+
+    @Override
+    protected void spend(float time) {
+        // 计算冷却
+        invisibility_cooldown = invisibility_cooldown - time > 0 ? invisibility_cooldown - time : 0;
+        super.spend(time);
     }
 
     @Override
@@ -724,6 +730,7 @@ public abstract class Mob extends Char {
     }
 
     public void beFound() {
+        invisibility_cooldown = invisibility_cooldown > 10 ? invisibility_cooldown : 10;
         if (buff(Invisibility.class) != null) {
             GameScene.ripple(pos);
             invisibility(0);

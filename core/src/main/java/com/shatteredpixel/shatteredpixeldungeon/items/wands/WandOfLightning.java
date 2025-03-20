@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
@@ -47,133 +46,143 @@ import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+
 public class WandOfLightning extends DamageWand {
 
-	{
-		image = ItemSpriteSheet.WAND_LIGHTNING;
-	}
-	
-	private ArrayList<Char> affected = new ArrayList<>();
+    {
+        image = ItemSpriteSheet.WAND_LIGHTNING;
+    }
 
-	private ArrayList<Lightning.Arc> arcs = new ArrayList<>();
+    private ArrayList<Char> affected = new ArrayList<>();
 
-	public int min(int lvl){
-		return 5+lvl;
-	}
+    private ArrayList<Lightning.Arc> arcs = new ArrayList<>();
 
-	public int max(int lvl){
-		return 10+5*lvl;
-	}
-	
-	@Override
-	public void onZap(Ballistica bolt) {
+    public int min(int lvl) {
+        return 5 + lvl;
+    }
 
-		//lightning deals less damage per-target, the more targets that are hit.
-		float multiplier = 0.4f + (0.6f/affected.size());
-		//if the main target is in water, all affected take full damage
-		if (Dungeon.level.water[bolt.collisionPos]) multiplier = 1f;
+    public int max(int lvl) {
+        return 10 + 5 * lvl;
+    }
 
-		for (Char ch : affected){
-			if (ch == Dungeon.hero) PixelScene.shake( 2, 0.3f );
-			ch.sprite.centerEmitter().burst( SparkParticle.FACTORY, 3 );
-			ch.sprite.flash();
+    @Override
+    public void onZap(Ballistica bolt) {
 
-			if (ch != curUser && ch.alignment == curUser.alignment && ch.pos != bolt.collisionPos){
-				continue;
-			}
-			wandProc(ch, chargesPerCast());
-			if (ch == curUser && ch.isAlive()) {
-				ch.damage(Math.round(damageRoll() * multiplier * 0.5f), this);
-				if (!curUser.isAlive()) {
-					Badges.validateDeathFromFriendlyMagic();
-					Dungeon.fail( this );
-					GLog.n(Messages.get(this, "ondeath"));
-				}
-			} else {
-				ch.damage(Math.round(damageRoll() * multiplier), this);
-			}
-		}
-	}
+        //lightning deals less damage per-target, the more targets that are hit.
+        float multiplier = 0.4f + (0.6f / affected.size());
+        //if the main target is in water, all affected take full damage
+        if (Dungeon.level.water[bolt.collisionPos]) {
+            multiplier = 1f;
+        }
 
-	@Override
-	public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
-		//acts like shocking enchantment
-		new LightningOnHit().proc(staff, attacker, defender, damage);
-	}
+        for (Char ch : affected) {
+            if (ch == Dungeon.hero) {
+                PixelScene.shake(2, 0.3f);
+            }
+            ch.sprite.centerEmitter().burst(SparkParticle.FACTORY, 3);
+            ch.sprite.flash();
 
-	public static class LightningOnHit extends Shocking {
-		@Override
-		protected float procChanceMultiplier(Char attacker) {
-			return Wand.procChanceMultiplier(attacker);
-		}
-	}
+            if (ch != curUser && ch.alignment == curUser.alignment && ch.pos != bolt.collisionPos) {
+                continue;
+            }
+            wandProc(ch, chargesPerCast());
+            if (ch == curUser && ch.isAlive()) {
+                ch.damage(Math.round(damageRoll() * multiplier * 0.5f), this);
+                if (!curUser.isAlive()) {
+                    Badges.validateDeathFromFriendlyMagic();
+                    Dungeon.fail(this);
+                    GLog.n(Messages.get(this, "ondeath"));
+                }
+            } else {
+                ch.damage(Math.round(damageRoll() * multiplier), this);
+            }
+        }
+    }
 
-	private void arc( Char ch ) {
+    @Override
+    public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
+        //acts like shocking enchantment
+        new LightningOnHit().proc(staff, attacker, defender, damage);
+        if (defender instanceof Mob) {
+            ((Mob) defender).beFound();
+        }
+    }
 
-		int dist = Dungeon.level.water[ch.pos] ? 2 : 1;
+    public static class LightningOnHit extends Shocking {
 
-		ArrayList<Char> hitThisArc = new ArrayList<>();
-		PathFinder.buildDistanceMap( ch.pos, BArray.not( Dungeon.level.solid, null ), dist );
-		for (int i = 0; i < PathFinder.distance.length; i++) {
-			if (PathFinder.distance[i] < Integer.MAX_VALUE){
-				Char n = Actor.findChar( i );
-				if (n == Dungeon.hero && PathFinder.distance[i] > 1)
-					//the hero is only zapped if they are adjacent
-					continue;
-				else if (n != null && !affected.contains( n )) {
-					hitThisArc.add(n);
-				}
-			}
-		}
-		
-		affected.addAll(hitThisArc);
-		for (Char hit : hitThisArc){
-			arcs.add(new Lightning.Arc(ch.sprite.center(), hit.sprite.center()));
-			arc(hit);
-		}
-	}
-	
-	@Override
-	public void fx(Ballistica bolt, Callback callback) {
+        @Override
+        protected float procChanceMultiplier(Char attacker) {
+            return Wand.procChanceMultiplier(attacker);
+        }
+    }
 
-		affected.clear();
-		arcs.clear();
+    private void arc(Char ch) {
 
-		int cell = bolt.collisionPos;
+        int dist = Dungeon.level.water[ch.pos] ? 2 : 1;
 
-		Char ch = Actor.findChar( cell );
-		if (ch != null) {
-			if (ch instanceof DwarfKing){
-				Statistics.qualifiedForBossChallengeBadge = false;
-			}
+        ArrayList<Char> hitThisArc = new ArrayList<>();
+        PathFinder.buildDistanceMap(ch.pos, BArray.not(Dungeon.level.solid, null), dist);
+        for (int i = 0; i < PathFinder.distance.length; i++) {
+            if (PathFinder.distance[i] < Integer.MAX_VALUE) {
+                Char n = Actor.findChar(i);
+                if (n == Dungeon.hero && PathFinder.distance[i] > 1) //the hero is only zapped if they are adjacent
+                {
+                    continue; 
+                }else if (n != null && !affected.contains(n)) {
+                    hitThisArc.add(n);
+                }
+            }
+        }
 
-			affected.add( ch );
-			arcs.add( new Lightning.Arc(curUser.sprite.center(), ch.sprite.center()));
-			arc(ch);
-		} else {
-			arcs.add( new Lightning.Arc(curUser.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(bolt.collisionPos)));
-			CellEmitter.center( cell ).burst( SparkParticle.FACTORY, 3 );
-		}
+        affected.addAll(hitThisArc);
+        for (Char hit : hitThisArc) {
+            arcs.add(new Lightning.Arc(ch.sprite.center(), hit.sprite.center()));
+            arc(hit);
+        }
+    }
 
-		//don't want to wait for the effect before processing damage.
-		curUser.sprite.parent.addToFront( new Lightning( arcs, null ) );
-		Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
-		callback.call();
-	}
+    @Override
+    public void fx(Ballistica bolt, Callback callback) {
 
-	@Override
-	public void staffFx(MagesStaff.StaffParticle particle) {
-		particle.color(0xFFFFFF);
-		particle.am = 0.6f;
-		particle.setLifespan(0.6f);
-		particle.acc.set(0, +10);
-		particle.speed.polar(-Random.Float(3.1415926f), 6f);
-		particle.setSize(0f, 1.5f);
-		particle.sizeJitter = 1f;
-		particle.shuffleXY(1f);
-		float dst = Random.Float(1f);
-		particle.x -= dst;
-		particle.y += dst;
-	}
-	
+        affected.clear();
+        arcs.clear();
+
+        int cell = bolt.collisionPos;
+
+        Char ch = Actor.findChar(cell);
+        if (ch != null) {
+            if (ch instanceof DwarfKing) {
+                Statistics.qualifiedForBossChallengeBadge = false;
+            }
+
+            affected.add(ch);
+            arcs.add(new Lightning.Arc(curUser.sprite.center(), ch.sprite.center()));
+            arc(ch);
+        } else {
+            arcs.add(new Lightning.Arc(curUser.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(bolt.collisionPos)));
+            CellEmitter.center(cell).burst(SparkParticle.FACTORY, 3);
+        }
+
+        //don't want to wait for the effect before processing damage.
+        curUser.sprite.parent.addToFront(new Lightning(arcs, null));
+        Sample.INSTANCE.play(Assets.Sounds.LIGHTNING);
+        callback.call();
+    }
+
+    @Override
+    public void staffFx(MagesStaff.StaffParticle particle) {
+        particle.color(0xFFFFFF);
+        particle.am = 0.6f;
+        particle.setLifespan(0.6f);
+        particle.acc.set(0, +10);
+        particle.speed.polar(-Random.Float(3.1415926f), 6f);
+        particle.setSize(0f, 1.5f);
+        particle.sizeJitter = 1f;
+        particle.shuffleXY(1f);
+        float dst = Random.Float(1f);
+        particle.x -= dst;
+        particle.y += dst;
+    }
+
 }
