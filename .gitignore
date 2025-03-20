@@ -18,5 +18,5 @@ local.properties
 #intellij project files
 *.iml
 *.idea
-run.bat
 .qodo
+my-release-key.jks
