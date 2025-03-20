@@ -98,6 +98,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortswor
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant.Seed;
@@ -353,43 +354,47 @@ public enum HeroClass {
         }
     }
 
-	public String spritesheet() {
-		switch (this) {
-			case WARRIOR: default:
-				return Assets.Sprites.WARRIOR;
-			case MAGE:
-				return Assets.Sprites.MAGE;
-			case ROGUE:
-				return Assets.Sprites.ROGUE;
-			case HUNTRESS:
-				return Assets.Sprites.HUNTRESS;
-			case DUELIST:
-				return Assets.Sprites.DUELIST;
-			case CLERIC:
-				return Assets.Sprites.CLERIC;
-		}
-	}
+    public String spritesheet() {
+        switch (this) {
+            case WARRIOR:
+            default:
+                return Assets.Sprites.WARRIOR;
+            case MAGE:
+                return Assets.Sprites.MAGE;
+            case ROGUE:
+                return Assets.Sprites.ROGUE;
+            case HUNTRESS:
+                return Assets.Sprites.HUNTRESS;
+            case DUELIST:
+                return Assets.Sprites.DUELIST;
+            case CLERIC:
+                return Assets.Sprites.CLERIC;
+        }
+    }
 
-	public String splashArt(){
-		switch (this) {
-			case WARRIOR: default:
-				return Assets.Splashes.WARRIOR;
-			case MAGE:
-				return Assets.Splashes.MAGE;
-			case ROGUE:
-				return Assets.Splashes.ROGUE;
-			case HUNTRESS:
-				return Assets.Splashes.HUNTRESS;
-			case DUELIST:
-				return Assets.Splashes.DUELIST;
-			case CLERIC:
-				return Assets.Splashes.CLERIC;
-		}
-	}
-	
-	public boolean isUnlocked(){
-		//always unlock on debug builds
-		if (DeviceCompat.isDebug()) return true;
+    public String splashArt() {
+        switch (this) {
+            case WARRIOR:
+            default:
+                return Assets.Splashes.WARRIOR;
+            case MAGE:
+                return Assets.Splashes.MAGE;
+            case ROGUE:
+                return Assets.Splashes.ROGUE;
+            case HUNTRESS:
+                return Assets.Splashes.HUNTRESS;
+            case DUELIST:
+                return Assets.Splashes.DUELIST;
+            case CLERIC:
+                return Assets.Splashes.CLERIC;
+        }
+    }
+
+    public boolean isUnlocked() {
+        //always unlock on debug builds
+        if (DeviceCompat.isDebug()) {
+            return true;
+        }
 
         switch (this) {
             case WARRIOR:
@@ -455,7 +460,7 @@ public enum HeroClass {
                 artifact.collect();
             }
         }
-        //获得每种法杖100级
+        //获得每种法杖
         List wands = Generator.getItemList(Generator.Category.WAND);
         for (int i = 0; i < wands.size(); i++) {
             Item wand = (Item) wands.get(i);
@@ -503,7 +508,7 @@ public enum HeroClass {
             trinket.identify();
             trinket.collect();
         }
-        // 获得每种食物10000个           
+        // 获得每种食物       
         for (int j = 0; j < 6666; j++) {
             List foods = Generator.getItemList(Generator.Category.FOOD);
             for (int i = 0; i < foods.size(); i++) {
@@ -513,7 +518,19 @@ public enum HeroClass {
                 }
             }
         }
-        // 获得升级卷轴10000个
+        // 获得每种投掷武器
+        for (int j = 0; j < 6666; j++) {
+            List missiles = Generator.getItemList(Generator.Category.MISSILE);
+            for (int i = 0; i < missiles.size(); i++) {
+                Item missile = (Item) missiles.get(i);
+                if (missile instanceof MissileWeapon) {
+                    missile.collect();
+                }
+            }
+        }
+        // 获取初始武器
+
+        // 获得升级卷轴
         for (int i = 0; i < (114514 - 6666); i++) {
             ScrollOfUpgrade scroll1 = new ScrollOfUpgrade();
             scroll1.collect();
