@@ -833,7 +833,6 @@ public class Hero extends Char {
     @Override
     public void spend(float time) {
         time = time * RingOfTimetraveler.timeMultiplier(this);
-        time = time > 0.000001f ? time : 0.000001f;
         super.spend(time);
     }
 
