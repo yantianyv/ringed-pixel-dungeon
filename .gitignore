@@ -1,3 +1,6 @@
+# Build key storage
+*.jks
+
 # Built application files
 *.apk
 
@@ -18,5 +21,3 @@ local.properties
 #intellij project files
 *.iml
 *.idea
-.qodo
-my-release-key.jks
