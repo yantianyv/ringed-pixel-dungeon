@@ -123,6 +123,7 @@ public class Ring extends KindofMisc {
         anonymous = true;
     }
 
+    @Override
     public void reset() {
         super.reset();
         levelsToID = 1;
@@ -138,6 +139,7 @@ public class Ring extends KindofMisc {
         }
     }
 
+    @Override
     public void activate(Char ch) {
         if (buff != null) {
             buff.detach();
@@ -499,11 +501,7 @@ public class Ring extends KindofMisc {
     @Override
     public boolean isUpgradable() {
 
-        if (cursedKnown && cursed) {
-            return true;
-        } else {
-            return false;
-        }
+        return cursedKnown && cursed;
     }
     public class RingBuff extends Buff {
 
