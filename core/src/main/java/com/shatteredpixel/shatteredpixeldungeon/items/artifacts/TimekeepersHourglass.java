@@ -104,18 +104,18 @@ public class TimekeepersHourglass extends Artifact {
         if (action.equals(AC_ACTIVATE)) {
 
             if (!isEquipped(hero)) {
-                GLog.i(Messages.get(Artifact.class, "need_to_equip")); 
-            }else if (activeBuff != null) {
+                GLog.i(Messages.get(Artifact.class, "need_to_equip"));
+            } else if (activeBuff != null) {
                 if (activeBuff instanceof timeStasis) { //do nothing
                 } else {
                     activeBuff.detach();
                     GLog.i(Messages.get(this, "deactivate"));
                 }
             } else if (charge <= 0) {
-                GLog.i(Messages.get(this, "no_charge")); 
-            }else if (cursed) {
-                GLog.i(Messages.get(this, "cursed")); 
-            }else {
+                GLog.i(Messages.get(this, "no_charge"));
+            } else if (cursed) {
+                GLog.i(Messages.get(this, "cursed"));
+            } else {
                 GameScene.show(
                         new WndOptions(new ItemSprite(this),
                                 Messages.titleCase(name()),
@@ -252,8 +252,8 @@ public class TimekeepersHourglass extends Artifact {
             Bundle buffBundle = bundle.getBundle(BUFF);
 
             if (buffBundle.contains(timeFreeze.PRESSES)) {
-                activeBuff = new timeFreeze(); 
-            }else {
+                activeBuff = new timeFreeze();
+            } else {
                 activeBuff = new timeStasis();
             }
 
@@ -271,7 +271,8 @@ public class TimekeepersHourglass extends Artifact {
                     && target.buff(MagicImmune.class) == null
                     && Regeneration.regenOn()) {
                 //90 turns to charge at full, 60 turns to charge at 0/10
-                float chargeGain = 1 / (90f - (chargeCap - charge) * 3f);
+                // float chargeGain = 1 / (90f - (chargeCap - charge) * 3f);
+                float chargeGain = ((chargeCap - charge) / chargeCap) * 0.015f;
                 chargeGain *= RingOfEnergy.artifactChargeMultiplier(target);
                 partialCharge += chargeGain;
 
@@ -359,8 +360,8 @@ public class TimekeepersHourglass extends Artifact {
         @Override
         public void fx(boolean on) {
             if (on) {
-                target.sprite.add(CharSprite.State.PARALYSED); 
-            }else {
+                target.sprite.add(CharSprite.State.PARALYSED);
+            } else {
                 if (target.paralysed == 0) {
                     target.sprite.remove(CharSprite.State.PARALYSED);
                 }
@@ -546,8 +547,8 @@ public class TimekeepersHourglass extends Artifact {
                 Catalog.countUses(hourglass.getClass(), 2);
                 Sample.INSTANCE.play(Assets.Sounds.DEWDROP);
                 if (hourglass.level() == hourglass.levelCap) {
-                    GLog.p(Messages.get(this, "maxlevel")); 
-                }else {
+                    GLog.p(Messages.get(this, "maxlevel"));
+                } else {
                     GLog.i(Messages.get(this, "levelup"));
                 }
                 GameScene.pickUp(this, pos);
