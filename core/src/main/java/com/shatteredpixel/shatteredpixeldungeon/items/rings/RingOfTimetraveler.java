@@ -35,11 +35,14 @@ public class RingOfTimetraveler extends Ring {
     @Override
     public String statsInfo() {
         if (isIdentified()) {
-            String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100f * (Math.pow(0.9f, soloBuffedBonus()))));
+            float solo_rate = (float) Math.abs(Math.pow(0.9f, soloBuffedBonus()) > 0.01f ? Math.pow(0.9f, soloBuffedBonus()) : 0.01f);
+            float combined_rate = (float) Math.abs(Math.pow(0.9f, combinedBonus(Dungeon.hero)) > 0.01f ? Math.pow(0.9f, combinedBonus(Dungeon.hero)) : 0.01f);
+            String info = Messages.get(this,
+                    "stats",
+                    Messages.decimalFormat("#.##", 100f * solo_rate));
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100f * (Math.pow(0.9f, combinedBuffedBonus(Dungeon.hero)))));
+                        Messages.decimalFormat("#.##", 100f * combined_rate));
             }
             return info;
         } else {
@@ -61,7 +64,9 @@ public class RingOfTimetraveler extends Ring {
     }
 
     public static float timeMultiplier(Char target) {
-        return (float) Math.pow(0.9, getBuffedBonus(target, TimeCompression.class));
+        float result = (float) Math.pow(0.9, getBuffedBonus(target, TimeCompression.class));
+        result = Math.abs(result) < 0.01f ? 0.01f : result;
+        return result;
     }
 
     public class TimeCompression extends RingBuff {
