@@ -317,7 +317,7 @@ public class LloydsBeacon extends Artifact {
         @Override
         public boolean act() {
             if (charge < chargeCap && !cursed && Regeneration.regenOn()) {
-                partialCharge += 1 / (100f - (chargeCap - charge) * 10f);
+                partialCharge += (chargeCap - charge) * 0.1f;
 
                 while (partialCharge >= 1) {
                     partialCharge--;
