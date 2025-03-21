@@ -357,7 +357,7 @@ public class UnstableSpellbook extends Artifact {
                     && Regeneration.regenOn()) {
                 //120 turns to charge at full, 80 turns to charge at 0/8
                 // float chargeGain = 1 / (120f - (chargeCap - charge) * 5f);
-                float chargeGain = (chargeCap - charge) / (chargeCap) * 0.1f;
+                float chargeGain = (float) (chargeCap - charge) / (float) (chargeCap) * 0.0126f;
                 chargeGain *= RingOfEnergy.artifactChargeMultiplier(target);
                 partialCharge += chargeGain;
 

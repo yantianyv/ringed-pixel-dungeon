@@ -272,7 +272,7 @@ public class TimekeepersHourglass extends Artifact {
                     && Regeneration.regenOn()) {
                 //90 turns to charge at full, 60 turns to charge at 0/10
                 // float chargeGain = 1 / (90f - (chargeCap - charge) * 3f);
-                float chargeGain = ((chargeCap - charge) / chargeCap) * 0.015f;
+                float chargeGain = (float) (chargeCap - charge) / (float) chargeCap * 0.02f;
                 chargeGain *= RingOfEnergy.artifactChargeMultiplier(target);
                 partialCharge += chargeGain;
 
