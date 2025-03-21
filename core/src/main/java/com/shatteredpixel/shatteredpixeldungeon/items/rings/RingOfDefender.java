@@ -33,11 +33,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 
 public class RingOfDefender extends Ring {
 
@@ -133,7 +132,7 @@ public class RingOfDefender extends Ring {
     }
 
     public static float HTAddition(Char target) {
-        return (float) Math.pow(getBuffedBonus(target, Defender.class), 1.2);
+        return (float) Math.pow(getBuffedBonus(target, Defender.class) * 1.5, 1);
     }
 
     public class Defender extends RingBuff {
