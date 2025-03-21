@@ -7,8 +7,15 @@ set KEY_ALIAS=ringed-pixel-dungeon
 set KEYSTORE_PATH=android\key\key.jks
 
 rem 手动输入 Keystore 密码
-set /p PASSWORD=请输入 Keystore 密码：
+set /p PASSWORD=请输入 Keystore 密码（留空则编译debug版本）：
 cls
+
+rem 检测是否需要编译debug版本
+if "!PASSWORD!"=="" (
+    call ./gradlew assembleDebug
+    explorer android\build\outputs\apk\debug
+    exit /b
+)
 set /p EXTRACT_PASSWORD=请输入解压密码：
 cls
 
@@ -72,6 +79,7 @@ if !ERRORLEVEL! NEQ 0 (
     pause
     exit /b
 )
+explorer android\build\outputs\apk\release
 
 call ./gradlew --stop
 
@@ -81,5 +89,6 @@ del "android\key\key.jks"
 rem 清除环境变量
 set "PASSWORD="
 set "EXTRACT_PASSWORD="
+
 
 endlocal

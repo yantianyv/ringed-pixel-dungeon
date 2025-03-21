@@ -30,7 +30,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix ".indev"
+            applicationIdSuffix ".debug"
             versionNameSuffix '-debug'
             dependencies {
                 debugImplementation project(':services:updates:debugUpdates')
