@@ -87,10 +87,10 @@ public class HolyTome extends Artifact {
         if (action.equals(AC_CAST)) {
 
             if (!isEquipped(hero) && !hero.hasTalent(Talent.LIGHT_READING)) {
-                GLog.i(Messages.get(Artifact.class, "need_to_equip")); 
-            }else if (cursed) {
-                GLog.i(Messages.get(this, "cursed")); 
-            }else {
+                GLog.i(Messages.get(Artifact.class, "need_to_equip"));
+            } else if (cursed) {
+                GLog.i(Messages.get(this, "cursed"));
+            } else {
 
                 GameScene.show(new WndClericSpells(this, hero, false));
 
@@ -202,7 +202,7 @@ public class HolyTome extends Artifact {
 
     @Override
     public Item upgrade() {
-        chargeCap +=1;
+        chargeCap += 1;
         return super.upgrade();
     }
 
@@ -297,8 +297,7 @@ public class HolyTome extends Artifact {
         public boolean act() {
             if (charge < chargeCap && !cursed && target.buff(MagicImmune.class) == null) {
                 if (Regeneration.regenOn()) {
-                    float missing = (chargeCap - charge);
-                    float turnsToCharge = (45 - missing);
+                    float turnsToCharge = (35 + charge);
                     turnsToCharge /= RingOfEnergy.artifactChargeMultiplier(target);
                     float chargeToGain = (1f / turnsToCharge);
                     if (!isEquipped(Dungeon.hero)) {

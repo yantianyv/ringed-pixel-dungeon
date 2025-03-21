@@ -243,9 +243,7 @@ public class CloakOfShadows extends Artifact {
         public boolean act() {
             if (charge < chargeCap && !cursed && target.buff(MagicImmune.class) == null) {
                 if (activeBuff == null && Regeneration.regenOn()) {
-                    float missing = (chargeCap - charge);
-                    // if (level() > 7) missing += 5*(level() - 7)/3f;
-                    float turnsToCharge = (45 - missing);
+                    float turnsToCharge = (35 + charge);
                     turnsToCharge /= RingOfEnergy.artifactChargeMultiplier(target);
                     float chargeToGain = (1f / turnsToCharge);
                     if (!isEquipped(Dungeon.hero)) {

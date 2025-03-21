@@ -242,6 +242,9 @@ public class AlchemistsToolkit extends Artifact {
                     warmUpDelay = 100f;
                 } else if (!cursed && target.buff(MagicImmune.class) == null) {
                     float turnsToWarmUp = (int) Math.pow(10 - level(), 2);
+                    if (level() > levelCap){
+                        turnsToWarmUp = 0;
+                    }
                     warmUpDelay -= 100 / turnsToWarmUp;
                 }
                 updateQuickslot();
