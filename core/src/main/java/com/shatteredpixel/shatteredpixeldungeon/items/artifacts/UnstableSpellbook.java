@@ -334,16 +334,18 @@ public class UnstableSpellbook extends Artifact {
         bundle.put(SCROLLS, scrolls.toArray(new Class[scrolls.size()]));
     }
 
-	@Override
-	public void restoreFromBundle( Bundle bundle ) {
-		super.restoreFromBundle(bundle);
-		scrolls.clear();
-		if (bundle.contains(SCROLLS) && bundle.getClassArray(SCROLLS) != null) {
-			for (Class<?> scroll : bundle.getClassArray(SCROLLS)) {
-				if (scroll != null) scrolls.add(scroll);
-			}
-		}
-	}
+    @Override
+    public void restoreFromBundle(Bundle bundle) {
+        super.restoreFromBundle(bundle);
+        scrolls.clear();
+        if (bundle.contains(SCROLLS) && bundle.getClassArray(SCROLLS) != null) {
+            for (Class<?> scroll : bundle.getClassArray(SCROLLS)) {
+                if (scroll != null) {
+                    scrolls.add(scroll);
+                }
+            }
+        }
+    }
 
     public class bookRecharge extends ArtifactBuff {
 
@@ -354,7 +356,8 @@ public class UnstableSpellbook extends Artifact {
                     && target.buff(MagicImmune.class) == null
                     && Regeneration.regenOn()) {
                 //120 turns to charge at full, 80 turns to charge at 0/8
-                float chargeGain = 1 / (120f - (chargeCap - charge) * 5f);
+                // float chargeGain = 1 / (120f - (chargeCap - charge) * 5f);
+                float chargeGain = (chargeCap - charge) / (chargeCap) * 0.1f;
                 chargeGain *= RingOfEnergy.artifactChargeMultiplier(target);
                 partialCharge += chargeGain;
 
