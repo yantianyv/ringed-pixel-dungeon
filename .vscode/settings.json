@@ -1,5 +1,6 @@
 {
     "Codegeex.CompletionDelay": 3,
     "Codegeex.CommitMessageStyle": "ConventionalCommits",
-    "codium.codeCompletion.enable": false
+    "codium.codeCompletion.enable": false,
+    "Codegeex.RepoIndex": true
 }

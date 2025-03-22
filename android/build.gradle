@@ -32,7 +32,8 @@ android {
         debug {
             // applicationIdSuffix ".debug"
             applicationIdSuffix ".indev"
-            versionNameSuffix '-debug'
+            // versionNameSuffix '-debug'
+            versionNameSuffix "-debug_${new Date().format('MMddHHmm')}"
             dependencies {
                 debugImplementation project(':services:updates:debugUpdates')
                 debugImplementation project(':services:news:debugNews')
