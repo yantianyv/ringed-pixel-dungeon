@@ -406,12 +406,16 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
                 if (invisible != null) {
                     invisible.killAndErase();
                 }
-                invisible = new AlphaTweener(this, 0.0f, 0.4f);
                 if (ch instanceof Hero) {
+                    invisible = new AlphaTweener(this, 0.2f, 0.4f);
+
                     alpha(0.2f);
                 } else if (parent != null) {
+                    invisible = new AlphaTweener(this, 0.0f, 0.1f);
                     parent.add(invisible);
                 } else {
+                    invisible = new AlphaTweener(this, 0.05f, 0.4f);
+
                     alpha(0.05f);
                 }
                 break;
