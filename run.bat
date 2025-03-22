@@ -1,5 +1,7 @@
-@echo off
-echo 
+﻿@echo off
+chcp 65001
+
+call ./gradlew --stop
 ./gradlew debug
-echo 
+call ./gradlew --stop
 

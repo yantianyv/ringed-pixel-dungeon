@@ -172,15 +172,19 @@ public class DwarfKing extends Mob {
 
             if (abilityCooldown <= 0) {
 
-                if (lastAbility == NONE) {
-                    //50/50 either ability
-                    lastAbility = Random.Int(2) == 0 ? LINK : TELE;
-                } else if (lastAbility == LINK) {
-                    //more likely to use tele
-                    lastAbility = Random.Int(8) == 0 ? LINK : TELE;
-                } else {
-                    //more likely to use link
-                    lastAbility = Random.Int(8) != 0 ? LINK : TELE;
+                switch (lastAbility) {
+                    case NONE:
+                        //50/50 either ability
+                        lastAbility = Random.Int(2) == 0 ? LINK : TELE;
+                        break;
+                    case LINK:
+                        //more likely to use tele
+                        lastAbility = Random.Int(8) == 0 ? LINK : TELE;
+                        break;
+                    default:
+                        //more likely to use link
+                        lastAbility = Random.Int(8) != 0 ? LINK : TELE;
+                        break;
                 }
 
                 if (lastAbility == LINK && lifeLinkSubject()) {
