@@ -730,10 +730,9 @@ public abstract class Mob extends Char {
     }
 
     public void beFound() {
-        int inv_ban = Dungeon.isChallenged(Challenges.INVISIBLE_WAR)?3:10;
+        int inv_ban = Dungeon.isChallenged(Challenges.INVISIBLE_WAR) ? 3 : 10;
         invisibility_cooldown = invisibility_cooldown > inv_ban ? invisibility_cooldown : inv_ban;
         if (buff(Invisibility.class) != null) {
-            GameScene.ripple(pos);
             invisibility(0);
             if (sprite != null) {
                 sprite.emitter().start(ShadowParticle.UP, 0.5f, 3);
@@ -876,7 +875,7 @@ public abstract class Mob extends Char {
     }
 
     public boolean surprisedBy(Char enemy, boolean attacking) {
-        return enemy == Dungeon.hero
+        return (enemy == Dungeon.hero || Random.Int(2) == 0)
                 && (enemy.invisible > 0 || !enemySeen || (fieldOfView != null && fieldOfView.length == Dungeon.level.length() && !fieldOfView[enemy.pos]))
                 && (!attacking || enemy.canSurpriseAttack());
     }
