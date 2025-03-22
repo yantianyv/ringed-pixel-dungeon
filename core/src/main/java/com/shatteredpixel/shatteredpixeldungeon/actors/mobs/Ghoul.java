@@ -166,6 +166,16 @@ public class Ghoul extends Mob {
     }
 
     @Override
+    public void damage(int dmg, Object src) {
+        if (num_of_escape >= 3) {
+            super.damage(dmg, src);
+        } else {
+            die(src);
+            sprite.flash();
+        }
+    }
+
+    @Override
     public boolean isAlive() {
         return super.isAlive() || beingLifeLinked;
     }
