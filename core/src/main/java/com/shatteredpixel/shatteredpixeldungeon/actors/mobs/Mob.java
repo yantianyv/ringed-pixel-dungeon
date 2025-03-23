@@ -738,7 +738,7 @@ public abstract class Mob extends Char {
 
             }
         }
-        if (sprite != null) {
+        if (sprite != null&&buff(Invisibility.class) != null) {
             sprite.emitter().start(ShadowParticle.UP, 0.5f, 3);
         }
     }

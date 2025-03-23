@@ -14,6 +14,9 @@ rem 检测是否需要编译debug版本
 if "!PASSWORD!"=="" (
     call ./gradlew assembleDebug
     explorer android\build\outputs\apk\debug
+    if !ERRORLEVEL! NEQ 0 (
+        pause
+    )
     exit /b
 )
 set /p EXTRACT_PASSWORD=请输入解压密码：
@@ -90,5 +93,8 @@ rem 清除环境变量
 set "PASSWORD="
 set "EXTRACT_PASSWORD="
 
+if !ERRORLEVEL! NEQ 0 (
+    pause
+)
 
 endlocal
