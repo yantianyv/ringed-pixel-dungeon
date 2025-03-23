@@ -735,6 +735,7 @@ public abstract class Mob extends Char {
             invisibility_cooldown = invisibility_cooldown > inv_ban ? invisibility_cooldown : inv_ban;
             if (buff(Invisibility.class) != null) {
                 invisibility(0);
+                sprite.emitter().start(ShadowParticle.UP, 0.5f, 3);
 
             }
         }
