@@ -730,13 +730,16 @@ public abstract class Mob extends Char {
     }
 
     public void beFound() {
-        int inv_ban = Dungeon.isChallenged(Challenges.INVISIBLE_WAR) ? 3 : 10;
-        invisibility_cooldown = invisibility_cooldown > inv_ban ? invisibility_cooldown : inv_ban;
-        if (buff(Invisibility.class) != null) {
-            invisibility(0);
-            if (sprite != null) {
-                sprite.emitter().start(ShadowParticle.UP, 0.5f, 3);
+        if (Random.Int(5) == 0) {
+            int inv_ban = Dungeon.isChallenged(Challenges.INVISIBLE_WAR) ? 3 : 10;
+            invisibility_cooldown = invisibility_cooldown > inv_ban ? invisibility_cooldown : inv_ban;
+            if (buff(Invisibility.class) != null) {
+                invisibility(0);
+
             }
+        }
+        if (sprite != null) {
+            sprite.emitter().start(ShadowParticle.UP, 0.5f, 3);
         }
     }
 
