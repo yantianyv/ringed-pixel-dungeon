@@ -1613,7 +1613,7 @@ public class GameScene extends PixelScene {
 
         } else if (Dungeon.level.heroFOV[cell]) {
             Mob mob = (Mob) Actor.findChar(cell);
-            if (mob != null) {
+            if (mob != null && mob.invisible == 0) {
                 objects.add(mob);
             }
         }

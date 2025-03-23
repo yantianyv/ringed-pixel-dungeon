@@ -43,7 +43,7 @@ public class Ghoul extends Mob {
     {
         spriteClass = GhoulSprite.class;
 
-        HP = HT = 45;
+        HP = HT = 50;
         defenseSkill = 20;
 
         EXP = 5;
@@ -158,7 +158,7 @@ public class Ghoul extends Mob {
             sprite.remove(CharSprite.State.SHIELDED);
         } else {
             HP = num_of_escape;
-            HT = 5;
+            HT = 10;
             num_of_escape -= 1;
             sprite.add(CharSprite.State.SHIELDED);
         }
@@ -169,6 +169,7 @@ public class Ghoul extends Mob {
     public void damage(int dmg, Object src) {
         if (num_of_escape >= 3) {
             super.damage(dmg, src);
+            HT = Math.min(HP + 2, HT);
         } else {
             die(src);
             sprite.flash();
@@ -205,12 +206,9 @@ public class Ghoul extends Mob {
 
     @Override
     protected void ringpd_extra(boolean enemyInFOV) {
-        // 自然回复
-        if (HP < HT || num_of_escape >= 3) {
-            HP += (HT - HP) / 50;
-            if (Random.Int(50) < (HT - HP) % 50) {
-                HP += 1;
-            }
+        // 移除逃跑与自然回复的特性
+        if (num_of_escape >= 3) {
+            HT = Math.min(HP + 2, HT);
         }
     }
 
