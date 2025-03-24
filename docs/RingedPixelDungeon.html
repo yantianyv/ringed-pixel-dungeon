@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&lt;center&gt;&#x6212;&#x6307;&#x5730;&#x7262;&#x66f4;&#x65b0;&#x65e5;&#x5fd7;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-dark">
+            <h1 id="戒指地牢更新日志"><center>戒指地牢更新日志</h1>
+<h2 id="v0011">v0.0.11</h2>
+<p>由于开发者急着赶毕业设计初稿，截至月底将不再提供稳定性更新以外的更新内容。</p>
+<h3 id="新内容">新内容</h3>
+<ul>
+<li>戒指重做：<br>
+考虑到地牢难度偏大，且部分戒指显然偏弱或有bug，因此重做了部分较为弱势的戒指。
+<ul>
+<li>重做了<strong>纳西妲之戒</strong>，现在它可以提供经验了，另外关于纳西妲之戒触发概率大幅下降的bug也得到了修复</li>
+<li>重做了<strong>山里灵活之戒</strong>，现在它不再提供精准/闪避加成，而是令佩戴者有概率直接闪避/命中。</li>
+<li>重做了<strong>江东铁壁之戒</strong>，大幅增加数值，但是现在元素抗性和减伤都受血量影响。血量较高时以元素抗性为主，血量较低时以减伤为主。每一级戒指还会提供1%保底效果。例如假设戒指buff等级为10（例如单个9级戒指或者两个8级戒指）则当血量高于90%时依然可以视为90%血量提供的减伤、血量低于10%时依然视为10%血量时提供的元素抗性。</li>
+<li>重做了<strong>闪击地牢之戒</strong>，现在它改名为<strong>时光行者之戒</strong>了，这枚戒指现在可以提供几乎所有操作的加速。</li>
+<li>加强了百步穿杨之戒提供的耐久度和附魔触发几率数值</li>
+<li>加强了财富之戒，方便大家刷刷刷
+<ul>
+<li>在标准模式下，等级最高的财富之戒拥有完整效果，等级最低的财富之戒提供最多2级、次低的提供最多3级，以此类推</li>
+<li>在开启“经验地牢？”挑战后，计算方式改变，等级最高的财富之戒拥有完整效果，其余戒指取buff等级之和后发挥2/3效果（向上取整），也就是说可以左脚踩右脚上天了。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>食人鱼优化
+<ul>
+<li>现在英雄喝下隐身药水后食人鱼也会隐身，但会在自身及周围九格随机产生水波作为提示</li>
+<li>英雄处于飞行状态时，无法与食人鱼产生任何交互（即无法攻击也无法被攻击）
+<ul>
+<li>ps:目前存在同时喝下漂浮药水和灵视药水后进入食人鱼所在楼层闪退的bug</li>
+</ul>
+</li>
+<li>食人鱼上岸后不会立即死亡，而是原地流血直到死亡</li>
+<li>TODO：后续会补充食人鱼上岸后的AI</li>
+</ul>
+</li>
+<li>大量文案更新</li>
+<li>现在开启挑战前会有难度过高警告</li>
+</ul>
+<h3 id="平衡调整">平衡调整</h3>
+<ul>
+<li>降低了地牢怪物的生命值，尤其是后期</li>
+<li>削弱了苍蝇，现在苍蝇分裂时不光消耗生命值，还会消耗生命上限</li>
+<li>加强了英雄的初始戒指等级</li>
+<li>经验地牢突破掉落等级限制，现在可以爽刷了</li>
+</ul>
+<h3 id="bug修复">bug修复</h3>
+<ul>
+<li>修复了与怪物逃跑有关的大量bug</li>
+<li>修复了经验地牢挑战不生效的bug</li>
+<li>修复了圣杯不触发天赋的bug</li>
+<li>修复了奇怪的史莱姆在高层不掉落的bug</li>
+<li>修复了隐匿战争的显示bug</li>
+</ul>
+<h2 id="v0010">v0.0.10</h2>
+<h3 id="新内容-1">新内容</h3>
+<ul>
+<li>添加了一个稀有怪，掉落一个当前版本没啥用的彩蛋物品</li>
+<li>图标小更新</li>
+<li>开发者模式新增开发者卷轴，可以直接上楼（这为我测试商店背包生成提供了许多便利）</li>
+</ul>
+<h3 id="平衡调整-1">平衡调整</h3>
+<ul>
+<li>现在Boss层的怪物不再会受到生命上限加成了</li>
+<li>修改了自然回复机制，避免怪物回血太快</li>
+</ul>
+<h3 id="bug修复-1">bug修复</h3>
+<ul>
+<li>修复了困扰大家3个版本的小偷卡档难题</li>
+<li>修复了商店生成背包异常的问题</li>
+</ul>
+<h2 id="v009">v0.0.9</h2>
+<h3 id="新内容-2">新内容</h3>
+<ul>
+<li>蓄血圣杯大优化
+<ul>
+<li>现在蓄血圣杯拥有主动技能，使用后消耗全部能量立即回复一定数量的生命值</li>
+<li>蓄血圣杯的被动效果受当前充能影响，在充能达到100%时产生和原版一样的被动回复效果。超出10级的圣杯回复效果与10级相同，但是受充能效果的影响更小。</li>
+<li>自然回复的时候会为圣杯充能</li>
+<li>血祭现在可以为圣杯充能了。圣杯满级的时候可以继续血祭，数值为当前生命的一半。满级的圣杯发动血祭有冷却时间。</li>
+</ul>
+</li>
+<li>文案更新
+<ul>
+<li>现在超出10级的神器会有名称上的变化</li>
+</ul>
+</li>
+</ul>
+<h3 id="平衡调整-2">平衡调整</h3>
+<ul>
+<li>降低隐匿战争的难度，详见bug修复</li>
+<li>现在boss不再拥有血量加成的buff，后续拟添加别的效果</li>
+</ul>
+<h3 id="bug修复-2">bug修复</h3>
+<ul>
+<li>修复了圣杯超过10级造成血量无法恢复的bug</li>
+<li>修复了炼金工具箱达到10级无法使用的bug</li>
+<li>修复了自然之履超过10级没名字的bug</li>
+<li>修复了睡眠的怪物没有图标的bug，考虑到降低隐匿战争的难度，不再尝试对隐形怪隐藏睡眠标识。</li>
+</ul>
+<h2 id="v008">v0.0.8</h2>
+<h3 id="新内容-3">新内容</h3>
+<ul>
+<li>神器界限突破，现在满级神器可以继续升级 <code>防止你升级卷轴太多不知道怎么用</code>
+<ul>
+<li>现在满级工具箱无需装备即可打开，但想充能还得装备才行。</li>
+<li>圣杯在饥饿的时候也会有10%的作用。</li>
+<li>斗篷和神圣法典现在升级更快了，去除了充能上限的限制，但原版在+7之后产生的充能加速效果取消了。</li>
+<li>其余神器也有小幅度调整以避免造成数学错误。</li>
+</ul>
+</li>
+<li>隐形逃跑机制大优化
+<ul>
+<li>修改底层寻路算法，减少隐形怪挡路降低手感的情况。</li>
+<li>修改逃跑机制，现在怪物只能逃跑一次，且不会再发出警报了。</li>
+<li>部分怪物添加常驻隐形，部分怪物禁用逃跑。</li>
+<li>优化隐形相关贴图。</li>
+<li>搜索类动作和灵视类动作可以破除怪物的隐身</li>
+</ul>
+</li>
+<li>新挑战
+<ul>
+<li>隐匿战争：所有怪物常驻隐形</li>
+<li>经验地牢？：获取经验时有概率获得升级卷轴，等级无上限，怪物始终提供经验，一起愉快地刷刷刷吧。</li>
+</ul>
+</li>
+<li>开发者模式
+<ul>
+<li>现在使用种子“114514”可以进入开发者模式，享受开局即毕业的快感。（但其实是留给我方便debug用的）</li>
+</ul>
+</li>
+</ul>
+<h3 id="平衡性调整">平衡性调整</h3>
+<ul>
+<li>现在随着地牢的深入，相对于原版，怪物的最大生命会逐渐增加，每多上一层就增加基础生命的10%。</li>
+<li>尝试优化了商店背包的生成机制，但不确定有没有用，如果有问题再改。</li>
+</ul>
+<h3 id="bug修复-3">bug修复</h3>
+<ul>
+<li>修复了隐身机制产生的大量bug，但可能还有些没修复。</li>
+<li>优化了隐身机制的体验，详见新内容部分。</li>
+</ul>
+<h2 id="v007">v0.0.7</h2>
+<h3 id="新内容-4">新内容</h3>
+<ul>
+<li>界面优化，现在首页的名字改为RingedPixelDungeon了</li>
+<li>添加了一些文案彩蛋</li>
+<li>修改了升级卷轴的文案，告知用户无法用于某些戒指的原因。</li>
+<li>添加了怪物的逃跑逻辑</li>
+<li>为原版的隐身buff添加新的作用，现在这个buff可以应用于怪物身上
+<ul>
+<li>隐身的怪物不会显示图标与血条。</li>
+<li>隐身的怪物无法被自动选中。</li>
+<li>怪物数量显示器对隐身的怪物特殊处理。</li>
+<li>删去原版怪物隐身时无法锁定玩家的设定。</li>
+<li>优化路径规划器，现在自动寻路不会绕开视野内隐身的怪物。</li>
+</ul>
+</li>
+</ul>
+<h3 id="平衡调整-3">平衡调整</h3>
+<ul>
+<li>现在英雄有自己的初始戒指了</li>
+<li>怪物残血的时候会逃跑</li>
+</ul>
+<h3 id="bug修复-4">bug修复</h3>
+<ul>
+<li>修复了女猎无法踩草的恶性bug</li>
+</ul>
+<h2 id="v006">v0.0.6</h2>
+<h3 id="新内容-5">新内容</h3>
+<ul>
+<li>新戒指：纳西妲之戒
+<ul>
+<li>踩踏高草会有额外奖励与鉴定效果。</li>
+<li>诅咒的纳西妲之戒会让你在高草中发现毒蛇。</li>
+</ul>
+</li>
+<li>补充了诅咒的拼好饭之戒的负面效果</li>
+<li>新怪物：毒蛇
+<ul>
+<li>拥有普通蛇4倍的闪避与15点生命（纳西妲之戒生成的毒蛇生命与楼层挂钩），攻击时还有概率造成中毒。</li>
+</ul>
+</li>
+</ul>
+<h3 id="平衡调整-4">平衡调整</h3>
+<ul>
+<li>削弱了拼好饭之戒的触发概率</li>
+</ul>
+<h3 id="bug修复-5">bug修复</h3>
+<ul>
+<li>无</li>
+</ul>
+<h2 id="v005">v0.0.5</h2>
+<h3 id="新内容-6">新内容</h3>
+<ul>
+<li>新增了拼好饭之戒
+<ul>
+<li>每回合有概率触发进食相关天赋并回复少量饥饿值</li>
+<li>诅咒效果暂未实装</li>
+</ul>
+</li>
+<li>新增戒指材质</li>
+</ul>
+<h3 id="平衡调整-5">平衡调整</h3>
+<ul>
+<li>无</li>
+</ul>
+<h3 id="bug修复-6">bug修复</h3>
+<ul>
+<li>修复了通过装备替换已装备物品时偶尔会丢失物品或占用额外背包空间的bug。</li>
+<li>彻底移除旧戒指，并在破碎地牢更新日志中使用一个新的贴图占位</li>
+</ul>
+<h2 id="v004">v0.0.4</h2>
+<h3 id="新增内容">新增内容</h3>
+<ul>
+<li>进化水晶之戒
+<ul>
+<li>继承能量之戒的效果</li>
+<li>英雄每次升级提供回血、充能、神器充能的buff</li>
+</ul>
+</li>
+<li>全新图标
+<ul>
+<li>现在每个戒指都有自己的新图标了</li>
+<li>钥匙环有了自己的图标和文案</li>
+</ul>
+</li>
+</ul>
+<h3 id="平衡性调整-1">平衡性调整</h3>
+<ul>
+<li>现在武器生成机制更接近原版，再也没有讨厌的-2了（大概）</li>
+<li>第一层现在必定有一个戒指和一个嬗变卷轴，但后续每层的奖励除了从戒指和嬗变卷轴选择外还多了一个随机卷轴+药水的选择，也就是说戒指和嬗变卷轴的爆率降低了。</li>
+</ul>
+<h3 id="bug修复-7">bug修复</h3>
+<ul>
+<li>修复了利用升级卷轴窗口连续给戒指升级可以突破“不能用升级卷轴升级戒指”限制的bug</li>
+</ul>
+<h2 id="v003">v0.0.3</h2>
+<h3 id="新增内容-1">新增内容</h3>
+<ul>
+<li>闪击地牢之戒（极速之戒+狂怒之戒）</li>
+<li>百步穿杨之戒（神射之戒+奥术之戒）</li>
+</ul>
+<h2 id="bug修复-8">#bug修复</h2>
+<ul>
+<li>修复了商店异常出售大量法杖袋的问题</li>
+<li>修复了拥有多个升级卷轴时可以通过升级窗口给被诅咒的戒指升级的bug</li>
+</ul>
+<h3 id="平衡性调整-2">平衡性调整</h3>
+<ul>
+<li>优化了野生戒指受诅咒的概率，例如：
+<ul>
+<li>+1戒指有33%几率被诅咒</li>
+<li>+3戒指有50%几率诅咒</li>
+<li>+5戒指有60%几率诅咒</li>
+<li>+8戒指有64%几率诅咒</li>
+</ul>
+</li>
+<li>优化了野生戒指生成的概率分布，例如：
+<ul>
+<li>不低于+1的概率为80%</li>
+<li>不低于+3的概率为30%</li>
+<li>不低于+5的概率为6%</li>
+<li>不低于+8的概率为0.33%</li>
+</ul>
+</li>
+<li>优化了武器生成的机制，现在生成的武器会更加疯狂，而非之前一成不变的-2</li>
+</ul>
+<h2 id="v002">v0.0.2</h2>
+<ul>
+<li>背包容量翻倍</li>
+<li>允许装备6个戒指（加上戒指/神器通用槽，总共可以装备7个）</li>
+<li>突破野生戒指等级上限</li>
+<li>升级卷轴不再升级戒指，而是祛除戒指的诅咒并给予补偿掉落</li>
+<li>武器质量和数量下降</li>
+<li>新戒指（合并原版戒指）
+<ul>
+<li>山里灵活之戒（精准之戒+闪避之戒）</li>
+<li>江东铁壁之戒（韧性之戒+元素之戒，还提供少量优先于蓄意轰拳之戒的生命上限加成）</li>
+<li>蓄意轰拳之戒（武力之戒+根骨之戒）</li>
+</ul>
+</li>
+<li>新背包：戒指包（但由于一些bug，之前的版本买不到）</li>
+</ul>
+<title> RingedPixelDungeon </title>
+
+            
+            
+        </body>
+        </html>
