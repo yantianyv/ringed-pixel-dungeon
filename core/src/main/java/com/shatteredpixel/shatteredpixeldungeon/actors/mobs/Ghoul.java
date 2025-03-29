@@ -153,7 +153,9 @@ public class Ghoul extends Mob {
     public void die(Object cause) {
         beFound();
         invisibility_cooldown = 200;
-        if (num_of_escape <= 0) {
+        if (Dungeon.level.pit[pos]) {
+            super.die(cause);
+        } else if (num_of_escape <= 0) {
             super.die(cause);
             sprite.remove(CharSprite.State.SHIELDED);
         } else {
