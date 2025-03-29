@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -27,25 +26,27 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Bestiary;
 
 public abstract class NPC extends Mob {
 
-	{
-		HP = HT = 1;
-		EXP = 0;
+    {
+        HP = HT = 1;
+        EXP = 0;
 
-		alignment = Alignment.NEUTRAL;
-		state = PASSIVE;
-	}
+        alignment = Alignment.NEUTRAL;
+        state = PASSIVE;
 
-	@Override
-	protected boolean act() {
-		if (Dungeon.level.heroFOV[pos]){
-			Bestiary.setSeen(getClass());
-		}
+        // num_of_escape = 0;
+    }
 
-		return super.act();
-	}
+    @Override
+    protected boolean act() {
+        if (Dungeon.level.heroFOV[pos]) {
+            Bestiary.setSeen(getClass());
+        }
 
-	@Override
-	public void beckon( int cell ) {
-	}
-	
+        return super.act();
+    }
+
+    @Override
+    public void beckon(int cell) {
+    }
+
 }
