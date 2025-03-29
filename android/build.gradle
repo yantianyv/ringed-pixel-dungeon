@@ -31,7 +31,7 @@ android {
     buildTypes {
         debug {
             // applicationIdSuffix ".debug"
-            applicationIdSuffix ".indev"
+            applicationIdSuffix ".debug"
             // versionNameSuffix '-debug'
             versionNameSuffix "-debug_${new Date().format('MMddHHmm')}"
             dependencies {
