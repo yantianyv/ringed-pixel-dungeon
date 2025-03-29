@@ -144,12 +144,11 @@ public class HighGrass {
                         if (hero.buff(RingOfNahida.Nahida.class) != null) {	// 触发纳西妲之戒
                             if (Random.Float() < RingOfNahida.grassBonusChance(hero)) {
                                 // 触发掉落
-                                Item i = new Gold().random();
+                                Item i;
                                 switch (Random.Int(4)) {
                                     case 0:
                                     default:
-                                        i.quantity(i.quantity() / 2);
-                                        Dungeon.level.drop(i, pos);
+                                        i = new Gold(Dungeon.depth * 2);
                                         break;
                                     case 1:
                                         i = Generator.randomUsingDefaults(Generator.Category.STONE);
