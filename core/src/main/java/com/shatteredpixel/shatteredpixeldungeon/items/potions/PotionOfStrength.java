@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.items.potions;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
@@ -31,34 +30,35 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
 public class PotionOfStrength extends Potion {
 
-	{
-		icon = ItemSpriteSheet.Icons.POTION_STRENGTH;
+    {
+        icon = ItemSpriteSheet.Icons.POTION_STRENGTH;
 
-		unique = true;
+        unique = true;
 
-		talentFactor = 2f;
-	}
-	
-	@Override
-	public void apply( Hero hero ) {
-		identify();
+        talentFactor = 2f;
+    }
 
-		hero.STR++;
-		hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, "1", FloatingText.STRENGTH);
+    @Override
+    public void apply(Hero hero) {
+        identify();
 
-		GLog.p( Messages.get(this, "msg", hero.STR()) );
-		
-		Badges.validateStrengthAttained();
-		Badges.validateDuelistUnlock();
-	}
+        hero.STR++;
+        hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, "1", FloatingText.STRENGTH);
 
-	@Override
-	public int value() {
-		return isKnown() ? 50 * quantity : super.value();
-	}
+        GLog.p(Messages.get(this, "msg", hero.STR()));
 
-	@Override
-	public int energyVal() {
-		return isKnown() ? 10 * quantity : super.energyVal();
-	}
+        hero.updateHT(true);
+        Badges.validateStrengthAttained();
+        Badges.validateDuelistUnlock();
+    }
+
+    @Override
+    public int value() {
+        return isKnown() ? 50 * quantity : super.value();
+    }
+
+    @Override
+    public int energyVal() {
+        return isKnown() ? 10 * quantity : super.energyVal();
+    }
 }

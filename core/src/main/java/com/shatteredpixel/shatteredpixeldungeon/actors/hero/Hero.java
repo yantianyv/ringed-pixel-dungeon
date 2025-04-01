@@ -187,6 +187,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 
 public class Hero extends Char {
 
@@ -251,13 +252,9 @@ public class Hero extends Char {
     }
 
     public void updateHT(boolean boostHP) {
-        if (Dungeon.is_developer_mode()) {
-            HT = 951629632;
-            return;
-        }
         int curHT = HT;
 
-        HT = STR*2 + 5 * (lvl - 1) + HTBoost;
+        HT = STR * STR / 5 + 5 * (lvl - 1) + HTBoost;
         float addition = RingOfDefender.HTAddition(this);
         HT = Math.round(HT + addition);
         float multiplier = RingOfKungfu.HTMultiplier(this);
@@ -272,7 +269,9 @@ public class Hero extends Char {
         }
         HT = HT > 10 ? HT : 10;
         HP = Math.min(HP, HT);
-
+        if (Dungeon.is_developer_mode()) {
+            HP = 951629632;
+        }
     }
 
     public int STR() {
@@ -1608,45 +1607,48 @@ public class Hero extends Char {
             interrupt();
         }
 
-		if (this.buff(Drowsy.class) != null){
-			Buff.detach(this, Drowsy.class);
-			GLog.w( Messages.get(this, "pain_resist") );
-		}
+        if (this.buff(Drowsy.class) != null) {
+            Buff.detach(this, Drowsy.class);
+            GLog.w(Messages.get(this, "pain_resist"));
+        }
 
-		//temporarily assign to a float to avoid rounding a bunch
-		float damage = dmg;
+        //temporarily assign to a float to avoid rounding a bunch
+        float damage = dmg;
 
-		Endure.EndureTracker endure = buff(Endure.EndureTracker.class);
-		if (!(src instanceof Char)){
-			//reduce damage here if it isn't coming from a character (if it is we already reduced it)
-			if (endure != null){
-				damage = endure.adjustDamageTaken(dmg);
-			}
-			//the same also applies to challenge scroll damage reduction
-			if (buff(ScrollOfChallenge.ChallengeArena.class) != null){
-				damage *= 0.67f;
-			}
-			//and to monk meditate damage reduction
-			if (buff(MonkEnergy.MonkAbility.Meditate.MeditateResistance.class) != null){
-				damage *= 0.2f;
-			}
-		}
+        Endure.EndureTracker endure = buff(Endure.EndureTracker.class);
+        if (!(src instanceof Char)) {
+            //reduce damage here if it isn't coming from a character (if it is we already reduced it)
+            if (endure != null) {
+                damage = endure.adjustDamageTaken(dmg);
+            }
+            //the same also applies to challenge scroll damage reduction
+            if (buff(ScrollOfChallenge.ChallengeArena.class) != null) {
+                damage *= 0.67f;
+            }
+            //and to monk meditate damage reduction
+            if (buff(MonkEnergy.MonkAbility.Meditate.MeditateResistance.class) != null) {
+                damage *= 0.2f;
+            }
+        }
 
-		//unused, could be removed
-		CapeOfThorns.Thorns thorns = buff( CapeOfThorns.Thorns.class );
-		if (thorns != null) {
-			damage = thorns.proc((int)damage, (src instanceof Char ? (Char)src : null),  this);
-		}
+        //unused, could be removed
+        CapeOfThorns.Thorns thorns = buff(CapeOfThorns.Thorns.class);
+        if (thorns != null) {
+            damage = thorns.proc((int) damage, (src instanceof Char ? (Char) src : null), this);
+        }
 
-		if (buff(Talent.WarriorFoodImmunity.class) != null){
-			if (pointsInTalent(Talent.IRON_STOMACH) == 1)       damage /= 4f;
-			else if (pointsInTalent(Talent.IRON_STOMACH) == 2)  damage = 0;
-		}
+        if (buff(Talent.WarriorFoodImmunity.class) != null) {
+            if (pointsInTalent(Talent.IRON_STOMACH) == 1) {
+                damage /= 4f;
+            } else if (pointsInTalent(Talent.IRON_STOMACH) == 2) {
+                damage = 0;
+            }
+        }
 
-		dmg = Math.round(damage);
+        dmg = Math.round(damage);
 
-		//we ceil this one to avoid letting the player easily take 0 dmg from tenacity early
-		dmg = (int)Math.ceil(dmg * RingOfDefender.damageMultiplier( this ));
+        //we ceil this one to avoid letting the player easily take 0 dmg from tenacity early
+        dmg = (int) Math.ceil(dmg * RingOfDefender.damageMultiplier(this));
 
         int preHP = HP + shielding();
         if (src instanceof Hunger) {
