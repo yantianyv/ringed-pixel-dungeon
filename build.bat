@@ -75,7 +75,8 @@ if not exist "android\key\key.jks" (
 
 set KEYSTORE_PATH=key\key.jks
 echo [INFO] 开始编译...
-call gradlew assembleRelease
+@REM call gradlew assembleRelease
+call gradlew build
 if !ERRORLEVEL! NEQ 0 (
     echo [ERROR] 编译失败，请重新运行脚本并输入正确密码！
     call ./gradlew --stop
