@@ -43,8 +43,9 @@ public enum Holiday {
     // 寒假				12.15-12.26
     WINTER_HOLIDAYS,
     // 元旦				12.27-1.2
-    NEW_YEARS;
-
+    NEW_YEARS,
+    // 疯狂星期四
+    CRAZY_4;
     //total of 61-62 festive days each year, mainly concentrated in Late Oct to Early Feb
     //we cache the holiday here so that holiday logic doesn't suddenly shut off mid-game
     //this gets cleared on game launch (of course), and whenever leaving a game scene
@@ -119,6 +120,11 @@ public enum Holiday {
         if ((cal.get(Calendar.MONTH) == Calendar.DECEMBER && cal.get(Calendar.DAY_OF_MONTH) >= 27)
                 || (cal.get(Calendar.MONTH) == Calendar.JANUARY && cal.get(Calendar.DAY_OF_MONTH) <= 2)) {
             return NEW_YEARS;
+        }
+
+        //疯狂星期四
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY) {
+            return CRAZY_4;
         }
 
         return NONE;

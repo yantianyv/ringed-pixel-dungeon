@@ -22,12 +22,15 @@ package com.shatteredpixel.shatteredpixeldungeon.items.food;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import static com.shatteredpixel.shatteredpixeldungeon.Dungeon.level;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArtifactRecharge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
+import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -80,6 +83,9 @@ public class Pasty extends Food {
                 break;
             case NEW_YEARS:
                 image = ItemSpriteSheet.SPARKLING_POTION;
+                break;
+            case CRAZY_4:
+                image = ItemSpriteSheet.CRAZY_BURGER;
                 break;
         }
     }
@@ -143,6 +149,10 @@ public class Pasty extends Food {
                 Buff.affect(hero, Barrier.class).setShield(toShield);
                 hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(toShield), FloatingText.SHIELDING);
                 break;
+            case CRAZY_4:
+                // 掉落50金币
+                Item gold = new Gold(50);
+                Dungeon.level.drop(gold, Dungeon.hero.pos);
         }
     }
 
@@ -170,6 +180,8 @@ public class Pasty extends Food {
                 return Messages.get(this, "cane_name");
             case NEW_YEARS:
                 return Messages.get(this, "sparkling_name");
+            case CRAZY_4:
+                return Messages.get(this, "burger_name");
         }
     }
 
@@ -197,6 +209,8 @@ public class Pasty extends Food {
                 return Messages.get(this, "cane_desc");
             case NEW_YEARS:
                 return Messages.get(this, "sparkling_desc");
+            case CRAZY_4:
+                return Messages.get(this, "burger_desc");
         }
     }
 
