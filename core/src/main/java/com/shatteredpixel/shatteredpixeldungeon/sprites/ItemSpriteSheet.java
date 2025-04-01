@@ -787,7 +787,7 @@ public class ItemSpriteSheet {
     public static final int FISH_LEFTOVER = HOLIDAY_FOOD + 1;
     public static final int CHOC_AMULET = HOLIDAY_FOOD + 2;
     public static final int EASTER_EGG = HOLIDAY_FOOD + 3;
-    public static final int RAINBOW_POTION = HOLIDAY_FOOD + 4;
+    public static final int RINGED_CAKE = HOLIDAY_FOOD + 4;
     public static final int SHATTERED_CAKE = HOLIDAY_FOOD + 5;
     public static final int PUMPKIN_PIE = HOLIDAY_FOOD + 6;
     public static final int VANILLA_CAKE = HOLIDAY_FOOD + 7;
@@ -799,7 +799,7 @@ public class ItemSpriteSheet {
         assignItemRect(FISH_LEFTOVER, 16, 12);
         assignItemRect(CHOC_AMULET, 16, 16);
         assignItemRect(EASTER_EGG, 12, 14);
-        assignItemRect(RAINBOW_POTION, 12, 14);
+        assignItemRect(RINGED_CAKE, 12, 14);
         assignItemRect(SHATTERED_CAKE, 14, 13);
         assignItemRect(PUMPKIN_PIE, 16, 12);
         assignItemRect(VANILLA_CAKE, 14, 13);
