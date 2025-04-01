@@ -433,8 +433,8 @@ public enum Talent {
 
         public void tintIcon(Image icon) {
             if (hasSecondUse()) {
-                icon.hardlight(0.85f, 0f, 1.0f); 
-            }else {
+                icon.hardlight(0.85f, 0f, 1.0f);
+            } else {
                 icon.hardlight(0.35f, 0f, 0.7f);
             }
         }
@@ -810,14 +810,15 @@ public enum Talent {
     };
 
     public static void onFoodEaten(Hero hero, float foodVal, Item foodSource) {
+        // 丰盛一餐
         if (hero.hasTalent(HEARTY_MEAL)) {
-            //3/5 HP healed, when hero is below 30% health
-            if (hero.HP / (float) hero.HT <= 0.3f) {
-                int healing = 1 + 2 * hero.pointsInTalent(HEARTY_MEAL);
-                hero.HP = Math.min(hero.HP + healing, hero.HT);
-                hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healing), FloatingText.HEALING);
-
+            // int healing = 1 + 2 * hero.pointsInTalent(HEARTY_MEAL);
+            int healing = (hero.HT - hero.HP) * hero.pointsInTalent(HEARTY_MEAL) / 50;
+            if (healing < hero.pointsInTalent(HEARTY_MEAL)) {
+                healing = hero.pointsInTalent(HEARTY_MEAL);
             }
+            hero.HP = Math.min(hero.HP + healing, hero.HT);
+            hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healing), FloatingText.HEALING);
         }
         if (hero.hasTalent(IRON_STOMACH)) {
             if (hero.cooldown() > 0) {
@@ -1040,22 +1041,22 @@ public enum Talent {
             Buff.prolong(Dungeon.hero, DivineSense.DivineSenseTracker.class, Dungeon.hero.cooldown() + 1);
         }
 
-		// 10/20/30%
-		if (Dungeon.hero.heroClass != HeroClass.CLERIC
-				&& Dungeon.hero.hasTalent(Talent.CLEANSE)
-				&& Random.Int(10) < Dungeon.hero.pointsInTalent(Talent.CLEANSE)){
-			boolean removed = false;
-			for (Buff b : Dungeon.hero.buffs()) {
-				if (b.type == Buff.buffType.NEGATIVE) {
-					b.detach();
-					removed = true;
-				}
-			}
-			if (removed && Dungeon.hero.sprite != null) {
-				new Flare( 6, 32 ).color(0xFF4CD2, true).show( Dungeon.hero.sprite, 2f );
-			}
-		}
-	}
+        // 10/20/30%
+        if (Dungeon.hero.heroClass != HeroClass.CLERIC
+                && Dungeon.hero.hasTalent(Talent.CLEANSE)
+                && Random.Int(10) < Dungeon.hero.pointsInTalent(Talent.CLEANSE)) {
+            boolean removed = false;
+            for (Buff b : Dungeon.hero.buffs()) {
+                if (b.type == Buff.buffType.NEGATIVE) {
+                    b.detach();
+                    removed = true;
+                }
+            }
+            if (removed && Dungeon.hero.sprite != null) {
+                new Flare(6, 32).color(0xFF4CD2, true).show(Dungeon.hero.sprite, 2f);
+            }
+        }
+    }
 
     public static void onItemEquipped(Hero hero, Item item) {
         boolean identify = false;
@@ -1438,18 +1439,20 @@ public enum Talent {
         bundle.put("replacements", replacementsBundle);
     }
 
-	private static final HashSet<String> removedTalents = new HashSet<>();
-	static{
-		//v2.4.0
-		removedTalents.add("TEST_SUBJECT");
-		removedTalents.add("TESTED_HYPOTHESIS");
-	}
+    private static final HashSet<String> removedTalents = new HashSet<>();
 
-	private static final HashMap<String, String> renamedTalents = new HashMap<>();
-	static{
-		//v2.4.0
-		renamedTalents.put("SECONDARY_CHARGE",          "VARIED_CHARGE");
-	}
+    static {
+        //v2.4.0
+        removedTalents.add("TEST_SUBJECT");
+        removedTalents.add("TESTED_HYPOTHESIS");
+    }
+
+    private static final HashMap<String, String> renamedTalents = new HashMap<>();
+
+    static {
+        //v2.4.0
+        renamedTalents.put("SECONDARY_CHARGE", "VARIED_CHARGE");
+    }
 
     public static void restoreTalentsFromBundle(Bundle bundle, Hero hero) {
         if (bundle.contains("replacements")) {
