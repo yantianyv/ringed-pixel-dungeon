@@ -1608,41 +1608,45 @@ public class Hero extends Char {
             interrupt();
         }
 
-        if (this.buff(Drowsy.class) != null) {
-            Buff.detach(this, Drowsy.class);
-            GLog.w(Messages.get(this, "pain_resist"));
-        }
+		if (this.buff(Drowsy.class) != null){
+			Buff.detach(this, Drowsy.class);
+			GLog.w( Messages.get(this, "pain_resist") );
+		}
 
-        Endure.EndureTracker endure = buff(Endure.EndureTracker.class);
-        if (!(src instanceof Char)) {
-            //reduce damage here if it isn't coming from a character (if it is we already reduced it)
-            if (endure != null) {
-                dmg = Math.round(endure.adjustDamageTaken(dmg));
-            }
-            //the same also applies to challenge scroll damage reduction
-            if (buff(ScrollOfChallenge.ChallengeArena.class) != null) {
-                dmg *= 0.67f;
-            }
-            //and to monk meditate damage reduction
-            if (buff(MonkEnergy.MonkAbility.Meditate.MeditateResistance.class) != null) {
-                dmg *= 0.2f;
-            }
-        }
+		//temporarily assign to a float to avoid rounding a bunch
+		float damage = dmg;
 
-        CapeOfThorns.Thorns thorns = buff(CapeOfThorns.Thorns.class);
-        if (thorns != null) {
-            dmg = thorns.proc(dmg, (src instanceof Char ? (Char) src : null), this);
-        }
+		Endure.EndureTracker endure = buff(Endure.EndureTracker.class);
+		if (!(src instanceof Char)){
+			//reduce damage here if it isn't coming from a character (if it is we already reduced it)
+			if (endure != null){
+				damage = endure.adjustDamageTaken(dmg);
+			}
+			//the same also applies to challenge scroll damage reduction
+			if (buff(ScrollOfChallenge.ChallengeArena.class) != null){
+				damage *= 0.67f;
+			}
+			//and to monk meditate damage reduction
+			if (buff(MonkEnergy.MonkAbility.Meditate.MeditateResistance.class) != null){
+				damage *= 0.2f;
+			}
+		}
 
-        dmg = (int) Math.ceil(dmg * RingOfDefender.damageMultiplier(this));
+		//unused, could be removed
+		CapeOfThorns.Thorns thorns = buff( CapeOfThorns.Thorns.class );
+		if (thorns != null) {
+			damage = thorns.proc((int)damage, (src instanceof Char ? (Char)src : null),  this);
+		}
 
-        if (buff(Talent.WarriorFoodImmunity.class) != null) {
-            if (pointsInTalent(Talent.IRON_STOMACH) == 1) {
-                dmg = Math.round(dmg * 0.25f);
-            } else if (pointsInTalent(Talent.IRON_STOMACH) == 2) {
-                dmg = Math.round(dmg * 0.00f);
-            }
-        }
+		if (buff(Talent.WarriorFoodImmunity.class) != null){
+			if (pointsInTalent(Talent.IRON_STOMACH) == 1)       damage /= 4f;
+			else if (pointsInTalent(Talent.IRON_STOMACH) == 2)  damage = 0;
+		}
+
+		dmg = Math.round(damage);
+
+		//we ceil this one to avoid letting the player easily take 0 dmg from tenacity early
+		dmg = (int)Math.ceil(dmg * RingOfDefender.damageMultiplier( this ));
 
         int preHP = HP + shielding();
         if (src instanceof Hunger) {
