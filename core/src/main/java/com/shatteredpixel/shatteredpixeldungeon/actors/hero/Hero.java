@@ -184,6 +184,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
@@ -1576,6 +1577,11 @@ public class Hero extends Char {
         WandOfLivingEarth.RockArmor rockArmor = buff(WandOfLivingEarth.RockArmor.class);
         if (rockArmor != null) {
             damage = rockArmor.absorb(damage);
+        }
+
+        // 战士的反伤
+        if (Dungeon.hero.pointsInTalent(Talent.IRON_WILL) > 0) {
+            Buff.affect(enemy, Bleeding.class).extend(Dungeon.hero.pointsInTalent(Talent.IRON_WILL));
         }
 
         return super.defenseProc(enemy, damage);
