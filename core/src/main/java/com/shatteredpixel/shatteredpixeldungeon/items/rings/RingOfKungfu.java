@@ -20,6 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
+import java.util.ArrayList;
+
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -33,8 +35,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.AttackIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
-
-import java.util.ArrayList;
 
 public class RingOfKungfu extends Ring {
 
@@ -53,14 +53,6 @@ public class RingOfKungfu extends Ring {
         }
     }
 
-    // public boolean _doUnequip(Hero hero, boolean collect, boolean single) {
-    //     if (super.doUnequip(hero, collect, single)) {
-    //         hero.updateHT(false);
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // }
     @Override
     public void level(int value) {
         super.level(value);
@@ -108,6 +100,7 @@ public class RingOfKungfu extends Ring {
     }
 
     public static int damageRoll(Hero hero) {
+        // 判断戒指是否存在
         if (hero.buff(Kungfu.class) != null
                 && hero.buff(MonkEnergy.MonkAbility.UnarmedAbilityTracker.class) == null) {
             int level = getBuffedBonus(hero, Kungfu.class);
@@ -117,7 +110,7 @@ public class RingOfKungfu extends Ring {
                     && hero.buff(BrawlersStance.class).active) {
                 // 3+tier base dmg, roughly +60%->45% dmg at T1->5
                 // lvl*((4+2*tier)/8) scaling, +50% dmg
-                dmg += Math.round(3 + tier + (level * ((4 + 2 * tier) / 8f)));
+                dmg += Math.round(1 + (level * ((1 + 1 * tier) / 12f)));
             }
             return dmg;
         } else {
@@ -144,9 +137,9 @@ public class RingOfKungfu extends Ring {
             tier = 1; //tier is Kungfud to 1 if cursed
         }
         return Math.max(0, Math.round(
-                5 * (tier + 1)
+                1 * (tier + 2)
                 + //base
-                lvl * (tier + 1) //level scaling
+                lvl * (tier) //level scaling
         ));
     }
 
@@ -190,7 +183,7 @@ public class RingOfKungfu extends Ring {
         }
         if (Dungeon.hero != null && Dungeon.hero.heroClass == HeroClass.DUELIST) {
             float tier = tier(Dungeon.hero != null ? Dungeon.hero.STR() : 10);
-            int bonus = Math.round(3 + tier + (level * ((4 + 2 * tier) / 8f)));
+            int bonus = Math.round(1 + (level * ((1 + 1 * tier) / 12f)));
             return (min(level + 1, tier) + bonus) + "-" + (max(level + 1, tier) + bonus);
         } else {
             return null;
@@ -277,7 +270,7 @@ public class RingOfKungfu extends Ring {
             //0 if unidentified, solo level if unequipped, combined level if equipped
             int level = isIdentified() ? (isEquipped(Dungeon.hero) ? getBuffedBonus(Dungeon.hero, Kungfu.class) : soloBuffedBonus()) : 0;
             float tier = tier(Dungeon.hero.STR());
-            int dmgBoost = Math.round(3 + tier + (level * ((4 + 2 * tier) / 8f)));
+            int dmgBoost = Math.round(1 + (level * ((1 + 1 * tier) / 12f)));
             if (isIdentified()) {
                 info += "\n\n" + Messages.get(this, "ability_desc", min(level, tier) + dmgBoost, max(level, tier) + dmgBoost);
             } else {
