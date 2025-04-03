@@ -133,8 +133,8 @@ public class OriginGem extends Item {
                     }
                 } else if (w.level() < 6) {
                     if (quantity() >= w.level() + 2) {
-                        w.level(w.level() + 1);
                         quantity(quantity() - (w.level() + 2));
+                        w.level(w.level() + 1);
                         GLog.p(Messages.get(OriginGem.class, "upgrade"));
                         curUser.sprite.emitter().start(Speck.factory(Speck.UP), 0.2f, 3);
 

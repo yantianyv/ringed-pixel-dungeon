@@ -1530,8 +1530,9 @@ public abstract class Mob extends Char {
         //enemies will turn and fight if they have nowhere to run and aren't affect by terror
         protected void nowhereToRun() {
             if (buff(Terror.class) == null && buff(Dread.class) == null) {
-                spend(3);
-                ScrollOfTeleportation.teleportChar(Mob.this);
+                if (Random.Int(3) == 0) {
+                    ScrollOfTeleportation.teleportChar(Mob.this);
+                }
             }
         }
     }
