@@ -739,7 +739,7 @@ public abstract class Mob extends Char {
 
             }
         }
-        if (sprite != null&&buff(Invisibility.class) != null) {
+        if (sprite != null && buff(Invisibility.class) != null) {
             sprite.emitter().start(ShadowParticle.UP, 0.5f, 3);
         }
     }
@@ -1530,6 +1530,7 @@ public abstract class Mob extends Char {
         //enemies will turn and fight if they have nowhere to run and aren't affect by terror
         protected void nowhereToRun() {
             if (buff(Terror.class) == null && buff(Dread.class) == null) {
+                spend(3);
                 ScrollOfTeleportation.teleportChar(Mob.this);
             }
         }
