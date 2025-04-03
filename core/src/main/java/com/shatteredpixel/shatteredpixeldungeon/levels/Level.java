@@ -76,6 +76,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesi
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.OriginGem;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
@@ -227,17 +228,9 @@ public abstract class Level implements Bundlable {
                 addItemToSpawn(new ScrollOfRemoveCurse());
 
             } else {
-                switch (Random.Int(2)) {
-                    case 0:
-                        addItemToSpawn(Generator.random(Generator.Category.RING));
-                        break;
-                    case 1:
-                        addItemToSpawn(new ScrollOfTransmutation());
-                        break;
-                    case 2:
-                        addItemToSpawn(Generator.random(Generator.Category.SCROLL));
-                        addItemToSpawn(Generator.random(Generator.Category.POTION));
-                        break;
+                addItemToSpawn(new OriginGem());
+                while (Random.Int(3) == 0) {
+                    addItemToSpawn(new OriginGem());
                 }
             }
             if (Dungeon.posNeeded()) {
@@ -623,9 +616,11 @@ public abstract class Level implements Bundlable {
         ScrollOfChallenge.ChallengeArena arena = Dungeon.hero.buff(ScrollOfChallenge.ChallengeArena.class);
         if (arena != null) {
             arena.detach();
-		//awareness also doesn't, honestly it's weird that it's a buff
-		Awareness awareness = Dungeon.hero.buff(Awareness.class);
-		if (awareness != null) awareness.detach();
+            //awareness also doesn't, honestly it's weird that it's a buff
+            Awareness awareness = Dungeon.hero.buff(Awareness.class);
+            if (awareness != null) {
+                awareness.detach();
+            }
         }
 
         Char ally = Stasis.getStasisAlly();

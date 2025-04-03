@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.bags;
 
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.OriginGem;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
@@ -32,7 +33,7 @@ public class RingString extends Bag {
 
     @Override
     public boolean canHold(Item item) {
-        if (item instanceof Ring) {
+        if (item instanceof Ring || item instanceof OriginGem) {
             return super.canHold(item);
         } else {
             return false;
