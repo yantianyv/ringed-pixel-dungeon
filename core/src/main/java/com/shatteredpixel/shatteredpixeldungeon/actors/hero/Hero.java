@@ -1555,6 +1555,7 @@ public class Hero extends Char {
 
     @Override
     public int defenseProc(Char enemy, int damage) {
+        int raw_damage = damage;
 
         if (damage > 0 && subClass == HeroSubClass.BERSERKER) {
             Berserk berserk = Buff.affect(this, Berserk.class);
@@ -1580,8 +1581,11 @@ public class Hero extends Char {
         }
 
         // 战士的反伤
-        if (Dungeon.hero.pointsInTalent(Talent.IRON_WILL) > 0) {
-            Buff.affect(enemy, Bleeding.class).extend(Dungeon.hero.pointsInTalent(Talent.IRON_WILL));
+        if (Dungeon.hero.hasTalent(Talent.PROVOKED_ANGER)) {
+            if (enemy.buff(Bleeding.class) == null || raw_damage > enemy.buff(Bleeding.class).level()) {
+                Buff.affect(enemy, Bleeding.class).extend(Dungeon.hero.pointsInTalent(Talent.PROVOKED_ANGER));
+            }
+            enemy.damage(Dungeon.hero.pointsInTalent(Talent.PROVOKED_ANGER), this);
         }
 
         return super.defenseProc(enemy, damage);

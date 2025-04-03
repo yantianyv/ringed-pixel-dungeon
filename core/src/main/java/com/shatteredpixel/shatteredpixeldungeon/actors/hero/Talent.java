@@ -1088,11 +1088,11 @@ public enum Talent {
 
     public static int onAttackProc(Hero hero, Char enemy, int dmg) {
 
-        if (hero.hasTalent(Talent.PROVOKED_ANGER)
-                && hero.buff(ProvokedAngerTracker.class) != null) {
-            dmg += 1 + hero.pointsInTalent(Talent.PROVOKED_ANGER);
-            hero.buff(ProvokedAngerTracker.class).detach();
-        }
+        // if (hero.hasTalent(Talent.PROVOKED_ANGER)
+        //         && hero.buff(ProvokedAngerTracker.class) != null) {
+        //     dmg += 1 + hero.pointsInTalent(Talent.PROVOKED_ANGER);
+        //     hero.buff(ProvokedAngerTracker.class).detach();
+        // }
 
         if (hero.hasTalent(Talent.LINGERING_MAGIC)
                 && hero.buff(LingeringMagicTracker.class) != null) {
