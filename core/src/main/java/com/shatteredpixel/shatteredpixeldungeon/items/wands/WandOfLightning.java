@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
@@ -67,6 +68,12 @@ public class WandOfLightning extends DamageWand {
 
     @Override
     public void onZap(Ballistica bolt) {
+        // 对主要目标附加雷元素
+        Char mainTarget = Actor.findChar(bolt.collisionPos);
+        if (mainTarget != null) {
+            // 附加雷元素，强度基于法杖等级
+            ElementBuff.apply(ElementBuff.Element.ELECTRO, curUser, mainTarget, 3 + buffedLvl());
+        }
 
         //lightning deals less damage per-target, the more targets that are hit.
         float multiplier = 0.4f + (0.6f / affected.size());
@@ -81,6 +88,11 @@ public class WandOfLightning extends DamageWand {
             }
             ch.sprite.centerEmitter().burst(SparkParticle.FACTORY, 3);
             ch.sprite.flash();
+
+            // 对每个被电击的目标附加雷元素(强度减半)
+            if (ch != mainTarget) {
+                ElementBuff.apply(ElementBuff.Element.ELECTRO, curUser, ch, 1 + buffedLvl() * 0.5f);
+            }
 
             if (ch != curUser && ch.alignment == curUser.alignment && ch.pos != bolt.collisionPos) {
                 continue;

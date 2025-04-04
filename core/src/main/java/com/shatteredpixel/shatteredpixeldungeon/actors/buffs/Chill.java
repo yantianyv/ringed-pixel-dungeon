@@ -18,53 +18,83 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
 public class Chill extends FlavourBuff {
 
-	public static final float DURATION = 10f;
+    public static final float DURATION = 10f;
 
-	{
-		type = buffType.NEGATIVE;
-		announced = true;
-	}
+    {
+        type = buffType.NEGATIVE;
+        announced = true;
+    }
 
-	@Override
-	public boolean attachTo(Char target) {
-		Buff.detach( target, Burning.class );
+    @Override
+    public boolean attachTo(Char target) {
+        // 移除燃烧效果
+        Buff.detach(target, Burning.class);
 
-		return super.attachTo(target);
-	}
+        // 附加冰元素效果，初始量为持续时间比例
+        ElementBuff.apply(Element.CRYO, null, target, DURATION / 2f);
 
-	//reduces speed by 10% for every turn remaining, capping at 50%
-	public float speedFactor(){
-		return Math.max(0.5f, 1 - cooldown()*0.1f);
-	}
+        return super.attachTo(target);
+    }
 
-	@Override
-	public int icon() {
-		return BuffIndicator.FROST;
-	}
+    @Override
+    public boolean act() {
+        // 每回合维持冰元素量
+        if (target.buff(CryoElement.class) != null) {
+            target.buff(CryoElement.class).quantity = Math.min(
+                    target.buff(CryoElement.class).quantity + 0.5f,
+                    DURATION
+            );
+        }
 
-	@Override
-	public float iconFadePercent() {
-		return Math.max(0, (DURATION - visualcooldown()) / DURATION);
-	}
+        return super.act();
+    }
 
-	@Override
-	public void fx(boolean on) {
-		if (on) target.sprite.add(CharSprite.State.CHILLED);
-		else target.sprite.remove(CharSprite.State.CHILLED);
-	}
+    // 减速效果基于冰元素量
+    public float speedFactor() {
+        float cryoAmount = target.buff(CryoElement.class) != null
+                ? target.buff(CryoElement.class).quantity : 0f;
+        // 基础减速10%，每点冰元素量额外减速8%，最大减速50%
+        return Math.max(0.5f, 1f - 0.1f - cryoAmount * 0.08f);
+    }
 
-	@Override
-	public String desc() {
-		return Messages.get(this, "desc", dispTurns(), Messages.decimalFormat("#.##", (1f-speedFactor())*100f));
-	}
+    @Override
+    public void detach() {
+        // 移除时清除冰元素
+        ElementBuff.detach(target, Element.CRYO);
+        super.detach();
+    }
+
+    @Override
+    public int icon() {
+        return BuffIndicator.FROST;
+    }
+
+    @Override
+    public float iconFadePercent() {
+        return Math.max(0, (DURATION - visualcooldown()) / DURATION);
+    }
+
+    @Override
+    public void fx(boolean on) {
+        if (on) {
+            target.sprite.add(CharSprite.State.CHILLED);
+        } else {
+            target.sprite.remove(CharSprite.State.CHILLED);
+        }
+    }
+
+    @Override
+    public String desc() {
+        return Messages.get(this, "desc", dispTurns(), Messages.decimalFormat("#.##", (1f - speedFactor()) * 100f));
+    }
 }

@@ -119,6 +119,15 @@ public class ElementBuff extends Buff {
         ((ElementBuff) buff).reaction(defender);
     }
 
+    public static void detach(Char target, Element element) {
+for (Buff buff : target.buffs(ElementBuff.class)) {
+            if (((ElementBuff) buff).element == element) {
+                buff.detach();
+                break;
+            }
+        }
+    }
+
     /**
      * 处理元素反应（统一反应处理逻辑）
      *
