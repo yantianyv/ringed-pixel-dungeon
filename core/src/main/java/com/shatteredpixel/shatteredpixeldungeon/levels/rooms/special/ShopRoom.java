@@ -49,6 +49,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.OriginGem;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
@@ -261,6 +262,9 @@ public class ShopRoom extends SpecialRoom {
         w.identify(false);
         itemsToSpawn.add(w);
         itemsToSpawn.add(Generator.random(Generator.Category.RING));
+        itemsToSpawn.add(new OriginGem().quantity(3));
+        itemsToSpawn.add(new OriginGem().quantity(2));
+        itemsToSpawn.add(new OriginGem().quantity(1));
         itemsToSpawn.add(TippedDart.randomTipped(2));
 
         itemsToSpawn.add(new Alchemize().quantity(Random.IntRange(2, 3)));

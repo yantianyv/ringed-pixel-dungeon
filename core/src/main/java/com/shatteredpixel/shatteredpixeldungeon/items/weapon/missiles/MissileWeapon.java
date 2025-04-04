@@ -78,7 +78,7 @@ abstract public class MissileWeapon extends Weapon {
     @Override
     public int min() {
         if (Dungeon.hero != null) {
-            return Math.max(0, min(buffedLvl() + RingOfMagicshooting.levelDamageBonus(Dungeon.hero)));
+            return Math.max(0, min(buffedLvl() + RingOfMagicshooting.levelDamageBonus(Dungeon.hero)/2));
         } else {
             return Math.max(0, min(buffedLvl()));
         }
@@ -94,7 +94,7 @@ abstract public class MissileWeapon extends Weapon {
     @Override
     public int max() {
         if (Dungeon.hero != null) {
-            return Math.max(0, max(buffedLvl() + RingOfMagicshooting.levelDamageBonus(Dungeon.hero)));
+            return Math.max(0, max(buffedLvl() + RingOfMagicshooting.levelDamageBonus(Dungeon.hero)/2));
         } else {
             return Math.max(0, max(buffedLvl()));
         }
