@@ -315,6 +315,7 @@ public class ShopRoom extends SpecialRoom {
             //this way players who get the hourglass late can still max it, usually.
             switch (Dungeon.depth) {
                 case 6:
+                default:
                     bags = (int) Math.ceil((5 - hourglass.sandBags) * 0.20f);
                     break;
                 case 11:

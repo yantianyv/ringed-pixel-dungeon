@@ -76,6 +76,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDiscount;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting;
@@ -536,8 +537,9 @@ public class Generator {
                 RingOfKungfu.class,
                 RingOfDefender.class,
                 RingOfTakeout.class,
-                RingOfNahida.class};
-            RING.defaultProbs = new float[]{3, 3, 3, 3, 3, 3, 3, 3};
+                RingOfNahida.class,
+                RingOfDiscount.class};
+            RING.defaultProbs = new float[]{3, 3, 3, 3, 3, 3, 3, 3, 3};
             RING.probs = RING.defaultProbs.clone();
 
             ARTIFACT.classes = new Class<?>[]{
