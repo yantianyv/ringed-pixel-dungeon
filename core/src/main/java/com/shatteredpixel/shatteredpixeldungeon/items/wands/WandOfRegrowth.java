@@ -463,7 +463,7 @@ public class WandOfRegrowth extends Wand {
                 sprite.die();
                 // 在原地种植随机植物
                 Dungeon.level.plant((Plant.Seed) Generator.randomUsingDefaults(Generator.Category.SEED), this.pos);
-
+                
             }
 
             return true;

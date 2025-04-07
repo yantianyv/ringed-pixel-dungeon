@@ -28,10 +28,14 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Freezing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave.BlastWave;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
@@ -601,10 +605,33 @@ public class ElementBuff extends Buff {
      */
     static float Bloom(ElementBuff hydro, ElementBuff dendro, Char ch) {
         float consume = Math.min(hydro.quantity, dendro.quantity);
+        if (consume >= 1) {
+            // 在怪物的图标上显示绽放文本
+            CharSprite cs = ch.sprite;
+            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "bloom"));
+        } else {
+            consume = 0;
+        }
+        int terr = Dungeon.level.map[ch.pos];
+        if (!(terr == Terrain.EMPTY || terr == Terrain.EMBERS || terr == Terrain.EMPTY_DECO
+                || terr == Terrain.GRASS || terr == Terrain.HIGH_GRASS || terr == Terrain.FURROWED_GRASS)) {
+            consume = 0;
+        } else if (consume >= 5) {
+            consume = 5;
+            // 种植随机植物
+            Dungeon.level.plant((Plant.Seed) Generator.randomUsingDefaults(Generator.Category.SEED), ch.pos);
+        } else if (consume >= 3) {
+            consume = 3;
+            // 种植高草
+            Level.set(ch.pos, Terrain.HIGH_GRASS);
+        } else {
+            consume = 1;
+            Level.set(ch.pos, Terrain.FURROWED_GRASS);
+
+        }
+
         hydro.quantity -= consume;
         dendro.quantity -= consume;
-        // TODO: 实现绽放反应的具体效果（如生成种子）
-        GLog.p("绽放（未实现）");
         return 1f;
     }
 }
