@@ -57,13 +57,21 @@ public class RingOfDiscount extends Ring {
             if (Random.Float() < chance) {
                 int pos = Dungeon.hero.pos;
                 Heap heap = Dungeon.level.heaps.get(pos);
-                if (Dungeon.gold > 3000 && heap == null) {
+                if (Dungeon.level.locked || Dungeon.depth == 10) {
+                    // 特殊情况只有弱化的掉落
+                    Item gold = new Gold();
+                    gold.quantity(1);
+                    // Dungeon.level.drop(gold, pos);
+                    gold.doPickUp(Dungeon.hero);
+                    GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
+                    spend(30);
+                } else if (Dungeon.gold > 3000 && heap == null) {
                     // 触发百亿补贴
                     VisualShop visualshop = new VisualShop();
                     Item good = visualshop.chooseRandom();
                     Dungeon.level.drop(good, pos).type = Heap.Type.FOR_SALE;
                     GLog.p(Messages.get(RingOfDiscount.class, "on_sale"));
-                    spend(10);
+                    spend(30);
                 } else {
                     // 触发红包到账
                     Item gold = new Gold();
@@ -71,7 +79,7 @@ public class RingOfDiscount extends Ring {
                     // Dungeon.level.drop(gold, pos);
                     gold.doPickUp(Dungeon.hero);
                     GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
-                    spend(10);
+                    spend(Dungeon.depth);
                 }
                 // 显示光效
                 new Flare(8, 32).color(0x00FFFF, true).show(Dungeon.hero.sprite, 2f);
