@@ -357,7 +357,14 @@ public class ElementBuff extends Buff {
         }
         cryo.quantity -= consume;
         hydro.quantity -= consume;
-        Buff.affect(ch, Frost.class, consume);
+        if (consume > 1) {
+            Frost buff = Buff.affect(ch, Frost.class, consume);
+            int dmg = (int) (ch.HP * ((consume) / (consume + 5)));
+            if (Dungeon.level.locked) {
+                dmg /= 5;
+            }
+            buff.frost_damage = dmg;
+        }
         return 1f;
     }
 

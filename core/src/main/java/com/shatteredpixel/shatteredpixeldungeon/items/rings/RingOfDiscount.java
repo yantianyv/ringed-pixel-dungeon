@@ -10,6 +10,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.VisualShop;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
 public class RingOfDiscount extends Ring {
@@ -67,7 +68,7 @@ public class RingOfDiscount extends Ring {
                     gold.doPickUp(Dungeon.hero);
                     GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
                     spend(30);
-                } else if (Dungeon.gold > 3000 && heap == null) {
+                } else if (Dungeon.gold > 3000) {
                     // 触发百亿补贴
                     VisualShop visualshop = new VisualShop();
                     Item good = visualshop.chooseRandom();
@@ -76,6 +77,7 @@ public class RingOfDiscount extends Ring {
                     }
                     goodHeap = Dungeon.level.drop(good, pos);
                     goodHeap.type = Heap.Type.FOR_SALE;
+                    goodHeap.sprite.hardlight(0xFFFF99);
                     GLog.p(Messages.get(RingOfDiscount.class, "on_sale"));
                     spend(30);
                 } else {
@@ -94,4 +96,12 @@ public class RingOfDiscount extends Ring {
         }
     }
 
+// 保存游戏时，将商品堆保存到Bundle中，并摧毁商品堆
+    @Override
+    public void storeInBundle(Bundle bundle) {
+        if (goodHeap != null) {
+            goodHeap.destroy();
+        }
+        super.storeInBundle(bundle);
+    }
 }
