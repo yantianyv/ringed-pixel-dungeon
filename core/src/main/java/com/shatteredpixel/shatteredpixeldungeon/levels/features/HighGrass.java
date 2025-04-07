@@ -6,6 +6,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
@@ -135,6 +137,11 @@ public class HighGrass {
                 //grassy levels spawn half as much dew
                 if (Dungeon.level != null && Dungeon.level.feeling == Level.Feeling.GRASS) {
                     lootChance /= 2;
+                }
+
+                // 给踩草的角色添加草元素附着
+                if (ch != null) {
+                    ElementBuff.apply(Element.DENDRO, ch, ch, 3f);
                 }
 
                 if (Random.Float() < lootChance) {  // 掉落露水并判定纳西妲之戒的效果

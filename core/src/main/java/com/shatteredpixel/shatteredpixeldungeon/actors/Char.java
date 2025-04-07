@@ -158,6 +158,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
+import com.sun.tools.classfile.Annotation;
+
 public abstract class Char extends Actor {
 
     public int pos = 0;
@@ -203,6 +207,9 @@ public abstract class Char extends Actor {
         //throw any items that are on top of an immovable char
         if (properties().contains(Property.IMMOVABLE)) {
             throwItems();
+        }
+        if (Dungeon.level.water[pos]) {
+            ElementBuff.apply(Element.HYDRO, this, this, 3);
         }
         return false;
     }

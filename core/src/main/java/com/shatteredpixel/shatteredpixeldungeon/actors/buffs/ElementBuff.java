@@ -129,7 +129,7 @@ public class ElementBuff extends Buff {
         ((ElementBuff) buff).quantity += quantity;
         ((ElementBuff) buff).reaction(defender);
     }
-    
+
     public static void detach(Char target, Element element) {
         for (Buff buff : target.buffs(ElementBuff.class)) {
             if (((ElementBuff) buff).element == element) {
@@ -587,6 +587,12 @@ class AnemoElement extends ElementBuff {
                 target.sprite.resetColor();
             }
         }
+    }
+
+    @Override
+    public boolean act() {
+        this.detach();
+        return super.act();
     }
 }
 

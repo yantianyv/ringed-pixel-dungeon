@@ -90,7 +90,7 @@ public class Burning extends Buff implements Hero.Doom {
 
     @Override
     public boolean act() {
-        ElementBuff.apply(Element.PYRO, target, target, 1f);
+        ElementBuff.apply(Element.PYRO, target, target, 2f);
         if (acted && Dungeon.level.water[target.pos] && !target.flying) {
             detach();
         } else if (target.isAlive() && !target.isImmune(getClass())) {
@@ -224,8 +224,8 @@ public class Burning extends Buff implements Hero.Doom {
     @Override
     public void fx(boolean on) {
         if (on) {
-            target.sprite.add(CharSprite.State.BURNING); 
-        }else {
+            target.sprite.add(CharSprite.State.BURNING);
+        } else {
             target.sprite.remove(CharSprite.State.BURNING);
         }
     }
