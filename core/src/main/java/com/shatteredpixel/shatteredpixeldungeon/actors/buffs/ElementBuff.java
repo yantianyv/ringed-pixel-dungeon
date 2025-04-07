@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.Image;
 import com.watabou.utils.PathFinder;
 
 /**
@@ -52,10 +53,20 @@ public class ElementBuff extends Buff {
         announced = true;
     }
 
-    // 定义图标（默认使用虚弱图标）
+    // 定义图标
     @Override
     public int icon() {
-        return BuffIndicator.WEAKNESS;
+        return BuffIndicator.CORRUPT;
+    }
+
+    @Override
+    public boolean act() {
+        this.quantity *= 0.5;
+        if (quantity < 0.1) {
+            quantity = 0;
+        }
+        spend(3);
+        return super.act();
     }
 
     // 元素类型枚举
@@ -118,9 +129,9 @@ public class ElementBuff extends Buff {
         ((ElementBuff) buff).quantity += quantity;
         ((ElementBuff) buff).reaction(defender);
     }
-
+    
     public static void detach(Char target, Element element) {
-for (Buff buff : target.buffs(ElementBuff.class)) {
+        for (Buff buff : target.buffs(ElementBuff.class)) {
             if (((ElementBuff) buff).element == element) {
                 buff.detach();
                 break;
@@ -553,81 +564,172 @@ for (Buff buff : target.buffs(ElementBuff.class)) {
         return 1f;
     }
 }
+// ====================== 元素Buff实现 ======================
 
-// ====================== 具体元素类实现 ======================
-/**
- * 风元素附着类
- */
 class AnemoElement extends ElementBuff {
 
     @Override
     public int icon() {
-        return BuffIndicator.WEAKNESS;
+        return BuffIndicator.CORRUPT;
+    }
+
+    @Override
+    public void tintIcon(Image icon) {
+        icon.hardlight(0x76EEC6);
+    } // 风元素-青绿
+
+    @Override
+    public void fx(boolean on) {
+        if (target != null && target.sprite != null) {
+            if (on) {
+                target.sprite.tint(0x76EEC6, 0.5f);
+            } else {
+                target.sprite.resetColor();
+            }
+        }
     }
 }
 
-/**
- * 岩元素附着类
- */
 class GeoElement extends ElementBuff {
 
     @Override
     public int icon() {
-        return BuffIndicator.WEAKNESS;
+        return BuffIndicator.CORRUPT;
+    }
+
+    @Override
+    public void tintIcon(Image icon) {
+        icon.hardlight(0xFFD700);
+    } // 岩元素-金黄
+
+    @Override
+    public void fx(boolean on) {
+        if (target != null && target.sprite != null) {
+            if (on) {
+                target.sprite.tint(0xFFD700, 0.5f);
+            } else {
+                target.sprite.resetColor();
+            }
+        }
     }
 }
 
-/**
- * 雷元素附着类
- */
 class ElectroElement extends ElementBuff {
 
     @Override
     public int icon() {
-        return BuffIndicator.WEAKNESS;
+        return BuffIndicator.CORRUPT;
+    }
+
+    @Override
+    public void tintIcon(Image icon) {
+        icon.hardlight(0xBF3EFF);
+    } // 雷元素-紫
+
+    @Override
+    public void fx(boolean on) {
+        if (target != null && target.sprite != null) {
+            if (on) {
+                target.sprite.tint(0xBF3EFF, 0.5f);
+            } else {
+                target.sprite.resetColor();
+            }
+        }
     }
 }
 
-/**
- * 草元素附着类
- */
 class DendroElement extends ElementBuff {
 
     @Override
     public int icon() {
-        return BuffIndicator.WEAKNESS;
+        return BuffIndicator.CORRUPT;
+    }
+
+    @Override
+    public void tintIcon(Image icon) {
+        icon.hardlight(0x7CFC00);
+    } // 草元素-浅绿
+
+    @Override
+    public void fx(boolean on) {
+        if (target != null && target.sprite != null) {
+            if (on) {
+                target.sprite.tint(0x7CFC00, 0.5f);
+            } else {
+                target.sprite.resetColor();
+            }
+        }
     }
 }
 
-/**
- * 水元素附着类
- */
 class HydroElement extends ElementBuff {
 
     @Override
     public int icon() {
-        return BuffIndicator.WEAKNESS;
+        return BuffIndicator.CORRUPT;
+    }
+
+    @Override
+    public void tintIcon(Image icon) {
+        icon.hardlight(0x00BFFF);
+    } // 水元素-蓝
+
+    @Override
+    public void fx(boolean on) {
+        if (target != null && target.sprite != null) {
+            if (on) {
+                target.sprite.tint(0x00BFFF, 0.5f);
+            } else {
+                target.sprite.resetColor();
+            }
+        }
     }
 }
 
-/**
- * 火元素附着类
- */
 class PyroElement extends ElementBuff {
 
     @Override
     public int icon() {
-        return BuffIndicator.WEAKNESS;
+        return BuffIndicator.CORRUPT;
+    }
+
+    @Override
+    public void tintIcon(Image icon) {
+        icon.hardlight(0xFF4500);
+    } // 火元素-橙红
+
+    @Override
+    public void fx(boolean on) {
+        if (target != null && target.sprite != null) {
+            if (on) {
+                target.sprite.tint(0xFF4500, 0.5f);
+            } else {
+                target.sprite.resetColor();
+            }
+        }
     }
 }
 
-/**
- * 冰元素附着类
- */
 class CryoElement extends ElementBuff {
 
     @Override
     public int icon() {
-        return BuffIndicator.WEAKNESS;
+        return BuffIndicator.CORRUPT;
+    }
+
+    @Override
+    public void tintIcon(Image icon) {
+        icon.hardlight(0xADD8E6);
+    } // 冰元素-浅蓝
+
+    @Override
+    public void fx(boolean on) {
+        if (target != null && target.sprite != null) {
+            if (on) {
+                target.sprite.tint(0xADD8E6, 0.5f);
+            } else {
+                target.sprite.resetColor();
+            }
+        }
     }
 }
