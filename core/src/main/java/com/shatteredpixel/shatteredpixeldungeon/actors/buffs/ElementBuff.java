@@ -27,6 +27,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Freezing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave.BlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -41,6 +44,9 @@ import com.watabou.utils.PathFinder;
  * 元素附着基类，处理游戏中的元素反应系统
  */
 public class ElementBuff extends Buff {
+
+    public ElementBuff() {
+    }
 
     // 元素附着量
     protected float quantity = 0f;
@@ -62,12 +68,15 @@ public class ElementBuff extends Buff {
 
     @Override
     public boolean act() {
-        this.quantity *= 0.5;
-        if (quantity < 0.3) {
-            quantity = 0;
+        this.quantity -= 0.1f; // 改为固定值衰减
+        if (quantity > 10 && target instanceof Hero) {
+            quantity = 1;
         }
-        spend(3);
-        return super.act();
+        if (quantity <= 0.1f) {  // 使用<=0判断
+            detach();
+        }
+        spend(0.1f);
+        return true;
     }
 
     // 元素类型枚举
@@ -271,13 +280,28 @@ public class ElementBuff extends Buff {
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
-        bundle.put("quantity", quantity);
+        // 使用更明确的键名避免冲突
+        bundle.put("element_quantity", quantity);
+        bundle.put("element_type", element.name());
     }
 
     @Override
     public void restoreFromBundle(Bundle bundle) {
         super.restoreFromBundle(bundle);
-        quantity = bundle.getInt("quantity");
+        // 添加空检查和安全转换
+        Item gold = new Gold(1);
+        Dungeon.level.drop(gold, Dungeon.hero.pos);
+        if (bundle.contains("element_quantity")) {
+            quantity = bundle.getFloat("element_quantity");
+        }
+        if (bundle.contains("element_type")) {
+            element = Element.valueOf(bundle.getString("element_type"));
+        }
+    }
+
+    @Override
+    public String desc() {
+        return Messages.get(this, "desc", quantity);
     }
 
     // ====================== 元素反应方法 ======================
