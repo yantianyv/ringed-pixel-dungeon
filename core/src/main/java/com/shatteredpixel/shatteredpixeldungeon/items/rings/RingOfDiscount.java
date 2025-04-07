@@ -20,6 +20,8 @@ public class RingOfDiscount extends Ring {
         buffClass = Discount.class;// 戒指的buff类型
     }
 
+    static Heap goodHeap;
+
     // 返回物品描述
     public String statsInfo() {
         // 依据是否鉴定返回不同信息
@@ -69,7 +71,11 @@ public class RingOfDiscount extends Ring {
                     // 触发百亿补贴
                     VisualShop visualshop = new VisualShop();
                     Item good = visualshop.chooseRandom();
-                    Dungeon.level.drop(good, pos).type = Heap.Type.FOR_SALE;
+                    if (goodHeap != null) {
+                        goodHeap.destroy();
+                    }
+                    goodHeap = Dungeon.level.drop(good, pos);
+                    goodHeap.type = Heap.Type.FOR_SALE;
                     GLog.p(Messages.get(RingOfDiscount.class, "on_sale"));
                     spend(30);
                 } else {

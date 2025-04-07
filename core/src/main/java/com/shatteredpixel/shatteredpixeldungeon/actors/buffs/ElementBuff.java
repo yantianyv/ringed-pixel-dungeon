@@ -325,7 +325,7 @@ public class ElementBuff extends Buff {
 
         float strength = consume / 3;
         // 对目标附着雷元素并造成伤害
-        if (strength > 0 / 5) {
+        if (strength > 1) {
             apply(Element.ELECTRO, ch, ch, strength);
             ch.damage(Math.round(3 * strength), new ElementBuff());
             // 对周围附着雷元素
