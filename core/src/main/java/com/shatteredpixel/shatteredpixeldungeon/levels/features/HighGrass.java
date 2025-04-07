@@ -141,7 +141,7 @@ public class HighGrass {
 
                 // 给踩草的角色添加草元素附着
                 if (ch != null) {
-                    ElementBuff.apply(Element.DENDRO, ch, ch, 6f);
+                    ElementBuff.apply(Element.DENDRO, ch, ch, 3f);
                 }
 
                 if (Random.Float() < lootChance) {  // 掉落露水并判定纳西妲之戒的效果
