@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Image;
+import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 
 /**
@@ -62,7 +63,7 @@ public class ElementBuff extends Buff {
     @Override
     public boolean act() {
         this.quantity *= 0.5;
-        if (quantity < 0.1) {
+        if (quantity < 0.3) {
             quantity = 0;
         }
         spend(3);
@@ -265,6 +266,18 @@ public class ElementBuff extends Buff {
         }
 
         return consumed;
+    }
+
+    @Override
+    public void storeInBundle(Bundle bundle) {
+        super.storeInBundle(bundle);
+        bundle.put("quantity", quantity);
+    }
+
+    @Override
+    public void restoreFromBundle(Bundle bundle) {
+        super.restoreFromBundle(bundle);
+        quantity = bundle.getInt("quantity");
     }
 
     // ====================== 元素反应方法 ======================

@@ -208,7 +208,7 @@ public abstract class Char extends Actor {
         if (properties().contains(Property.IMMOVABLE)) {
             throwItems();
         }
-        if (Dungeon.level.water[pos]) {
+        if (Dungeon.level.water[pos] && !flying) {
             ElementBuff.apply(Element.HYDRO, this, this, 3);
         }
         return false;

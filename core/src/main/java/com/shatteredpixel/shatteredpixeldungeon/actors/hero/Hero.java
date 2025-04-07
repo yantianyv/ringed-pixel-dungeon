@@ -185,6 +185,8 @@ import java.util.LinkedHashMap;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
@@ -2449,6 +2451,7 @@ public class Hero extends Char {
         if (!flying && travelling) {
             if (Dungeon.level.water[pos]) {
                 Sample.INSTANCE.play(Assets.Sounds.WATER, 1, Random.Float(0.8f, 1.25f));
+                ElementBuff.apply(Element.HYDRO, this, this, 3);
             } else if (Dungeon.level.map[pos] == Terrain.EMPTY_SP) {
                 Sample.INSTANCE.play(Assets.Sounds.STURDY, 1, Random.Float(0.96f, 1.05f));
             } else if (Dungeon.level.map[pos] == Terrain.GRASS
