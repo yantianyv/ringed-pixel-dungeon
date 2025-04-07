@@ -59,7 +59,7 @@ public class ElementBuff extends Buff {
 
     {
         // 设为负面buff（对目标不利）
-        type = buffType.NEGATIVE;
+        type = buffType.NEUTRAL;
         // buff需要公告（显示在游戏日志中）
         announced = true;
     }
