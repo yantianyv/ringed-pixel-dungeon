@@ -570,7 +570,7 @@ public class AlchemyScene extends PixelScene {
 
         @Override
         public void onSelect(Item item) {
-            if (item instanceof EquipableItem) {
+            if (item instanceof EquipableItem && item.isEquipped(Dungeon.hero)) {
                 if (!((EquipableItem) item).doUnequip(Dungeon.hero, true)) {
                     return;
                 }
