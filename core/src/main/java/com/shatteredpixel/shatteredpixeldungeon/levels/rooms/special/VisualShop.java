@@ -3,7 +3,6 @@ package com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special;
 import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Honeypot;
@@ -15,7 +14,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.MailArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.PlateArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ScaleArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
-import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
@@ -27,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.spells.Alchemize;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAugmentation;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.TippedDart;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Random;
 
 public class VisualShop extends ShopRoom {
@@ -108,7 +105,11 @@ public class VisualShop extends ShopRoom {
                 break;
         }
 
-        itemsToSpawn.add(new Ankh());
+        // 检查玩家背包中是否已经存在 Ankh
+        int ankh_quantity = Dungeon.hero.belongings.getAllSimilar(new Ankh()).size();
+        if (Random.Float(1) < Math.pow(0.2, ankh_quantity)) {
+            itemsToSpawn.add(new Ankh());
+        }
         itemsToSpawn.add(new StoneOfAugmentation());
 
         TimekeepersHourglass hourglass = Dungeon.hero.belongings.getItem(TimekeepersHourglass.class);
@@ -116,8 +117,8 @@ public class VisualShop extends ShopRoom {
             //creates the given float percent of the remaining bags to be dropped.
             //this way players who get the hourglass late can still max it, usually.
 
-                itemsToSpawn.add(new TimekeepersHourglass.sandBag());
-                hourglass.sandBags++;
+            itemsToSpawn.add(new TimekeepersHourglass.sandBag());
+            hourglass.sandBags++;
         }
 
         Item rare;
@@ -148,7 +149,6 @@ public class VisualShop extends ShopRoom {
 
         return itemsToSpawn;
     }
-
 
     public Item chooseRandom() {
         ArrayList<Item> goods = generateItems();
