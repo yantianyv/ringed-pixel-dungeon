@@ -18,7 +18,7 @@ allprojects {
         appPackageName = 'com.yantianyv.ringedpixeldungeon'
 
         appVersionCode = 833
-        appVersionName = '0.1.0_spd3.0.2'
+        appVersionName = '0.1.1_spd3.0.2'
 
         appJavaCompatibility = JavaVersion.VERSION_1_8
 
@@ -37,5 +37,4 @@ allprojects {
         mavenCentral()
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     }
-
 }
