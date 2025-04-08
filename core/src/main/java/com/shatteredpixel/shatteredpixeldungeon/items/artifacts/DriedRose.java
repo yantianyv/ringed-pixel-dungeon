@@ -81,6 +81,9 @@ import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.WeddingRing;
+
 public class DriedRose extends Artifact {
 
     {
@@ -153,16 +156,16 @@ public class DriedRose extends Artifact {
             }
 
             if (!Ghost.Quest.completed()) {
-                GameScene.show(new WndUseItem(null, this)); 
-            }else if (ghost != null) {
-                GLog.i(Messages.get(this, "spawned")); 
-            }else if (!isEquipped(hero)) {
-                GLog.i(Messages.get(Artifact.class, "need_to_equip")); 
-            }else if (charge != chargeCap) {
-                GLog.i(Messages.get(this, "no_charge")); 
-            }else if (cursed) {
-                GLog.i(Messages.get(this, "cursed")); 
-            }else {
+                GameScene.show(new WndUseItem(null, this));
+            } else if (ghost != null) {
+                GLog.i(Messages.get(this, "spawned"));
+            } else if (!isEquipped(hero)) {
+                GLog.i(Messages.get(Artifact.class, "need_to_equip"));
+            } else if (charge != chargeCap) {
+                GLog.i(Messages.get(this, "no_charge"));
+            } else if (cursed) {
+                GLog.i(Messages.get(this, "cursed"));
+            } else {
                 ArrayList<Integer> spawnPoints = new ArrayList<>();
                 for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
                     int p = hero.pos + PathFinder.NEIGHBOURS8[i];
@@ -238,7 +241,7 @@ public class DriedRose extends Artifact {
     }
 
     public int ghostStrength() {
-        return 13 + level() / 2;
+        return 13 + level() / 2 + WeddingRing.extraStr(Dungeon.hero);
     }
 
     @Override
@@ -346,8 +349,8 @@ public class DriedRose extends Artifact {
     @Override
     public Item upgrade() {
         if (level() >= 9) {
-            image = ItemSpriteSheet.ARTIFACT_ROSE3; 
-        }else if (level() >= 4) {
+            image = ItemSpriteSheet.ARTIFACT_ROSE3;
+        } else if (level() >= 4) {
             image = ItemSpriteSheet.ARTIFACT_ROSE2;
         }
 
@@ -610,7 +613,7 @@ public class DriedRose extends Artifact {
             if (rose == null) {
                 return;
             }
-            HT = 20 + 8 * rose.level();
+            HT = 20 + 8 * rose.level() + WeddingRing.extraHT(Dungeon.hero);
         }
 
         @Override
@@ -683,6 +686,12 @@ public class DriedRose extends Artifact {
                 }
             }
 
+            if (buff(WeddingRing.Weddingring.class) != null) {
+                int heal = (int) (damage * WeddingRing.ghostPower(Dungeon.hero));
+                heal = HP + heal > HT ? HT - HP : heal;
+                HP += heal;
+            }
+
             return damage;
         }
 
@@ -697,6 +706,9 @@ public class DriedRose extends Artifact {
         @Override
         public void damage(int dmg, Object src) {
             super.damage(dmg, src);
+            if (src instanceof Mob) {
+                ((Mob) src).damage((int) (dmg * (WeddingRing.ghostPower(Dungeon.hero))), this);
+            }
 
             //for the rose status indicator
             Item.updateQuickslot();

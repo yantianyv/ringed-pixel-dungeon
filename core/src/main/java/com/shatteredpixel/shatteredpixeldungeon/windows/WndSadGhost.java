@@ -88,7 +88,7 @@ public class WndSadGhost extends Window {
                 GameScene.show(new RewardWindow(item()));
             }
         };
-        btnWeapon.item(Ghost.Quest.weapon);// 左窗口的物品
+        btnWeapon.item(Ghost.Quest.ring);// 左窗口的物品
         btnWeapon.setRect((WIDTH - BTN_GAP) / 2 - BTN_SIZE, message.top() + message.height() + BTN_GAP, BTN_SIZE, BTN_SIZE);
         add(btnWeapon);
         // 右窗口
@@ -98,7 +98,7 @@ public class WndSadGhost extends Window {
                 GameScene.show(new RewardWindow(item()));
             }
         };
-        btnArmor.item(Ghost.Quest.armor);// 右窗口的物品
+        btnArmor.item(Ghost.Quest.special_ring);// 右窗口的物品
         btnArmor.setRect(btnWeapon.right() + BTN_GAP, btnWeapon.top(), BTN_SIZE, BTN_SIZE);
         add(btnArmor);
 
@@ -111,12 +111,6 @@ public class WndSadGhost extends Window {
 
         if (reward == null) {
             return;
-        }
-
-        if (reward instanceof Weapon && Ghost.Quest.enchant != null) {
-            ((Weapon) reward).enchant(Ghost.Quest.enchant);
-        } else if (reward instanceof Armor && Ghost.Quest.glyph != null) {
-            ((Armor) reward).inscribe(Ghost.Quest.glyph);
         }
 
         reward.identify(false);

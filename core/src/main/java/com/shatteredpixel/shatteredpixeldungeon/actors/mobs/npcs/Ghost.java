@@ -31,13 +31,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollTrickster;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GreatCrab;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.LeatherArmor;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.MailArmor;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.PlateArmor;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.ScaleArmor;
-import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ParchmentScrap;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.WeddingRing;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
@@ -137,7 +132,7 @@ public class Ghost extends NPC {
         }
 
         if (Quest.given) {
-            if (Quest.weapon != null) {
+            if (Quest.ring != null) {
                 if (Quest.processed) {
                     Game.runOnRenderThread(new Callback() {
                         @Override
@@ -228,18 +223,14 @@ public class Ghost extends NPC {
 
         private static int depth;
 
-        public static Weapon weapon;
-        public static Armor armor;
-        public static Weapon.Enchantment enchant;
-        public static Armor.Glyph glyph;
+        public static Ring ring;
+        public static Ring special_ring;
 
         public static void reset() {
             spawned = false;
 
-            weapon = null;
-            armor = null;
-            enchant = null;
-            glyph = null;
+            ring = null;
+            special_ring = null;
         }
 
         private static final String NODE = "sadGhost";
@@ -249,10 +240,8 @@ public class Ghost extends NPC {
         private static final String GIVEN = "given";
         private static final String PROCESSED = "processed";
         private static final String DEPTH = "depth";
-        private static final String WEAPON = "weapon";
-        private static final String ARMOR = "armor";
-        private static final String ENCHANT = "enchant";
-        private static final String GLYPH = "glyph";
+        private static final String RING = "ring";
+        private static final String SPECIAL_RING = "special_ring";
 
         public static void storeInBundle(Bundle bundle) {
 
@@ -268,13 +257,8 @@ public class Ghost extends NPC {
                 node.put(DEPTH, depth);
                 node.put(PROCESSED, processed);
 
-                node.put(WEAPON, weapon);
-                node.put(ARMOR, armor);
-
-                if (enchant != null) {
-                    node.put(ENCHANT, enchant);
-                    node.put(GLYPH, glyph);
-                }
+                node.put(RING, ring);
+                node.put(SPECIAL_RING, special_ring);
             }
 
             bundle.put(NODE, node);
@@ -292,13 +276,9 @@ public class Ghost extends NPC {
 
                 depth = node.getInt(DEPTH);
 
-                weapon = (Weapon) node.get(WEAPON);
-                armor = (Armor) node.get(ARMOR);
+                ring = (Ring) node.get(RING);
+                special_ring = (Ring) node.get(SPECIAL_RING);
 
-                if (node.contains(ENCHANT)) {
-                    enchant = (Weapon.Enchantment) node.get(ENCHANT);
-                    glyph = (Armor.Glyph) node.get(GLYPH);
-                }
             } else {
                 reset();
             }
@@ -322,56 +302,11 @@ public class Ghost extends NPC {
                 processed = false;
                 depth = Dungeon.depth;
 
-                //50%:tier2, 30%:tier3, 15%:tier4, 5%:tier5
-                switch (Random.chances(new float[]{0, 0, 10, 6, 3, 1})) {
-                    default:
-                    case 2:
-                        armor = new LeatherArmor();
-                        break;
-                    case 3:
-                        armor = new MailArmor();
-                        break;
-                    case 4:
-                        armor = new ScaleArmor();
-                        break;
-                    case 5:
-                        armor = new PlateArmor();
-                        break;
-                }
-                //50%:tier2, 30%:tier3, 15%:tier4, 5%:tier5
-                int wepTier = Random.chances(new float[]{0, 0, 10, 6, 3, 1});
-                weapon = (Weapon) Generator.random(Generator.wepTiers[wepTier - 1]);
+                ring = (Ring) Generator.random(Generator.Category.RING);
+                special_ring = new WeddingRing();
 
-                //clear weapon's starting properties
-                weapon.level(0);
-                weapon.enchant(null);
-                weapon.cursed = false;
-
-                //50%:+0, 30%:+1, 15%:+2, 5%:+3
-                float itemLevelRoll = Random.Float();
-                int itemLevel;
-                if (itemLevelRoll < 0.5f) {
-                    itemLevel = 0;
-                } else if (itemLevelRoll < 0.8f) {
-                    itemLevel = 1;
-                } else if (itemLevelRoll < 0.95f) {
-                    itemLevel = 2;
-                } else {
-                    itemLevel = 3;
-                }
-                weapon.upgrade(itemLevel);
-                armor.upgrade(itemLevel);
-
-                // 20% base chance to be enchanted, stored separately so status isn't revealed early
-                //we generate first so that the outcome doesn't affect the number of RNG rolls
-                enchant = Weapon.Enchantment.random();
-                glyph = Armor.Glyph.random();
-
-                float enchantRoll = Random.Float();
-                if (enchantRoll > 0.2f * ParchmentScrap.enchantChanceMultiplier()) {
-                    enchant = null;
-                    glyph = null;
-                }
+                ring.cursed = false;
+                ring.upgrade(3);
 
             }
         }
@@ -404,8 +339,8 @@ public class Ghost extends NPC {
         }
 
         public static void complete() {
-            weapon = null;
-            armor = null;
+            ring = null;
+            special_ring = null;
 
             Notes.remove(Notes.Landmark.GHOST);
         }
@@ -415,7 +350,7 @@ public class Ghost extends NPC {
         }
 
         public static boolean completed() {
-            return processed() && weapon == null && armor == null;
+            return processed() && ring == null && special_ring == null;
         }
     }
 }
