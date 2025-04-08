@@ -424,7 +424,7 @@ public class ElementBuff extends Buff {
         if (consume > 1) {
             Frost buff = Buff.affect(ch, Frost.class, consume);
             int dmg = (int) (ch.HP * ((consume) / (consume + 5)));
-            if (Dungeon.level.locked) {
+            if (Dungeon.level.locked || ch instanceof Hero) {
                 dmg /= 5;
             }
             buff.frost_damage = dmg;
