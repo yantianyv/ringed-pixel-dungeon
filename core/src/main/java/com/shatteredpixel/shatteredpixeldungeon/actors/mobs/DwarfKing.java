@@ -20,6 +20,9 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
@@ -30,8 +33,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Doom;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LifeLink;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Sheep;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
@@ -69,9 +74,6 @@ import com.watabou.utils.Callback;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 
 public class DwarfKing extends Mob {
 
@@ -301,6 +303,10 @@ public class DwarfKing extends Mob {
             if (summonSubject(Dungeon.isChallenged(Challenges.STRONGER_BOSSES) ? 2 : 3)) {
                 summonsMade++;
             }
+            int dmg = Dungeon.hero.HP / 10;
+            ((Char) Dungeon.hero).damage(dmg, this);
+            dmg = dmg > HP / 10 ? HP / 10 : dmg;
+            damage(dmg, Dungeon.hero);
         }
 
         return super.act();
@@ -531,6 +537,7 @@ public class DwarfKing extends Mob {
         } else if (phase == 2 && shielding() == 0) {
             properties.remove(Property.IMMOVABLE);
             phase = 3;
+            Buff.affect(this, Healing.class).setHeal(this.HT, 0.1f, 0);
             summonsMade = 1; //monk/warlock on 3rd summon
             sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
             Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
@@ -588,6 +595,8 @@ public class DwarfKing extends Mob {
 
         Bestiary.skipCountingEncounters = true;
         for (Mob m : getSubjects()) {
+            // 给怪物附加中毒效果
+            Buff.affect(m, Poison.class).set(6);
             m.die(null);
         }
         Bestiary.skipCountingEncounters = false;
@@ -715,6 +724,7 @@ public class DwarfKing extends Mob {
                     if (((DwarfKing) target).phase == 2) {
                         Buff.affect(m, KingDamager.class);
                     }
+
                 } else {
                     Char ch = Actor.findChar(pos);
                     ch.damage(Random.NormalIntRange(20, 40), this);
@@ -725,7 +735,11 @@ public class DwarfKing extends Mob {
                             target.damage(target.HT / 12, new KingDamager());
                         }
                     }
-                    if (!ch.isAlive() && ch == Dungeon.hero) {
+                    if (ch != Dungeon.hero) {
+                        Sample.INSTANCE.play(Assets.Sounds.CURSED);
+                        ((Char) Dungeon.hero).damage(Dungeon.hero.HT / 5, this);
+                        Buff.affect(Dungeon.hero, Poison.class).extend(5);
+                    } else if (!Dungeon.hero.isAlive()) {
                         Dungeon.fail(DwarfKing.class);
                         GLog.n(Messages.capitalize(Messages.get(Char.class, "kill", Messages.get(DwarfKing.class, "name"))));
                     }

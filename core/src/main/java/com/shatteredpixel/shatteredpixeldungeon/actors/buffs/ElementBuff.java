@@ -579,7 +579,7 @@ public class ElementBuff extends Buff {
         float duration = 3f + consume; // 基础3秒 + 每点消耗量增加1秒
 
         // 应用易伤效果
-        Buff.affect(ch, Weakness.class, duration);
+        Buff.affect(ch, Vulnerable.class, duration);
 
         // 对周围敌人造成范围伤害和易伤
         for (int i : PathFinder.NEIGHBOURS8) {
@@ -589,7 +589,7 @@ public class ElementBuff extends Buff {
                 target.damage(Math.round(2 * consume), new ElementBuff());
 
                 // 范围易伤效果(强度减半)
-                Buff.affect(target, Weakness.class, duration * 0.7f);
+                Buff.affect(target, Vulnerable.class, duration * 0.7f);
             }
         }
 
