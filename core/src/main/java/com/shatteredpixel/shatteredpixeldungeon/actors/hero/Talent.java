@@ -36,6 +36,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArtifactRecharge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.CounterBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.EnhancedRings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
@@ -1093,11 +1094,11 @@ public enum Talent {
         //     dmg += 1 + hero.pointsInTalent(Talent.PROVOKED_ANGER);
         //     hero.buff(ProvokedAngerTracker.class).detach();
         // }
-
         if (hero.hasTalent(Talent.LINGERING_MAGIC)
                 && hero.buff(LingeringMagicTracker.class) != null) {
-            dmg += Random.IntRange(hero.pointsInTalent(Talent.LINGERING_MAGIC), 2);
-            hero.buff(LingeringMagicTracker.class).detach();
+            // dmg += Random.IntRange(hero.pointsInTalent(Talent.LINGERING_MAGIC), 2);
+            dmg *= ElementBuff.apply(ElementBuff.randomElement(), Dungeon.hero, enemy, hero.pointsInTalent(Talent.LINGERING_MAGIC) + 1);
+            // hero.buff(LingeringMagicTracker.class).detach();
         }
 
         if (hero.hasTalent(Talent.SUCKER_PUNCH)

@@ -43,6 +43,7 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Image;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
+import com.watabou.utils.Random;
 
 /**
  * 元素附着基类，处理游戏中的元素反应系统
@@ -72,11 +73,12 @@ public class ElementBuff extends Buff {
 
     @Override
     public boolean act() {
-        this.quantity -= 0.1f; // 改为固定值衰减
-        if (quantity > 10 && target instanceof Hero) {
-            quantity = 1;
+        reaction(this.target);
+        this.quantity *= 0.99f; // 改为固定值衰减
+        if (quantity < 0.5f && target instanceof Hero) {
+            quantity = 0f;
         }
-        if (quantity <= 0.1f) {  // 使用<=0判断
+        if (quantity <= 0.1f) {
             detach();
         }
         spend(0.1f);
@@ -94,6 +96,27 @@ public class ElementBuff extends Buff {
         CRYO     // 冰元素
     }
 
+    public static Element randomElement() {
+        switch (Random.Int(7)) {
+            case 0:
+                return Element.ANEMO; // 风元素
+            case 1:
+                return Element.GEO; // 岩元素
+            case 2:
+                return Element.ELECTRO; // 雷元素
+            case 3:
+                return Element.DENDRO; // 草元素
+            case 4:
+                return Element.HYDRO; // 水元素
+            case 5:
+                return Element.PYRO; // 火元素
+            case 6:
+                return Element.CRYO; // 冰元素
+            default:
+                return null;
+        }
+    }
+
     /**
      * 应用元素附着到目标
      *
@@ -102,7 +125,7 @@ public class ElementBuff extends Buff {
      * @param defender 目标
      * @param quantity 附着量
      */
-    public static void apply(Element element, Char attacker, Char defender, float quantity) {
+    public static float apply(Element element, Char attacker, Char defender, float quantity) {
         Buff buff = null;
 
         // 根据元素类型创建对应的buff实例
@@ -141,7 +164,7 @@ public class ElementBuff extends Buff {
 
         // 增加元素附着量并触发反应
         ((ElementBuff) buff).quantity += quantity;
-        ((ElementBuff) buff).reaction(defender);
+        return ((ElementBuff) buff).reaction(defender);
     }
 
     public static void detach(Char target, Element element) {
@@ -305,7 +328,7 @@ public class ElementBuff extends Buff {
 
     @Override
     public String desc() {
-        return Messages.get(this, "desc", quantity);
+        return Messages.get(this, "desc", (int) (quantity * 100) / 100f);
     }
 
     // ====================== 元素反应方法 ======================
@@ -513,10 +536,22 @@ public class ElementBuff extends Buff {
      */
     static float Crystalize(ElementBuff geo, ElementBuff other, Char ch) {
         float consume = Math.min(geo.quantity, other.quantity);
+        if (consume > 0) {
+            // 在怪物的图标上显示扩散文本
+            CharSprite cs = ch.sprite;
+            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "crystalize"));
+        } else {
+            consume = 0;
+        }
         geo.quantity -= consume;
         other.quantity -= consume;
-        // TODO: 实现结晶反应的具体效果（如生成护盾）
-        GLog.p("结晶（未实现）");
+        // 给英雄添加护盾
+        int amount = (int) (Dungeon.hero.HT * consume / 20);
+        Barrier b = Buff.affect(Dungeon.hero, Barrier.class);
+        if (b.shielding() <= amount) {
+            b.setShield(amount);
+            b.delay(Math.max(10 - b.cooldown(), 0));
+        }
         return 1f;
     }
 
@@ -605,31 +640,36 @@ public class ElementBuff extends Buff {
      */
     static float Bloom(ElementBuff hydro, ElementBuff dendro, Char ch) {
         float consume = Math.min(hydro.quantity, dendro.quantity);
-        if (consume >= 1) {
-            // 在怪物的图标上显示绽放文本
-            CharSprite cs = ch.sprite;
-            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "bloom"));
-        } else {
-            consume = 0;
-        }
-        int terr = Dungeon.level.map[ch.pos];
-        if (!(terr == Terrain.EMPTY || terr == Terrain.EMBERS || terr == Terrain.EMPTY_DECO
-                || terr == Terrain.GRASS || terr == Terrain.HIGH_GRASS || terr == Terrain.FURROWED_GRASS)) {
-            consume = 0;
-        } else if (consume >= 5) {
-            consume = 5;
+
+        // 在周围8格寻找有效位置
+        int cell = ch.pos + PathFinder.NEIGHBOURS8[Random.Int(8)];
+        int terr = Dungeon.level.map[cell];
+        // 根据消耗量决定效果
+        if (consume >= 5 && (terr == Terrain.HIGH_GRASS || terr == Terrain.FURROWED_GRASS || terr == Terrain.GRASS || terr == Terrain.EMPTY || terr == Terrain.EMBERS || terr == Terrain.EMPTY_DECO)) {
             // 种植随机植物
-            Dungeon.level.plant((Plant.Seed) Generator.randomUsingDefaults(Generator.Category.SEED), ch.pos);
-        } else if (consume >= 3) {
+            Plant.Seed plant = (Plant.Seed) Generator.randomUsingDefaults(Generator.Category.SEED);
+            Dungeon.level.plant(plant, cell);
+            ch.sprite.showStatus(CharSprite.POSITIVE, Messages.get(plant, "name"));
+            GameScene.updateMap(cell);
+            consume = 5;
+        } else if (consume >= 3 && (terr == Terrain.GRASS || terr == Terrain.EMPTY || terr == Terrain.EMBERS || terr == Terrain.EMPTY_DECO)) {
+            // 生成高草
+            Level.set(cell, Terrain.HIGH_GRASS);
+            GameScene.updateMap(cell);
             consume = 3;
-            // 种植高草
-            Level.set(ch.pos, Terrain.HIGH_GRASS);
-        } else {
+        } else if (consume >= 1 && (terr == Terrain.EMPTY || terr == Terrain.EMBERS || terr == Terrain.EMPTY_DECO)) {
+            // 生成犁过的草地
+            Level.set(cell, Terrain.FURROWED_GRASS);
+            GameScene.updateMap(cell);
             consume = 1;
-            Level.set(ch.pos, Terrain.FURROWED_GRASS);
-
+        } else {
+            return 1f;
         }
 
+        // 显示反应文本
+        ch.sprite.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "bloom"));
+
+        // 消耗元素
         hydro.quantity -= consume;
         dendro.quantity -= consume;
         return 1f;
