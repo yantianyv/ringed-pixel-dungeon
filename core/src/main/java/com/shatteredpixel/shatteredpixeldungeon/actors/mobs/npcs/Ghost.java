@@ -54,8 +54,6 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.Callback;
 import com.watabou.utils.Random;
 
-import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
-
 public class Ghost extends NPC {
 
     {
@@ -125,7 +123,6 @@ public class Ghost extends NPC {
 
     @Override
     public boolean reset() {
-
         return true;
     }
 
@@ -346,8 +343,9 @@ public class Ghost extends NPC {
                 weapon = (Weapon) Generator.random(Generator.wepTiers[wepTier - 1]);
 
                 //clear weapon's starting properties
+                weapon.level(0);
                 weapon.enchant(null);
-                weapon.cursed = true;
+                weapon.cursed = false;
 
                 //50%:+0, 30%:+1, 15%:+2, 5%:+3
                 float itemLevelRoll = Random.Float();
