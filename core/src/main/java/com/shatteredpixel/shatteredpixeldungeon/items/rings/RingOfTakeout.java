@@ -2,7 +2,11 @@ package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import static com.shatteredpixel.shatteredpixeldungeon.Dungeon.hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
@@ -53,6 +57,19 @@ public class RingOfTakeout extends Ring {
 
     // 定义RingBuff类
     public class Takeout extends RingBuff {
+
+        @Override
+        public boolean act() {
+            // 触发拼好饭之戒
+            if (Math.random() < RingOfTakeout.takeoutChance(target) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
+                // 拼好饭戒指的进餐逻辑
+                Buff.affect(Dungeon.hero, Hunger.class).satisfy(RingOfTakeout.eatEffectSatiety(target));
+                Talent.onFoodEaten(hero, RingOfTakeout.eatEffectSatiety(target), null);
+                spend(TICK);
+                return true;
+            }
+            return super.act();
+        }
     }
 
 }

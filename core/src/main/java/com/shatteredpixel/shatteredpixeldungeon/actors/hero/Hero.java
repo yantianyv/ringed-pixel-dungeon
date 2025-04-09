@@ -273,7 +273,7 @@ public class Hero extends Char {
         HT = HT > 10 ? HT : 10;
         HP = Math.min(HP, HT);
         if (Dungeon.is_developer_mode()) {
-            HP = 951629632;
+            HP = HT;
         }
     }
 

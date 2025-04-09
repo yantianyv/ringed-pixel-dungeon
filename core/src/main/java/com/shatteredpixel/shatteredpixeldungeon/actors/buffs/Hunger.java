@@ -24,8 +24,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Document;
@@ -62,17 +60,7 @@ public class Hunger extends Buff implements Hero.Doom {
 
     @Override
     public boolean act() {
-        // 触发拼好饭之戒
-        if (target.buff(RingOfTakeout.Takeout.class) != null) {
-            if (Math.random() < RingOfTakeout.takeoutChance(target) && RingOfTakeout.takeoutChance(target) > 0) {
-                // 拼好饭戒指的进餐逻辑
-                Hero hero = Dungeon.hero;
-                Buff.affect(hero, Hunger.class).satisfy(RingOfTakeout.eatEffectSatiety(target));
-                Talent.onFoodEaten(hero, RingOfTakeout.eatEffectSatiety(target), null);
-                spend(TICK);
-                return true;
-            }  
-        }
+
         // 触发吃得好buff
         if (Dungeon.level.locked
                 || target.buff(WellFed.class) != null
@@ -142,6 +130,10 @@ public class Hunger extends Buff implements Hero.Doom {
 
     public void affectHunger(float energy) {
         affectHunger(energy, false);
+    }
+
+    public float full() {
+        return STARVING - level;
     }
 
     public void affectHunger(float energy, boolean overrideLimits) {
