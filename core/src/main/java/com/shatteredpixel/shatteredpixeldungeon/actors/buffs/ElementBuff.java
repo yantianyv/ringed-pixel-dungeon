@@ -190,7 +190,7 @@ public class ElementBuff extends Buff {
      * 统一元素反应处理方法
      */
     protected float reactWith(Char ch, ElementBuff thisBuff) {
-        float consumed = 0;
+        float dmg_multi = 0;
 
         // 遍历目标的所有buff
         for (Buff b : ch.buffs()) {
@@ -201,94 +201,94 @@ public class ElementBuff extends Buff {
                 switch (this.element) {
                     case ANEMO:
                         if (other.element != Element.GEO) { // 风不与岩反应
-                            consumed += Spread(thisBuff, other, ch);
+                            dmg_multi *= Spread(thisBuff, other, ch);
                         }
                         break;
                     case GEO:
                         if (other.element != Element.ANEMO) { // 岩不与风反应
-                            consumed += Crystalize(thisBuff, other, ch);
+                            dmg_multi *= Crystalize(thisBuff, other, ch);
                         }
                         break;
                     case ELECTRO:
                         switch (other.element) {
                             case PYRO:
-                                consumed += Overload(other, thisBuff, ch);
+                                dmg_multi *= Overload(other, thisBuff, ch);
                                 break;
                             case CRYO:
-                                consumed += Superconduct(thisBuff, other, ch);
+                                dmg_multi *= Superconduct(thisBuff, other, ch);
                                 break;
                             case HYDRO:
-                                consumed += Shock(thisBuff, other, ch);
+                                dmg_multi *= Shock(thisBuff, other, ch);
                                 break;
                             case DENDRO:
-                                consumed += Activate(thisBuff, other, ch);
+                                dmg_multi *= Activate(thisBuff, other, ch);
                                 break;
                         }
                         break;
                     case DENDRO:
                         switch (other.element) {
                             case PYRO:
-                                consumed += Burn(other, thisBuff, ch);
+                                dmg_multi *= Burn(other, thisBuff, ch);
                                 break;
                             case HYDRO:
-                                consumed += Bloom(other, thisBuff, ch);
+                                dmg_multi *= Bloom(other, thisBuff, ch);
                                 break;
                             case ELECTRO:
-                                consumed += Activate(other, thisBuff, ch);
+                                dmg_multi *= Activate(other, thisBuff, ch);
                                 break;
                         }
                         break;
                     case HYDRO:
                         switch (other.element) {
                             case PYRO:
-                                consumed += Vaporize(other, thisBuff, ch);
+                                dmg_multi *= Vaporize(other, thisBuff, ch);
                                 break;
                             case CRYO:
-                                consumed += Freeze(other, thisBuff, ch);
+                                dmg_multi *= Freeze(other, thisBuff, ch);
                                 break;
                             case ELECTRO:
-                                consumed += Shock(other, thisBuff, ch);
+                                dmg_multi *= Shock(other, thisBuff, ch);
                                 break;
                             case DENDRO:
-                                consumed += Bloom(thisBuff, other, ch);
+                                dmg_multi *= Bloom(thisBuff, other, ch);
                                 break;
                             case GEO:
-                                consumed += Crystalize(other, thisBuff, ch);
+                                dmg_multi *= Crystalize(other, thisBuff, ch);
                                 break;
                         }
                         break;
                     case PYRO:
                         switch (other.element) {
                             case HYDRO:
-                                consumed += Vaporize(thisBuff, other, ch);
+                                dmg_multi *= Vaporize(thisBuff, other, ch);
                                 break;
                             case CRYO:
-                                consumed += Melt(thisBuff, other, ch);
+                                dmg_multi *= Melt(thisBuff, other, ch);
                                 break;
                             case ELECTRO:
-                                consumed += Overload(thisBuff, other, ch);
+                                dmg_multi *= Overload(thisBuff, other, ch);
                                 break;
                             case DENDRO:
-                                consumed += Burn(thisBuff, other, ch);
+                                dmg_multi *= Burn(thisBuff, other, ch);
                                 break;
                             case GEO:
-                                consumed += Crystalize(other, thisBuff, ch);
+                                dmg_multi *= Crystalize(other, thisBuff, ch);
                                 break;
                         }
                         break;
                     case CRYO:
                         switch (other.element) {
                             case PYRO:
-                                consumed += Melt(other, thisBuff, ch);
+                                dmg_multi *= Melt(other, thisBuff, ch);
                                 break;
                             case HYDRO:
-                                consumed += Freeze(thisBuff, other, ch);
+                                dmg_multi *= Freeze(thisBuff, other, ch);
                                 break;
                             case ELECTRO:
-                                consumed += Superconduct(other, thisBuff, ch);
+                                dmg_multi *= Superconduct(other, thisBuff, ch);
                                 break;
                             case GEO:
-                                consumed += Crystalize(other, thisBuff, ch);
+                                dmg_multi *= Crystalize(other, thisBuff, ch);
                                 break;
                         }
                         break;
@@ -301,7 +301,7 @@ public class ElementBuff extends Buff {
             detach();
         }
 
-        return consumed;
+        return dmg_multi;
     }
 
     @Override

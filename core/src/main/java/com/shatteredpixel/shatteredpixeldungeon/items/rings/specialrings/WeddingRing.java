@@ -22,7 +22,7 @@ public class WeddingRing extends SpecialRing {
             //组合统计信息，其中combinedBuffedBonus(Dungeon.hero)是所有已装备同类戒指的等级之和
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", combinedBuffedBonus(Dungeon.hero) * combinedBuffedBonus(Dungeon.hero)));
+                        Messages.decimalFormat("#.##", combinedBuffedBonus(Dungeon.hero) * 2));
             }
             return info;
         } else {// 鉴定前的通用信息
