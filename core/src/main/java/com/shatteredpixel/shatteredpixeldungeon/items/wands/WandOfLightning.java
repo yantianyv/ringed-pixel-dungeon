@@ -79,8 +79,6 @@ public class WandOfLightning extends DamageWand {
             multiplier = 1f;
         }
 
-        multiplier *= ElementBuff.apply(ElementBuff.Element.ELECTRO, curUser, mainTarget, 3 + buffedLvl());
-
         for (Char ch : affected) {
             if (ch == Dungeon.hero) {
                 PixelScene.shake(2, 0.3f);
@@ -88,10 +86,7 @@ public class WandOfLightning extends DamageWand {
             ch.sprite.centerEmitter().burst(SparkParticle.FACTORY, 3);
             ch.sprite.flash();
 
-            // 对每个被电击的目标附加雷元素(强度减半)
-            if (ch != mainTarget) {
-                ElementBuff.apply(ElementBuff.Element.ELECTRO, curUser, ch, 1 + buffedLvl() * 0.5f);
-            }
+            float dmg_multi = ElementBuff.apply(ElementBuff.Element.ELECTRO, curUser, ch, 1 + buffedLvl() * 0.5f);
 
             if (ch != curUser && ch.alignment == curUser.alignment && ch.pos != bolt.collisionPos) {
                 continue;
@@ -105,7 +100,7 @@ public class WandOfLightning extends DamageWand {
                     GLog.n(Messages.get(this, "ondeath"));
                 }
             } else {
-                ch.damage(Math.round(damageRoll() * multiplier), this);
+                ch.damage(Math.round(damageRoll() * multiplier * dmg_multi), this);
             }
         }
     }

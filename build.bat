@@ -1,6 +1,7 @@
 @echo off
 chcp 65001
 setlocal enabledelayedexpansion
+call ./gradlew clean
 call ./gradlew --stop
 
 set KEY_ALIAS=ringed-pixel-dungeon

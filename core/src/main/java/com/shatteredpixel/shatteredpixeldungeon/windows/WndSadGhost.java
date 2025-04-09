@@ -23,8 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -89,20 +88,30 @@ public class WndSadGhost extends Window {
             }
         };
         btnWeapon.item(Ghost.Quest.ring);// 左窗口的物品
-        btnWeapon.setRect((WIDTH - BTN_GAP) / 2 - BTN_SIZE, message.top() + message.height() + BTN_GAP, BTN_SIZE, BTN_SIZE);
+        btnWeapon.setRect((WIDTH - BTN_GAP) / 3 - BTN_SIZE, message.top() + message.height() + BTN_GAP, BTN_SIZE, BTN_SIZE);
         add(btnWeapon);
-        // 右窗口
+        // 中窗口
         ItemButton btnArmor = new ItemButton() {
             @Override
             protected void onClick() {
                 GameScene.show(new RewardWindow(item()));
             }
         };
-        btnArmor.item(Ghost.Quest.special_ring);// 右窗口的物品
+        btnArmor.item(Ghost.Quest.special_ring);// 中窗口的物品
         btnArmor.setRect(btnWeapon.right() + BTN_GAP, btnWeapon.top(), BTN_SIZE, BTN_SIZE);
         add(btnArmor);
+        // 右窗口
+        ItemButton btnWelth = new ItemButton() {
+            @Override
+            protected void onClick() {
+                GameScene.show(new RewardWindow(item()));
+            }
+        };
+        btnWelth.item(new RingOfWealth().identify());// 右窗口的物品
+        btnWelth.setRect(btnArmor.right() + BTN_GAP, btnWeapon.top(), BTN_SIZE, BTN_SIZE);
+        add(btnWelth);
 
-        resize(WIDTH, (int) btnArmor.bottom() + BTN_GAP);
+        resize(WIDTH, (int) btnWelth.bottom() + BTN_GAP);
     }
 
     private void selectReward(Item reward) {

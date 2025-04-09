@@ -83,6 +83,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfNahida;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
@@ -530,6 +531,7 @@ public class Generator {
             FOOD.probs = FOOD.defaultProbs.clone();
 
             RING.classes = new Class<?>[]{
+                RingOfWealth.class,
                 RingOfAgility.class,
                 RingOfMagicshooting.class,
                 RingOfEnergy.class,
@@ -539,7 +541,7 @@ public class Generator {
                 RingOfTakeout.class,
                 RingOfNahida.class,
                 RingOfDiscount.class};
-            RING.defaultProbs = new float[]{3, 3, 3, 3, 3, 3, 3, 3, 3};
+            RING.defaultProbs = new float[]{0, 3, 3, 3, 3, 3, 3, 3, 3, 3};
             RING.probs = RING.defaultProbs.clone();
 
             ARTIFACT.classes = new Class<?>[]{
