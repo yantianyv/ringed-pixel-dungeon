@@ -51,6 +51,7 @@ import com.watabou.utils.PathFinder;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
+// 冲击波法杖
 public class WandOfBlastWave extends DamageWand {
 
     {

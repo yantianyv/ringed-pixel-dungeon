@@ -46,6 +46,7 @@ import com.watabou.utils.ColorMath;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
+// 酸蚀法杖
 public class WandOfCorrosion extends Wand {
 
 	{

@@ -48,6 +48,7 @@ import com.watabou.utils.Callback;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
+// 雷电法杖
 public class WandOfLightning extends DamageWand {
 
     {
@@ -70,10 +71,6 @@ public class WandOfLightning extends DamageWand {
     public void onZap(Ballistica bolt) {
         // 对主要目标附加雷元素
         Char mainTarget = Actor.findChar(bolt.collisionPos);
-        if (mainTarget != null) {
-            // 附加雷元素，强度基于法杖等级
-            ElementBuff.apply(ElementBuff.Element.ELECTRO, curUser, mainTarget, 3 + buffedLvl());
-        }
 
         //lightning deals less damage per-target, the more targets that are hit.
         float multiplier = 0.4f + (0.6f / affected.size());
@@ -81,6 +78,8 @@ public class WandOfLightning extends DamageWand {
         if (Dungeon.level.water[bolt.collisionPos]) {
             multiplier = 1f;
         }
+
+        multiplier *= ElementBuff.apply(ElementBuff.Element.ELECTRO, curUser, mainTarget, 3 + buffedLvl());
 
         for (Char ch : affected) {
             if (ch == Dungeon.hero) {

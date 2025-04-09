@@ -190,7 +190,7 @@ public class ElementBuff extends Buff {
      * 统一元素反应处理方法
      */
     protected float reactWith(Char ch, ElementBuff thisBuff) {
-        float dmg_multi = 0;
+        float dmg_multi = 1;
 
         // 遍历目标的所有buff
         for (Buff b : ch.buffs()) {
@@ -448,7 +448,7 @@ public class ElementBuff extends Buff {
         }
         pyro.quantity -= consume;
         hydro.quantity -= consume;
-        return consume;
+        return 1.5f + consume * 0.1f;
     }
 
     /**
@@ -467,9 +467,7 @@ public class ElementBuff extends Buff {
         }
         pyro.quantity -= consume;
         cryo.quantity -= consume;
-        // TODO: 实现融化反应的具体效果
-        GLog.p("融化");
-        return consume;
+        return 1.5f + consume * 0.1f;
     }
 
     /**
