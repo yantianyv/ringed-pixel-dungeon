@@ -282,7 +282,6 @@ public class Ring extends KindofMisc {
 
         } else {
             super.upgrade();
-
         }
 
         return this;

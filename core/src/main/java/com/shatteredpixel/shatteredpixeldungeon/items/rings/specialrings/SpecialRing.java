@@ -50,4 +50,9 @@ public abstract class SpecialRing extends Ring {
         return this.buffedLvl() + 1;
     }
 
+    @Override
+    public boolean isUpgradable() {
+        return level() > 5;
+    }
+
 }

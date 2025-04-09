@@ -20,6 +20,9 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -49,10 +52,6 @@ import com.watabou.noosa.Visual;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 public class RingOfWealth extends Ring {
 
@@ -105,6 +104,11 @@ public class RingOfWealth extends Ring {
     @Override
     protected RingBuff buff() {
         return new Wealth();
+    }
+
+    @Override
+    public boolean isUpgradable() {
+        return level() > 5;
     }
 
     public static float dropChanceMultiplier(Char target) {
