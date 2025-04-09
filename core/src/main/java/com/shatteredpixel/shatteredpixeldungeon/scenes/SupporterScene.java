@@ -103,7 +103,21 @@ public class SupporterScene extends PixelScene {
         link_ringed.setSize(elementWidth, BTN_HEIGHT);
         add(link_ringed);
 
-        float elementHeight = msg.height() + BTN_HEIGHT + GAP;
+        // 支持戒指地牢
+        StyledButton link_ringed_ad = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "ringed_link_ad")) {
+            @Override
+            protected void onClick() {
+                super.onClick();
+                String link_ringed_ad = "https://www.123684.com/s/xyGhTd-j0GJH";
+                ShatteredPixelDungeon.platform.openURI(link_ringed_ad);
+            }
+        };
+        link_ringed_ad.icon(Icons.get(Icons.CHALLENGE_COLOR));
+        link_ringed_ad.textColor(Window.TITLE_COLOR);
+        link_ringed_ad.setSize(elementWidth, BTN_HEIGHT);
+        add(link_ringed_ad);
+
+        float elementHeight = msg.height() + 3 * BTN_HEIGHT + 3 * GAP;
 
         float top = 16 + (h - 16 - elementHeight) / 2f;
         float left = (w - elementWidth) / 2f;
@@ -116,6 +130,9 @@ public class SupporterScene extends PixelScene {
 
         link_ringed.setPos(left, link.bottom() + GAP);
         align(link_ringed);
+
+        link_ringed_ad.setPos(left, link_ringed.bottom() + GAP);
+        align(link_ringed_ad);
 
     }
 
@@ -138,12 +155,12 @@ public class SupporterScene extends PixelScene {
             String message = Messages.get(SupporterScene.class, "intro");
             message += "\n\n" + Messages.get(SupporterScene.class, "patreon_msg");
 
-            message += "\n\n- Evan";
+            message += "\n\n- HuaJi";
 
             text = PixelScene.renderTextBlock(message, 6);
             add(text);
 
-            icon = Icons.get(Icons.SHPX);
+            icon = Icons.get(Icons.RING_STRING);
             add(icon);
 
         }

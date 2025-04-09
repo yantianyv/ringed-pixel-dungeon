@@ -131,9 +131,6 @@ public class VisualShop extends ShopRoom {
                 rare = Generator.random(Generator.Category.RING);
                 rare.level(0);
                 break;
-            case 2:
-                rare = Generator.random(Generator.Category.ARTIFACT);
-                break;
             default:
                 rare = new Stylus();
         }
