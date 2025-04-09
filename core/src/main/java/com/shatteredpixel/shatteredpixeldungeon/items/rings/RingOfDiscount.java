@@ -85,6 +85,7 @@ public class RingOfDiscount extends Ring {
                     Item gold = new Gold();
                     gold.quantity(Dungeon.depth * 10);
                     // Dungeon.level.drop(gold, pos);
+                    Dungeon.hero.spend(- TIME_TO_PICK_UP);
                     gold.doPickUp(Dungeon.hero);
                     GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
                     spend(Dungeon.depth);
