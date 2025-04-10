@@ -41,6 +41,20 @@ public class RingOfNahida extends Ring {
         return (float) (1 - Math.pow(0.95, getBuffedBonus(target, Nahida.class)));
     }
 
+    protected static float efficiency = 1f;// 效率
+
+    public static void refresh() {
+        efficiency = 1f;
+    }
+
+    public static float efficiency() {
+        return efficiency;
+    }
+
+    public static void efficiency(float multi) {
+        efficiency *= multi;
+    }
+
     // 定义RingBuff类
     public class Nahida extends RingBuff {
     }

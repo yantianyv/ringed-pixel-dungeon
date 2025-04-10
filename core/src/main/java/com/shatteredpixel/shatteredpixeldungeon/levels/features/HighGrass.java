@@ -149,7 +149,8 @@ public class HighGrass {
                     if (ch != null) {
                         Hero hero = Dungeon.hero;
                         if (hero.buff(RingOfNahida.Nahida.class) != null) {	// 触发纳西妲之戒
-                            if (Random.Float() < RingOfNahida.grassBonusChance(hero)) {
+                            if (Random.Float() < RingOfNahida.grassBonusChance(hero) * RingOfNahida.efficiency()) {
+                                RingOfNahida.efficiency(0.9f);
                                 // 触发掉落
                                 Item i;
                                 switch (Random.Int(4)) {

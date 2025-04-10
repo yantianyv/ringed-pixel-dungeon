@@ -51,16 +51,23 @@ public class RingOfDiscount extends Ring {
         return (float) Math.pow(0.99, getBuffedBonus(target, Discount.class));
     }
 
+    protected static float efficiency = 1f;// 效率
+
+    public static void refresh() {
+        efficiency = 1f;
+    }
+
     // 定义RingBuff类
     public class Discount extends RingBuff {
 
         @Override
         public boolean act() {
             float chance = (1 - (float) Math.pow(0.99, getBuffedBonus(target, Discount.class))) / 10;
-            if (Random.Float() < chance) {
+            if (Random.Float() < chance * efficiency) {
                 int pos = Dungeon.hero.pos;
                 Heap heap = Dungeon.level.heaps.get(pos);
                 if (Dungeon.level.locked || Dungeon.depth == 10) {
+                    efficiency *= 0.999;
                     // 特殊情况只有弱化的掉落
                     Item gold = new Gold();
                     gold.quantity(1);
@@ -69,6 +76,7 @@ public class RingOfDiscount extends Ring {
                     GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
                     spend(30);
                 } else if (Dungeon.gold > 3000 && (heap == null || (heap == goodHeap && heap.size() == 1))) {
+                    efficiency *= 0.9;
                     // 触发百亿补贴
                     VisualShop visualshop = new VisualShop();
                     Item good = visualshop.chooseRandom();
@@ -81,6 +89,7 @@ public class RingOfDiscount extends Ring {
                     GLog.p(Messages.get(RingOfDiscount.class, "on_sale"));
                     spend(30);
                 } else {
+                    efficiency *= 0.95;
                     // 触发红包到账
                     Item gold = new Gold();
                     gold.quantity(Dungeon.depth * 10);

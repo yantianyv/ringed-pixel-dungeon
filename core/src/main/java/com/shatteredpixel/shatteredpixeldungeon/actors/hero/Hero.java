@@ -189,6 +189,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDiscount;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfNahida;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
@@ -2081,8 +2083,12 @@ public class Hero extends Char {
 
             }
         }
-
+        // 刷新拼好饭之戒的效率
         RingOfTakeout.refresh();
+        // 刷新纳西妲之戒的效率
+        RingOfNahida.refresh();
+        // 刷新百亿补贴之戒的效率
+        RingOfDiscount.refresh();
 
         //xp granted by ascension challenge is only for on-exp gain effects
         if (source != AscensionChallenge.class) {
