@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
@@ -25,35 +26,21 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.TextureFilm;
 
-public class TalentIcon extends Image {
+public class TalentIconRinged extends Image {
 
-    private static TextureFilm film;
-    private static final int SIZE = 16;
+	private static TextureFilm film;
+	private static final int SIZE = 16;
 
-    public TalentIcon(Talent talent) {
-        this(talent.icon());
-    }
+	public TalentIconRinged(Talent talent){
+		this(talent.icon());
+	}
 
-    public TalentIcon(int icon) {
-        super(getIconResource(icon));  // 把逻辑移到静态方法里
-        if (film == null) {
-            film = new TextureFilm(texture, SIZE, SIZE);
-        }
-        frame(film.get(getAdjustedIcon(icon)));
-    }
+	public TalentIconRinged(int icon){
+		super( Assets.Interfaces.TALENT_ICONS );
 
-    // 辅助方法：决定使用哪个资源文件
-    private static Object getIconResource(int icon) {
-        if (icon < 1000) {
-            return Assets.Interfaces.TALENT_ICONS;
-        } else {
-            return Assets.Interfaces.TALENT_ICONS_RINGED;
-        }
-    }
+		if (film == null) film = new TextureFilm(texture, SIZE, SIZE);
 
-    // 辅助方法：调整 icon 值（如果 >=1000 就减去 1000）
-    private static int getAdjustedIcon(int icon) {
-        return (icon < 1000) ? icon : icon - 1000;
-    }
+		frame(film.get(icon));
+	}
 
 }

@@ -94,16 +94,18 @@ import com.watabou.utils.Reflection;
 
 public enum Talent {
 
-    //Warrior T1
+    // 战士 T1
     HEARTY_MEAL(0), VETERANS_INTUITION(1), PROVOKED_ANGER(2), IRON_WILL(3),
-    //Warrior T2
+    // 战士 T2
     IRON_STOMACH(4), LIQUID_WILLPOWER(5), RUNIC_TRANSFERENCE(6), LETHAL_MOMENTUM(7), IMPROVISED_PROJECTILES(8),
-    //Warrior T3
+    // 战士 T3
     HOLD_FAST(9, 3), STRONGMAN(10, 3),
-    //Berserker T3
+    // 狂战士 T3
     ENDLESS_RAGE(11, 3), DEATHLESS_FURY(12, 3), ENRAGED_CATALYST(13, 3),
-    //Gladiator T3
+    // 角斗士 T3
     CLEAVE(14, 3), LETHAL_DEFENSE(15, 3), ENHANCED_COMBO(16, 3),
+    // 大胃王T3
+    BALANCED_MEAL(1011, 3), FEAST_FRENZY(1012, 3), FOOD_HUNTING(1013, 3),
     //Heroic Leap T4
     BODY_SLAM(17, 4), IMPACT_WAVE(18, 4), DOUBLE_JUMP(19, 4),
     //Shockwave T4
@@ -1358,6 +1360,9 @@ public enum Talent {
                 break;
             case GLADIATOR:
                 Collections.addAll(tierTalents, CLEAVE, LETHAL_DEFENSE, ENHANCED_COMBO);
+                break;
+            case MUKBANGER:
+                Collections.addAll(tierTalents, BALANCED_MEAL, FEAST_FRENZY, FOOD_HUNTING);
                 break;
             case BATTLEMAGE:
                 Collections.addAll(tierTalents, EMPOWERED_STRIKE, MYSTICAL_CHARGE, EXCESS_CHARGE);

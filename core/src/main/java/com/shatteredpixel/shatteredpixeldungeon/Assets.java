@@ -93,9 +93,11 @@ public class Assets {
         public static final String BUFFS_LARGE = "interfaces/large_buffs.png";
 
         public static final String TALENT_ICONS = "interfaces/talent_icons.png";
+        public static final String TALENT_ICONS_RINGED = "interfaces/talent_icons_ringed.png";
         public static final String TALENT_BUTTON = "interfaces/talent_button.png";
 
         public static final String HERO_ICONS = "interfaces/hero_icons.png";
+        public static final String HERO_ICONS_RINGED = "interfaces/hero_icons_ringed.png";
 
         public static final String RADIAL_MENU = "interfaces/radial_menu.png";
     }

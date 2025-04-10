@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -30,59 +29,60 @@ import com.watabou.noosa.Game;
 
 public enum HeroSubClass {
 
-	NONE(HeroIcon.NONE),
+    NONE(HeroIcon.NONE),
+    // 战士
+    BERSERKER(HeroIcon.BERSERKER), // 狂战士
+    GLADIATOR(HeroIcon.GLADIATOR), // 角斗士
+    MUKBANGER(HeroIcon.MUKBANGER), //大胃王
+    // 法师
+    BATTLEMAGE(HeroIcon.BATTLEMAGE),
+    WARLOCK(HeroIcon.WARLOCK),
+    // 盗贼
+    ASSASSIN(HeroIcon.ASSASSIN),
+    FREERUNNER(HeroIcon.FREERUNNER),
+    // 女猎
+    SNIPER(HeroIcon.SNIPER),
+    WARDEN(HeroIcon.WARDEN),
+    // 决斗家
+    CHAMPION(HeroIcon.CHAMPION),
+    MONK(HeroIcon.MONK),
+    // 牧师
+    PRIEST(HeroIcon.PRIEST),
+    PALADIN(HeroIcon.PALADIN);
 
-	BERSERKER(HeroIcon.BERSERKER),
-	GLADIATOR(HeroIcon.GLADIATOR),
+    int icon;
 
-	BATTLEMAGE(HeroIcon.BATTLEMAGE),
-	WARLOCK(HeroIcon.WARLOCK),
-	
-	ASSASSIN(HeroIcon.ASSASSIN),
-	FREERUNNER(HeroIcon.FREERUNNER),
-	
-	SNIPER(HeroIcon.SNIPER),
-	WARDEN(HeroIcon.WARDEN),
+    HeroSubClass(int icon) {
+        this.icon = icon;
+    }
 
-	CHAMPION(HeroIcon.CHAMPION),
-	MONK(HeroIcon.MONK),
+    public String title() {
+        return Messages.get(this, name());
+    }
 
-	PRIEST(HeroIcon.PRIEST),
-	PALADIN(HeroIcon.PALADIN);
+    public String shortDesc() {
+        return Messages.get(this, name() + "_short_desc");
+    }
 
-	int icon;
+    public String desc() {
+        //Include the staff effect description in the battlemage's desc if possible
+        if (this == BATTLEMAGE) {
+            String desc = Messages.get(this, name() + "_desc");
+            if (Game.scene() instanceof GameScene) {
+                MagesStaff staff = Dungeon.hero.belongings.getItem(MagesStaff.class);
+                if (staff != null && staff.wandClass() != null) {
+                    desc += "\n\n" + Messages.get(staff.wandClass(), "bmage_desc");
+                    desc = desc.replaceAll("_", "");
+                }
+            }
+            return desc;
+        } else {
+            return Messages.get(this, name() + "_desc");
+        }
+    }
 
-	HeroSubClass(int icon){
-		this.icon = icon;
-	}
-	
-	public String title() {
-		return Messages.get(this, name());
-	}
-
-	public String shortDesc() {
-		return Messages.get(this, name()+"_short_desc");
-	}
-
-	public String desc() {
-		//Include the staff effect description in the battlemage's desc if possible
-		if (this == BATTLEMAGE){
-			String desc = Messages.get(this, name() + "_desc");
-			if (Game.scene() instanceof GameScene){
-				MagesStaff staff = Dungeon.hero.belongings.getItem(MagesStaff.class);
-				if (staff != null && staff.wandClass() != null){
-					desc += "\n\n" + Messages.get(staff.wandClass(), "bmage_desc");
-					desc = desc.replaceAll("_", "");
-				}
-			}
-			return desc;
-		} else {
-			return Messages.get(this, name() + "_desc");
-		}
-	}
-
-	public int icon(){
-		return icon;
-	}
+    public int icon() {
+        return icon;
+    }
 
 }

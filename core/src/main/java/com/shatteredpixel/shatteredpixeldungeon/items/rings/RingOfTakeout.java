@@ -18,6 +18,8 @@ public class RingOfTakeout extends Ring {
         buffClass = Takeout.class;// 戒指的buff类型
     }
 
+    protected float chance = 1f;
+
     // 返回物品描述
     public String statsInfo() {
         // 依据是否鉴定返回不同信息
