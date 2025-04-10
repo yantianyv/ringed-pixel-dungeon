@@ -77,8 +77,8 @@ public class Thief extends Mob {
     @Override
     public float speed() {
         if (item != null) {
-            return (5 * super.speed()) / 6; 
-        }else {
+            return (5 * super.speed()) / 6;
+        } else {
             return super.speed();
         }
     }
@@ -134,7 +134,7 @@ public class Thief extends Mob {
         damage = super.attackProc(enemy, damage);
 
         if (alignment == Alignment.ENEMY && item == null
-                && enemy instanceof Hero && steal((Hero) enemy)) {
+                && enemy instanceof Hero && this.HP > 0 && steal((Hero) enemy)) {
             state = FLEEING;
         }
 

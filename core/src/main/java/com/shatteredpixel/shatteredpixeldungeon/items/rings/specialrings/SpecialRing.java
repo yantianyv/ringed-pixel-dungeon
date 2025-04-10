@@ -9,7 +9,7 @@ public abstract class SpecialRing extends Ring {
     {
         anonymize(); // 更推荐调用方法而非直接设字段
         image = ItemSpriteSheet.RING_VOID;
-
+        unique = true;
     }
 
     // 3. 完全跳过宝石系统的 reset 逻辑
