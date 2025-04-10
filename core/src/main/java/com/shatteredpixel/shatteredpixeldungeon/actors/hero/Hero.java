@@ -189,6 +189,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 
@@ -2060,6 +2061,7 @@ public class Hero extends Char {
     }
 
     public void earnExp(int exp, Class source) {
+        // 经验地牢挑战
         boolean dropsuccess = false;
         if (Dungeon.isChallenged(Challenges.XP_DUNGEON)) {
             for (int i = 0; i < exp / 100; i++) {
@@ -2079,6 +2081,9 @@ public class Hero extends Char {
 
             }
         }
+
+        RingOfTakeout.refresh();
+
         //xp granted by ascension challenge is only for on-exp gain effects
         if (source != AscensionChallenge.class) {
             this.exp += exp;

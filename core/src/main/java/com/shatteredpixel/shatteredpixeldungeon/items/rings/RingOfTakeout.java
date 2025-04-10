@@ -18,7 +18,7 @@ public class RingOfTakeout extends Ring {
         buffClass = Takeout.class;// 戒指的buff类型
     }
 
-    protected float chance = 1f;
+    protected static float basechance = 1f;
 
     // 返回物品描述
     public String statsInfo() {
@@ -57,13 +57,18 @@ public class RingOfTakeout extends Ring {
         return (float) (1 - Math.pow(0.995, getBuffedBonus(target, Takeout.class)));
     }
 
+    public static void refresh() {
+        basechance = 1f;
+    }
+
     // 定义RingBuff类
     public class Takeout extends RingBuff {
 
         @Override
         public boolean act() {
             // 触发拼好饭之戒
-            if (Math.random() < RingOfTakeout.takeoutChance(target) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
+            if (Math.random() < RingOfTakeout.takeoutChance(target) * basechance && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
+                basechance *= 0.99f;
                 // 拼好饭戒指的进餐逻辑
                 Buff.affect(Dungeon.hero, Hunger.class).satisfy(RingOfTakeout.eatEffectSatiety(target));
                 Talent.onFoodEaten(hero, RingOfTakeout.eatEffectSatiety(target), null);
@@ -72,6 +77,7 @@ public class RingOfTakeout extends Ring {
             }
             return super.act();
         }
+
     }
 
 }
