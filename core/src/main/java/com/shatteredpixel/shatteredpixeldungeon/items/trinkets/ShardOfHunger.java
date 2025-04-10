@@ -40,12 +40,12 @@ public class ShardOfHunger extends Trinket {
         if (isIdentified()) {
             return Messages.get(this,
                     "stats_desc",
-                    Messages.decimalFormat("#.##", 100 * ((1f / extraHunger(buffedLvl())) - 1f))
+                    Messages.decimalFormat("#", extraHunger(buffedLvl()))
             );
         } else {
             return Messages.get(this,
                     "typical_stats_desc",
-                    Messages.decimalFormat("#.##", 100 * ((1f / extraHunger(buffedLvl())) - 1f))
+                    Messages.decimalFormat("#", extraHunger(1))
             );
         }
     }

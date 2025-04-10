@@ -803,8 +803,16 @@ public class AlchemyScene extends PixelScene {
         for (Item finding : toFind) {
             int needed = finding.quantity();
             ArrayList<Item> found = inventory.getAllSimilar(finding);
+
             while (!found.isEmpty() && needed > 0) {
                 Item detached;
+                while (found.get(0).cursed || found.get(0).isEquipped(Dungeon.hero)) {
+                    found.remove(0);
+                    if (found.isEmpty()) {
+                        return;
+                    }
+                }
+
                 if (finding instanceof LiquidMetal) {
                     detached = found.get(0).detachAll(inventory.backpack);
                 } else {

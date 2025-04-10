@@ -148,7 +148,10 @@ public class Hunger extends Buff implements Hero.Doom {
         float oldLevel = level;
 
         level -= energy;
-        if (level < -ShardOfHunger.extraHunger() && !overrideLimits) {
+        level = level < -10e30f ? -10e30f : level;
+
+        float maxfull = ShardOfHunger.extraHunger();
+        if (level < -maxfull && !overrideLimits) {
             level = -ShardOfHunger.extraHunger();
         } else if (level > STARVING) {
             float excess = level - STARVING;

@@ -133,9 +133,9 @@ public class StatusPane extends Component {
             excessHunger = new Image(asset, 0, 40, 25, 4);
         }
         hunger.color(0xC68749); // Orange
-        excessHunger.hardlight(0x808080); // Gray
-        add(excessHunger);
+        excessHunger.color(0x00FF00);
         add(hunger);
+        add(excessHunger);
 
         hungerText = new BitmapText(PixelScene.pixelFont);
         hungerText.alpha(0.3f);
@@ -359,21 +359,25 @@ public class StatusPane extends Component {
                 excessHunger.scale.x = 0;
             } else {
                 hunger.scale.x = 1;
-                float excess = (float) Math.log10(1 + (hungerVal - maxHunger)) / 10f;
+                float excess = (float) (Math.log(1 + (hungerVal - maxHunger)) / Math.log(1000) / 10);
                 excessHunger.scale.x = Math.min(1, excess);
             }
-            hungerText.text((int) hungerVal + "");
-
+            String hungerStr = String.valueOf((int) hungerVal);
+            if (hungerStr.length() > 7) {
+                hungerText.text(String.format("%.2e", hungerVal));
+            } else {
+                hungerText.text(hungerStr);
+            }
             hungerText.measure();
             if (large) {
-                hungerText.x = hunger.x + (64 - hungerText.width()) / 2f;
+                hungerText.x = hunger.x + (64 / 2 - Math.round(hungerText.width() / 4) * 2);
             } else {
-                hungerText.x = hunger.x + (25 - hungerText.width()) / 2f;
+                hungerText.x = hunger.x + (25 / 2 - Math.round(hungerText.width() / 4) * 2);
             }
         } else {
             hunger.scale.x = 0;
             excessHunger.scale.x = 0;
-            hungerText.text("0%");
+            hungerText.text("null");
         }
 
         if (large) {
