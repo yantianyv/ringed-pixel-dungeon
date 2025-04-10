@@ -236,7 +236,7 @@ public class StatusPane extends Component {
             hunger.x = excessHunger.x = hp.x + hp.width;
             hunger.y = excessHunger.y = hp.y;
 
-            hungerText.x = hunger.x + (64 - hungerText.width()) / 2f;
+            hungerText.x = hunger.x;
             hungerText.y = hunger.y + 1;
             PixelScene.align(hungerText);
 
@@ -357,13 +357,12 @@ public class StatusPane extends Component {
             if (hungerVal <= maxHunger) {
                 hunger.scale.x = hungerVal / maxHunger;
                 excessHunger.scale.x = 0;
-                hungerText.text(Math.round((hungerVal / maxHunger) * 100) + "%");
             } else {
                 hunger.scale.x = 1;
                 float excess = (float) Math.log10(1 + (hungerVal - maxHunger)) / 10f;
                 excessHunger.scale.x = Math.min(1, excess);
-                hungerText.text("100%+" + Math.round(hungerVal - maxHunger));
             }
+            hungerText.text((int) hungerVal + "");
 
             hungerText.measure();
             if (large) {

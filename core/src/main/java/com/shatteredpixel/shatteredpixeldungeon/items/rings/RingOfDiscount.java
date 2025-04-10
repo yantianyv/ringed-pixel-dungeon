@@ -68,7 +68,7 @@ public class RingOfDiscount extends Ring {
                     gold.doPickUp(Dungeon.hero);
                     GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
                     spend(30);
-                } else if (Dungeon.gold > 3000 && (heap == null || heap == goodHeap)) {
+                } else if (Dungeon.gold > 3000 && (heap == null || (heap == goodHeap && heap.size() == 1))) {
                     // 触发百亿补贴
                     VisualShop visualshop = new VisualShop();
                     Item good = visualshop.chooseRandom();

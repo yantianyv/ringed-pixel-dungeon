@@ -7,6 +7,8 @@ call ./gradlew --stop
 set KEY_ALIAS=ringed-pixel-dungeon
 set KEYSTORE_PATH=android\key\key.jks
 
+cls
+
 rem 手动输入 Keystore 密码
 set /p PASSWORD=请输入 Keystore 密码（留空则编译debug版本）：
 cls
