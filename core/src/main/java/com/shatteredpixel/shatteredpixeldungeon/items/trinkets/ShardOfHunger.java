@@ -55,10 +55,20 @@ public class ShardOfHunger extends Trinket {
     }
 
     public static float extraHunger(int level) {
-        if (level == -1) {
-            return 0;
-        } else {
-            return level * level * 150;
+        switch (level) {
+            case -1:
+                return 0;
+            case 0:
+                return 150;
+            case 1:
+                return 450;
+            case 2:
+                return 1350;
+            case 3:
+                return 2550;
+            default:
+                return level * 900 + 150;
+
         }
     }
 

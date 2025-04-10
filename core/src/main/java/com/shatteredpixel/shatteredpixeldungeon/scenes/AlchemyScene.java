@@ -863,7 +863,9 @@ public class AlchemyScene extends PixelScene {
             for (int i = 0; i < inputs.length; i++) {
                 if (inputs[i] != null && inputs[i].item() != null) {
                     Item item = inputs[i].item();
-                    if (!item.collect()) {
+                    if (item instanceof EquipableItem && item.isEquipped(Dungeon.hero)) {
+                        // pass
+                    } else if (!item.collect()) {
                         Dungeon.level.drop(item, Dungeon.hero.pos);
                     }
                     inputs[i].item(null);

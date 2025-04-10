@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube;
+import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfHunger;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Document;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -147,8 +148,8 @@ public class Hunger extends Buff implements Hero.Doom {
         float oldLevel = level;
 
         level -= energy;
-        if (level < 0 && !overrideLimits) {
-            level = 0;
+        if (level < -ShardOfHunger.extraHunger() && !overrideLimits) {
+            level = -ShardOfHunger.extraHunger();
         } else if (level > STARVING) {
             float excess = level - STARVING;
             level = STARVING;
