@@ -707,7 +707,10 @@ public class DriedRose extends Artifact {
         public void damage(int dmg, Object src) {
             super.damage(dmg, src);
             if (src instanceof Mob) {
-                ((Mob) src).damage((int) (dmg * (WeddingRing.ghostPower(Dungeon.hero))), this);
+                int dmg_rec = (int) (dmg * (WeddingRing.ghostPower(Dungeon.hero)));
+                if (dmg_rec > 0) {
+                    ((Mob) src).damage(dmg_rec, this);
+                }
             }
 
             //for the rose status indicator

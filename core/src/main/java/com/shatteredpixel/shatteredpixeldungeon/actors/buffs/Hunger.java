@@ -24,6 +24,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfHunger;
@@ -33,6 +34,8 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
+
+import jdk.internal.net.http.common.Log;
 
 public class Hunger extends Buff implements Hero.Doom {
 
@@ -74,18 +77,23 @@ public class Hunger extends Buff implements Hero.Doom {
         if (target.isAlive() && target instanceof Hero) {
 
             Hero hero = (Hero) target;
-
-            if (isStarving()) {
-
+            // 触发大胃王饥饿结算
+            if (hero.subClass == HeroSubClass.MUKBANGER && full() >= 3000) {
+                float x = full() / 1000;
+                level += x;
+                hero.HP += Math.log(1 + x) / Math.log(2);
+                if (hero.HP > Dungeon.hero.HT) {
+                    hero.HP = Dungeon.hero.HT;
+                }
+            }// 触发极度饥饿结算 
+            else if (isStarving()) {
                 partialDamage += target.HT / 1000f;
-
                 if (partialDamage > 1) {
                     target.damage((int) partialDamage, this);
                     partialDamage -= (int) partialDamage;
                 }
-
-            } else {
-
+            }// 触发普通饥饿结算
+            else {
                 float hungerDelay = 1f;
                 if (target.buff(Shadows.class) != null) {
                     hungerDelay *= 1.5f;
@@ -151,7 +159,9 @@ public class Hunger extends Buff implements Hero.Doom {
         level = level < -10e30f ? -10e30f : level;
 
         float maxfull = ShardOfHunger.extraHunger();
-        if (level < -maxfull && !overrideLimits) {
+        if (Dungeon.hero.subClass == HeroSubClass.MUKBANGER) {
+            // pass
+        } else if (level < -maxfull && !overrideLimits) {
             level = -ShardOfHunger.extraHunger();
         } else if (level > STARVING) {
             float excess = level - STARVING;
