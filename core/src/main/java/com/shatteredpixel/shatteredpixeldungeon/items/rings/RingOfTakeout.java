@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.watabou.utils.Bundle;
 
 public class RingOfTakeout extends Ring {
 
@@ -56,7 +57,17 @@ public class RingOfTakeout extends Ring {
     }
 
     protected static float efficiency = 1f;// 效率
+    @Override
+    public void storeInBundle(Bundle bundle) {
+        super.storeInBundle(bundle);
+        bundle.put("efficiency", efficiency);
+    }
 
+    @Override
+    public void restoreFromBundle(Bundle bundle) {
+        super.restoreFromBundle(bundle);
+        efficiency = bundle.getFloat("efficiency");
+    }
     public static void refresh() {
         efficiency = 1f;
     }

@@ -22,8 +22,10 @@ package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.watabou.utils.Bundle;
 
 public class RingOfTimetraveler extends Ring {
 
@@ -63,12 +65,51 @@ public class RingOfTimetraveler extends Ring {
         return new TimeCompression();
     }
 
+    @Override
+    public String desc() {
+        String ascension = "";
+        if (Dungeon.hero.buff(AscensionChallenge.class) != null) {
+            ascension = Messages.get(this, "ascension_desc", (int) (efficiency * 100));
+        }
+        return (isKnown() ? super.desc() : Messages.get(this, "unknown_desc")) + ascension;
+    }
+    protected static float efficiency = 1f;// 效率
+
+    @Override
+    public void storeInBundle(Bundle bundle) {
+        super.storeInBundle(bundle);
+        bundle.put("efficiency", efficiency);
+    }
+
+    @Override
+    public void restoreFromBundle(Bundle bundle) {
+        super.restoreFromBundle(bundle);
+        efficiency = bundle.getFloat("efficiency");
+    }
+
+    public static void refresh() {
+        efficiency = 1f;
+    }
+
     public static float timeMultiplier(Char target) {
         float result = (float) Math.pow(0.9, getBuffedBonus(target, TimeCompression.class));
+        result = (float) Math.pow(result, efficiency);
         result = Math.abs(result) < 0.01f ? 0.01f : result;
         return result;
     }
 
     public class TimeCompression extends RingBuff {
+
+        @Override
+        public boolean act() {
+            if (target.buff(AscensionChallenge.class) != null) {
+                efficiency *= 0.99;
+                spend(timeMultiplier(target));
+            } else {
+                efficiency = 1f;
+                spend(TICK);
+            }
+            return true;
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.watabou.utils.Bundle;
 
 public class RingOfNahida extends Ring {
 
@@ -42,6 +43,18 @@ public class RingOfNahida extends Ring {
     }
 
     protected static float efficiency = 1f;// 效率
+
+    @Override
+    public void storeInBundle(Bundle bundle) {
+        super.storeInBundle(bundle);
+        bundle.put("efficiency", efficiency);
+    }
+
+    @Override
+    public void restoreFromBundle(Bundle bundle) {
+        super.restoreFromBundle(bundle);
+        efficiency = bundle.getFloat("efficiency");
+    }
 
     public static void refresh() {
         efficiency = 1f;

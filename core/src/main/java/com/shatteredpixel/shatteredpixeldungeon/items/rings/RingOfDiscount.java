@@ -53,6 +53,21 @@ public class RingOfDiscount extends Ring {
 
     protected static float efficiency = 1f;// 效率
 
+    @Override
+    public void storeInBundle(Bundle bundle) {
+        if (goodHeap != null) {
+            goodHeap.destroy();
+        }
+        super.storeInBundle(bundle);
+        bundle.put("efficiency", efficiency);
+    }
+
+    @Override
+    public void restoreFromBundle(Bundle bundle) {
+        super.restoreFromBundle(bundle);
+        efficiency = bundle.getFloat("efficiency");
+    }
+
     public static void refresh() {
         efficiency = 1f;
     }
@@ -106,12 +121,4 @@ public class RingOfDiscount extends Ring {
         }
     }
 
-// 保存游戏时，将商品堆保存到Bundle中，并摧毁商品堆
-    @Override
-    public void storeInBundle(Bundle bundle) {
-        if (goodHeap != null) {
-            goodHeap.destroy();
-        }
-        super.storeInBundle(bundle);
-    }
 }
