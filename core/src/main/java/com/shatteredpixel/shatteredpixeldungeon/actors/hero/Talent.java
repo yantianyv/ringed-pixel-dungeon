@@ -58,12 +58,14 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.LeafParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty;
+import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
@@ -668,6 +670,31 @@ public enum Talent {
                 hero.belongings.armor.identify();
             }
         }
+        // 处理探店达人的升级效果
+        if (talent == FOOD_HUNTING) {
+            int pospointer = hero.pos;
+            boolean success = false;
+            for (int i = 0; i <= 8; i++) {
+                pospointer = hero.pos + PathFinder.NEIGHBOURS9[i];
+                if ((Terrain.flags[Dungeon.level.map[pospointer]] & Terrain.PASSABLE) == 0 // 不可通过
+                        || (Terrain.flags[Dungeon.level.map[pospointer]] & Terrain.SECRET) != 0 // 存在隐藏物体
+                        || Dungeon.level.map[pospointer] == Terrain.ENTRANCE // 下楼
+                        || Dungeon.level.map[pospointer] == Terrain.ENTRANCE_SP // 特殊下楼
+                        || Dungeon.level.map[pospointer] == Terrain.EXIT // 上楼
+                        || Dungeon.level.heaps.get(pospointer) != null // 存在掉落物
+                        ) {
+                } else {
+                    success = true;
+                    break;
+                }
+            }
+            if (success) {
+                Heap good = Dungeon.level.drop(new SmallRation(), pospointer);
+                good.sprite.drop();
+                good.type = Heap.Type.FOR_SALE;
+            }
+        }
+
         if (talent == THIEFS_INTUITION && hero.pointsInTalent(THIEFS_INTUITION) == 2) {
             if (hero.belongings.ring1 instanceof Ring && !ShardOfOblivion.passiveIDDisabled()) {
                 hero.belongings.ring1.identify();

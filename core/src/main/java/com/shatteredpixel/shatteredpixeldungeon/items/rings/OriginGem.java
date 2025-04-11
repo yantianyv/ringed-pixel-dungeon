@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
@@ -37,6 +38,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
+import com.watabou.utils.Random;
 
 public class OriginGem extends Item {
 
@@ -154,6 +156,9 @@ public class OriginGem extends Item {
             } else if (item instanceof OriginGem) {
                 if (quantity() >= 5) {
                     Item drop = Generator.random(Generator.Category.RING);
+                    if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 3 && Random.Int(2) == 0) {
+                        drop = new RingOfTakeout().random();
+                    }
                     Dungeon.level.drop(drop, Dungeon.hero.pos);
                     quantity(quantity() - 5);
                     GLog.p(Messages.get(OriginGem.class, "identify"));

@@ -18,21 +18,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
 package com.shatteredpixel.shatteredpixeldungeon.items.food;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class SmallRation extends Food {
 
-	{
-		image = ItemSpriteSheet.OVERPRICED;
-		energy = Hunger.HUNGRY/2f;
-	}
-	
-	@Override
-	public int value() {
-		return 10 * quantity;
-	}
+    {
+        image = ItemSpriteSheet.OVERPRICED;
+        energy = Hunger.HUNGRY / 2f;
+    }
+
+    @Override
+    public int value() {
+        if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 2) {
+            return 5 * quantity;
+        }
+        return 10 * quantity;
+    }
 }
