@@ -82,9 +82,7 @@ public class Hunger extends Buff implements Hero.Doom {
                 float x = full() / 1000;
                 level += x;
                 hero.HP += Math.log(1 + x) / Math.log(2);
-                if (hero.HP > Dungeon.hero.HT) {
-                    hero.HP = Dungeon.hero.HT;
-                }
+                hero.updateHT(false);
             }// 触发极度饥饿结算 
             else if (isStarving()) {
                 partialDamage += target.HT / 1000f;

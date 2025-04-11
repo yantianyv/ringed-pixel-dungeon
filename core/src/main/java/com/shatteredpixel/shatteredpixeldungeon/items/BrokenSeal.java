@@ -44,6 +44,9 @@ import com.watabou.utils.Bundle;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+
 public class BrokenSeal extends Item {
 
     public static final String AC_AFFIX = "AFFIX";
@@ -87,7 +90,11 @@ public class BrokenSeal extends Item {
     }
 
     public int maxShield(int armTier, int armLvl) {
-        return armTier + armLvl + Dungeon.hero.pointsInTalent(Talent.IRON_WILL);
+        int frenzy_extra = 0;
+        if (Dungeon.hero.hasTalent(Talent.FEAST_FRENZY) && Dungeon.hero.pointsInTalent(Talent.FEAST_FRENZY) >= 3) {
+            frenzy_extra = (int) (Math.log(Dungeon.hero.buff(Hunger.class).full()) / Math.log(2));
+        }
+        return armTier + armLvl + Dungeon.hero.pointsInTalent(Talent.IRON_WILL) + frenzy_extra;
     }
 
     @Override

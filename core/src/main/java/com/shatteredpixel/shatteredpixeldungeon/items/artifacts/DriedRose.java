@@ -706,7 +706,7 @@ public class DriedRose extends Artifact {
         @Override
         public void damage(int dmg, Object src) {
             super.damage(dmg, src);
-            if (src instanceof Mob) {
+            if (src instanceof Mob&&src!=this) {
                 int dmg_rec = (int) (dmg * (WeddingRing.ghostPower(Dungeon.hero)));
                 if (dmg_rec > 0) {
                     ((Mob) src).damage(dmg_rec, this);

@@ -259,17 +259,23 @@ public class Hero extends Char {
 
     public void updateHT(boolean boostHP) {
         int curHT = HT;
-
+        // 计算基础生命上限
         HT = STR * STR / 5 + 5 * (lvl - 1) + HTBoost;
+        // 计算大胃王暴风吸入天赋提供的基础生命上限
+        if (hasTalent(Talent.FEAST_FRENZY) && pointsInTalent(Talent.FEAST_FRENZY) >= 2 && this.buff(Hunger.class).full() > 3000) {
+            HT += Math.round(HT + (this.buff(Hunger.class).full() - 3000) / 100);
+        }
+        // 计算江东铁壁之戒提供的基础生命上限
         float addition = RingOfDefender.HTAddition(this);
         HT = Math.round(HT + addition);
+        // 计算蓄意轰拳之戒提供的生命上限倍增
         float multiplier = RingOfKungfu.HTMultiplier(this);
         HT = Math.round(multiplier * HT);
-
+        // 计算药水提供的额外生命上限
         if (buff(ElixirOfMight.HTBoost.class) != null) {
             HT += buff(ElixirOfMight.HTBoost.class).boost();
         }
-
+        // 计算因生命上限增加获得的额外生命
         if (boostHP) {
             HP += Math.max(HT - curHT, 0);
         }

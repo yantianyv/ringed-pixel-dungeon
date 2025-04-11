@@ -80,6 +80,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWea
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass.Health;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle.TimeBubble;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
@@ -114,7 +116,7 @@ public enum Talent {
     SUSTAINED_RETRIBUTION(23, 4), SHRUG_IT_OFF(24, 4), EVEN_THE_ODDS(25, 4),
     //Mage T1
     EMPOWERING_MEAL(32), SCHOLARS_INTUITION(33), LINGERING_MAGIC(34), BACKUP_BARRIER(35),
-    //Mage T2
+    //法师 T2
     ENERGIZING_MEAL(36), INSCRIBED_POWER(37), WAND_PRESERVATION(38), ARCANE_VISION(39), SHIELD_BATTERY(40),
     //Mage T3
     DESPERATE_POWER(41, 3), ALLY_WARP(42, 3),
@@ -822,40 +824,43 @@ public enum Talent {
             }
             hero.HP = Math.min(hero.HP + healing, hero.HT);
             hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healing), FloatingText.HEALING);
-        }
+        }// 钢铁之胃
         if (hero.hasTalent(IRON_STOMACH)) {
-            if (hero.cooldown() > 0) {
+            if (hero.hasTalent(FEAST_FRENZY)) {
+                Buff.affect(hero, WarriorFoodImmunity.class, 1);
+            } else if (hero.cooldown() > 0) {
                 Buff.affect(hero, WarriorFoodImmunity.class, hero.cooldown());
             }
-        }
+        }//　盈能一餐
         if (hero.hasTalent(EMPOWERING_MEAL)) {
             //2/3 bonus wand damage for next 3 zaps
             Buff.affect(hero, WandEmpower.class).set(1 + hero.pointsInTalent(EMPOWERING_MEAL), 3);
             ScrollOfRecharging.charge(hero);
-        }
+        }// 充能一餐
         if (hero.hasTalent(ENERGIZING_MEAL)) {
             //5/8 turns of recharging
             Buff.prolong(hero, Recharging.class, 2 + 3 * (hero.pointsInTalent(ENERGIZING_MEAL)));
             ScrollOfRecharging.charge(hero);
             SpellSprite.show(hero, SpellSprite.CHARGE);
-        }
+        }// 秘术祭食
         if (hero.hasTalent(MYSTICAL_MEAL)) {
             //3/5 turns of recharging
             ArtifactRecharge buff = Buff.affect(hero, ArtifactRecharge.class);
             if (buff.left() < 1 + 2 * (hero.pointsInTalent(MYSTICAL_MEAL))) {
+                buff.detach();
                 Buff.affect(hero, ArtifactRecharge.class).set(1 + 2 * (hero.pointsInTalent(MYSTICAL_MEAL))).ignoreHornOfPlenty = foodSource instanceof HornOfPlenty;
             }
             ScrollOfRecharging.charge(hero);
             SpellSprite.show(hero, SpellSprite.CHARGE, 0, 1, 1);
-        }
+        }// 活力一餐
         if (hero.hasTalent(INVIGORATING_MEAL)) {
             //effectively 1/2 turns of haste
             Buff.prolong(hero, Haste.class, 0.67f + hero.pointsInTalent(INVIGORATING_MEAL));
-        }
+        }// 强健一餐
         if (hero.hasTalent(STRENGTHENING_MEAL)) {
             //3 bonus physical damage for next 2/3 attacks
             Buff.affect(hero, PhysicalEmpower.class).set(3, 1 + hero.pointsInTalent(STRENGTHENING_MEAL));
-        }
+        }// 专注一餐
         if (hero.hasTalent(FOCUSED_MEAL)) {
             if (hero.heroClass == HeroClass.DUELIST) {
                 //0.67/1 charge for the duelist
@@ -865,7 +870,7 @@ public enum Talent {
                 // lvl/3 / lvl/2 bonus dmg on next hit for other classes
                 Buff.affect(hero, PhysicalEmpower.class).set(Math.round(hero.lvl / (4f - hero.pointsInTalent(FOCUSED_MEAL))), 1);
             }
-        }
+        }// 圣餐礼文
         if (hero.hasTalent(SATIATED_SPELLS)) {
             if (hero.heroClass == HeroClass.CLERIC) {
                 Buff.affect(hero, SatiatedSpellsTracker.class);
@@ -878,7 +883,7 @@ public enum Talent {
                     b.delay(Math.max(10 - b.cooldown(), 0));
                 }
             }
-        }
+        }// 启蒙圣餐
         if (hero.hasTalent(ENLIGHTENING_MEAL)) {
             if (hero.heroClass == HeroClass.CLERIC) {
                 HolyTome tome = hero.belongings.getItem(HolyTome.class);
@@ -895,6 +900,24 @@ public enum Talent {
                 Buff.prolong(hero, Recharging.class, 1 + (hero.pointsInTalent(ENLIGHTENING_MEAL)));
                 ScrollOfRecharging.charge(hero);
                 SpellSprite.show(hero, SpellSprite.CHARGE);
+            }
+        }// 营养均衡
+        if (hero.hasTalent(BALANCED_MEAL)) {
+            switch (hero.pointsInTalent(BALANCED_MEAL)) {
+                case 3:
+                    Buff.affect(hero, TimeBubble.class).reset(1);
+                case 2:
+                    Buff.affect(hero, Health.class).boost(10);
+                    Barrier b = Buff.affect(Dungeon.hero, Barrier.class);
+                    if (b.shielding() <= 10) {
+                        b.setShield(10);
+                        b.delay(Math.max(10 - b.cooldown(), 0));
+                    }
+                case 1:
+                    Buff.prolong(hero, Recharging.class, 1);
+                    Buff.affect(hero, ArtifactRecharge.class).extend(1);
+                default:
+                    ScrollOfRecharging.charge(hero);
             }
         }
     }
@@ -1354,14 +1377,14 @@ public enum Talent {
 
         //tier 3
         switch (cls) {
-            case BERSERKER:
+            case BERSERKER:// 狂战士
             default:
                 Collections.addAll(tierTalents, ENDLESS_RAGE, DEATHLESS_FURY, ENRAGED_CATALYST);
                 break;
-            case GLADIATOR:
+            case GLADIATOR:// 角斗士
                 Collections.addAll(tierTalents, CLEAVE, LETHAL_DEFENSE, ENHANCED_COMBO);
                 break;
-            case MUKBANGER:
+            case MUKBANGER:// 大胃王
                 Collections.addAll(tierTalents, BALANCED_MEAL, FEAST_FRENZY, FOOD_HUNTING);
                 break;
             case BATTLEMAGE:
