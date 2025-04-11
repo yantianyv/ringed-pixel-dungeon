@@ -666,9 +666,9 @@ public class ElementBuff extends Buff {
             // 对范围内的目标造成伤害
             Char target = Actor.findChar(ch.pos + PathFinder.NEIGHBOURS9[i]);
             if (target != null) {
-                int dmg = (int) consume * Dungeon.depth / 5;
+                int dmg = (int) consume * (2 + Dungeon.depth / 5);
                 if (target instanceof Hero) {
-                    dmg = (int) consume;
+                    dmg /= 3;
                 }
                 target.damage(Math.round(dmg), new ElementBuff());
             }
