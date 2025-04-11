@@ -111,7 +111,7 @@ public class Frost extends FlavourBuff {
         // if (Dungeon.level.water[target.pos]) {
         //     Buff.prolong(target, Chill.class, Chill.DURATION / 2f);
         // }
-        target.damage(frost_damage, target);
+        target.damage(frost_damage, new ElementBuff());
     }
 
     @Override

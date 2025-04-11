@@ -126,7 +126,7 @@ public class StatusPane extends Component {
 
         // Initialize hunger display (right of HP bar)
         if (large) {
-            hunger = new Image(asset, 0, 103, 64, 9);
+            hunger = new Image(asset, 0, 112, 64, 9);
             excessHunger = new Image(asset, 0, 112, 64, 9);
         } else {
             hunger = new Image(asset, 0, 36, 25, 4);

@@ -20,6 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
+import java.util.ArrayList;
+
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -28,14 +30,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Freezing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave.BlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
-import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
@@ -73,7 +73,6 @@ public class ElementBuff extends Buff {
 
     @Override
     public boolean act() {
-        reaction(this.target);
         this.quantity *= 0.99f; // 改为固定值衰减
         if (quantity < 0.5f && target instanceof Hero) {
             quantity = 0f;
@@ -640,28 +639,39 @@ public class ElementBuff extends Buff {
         float consume = Math.min(hydro.quantity, dendro.quantity);
 
         // 在周围8格寻找有效位置
-        int cell = ch.pos + PathFinder.NEIGHBOURS8[Random.Int(8)];
-        int terr = Dungeon.level.map[cell];
-        // 根据消耗量决定效果
-        if (consume >= 5 && (terr == Terrain.HIGH_GRASS || terr == Terrain.FURROWED_GRASS || terr == Terrain.GRASS || terr == Terrain.EMPTY || terr == Terrain.EMBERS || terr == Terrain.EMPTY_DECO)) {
-            // 种植随机植物
-            Plant.Seed plant = (Plant.Seed) Generator.randomUsingDefaults(Generator.Category.SEED);
-            Dungeon.level.plant(plant, cell);
-            ch.sprite.showStatus(CharSprite.POSITIVE, Messages.get(plant, "name"));
-            GameScene.updateMap(cell);
-            consume = 5;
-        } else if (consume >= 3 && (terr == Terrain.GRASS || terr == Terrain.EMPTY || terr == Terrain.EMBERS || terr == Terrain.EMPTY_DECO)) {
-            // 生成高草
-            Level.set(cell, Terrain.HIGH_GRASS);
-            GameScene.updateMap(cell);
-            consume = 3;
-        } else if (consume >= 1 && (terr == Terrain.EMPTY || terr == Terrain.EMBERS || terr == Terrain.EMPTY_DECO)) {
-            // 生成犁过的草地
-            Level.set(cell, Terrain.FURROWED_GRASS);
-            GameScene.updateMap(cell);
-            consume = 1;
+        ArrayList<Integer> validPositions = new ArrayList<>();
+        for (int i = 0; i <= 8; i++) {
+            int cell = ch.pos + PathFinder.NEIGHBOURS9[i];
+            int terr = Dungeon.level.map[cell];
+            if (terr == Terrain.GRASS || terr == Terrain.EMPTY || terr == Terrain.EMBERS || terr == Terrain.EMPTY_DECO) {
+                validPositions.add(cell);
+            }
+        }
+        int target_pos = 0;
+        if (!validPositions.isEmpty()) {
+            int randomIndex = Random.Int(validPositions.size());
+            target_pos = validPositions.get(randomIndex);
+            if (consume > 3) {
+                // 生成高草
+                Level.set(target_pos, Terrain.HIGH_GRASS);
+            } else {
+                // 生成犁过的草地
+                Level.set(target_pos, Terrain.FURROWED_GRASS);
+            }
         } else {
-            return 1f;
+            target_pos = ch.pos;
+        }
+
+        for (int i = 0; i <= 8; i++) {
+            // 对范围内的目标造成伤害
+            Char target = Actor.findChar(ch.pos + PathFinder.NEIGHBOURS9[i]);
+            if (target != null) {
+                int dmg = (int) consume * Dungeon.depth / 5;
+                if (target instanceof Hero) {
+                    dmg = (int) consume;
+                }
+                target.damage(Math.round(dmg), new ElementBuff());
+            }
         }
 
         // 显示反应文本

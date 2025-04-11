@@ -20,6 +20,11 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -46,6 +51,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Daze;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Doom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Dread;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FireImbue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FrostImbue;
@@ -152,15 +159,6 @@ import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
-import com.sun.tools.classfile.Annotation;
 
 public abstract class Char extends Actor {
 
@@ -1056,6 +1054,9 @@ public abstract class Char extends Actor {
             }
             if (src instanceof AscensionChallenge) {
                 icon = FloatingText.AMULET;
+            }
+            if (src instanceof ElementBuff) {
+                icon = FloatingText.ELEMENT;
             }
 
             sprite.showStatusWithIcon(CharSprite.NEGATIVE, Integer.toString(dmg + shielded), icon);
