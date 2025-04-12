@@ -89,14 +89,13 @@ public class RingOfDiscount extends Ring {
                 int pospointer = Dungeon.hero.pos;
                 boolean success = false;
                 for (int i = 0; i <= 8; i++) {
-                    Heap heap = Dungeon.level.heaps.get(pospointer);
                     pospointer = Dungeon.hero.pos + PathFinder.NEIGHBOURS9[i];
                     if ((Terrain.flags[Dungeon.level.map[pospointer]] & Terrain.PASSABLE) == 0 // 不可通过
                             || (Terrain.flags[Dungeon.level.map[pospointer]] & Terrain.SECRET) != 0 // 存在隐藏物体
                             || Dungeon.level.map[pospointer] == Terrain.ENTRANCE // 下楼
                             || Dungeon.level.map[pospointer] == Terrain.ENTRANCE_SP // 特殊下楼
                             || Dungeon.level.map[pospointer] == Terrain.EXIT // 上楼
-                            || (heap != null) // 存在掉落物
+                            || (Dungeon.level.heaps.get(pospointer) != null) // 存在掉落物
                             ) {
                     } else {
                         success = true;

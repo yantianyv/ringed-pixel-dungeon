@@ -156,13 +156,15 @@ public class ElementBuff extends Buff {
         if (defender.buff(buff.getClass()) == null) {
             buff.attachTo(defender);
             ((ElementBuff) buff).element = element;
+            ((ElementBuff) buff).quantity = quantity;
         } else {
             // 否则就使用目标身上已有的buff
             buff = defender.buff(buff.getClass());
+            // 增加元素附着量并触发反应
+            ((ElementBuff) buff).quantity += quantity;
         }
 
-        // 增加元素附着量并触发反应
-        ((ElementBuff) buff).quantity += quantity;
+
         return ((ElementBuff) buff).reaction(defender);
     }
 
