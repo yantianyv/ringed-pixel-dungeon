@@ -283,9 +283,9 @@ public class WndTradeItem extends WndInfoItem {
         Catalog.countUses(Gold.class, price);
         if (item instanceof SmallRation && Dungeon.hero.hasTalent(Talent.FOOD_HUNTING)) {
             item.doPickUp(Dungeon.hero);
-            item.quantity(1);
-            Heap good = Dungeon.level.drop(item, heap.pos);
+            Heap good = Dungeon.level.drop(new SmallRation(), heap.pos);
             good.sprite.drop();
+
             good.type = Heap.Type.FOR_SALE;
         }// 处理普通商品
         else if (!item.doPickUp(Dungeon.hero)) {

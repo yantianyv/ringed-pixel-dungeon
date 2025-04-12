@@ -6,11 +6,13 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.VisualShop;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 public class RingOfDiscount extends Ring {
@@ -22,6 +24,7 @@ public class RingOfDiscount extends Ring {
     }
 
     static Heap goodHeap;
+    static Item good;
 
     // 返回物品描述
     public String statsInfo() {
@@ -56,7 +59,11 @@ public class RingOfDiscount extends Ring {
     @Override
     public void storeInBundle(Bundle bundle) {
         if (goodHeap != null) {
-            goodHeap.destroy();
+            goodHeap.remove(good);
+            if (goodHeap != null) {
+                goodHeap.type = Heap.Type.HEAP;
+            }
+            goodHeap = null;
         }
         super.storeInBundle(bundle);
         bundle.put("efficiency", efficiency);
@@ -79,8 +86,23 @@ public class RingOfDiscount extends Ring {
         public boolean act() {
             float chance = (1 - (float) Math.pow(0.99, getBuffedBonus(target, Discount.class))) / 10;
             if (Random.Float() < chance * efficiency) {
-                int pos = Dungeon.hero.pos;
-                Heap heap = Dungeon.level.heaps.get(pos);
+                int pospointer = Dungeon.hero.pos;
+                boolean success = false;
+                for (int i = 0; i <= 8; i++) {
+                    Heap heap = Dungeon.level.heaps.get(pospointer);
+                    pospointer = Dungeon.hero.pos + PathFinder.NEIGHBOURS9[i];
+                    if ((Terrain.flags[Dungeon.level.map[pospointer]] & Terrain.PASSABLE) == 0 // 不可通过
+                            || (Terrain.flags[Dungeon.level.map[pospointer]] & Terrain.SECRET) != 0 // 存在隐藏物体
+                            || Dungeon.level.map[pospointer] == Terrain.ENTRANCE // 下楼
+                            || Dungeon.level.map[pospointer] == Terrain.ENTRANCE_SP // 特殊下楼
+                            || Dungeon.level.map[pospointer] == Terrain.EXIT // 上楼
+                            || (heap != null) // 存在掉落物
+                            ) {
+                    } else {
+                        success = true;
+                        break;
+                    }
+                }
                 if (Dungeon.level.locked || Dungeon.depth == 10) {
                     efficiency *= 0.999;
                     // 特殊情况只有弱化的掉落
@@ -89,20 +111,25 @@ public class RingOfDiscount extends Ring {
                     // Dungeon.level.drop(gold, pos);
                     gold.doPickUp(Dungeon.hero);
                     GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
-                    spend(30);
-                } else if (Dungeon.gold > 3000 && (heap == null || (heap == goodHeap && heap.size() == 1))) {
+                    spend(30f);
+                } else if (Dungeon.gold > 3000 && success) {
                     efficiency *= 0.9;
                     // 触发百亿补贴
                     VisualShop visualshop = new VisualShop();
-                    Item good = visualshop.chooseRandom();
                     if (goodHeap != null) {
-                        goodHeap.destroy();
+                        goodHeap.remove(good);
+                        if (goodHeap != null) {
+                            goodHeap.type = Heap.Type.HEAP;
+                        }
+                        goodHeap = null;
                     }
-                    goodHeap = Dungeon.level.drop(good, pos);
+                    good = visualshop.chooseRandom();
+                    goodHeap = Dungeon.level.drop(good, pospointer);
                     goodHeap.type = Heap.Type.FOR_SALE;
                     goodHeap.sprite.hardlight(0xFFFF99);
                     GLog.p(Messages.get(RingOfDiscount.class, "on_sale"));
-                    spend(30);
+                    Dungeon.hero.resting = false;
+                    spend(30 / efficiency);
                 } else {
                     efficiency *= 0.95;
                     // 触发红包到账
