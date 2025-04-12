@@ -1058,7 +1058,7 @@ public abstract class Char extends Actor {
             if (src instanceof ElementBuff) {
                 icon = FloatingText.ELEMENT;
             }
-
+            
             sprite.showStatusWithIcon(CharSprite.NEGATIVE, Integer.toString(dmg + shielded), icon);
         }
 

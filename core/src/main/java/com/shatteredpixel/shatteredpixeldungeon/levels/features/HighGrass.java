@@ -10,6 +10,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Viper;
@@ -55,6 +56,9 @@ public class HighGrass {
                 freezeTrample = true;
             } else {
                 Level.set(pos, Terrain.GRASS);
+                if (ch != null && Dungeon.hero.subClass == HeroSubClass.WARDEN) {
+                    ElementBuff.apply(Element.DENDRO, ch, ch, 0.8f);
+                }
             }
 
         } else {
@@ -63,6 +67,11 @@ public class HighGrass {
                 freezeTrample = true;
             } else {
                 Level.set(pos, Terrain.GRASS);
+            }
+
+            // 给踩草的角色添加草元素附着
+            if (ch != null) {
+                ElementBuff.apply(Element.DENDRO, ch, ch, 3f);
             }
 
             int naturalismLevel = 0;
@@ -137,11 +146,6 @@ public class HighGrass {
                 //grassy levels spawn half as much dew
                 if (Dungeon.level != null && Dungeon.level.feeling == Level.Feeling.GRASS) {
                     lootChance /= 2;
-                }
-
-                // 给踩草的角色添加草元素附着
-                if (ch != null) {
-                    ElementBuff.apply(Element.DENDRO, ch, ch, 3f);
                 }
 
                 if (Random.Float() < lootChance) {  // 掉落露水并判定纳西妲之戒的效果

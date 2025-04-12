@@ -666,11 +666,11 @@ public class ElementBuff extends Buff {
             // 对范围内的目标造成伤害
             Char target = Actor.findChar(ch.pos + PathFinder.NEIGHBOURS9[i]);
             if (target != null) {
-                int dmg = (int) consume * (2 + Dungeon.depth / 5);
+                int dmg = (int) consume * (1 + Dungeon.depth / 3);
                 if (target instanceof Hero) {
-                    dmg /= 3;
+                    dmg /= 5;
                     if (((Hero) target).heroClass == HeroClass.HUNTRESS) {
-                        dmg /= 3;
+                        dmg /= 2;
                         if (((Hero) target).subClass == HeroSubClass.WARDEN) {
                             Buff.affect(target, Health.class).boost((int) consume);
                         }
