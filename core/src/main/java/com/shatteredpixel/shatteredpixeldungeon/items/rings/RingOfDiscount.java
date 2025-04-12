@@ -116,12 +116,14 @@ public class RingOfDiscount extends Ring {
                     efficiency *= 0.9;
                     // 触发百亿补贴
                     VisualShop visualshop = new VisualShop();
-                    if (goodHeap != null) {
-                        goodHeap.remove(good);
-                        if (goodHeap != null) {
+                    if (goodHeap != null && goodHeap.type == Heap.Type.FOR_SALE) {
+                        GLog.p("移除商品" + good);
+                        if (goodHeap.items.remove(good) && goodHeap.items.isEmpty()) {
+                            goodHeap.destroy();
+                        } else {
                             goodHeap.type = Heap.Type.HEAP;
+                            goodHeap = null;
                         }
-                        goodHeap = null;
                     }
                     good = visualshop.chooseRandom();
                     goodHeap = Dungeon.level.drop(good, pospointer);
