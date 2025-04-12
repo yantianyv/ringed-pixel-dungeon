@@ -177,9 +177,9 @@ public class StatusPane extends Component {
         add(heroInfoOnBar);
 
         if (large) {
-            exp = new Image(asset, 0, 121, 128, 7); // Removed +4 for gap
+            exp = new Image(asset, 0, 121, 128, 7);
         } else {
-            exp = new Image(asset, 0, 44, 50 + 25 + 2, 1);
+            exp = new Image(asset, 0, 44, 16, 1);
         }
         add(exp);
 
@@ -390,7 +390,9 @@ public class StatusPane extends Component {
             expText.measure();
             expText.x = exp.x + (192 - expText.width()) / 2f;
         } else {
-            exp.scale.x = (77 / exp.width) * Dungeon.hero.exp / Dungeon.hero.maxExp();
+            // exp.scale.x = (width / 100) * Dungeon.hero.exp / Dungeon.hero.maxExp();
+            // exp.scale.x = exp.width / 2;
+            exp.scale.x = (width / exp.width) * Dungeon.hero.exp / Dungeon.hero.maxExp();
         }
 
         if (Dungeon.hero.lvl != lastLvl) {
