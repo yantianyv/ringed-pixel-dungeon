@@ -30,12 +30,13 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Freezing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
-import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave.BlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass.Health;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
@@ -51,6 +52,7 @@ import com.watabou.utils.Random;
 public class ElementBuff extends Buff {
 
     public ElementBuff() {
+        super();
     }
 
     // 元素附着量
@@ -163,8 +165,6 @@ public class ElementBuff extends Buff {
             // 增加元素附着量并触发反应
             ((ElementBuff) buff).quantity += quantity;
         }
-
-
         return ((ElementBuff) buff).reaction(defender);
     }
 
@@ -317,8 +317,6 @@ public class ElementBuff extends Buff {
     public void restoreFromBundle(Bundle bundle) {
         super.restoreFromBundle(bundle);
         // 添加空检查和安全转换
-        Item gold = new Gold(1);
-        Dungeon.level.drop(gold, Dungeon.hero.pos);
         if (bundle.contains("element_quantity")) {
             quantity = bundle.getFloat("element_quantity");
         }
@@ -671,7 +669,14 @@ public class ElementBuff extends Buff {
                 int dmg = (int) consume * (2 + Dungeon.depth / 5);
                 if (target instanceof Hero) {
                     dmg /= 3;
+                    if (((Hero) target).heroClass == HeroClass.HUNTRESS) {
+                        dmg /= 3;
+                        if (((Hero) target).subClass == HeroSubClass.WARDEN) {
+                            Buff.affect(target, Health.class).boost((int) consume);
+                        }
+                    }
                 }
+
                 target.damage(Math.round(dmg), new ElementBuff());
             }
         }
@@ -684,178 +689,182 @@ public class ElementBuff extends Buff {
         dendro.quantity -= consume;
         return 1f;
     }
-}
-// ====================== 元素Buff实现 ======================
 
-class AnemoElement extends ElementBuff {
+    // ====================== 元素Buff实现 ======================
+    public static class AnemoElement extends ElementBuff {
 
-    @Override
-    public int icon() {
-        return BuffIndicator.CORRUPT;
+        @Override
+        public int icon() {
+            return BuffIndicator.CORRUPT;
+        }
+
+        @Override
+        public void tintIcon(Image icon) {
+            icon.hardlight(0x76EEC6);
+        } // 风元素-青绿
+
+        @Override
+        public void fx(boolean on) {
+            if (target != null && target.sprite != null) {
+                if (on) {
+                    target.sprite.tint(0x76EEC6, 0.5f);
+                } else {
+                    target.sprite.resetColor();
+                }
+            }
+        }
+
+        @Override
+        public boolean act() {
+            this.detach();
+            return super.act();
+        }
     }
 
-    @Override
-    public void tintIcon(Image icon) {
-        icon.hardlight(0x76EEC6);
-    } // 风元素-青绿
+    public static class GeoElement extends ElementBuff {
 
-    @Override
-    public void fx(boolean on) {
-        if (target != null && target.sprite != null) {
-            if (on) {
-                target.sprite.tint(0x76EEC6, 0.5f);
-            } else {
-                target.sprite.resetColor();
+        @Override
+        public int icon() {
+            return BuffIndicator.CORRUPT;
+        }
+
+        @Override
+        public void tintIcon(Image icon) {
+            icon.hardlight(0xFFD700);
+        } // 岩元素-金黄
+
+        @Override
+        public void fx(boolean on) {
+            if (target != null && target.sprite != null) {
+                if (on) {
+                    target.sprite.tint(0xFFD700, 0.5f);
+                } else {
+                    target.sprite.resetColor();
+                }
             }
         }
     }
 
-    @Override
-    public boolean act() {
-        this.detach();
-        return super.act();
-    }
-}
+    public static class ElectroElement extends ElementBuff {
 
-class GeoElement extends ElementBuff {
+        @Override
+        public int icon() {
+            return BuffIndicator.CORRUPT;
+        }
 
-    @Override
-    public int icon() {
-        return BuffIndicator.CORRUPT;
-    }
+        @Override
+        public void tintIcon(Image icon) {
+            icon.hardlight(0xBF3EFF);
+        } // 雷元素-紫
 
-    @Override
-    public void tintIcon(Image icon) {
-        icon.hardlight(0xFFD700);
-    } // 岩元素-金黄
-
-    @Override
-    public void fx(boolean on) {
-        if (target != null && target.sprite != null) {
-            if (on) {
-                target.sprite.tint(0xFFD700, 0.5f);
-            } else {
-                target.sprite.resetColor();
+        @Override
+        public void fx(boolean on) {
+            if (target != null && target.sprite != null) {
+                if (on) {
+                    target.sprite.tint(0xBF3EFF, 0.5f);
+                } else {
+                    target.sprite.resetColor();
+                }
             }
         }
     }
-}
 
-class ElectroElement extends ElementBuff {
+    public static class DendroElement extends ElementBuff {
 
-    @Override
-    public int icon() {
-        return BuffIndicator.CORRUPT;
-    }
+        @Override
+        public int icon() {
+            return BuffIndicator.CORRUPT;
+        }
 
-    @Override
-    public void tintIcon(Image icon) {
-        icon.hardlight(0xBF3EFF);
-    } // 雷元素-紫
+        @Override
+        public void tintIcon(Image icon) {
+            icon.hardlight(0x7CFC00);
+        } // 草元素-浅绿
 
-    @Override
-    public void fx(boolean on) {
-        if (target != null && target.sprite != null) {
-            if (on) {
-                target.sprite.tint(0xBF3EFF, 0.5f);
-            } else {
-                target.sprite.resetColor();
+        @Override
+        public void fx(boolean on) {
+            if (target != null && target.sprite != null) {
+                if (on) {
+                    target.sprite.tint(0x7CFC00, 0.5f);
+                } else {
+                    target.sprite.resetColor();
+                }
             }
         }
     }
-}
 
-class DendroElement extends ElementBuff {
+    public static class HydroElement extends ElementBuff {
 
-    @Override
-    public int icon() {
-        return BuffIndicator.CORRUPT;
-    }
+        public HydroElement() {
+            super();
+        }
 
-    @Override
-    public void tintIcon(Image icon) {
-        icon.hardlight(0x7CFC00);
-    } // 草元素-浅绿
+        @Override
+        public int icon() {
+            return BuffIndicator.CORRUPT;
+        }
 
-    @Override
-    public void fx(boolean on) {
-        if (target != null && target.sprite != null) {
-            if (on) {
-                target.sprite.tint(0x7CFC00, 0.5f);
-            } else {
-                target.sprite.resetColor();
+        @Override
+        public void tintIcon(Image icon) {
+            icon.hardlight(0x00BFFF);
+        } // 水元素-蓝
+
+        @Override
+        public void fx(boolean on) {
+            if (target != null && target.sprite != null) {
+                if (on) {
+                    target.sprite.tint(0x00BFFF, 0.5f);
+                } else {
+                    target.sprite.resetColor();
+                }
             }
         }
     }
-}
 
-class HydroElement extends ElementBuff {
+    public static class PyroElement extends ElementBuff {
 
-    @Override
-    public int icon() {
-        return BuffIndicator.CORRUPT;
-    }
+        @Override
+        public int icon() {
+            return BuffIndicator.CORRUPT;
+        }
 
-    @Override
-    public void tintIcon(Image icon) {
-        icon.hardlight(0x00BFFF);
-    } // 水元素-蓝
+        @Override
+        public void tintIcon(Image icon) {
+            icon.hardlight(0xFF4500);
+        } // 火元素-橙红
 
-    @Override
-    public void fx(boolean on) {
-        if (target != null && target.sprite != null) {
-            if (on) {
-                target.sprite.tint(0x00BFFF, 0.5f);
-            } else {
-                target.sprite.resetColor();
+        @Override
+        public void fx(boolean on) {
+            if (target != null && target.sprite != null) {
+                if (on) {
+                    target.sprite.tint(0xFF4500, 0.5f);
+                } else {
+                    target.sprite.resetColor();
+                }
             }
         }
     }
-}
 
-class PyroElement extends ElementBuff {
+    public static class CryoElement extends ElementBuff {
 
-    @Override
-    public int icon() {
-        return BuffIndicator.CORRUPT;
-    }
-
-    @Override
-    public void tintIcon(Image icon) {
-        icon.hardlight(0xFF4500);
-    } // 火元素-橙红
-
-    @Override
-    public void fx(boolean on) {
-        if (target != null && target.sprite != null) {
-            if (on) {
-                target.sprite.tint(0xFF4500, 0.5f);
-            } else {
-                target.sprite.resetColor();
-            }
+        @Override
+        public int icon() {
+            return BuffIndicator.CORRUPT;
         }
-    }
-}
 
-class CryoElement extends ElementBuff {
+        @Override
+        public void tintIcon(Image icon) {
+            icon.hardlight(0xADD8E6);
+        } // 冰元素-浅蓝
 
-    @Override
-    public int icon() {
-        return BuffIndicator.CORRUPT;
-    }
-
-    @Override
-    public void tintIcon(Image icon) {
-        icon.hardlight(0xADD8E6);
-    } // 冰元素-浅蓝
-
-    @Override
-    public void fx(boolean on) {
-        if (target != null && target.sprite != null) {
-            if (on) {
-                target.sprite.tint(0xADD8E6, 0.5f);
-            } else {
-                target.sprite.resetColor();
+        @Override
+        public void fx(boolean on) {
+            if (target != null && target.sprite != null) {
+                if (on) {
+                    target.sprite.tint(0xADD8E6, 0.5f);
+                } else {
+                    target.sprite.resetColor();
+                }
             }
         }
     }

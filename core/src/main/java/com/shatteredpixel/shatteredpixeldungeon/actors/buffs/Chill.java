@@ -49,9 +49,9 @@ public class Chill extends FlavourBuff {
     @Override
     public boolean act() {
         // 每回合维持冰元素量
-        if (target.buff(CryoElement.class) != null) {
-            target.buff(CryoElement.class).quantity = Math.min(
-                    target.buff(CryoElement.class).quantity + 0.5f,
+        if (target.buff(ElementBuff.CryoElement.class) != null) {
+            target.buff(ElementBuff.CryoElement.class).quantity = Math.min(
+                    target.buff(ElementBuff.CryoElement.class).quantity + 0.5f,
                     DURATION
             );
         }
@@ -61,8 +61,8 @@ public class Chill extends FlavourBuff {
 
     // 减速效果基于冰元素量
     public float speedFactor() {
-        float cryoAmount = target.buff(CryoElement.class) != null
-                ? target.buff(CryoElement.class).quantity : 0f;
+        float cryoAmount = target.buff(ElementBuff.CryoElement.class) != null
+                ? target.buff(ElementBuff.CryoElement.class).quantity : 0f;
         // 基础减速10%，每点冰元素量额外减速8%，最大减速50%
         return Math.max(0.5f, 1f - 0.1f - cryoAmount * 0.08f);
     }

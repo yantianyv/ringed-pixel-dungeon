@@ -33,7 +33,7 @@ public enum HeroSubClass {
     // 战士
     BERSERKER(HeroIcon.BERSERKER), // 狂战士
     GLADIATOR(HeroIcon.GLADIATOR), // 角斗士
-    MUKBANGER(HeroIcon.MUKBANGER), //大胃王
+    MUKBANGER(HeroIcon.MUKBANGER), // 大胃王
     // 法师
     BATTLEMAGE(HeroIcon.BATTLEMAGE),
     WARLOCK(HeroIcon.WARLOCK),

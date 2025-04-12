@@ -865,6 +865,7 @@ public class Hero extends Char {
 
     @Override
     public boolean act() {
+        // GLog.p(this.buffs().toString());
 
         //calls to dungeon.observe will also update hero's local FOV.
         fieldOfView = Dungeon.level.heroFOV;
