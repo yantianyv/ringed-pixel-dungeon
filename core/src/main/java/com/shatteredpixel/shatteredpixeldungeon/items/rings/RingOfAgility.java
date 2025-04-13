@@ -54,7 +54,7 @@ public class RingOfAgility extends Ring {
             }
             return info;
         } else {
-            return Messages.get(this, "typical_stats", Messages.decimalFormat("#.##", 20f));
+            return Messages.get(this, "typical_stats", Messages.decimalFormat("#.##", 5f));
         }
     }
 

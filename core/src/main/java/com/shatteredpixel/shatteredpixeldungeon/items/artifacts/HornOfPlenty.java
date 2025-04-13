@@ -142,7 +142,9 @@ public class HornOfPlenty extends Artifact {
 		SpellSprite.show(hero, SpellSprite.FOOD);
 		Sample.INSTANCE.play(Assets.Sounds.EAT);
 		GLog.i( Messages.get(this, "eat") );
-
+            if (Dungeon.hero.hasTalent(Talent.FEAST_FRENZY)) {
+				// pass
+            }else
 		if (Dungeon.hero.hasTalent(Talent.IRON_STOMACH)
 				|| Dungeon.hero.hasTalent(Talent.ENERGIZING_MEAL)
 				|| Dungeon.hero.hasTalent(Talent.MYSTICAL_MEAL)
