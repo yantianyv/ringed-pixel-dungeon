@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArtifactRecharge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -932,12 +933,12 @@ public enum Talent {
         if (hero.hasTalent(BALANCED_MEAL)) {
             switch (hero.pointsInTalent(BALANCED_MEAL)) {
                 case 3:
-                    Buff.affect(hero, TimeBubble.class).reset(1);
+                    Buff.affect(hero, Adrenaline.class,1f);
                 case 2:
-                    Buff.affect(hero, Health.class).boost(10);
+                    Buff.affect(hero, Health.class).boost(3);
                     Barrier b = Buff.affect(Dungeon.hero, Barrier.class);
-                    if (b.shielding() <= 10) {
-                        b.setShield(10);
+                    if (b.shielding() <= 3) {
+                        b.setShield(3);
                         b.delay(Math.max(10 - b.cooldown(), 0));
                     }
                 case 1:

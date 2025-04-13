@@ -57,6 +57,7 @@ public class RingOfTakeout extends Ring {
     }
 
     protected static float efficiency = 1f;// 效率
+
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
@@ -68,6 +69,7 @@ public class RingOfTakeout extends Ring {
         super.restoreFromBundle(bundle);
         efficiency = bundle.getFloat("efficiency");
     }
+
     public static void refresh() {
         efficiency = 1f;
     }
@@ -82,9 +84,9 @@ public class RingOfTakeout extends Ring {
                 efficiency *= 0.99f;
                 // 拼好饭戒指的进餐逻辑
                 if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 3) {
-                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(2 * RingOfTakeout.eatEffectSatiety(target));
+                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(4f + 0.2f * RingOfTakeout.eatEffectSatiety(target));
                 } else {
-                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(RingOfTakeout.eatEffectSatiety(target));
+                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(2f + 0.1f * RingOfTakeout.eatEffectSatiety(target));
 
                 }
                 Talent.onFoodEaten(hero, RingOfTakeout.eatEffectSatiety(target), null);
