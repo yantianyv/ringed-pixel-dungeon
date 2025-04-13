@@ -83,21 +83,21 @@ public class RingOfTakeout extends Ring {
         @Override
         public boolean act() {
             // 触发拼好饭之戒
-            if (Math.random() < RingOfTakeout.takeoutChance(target) * efficiency * (1 - takeout_cooldown) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
+            if (Math.random() < RingOfTakeout.takeoutChance(target) * efficiency * (1f - takeout_cooldown) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
                 efficiency *= 0.99f;
                 takeout_cooldown = 1f;
                 // 拼好饭戒指的进餐逻辑
                 if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 3) {
-                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(2f + 0.2f * RingOfTakeout.eatEffectSatiety(target));
+                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(5f + 1.5f * RingOfTakeout.eatEffectSatiety(target));
                 } else {
-                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(2f + 0.1f * RingOfTakeout.eatEffectSatiety(target));
+                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(5f + 1f * RingOfTakeout.eatEffectSatiety(target));
 
                 }
                 Talent.onFoodEaten(hero, RingOfTakeout.eatEffectSatiety(target), null);
                 spend(TICK);
                 return true;
             } else {
-                takeout_cooldown -= 0.1f;
+                takeout_cooldown -= 0.01f;
                 takeout_cooldown = takeout_cooldown < 0 ? 0 : takeout_cooldown;
             }
             return super.act();
