@@ -22,6 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import java.util.ArrayList;
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -32,6 +33,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave.BlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
@@ -42,6 +46,8 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Image;
+import com.watabou.noosa.audio.Sample;
+import com.watabou.utils.BArray;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
@@ -75,11 +81,13 @@ public class ElementBuff extends Buff {
 
     @Override
     public boolean act() {
+        fx(true);
         this.quantity *= 0.99f; // 改为固定值衰减
         if (quantity < 0.5f && target instanceof Hero) {
             quantity = 0f;
         }
         if (quantity <= 0.1f) {
+            fx(false);
             detach();
         }
         spend(0.1f);
@@ -164,6 +172,7 @@ public class ElementBuff extends Buff {
             buff = defender.buff(buff.getClass());
             // 增加元素附着量并触发反应
             ((ElementBuff) buff).quantity += quantity;
+            buff.fx(true);
         }
         return ((ElementBuff) buff).reaction(defender);
     }
@@ -386,20 +395,20 @@ public class ElementBuff extends Buff {
         electro.quantity -= consume;
         hydro.quantity -= consume;
 
-        float strength = consume / 3;
-        // 对目标附着雷元素并造成伤害
-        if (strength > 1) {
-            apply(Element.ELECTRO, ch, ch, strength);
-            ch.damage(Math.round(3 * strength), new ElementBuff());
-            // 对周围附着雷元素
-            for (int i : PathFinder.NEIGHBOURS8) {
-                Char target = Actor.findChar(ch.pos + i);
-                if (target != null) {
-                    apply(Element.ELECTRO, ch, target, strength);
-                    target.damage(Math.round(3 * strength), new ElementBuff());
+        PathFinder.buildDistanceMap(ch.pos, BArray.not(Dungeon.level.solid, null), 2);
+        for (int i = 0; i < PathFinder.distance.length; i++) {
+            if (PathFinder.distance[i] < (1 + Math.sqrt(consume))) {
+                Char n = Actor.findChar(i);
+                if (n != null) {
+                    n.damage((int) (1 + consume), new ElementBuff());
+                    if (consume >= 1) {
+                        ElementBuff.apply(Element.ELECTRO, n, n, consume / 2);
+                    }
                 }
             }
         }
+
+        CellEmitter.center(ch.pos).burst(SparkParticle.FACTORY, 3);
 
         return 1f;
     }
@@ -590,9 +599,8 @@ public class ElementBuff extends Buff {
             }
         }
 
-        // 视觉特效 - 冰雾扩散
-        GameScene.add(Blob.seed(ch.pos, (int) (consume * 5), Freezing.class));
-
+        // // 视觉特效 - 冰雾扩散
+        // GameScene.add(Blob.seed(ch.pos, (int) (consume * 5), Freezing.class));
         return 1f;
     }
 
@@ -707,7 +715,7 @@ public class ElementBuff extends Buff {
         public void fx(boolean on) {
             if (target != null && target.sprite != null) {
                 if (on) {
-                    target.sprite.tint(0x76EEC6, 0.5f);
+                    target.sprite.hardlight(0x76EEC6);
                 } else {
                     target.sprite.resetColor();
                 }
@@ -737,7 +745,7 @@ public class ElementBuff extends Buff {
         public void fx(boolean on) {
             if (target != null && target.sprite != null) {
                 if (on) {
-                    target.sprite.tint(0xFFD700, 0.5f);
+                    target.sprite.hardlight(0xFFD700);
                 } else {
                     target.sprite.resetColor();
                 }
@@ -761,7 +769,7 @@ public class ElementBuff extends Buff {
         public void fx(boolean on) {
             if (target != null && target.sprite != null) {
                 if (on) {
-                    target.sprite.tint(0xBF3EFF, 0.5f);
+                    target.sprite.hardlight(0xBF3EFF);
                 } else {
                     target.sprite.resetColor();
                 }
@@ -785,7 +793,7 @@ public class ElementBuff extends Buff {
         public void fx(boolean on) {
             if (target != null && target.sprite != null) {
                 if (on) {
-                    target.sprite.tint(0x7CFC00, 0.5f);
+                    target.sprite.hardlight(0x7CFC00);
                 } else {
                     target.sprite.resetColor();
                 }
@@ -813,7 +821,7 @@ public class ElementBuff extends Buff {
         public void fx(boolean on) {
             if (target != null && target.sprite != null) {
                 if (on) {
-                    target.sprite.tint(0x00BFFF, 0.5f);
+                    target.sprite.hardlight(0x00BFFF);
                 } else {
                     target.sprite.resetColor();
                 }
@@ -837,7 +845,7 @@ public class ElementBuff extends Buff {
         public void fx(boolean on) {
             if (target != null && target.sprite != null) {
                 if (on) {
-                    target.sprite.tint(0xFF4500, 0.5f);
+                    target.sprite.hardlight(0xFF4500);
                 } else {
                     target.sprite.resetColor();
                 }
@@ -861,7 +869,7 @@ public class ElementBuff extends Buff {
         public void fx(boolean on) {
             if (target != null && target.sprite != null) {
                 if (on) {
-                    target.sprite.tint(0xADD8E6, 0.5f);
+                    target.sprite.hardlight(0xADD8E6);
                 } else {
                     target.sprite.resetColor();
                 }

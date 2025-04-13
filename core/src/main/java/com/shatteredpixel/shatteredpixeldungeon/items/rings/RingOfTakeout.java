@@ -88,9 +88,9 @@ public class RingOfTakeout extends Ring {
                 takeout_cooldown = 1f;
                 // 拼好饭戒指的进餐逻辑
                 if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 3) {
-                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(5f + 1.5f * RingOfTakeout.eatEffectSatiety(target));
+                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(25f + 1.5f * RingOfTakeout.eatEffectSatiety(target));
                 } else {
-                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(5f + 1f * RingOfTakeout.eatEffectSatiety(target));
+                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(20f + 1f * RingOfTakeout.eatEffectSatiety(target));
 
                 }
                 Talent.onFoodEaten(hero, RingOfTakeout.eatEffectSatiety(target), null);
