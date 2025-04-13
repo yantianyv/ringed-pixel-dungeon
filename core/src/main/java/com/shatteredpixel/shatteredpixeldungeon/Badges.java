@@ -20,6 +20,16 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -40,16 +50,6 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.FileUtils;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 public class Badges {
 
@@ -795,6 +795,14 @@ public class Badges {
 
         validateDeathFromAll();
     }
+
+    // public static void validateDeathFromElement() {
+    //     Badge badge = Badge.DEATH_FROM_POISON;
+    //     local.add(badge);
+    //     displayBadge(badge);
+
+    //     validateDeathFromAll();
+    // }
 
     public static void validateDeathFromEnemyMagic() {
         Badge badge = Badge.DEATH_FROM_ENEMY_MAGIC;

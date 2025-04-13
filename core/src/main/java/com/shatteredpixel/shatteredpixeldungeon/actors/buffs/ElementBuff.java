@@ -22,6 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import java.util.ArrayList;
 
+import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -51,7 +52,7 @@ import com.watabou.utils.Random;
 /**
  * 元素附着基类，处理游戏中的元素反应系统
  */
-public class ElementBuff extends Buff {
+public class ElementBuff extends Buff implements Hero.Doom {
 
     public ElementBuff() {
         super();
@@ -333,6 +334,14 @@ public class ElementBuff extends Buff {
     @Override
     public String desc() {
         return Messages.get(this, "desc", (int) (quantity * 100) / 100f);
+    }
+
+    @Override
+    public void onDeath() {
+        // Badges.validateDeathFromElement();
+
+        Dungeon.fail(this);
+        GLog.n(Messages.get(this, "ondeath"));
     }
 
     // ====================== 元素反应方法 ======================
