@@ -130,6 +130,7 @@ public class RingOfDiscount extends Ring {
                     goodHeap.sprite.hardlight(0xFFFF99);
                     GLog.p(Messages.get(RingOfDiscount.class, "on_sale"));
                     Dungeon.hero.resting = false;
+                    Dungeon.hero.interrupt();
                     spend(30f);
                 } else {
                     efficiency *= 0.95;
