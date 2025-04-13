@@ -37,14 +37,14 @@ public class RingOfAgility extends Ring {
             Float solo = 0f;
             Float combined = 0f;
             if (soloBuffedBonus() > 0) {
-                solo = (float) (1 - Math.pow(0.9f, soloBuffedBonus()));
+                solo = (float) (1 - Math.pow(0.95f, soloBuffedBonus()));
             } else {
-                solo = (float) (Math.pow(0.9f, -soloBuffedBonus()) - 1);
+                solo = (float) (Math.pow(0.95f, -soloBuffedBonus()) - 1);
             }
             if (combinedBuffedBonus(Dungeon.hero) > 0) {
-                combined = (float) (1 - Math.pow(0.9f, combinedBuffedBonus(Dungeon.hero)));
+                combined = (float) (1 - Math.pow(0.95f, combinedBuffedBonus(Dungeon.hero)));
             } else {
-                combined = (float) (Math.pow(0.9f, -combinedBuffedBonus(Dungeon.hero)) - 1);
+                combined = (float) (Math.pow(0.95f, -combinedBuffedBonus(Dungeon.hero)) - 1);
             }
             String info = Messages.get(this, "stats",
                     Messages.decimalFormat("#.##", 100f * solo));
@@ -62,7 +62,7 @@ public class RingOfAgility extends Ring {
         if (cursed && cursedKnown) {
             level = Math.min(-1, level - 3);
         }
-        return Messages.decimalFormat("#.##", 100f * (1 - Math.pow(0.9f, level))) + "%";
+        return Messages.decimalFormat("#.##", 100f * (1 - Math.pow(0.95f, level))) + "%";
     }
 
     @Override
@@ -72,10 +72,9 @@ public class RingOfAgility extends Ring {
 
     public static float agilityChance(Char target) {
         if (getBuffedBonus(target, Agility.class) > 0) {
-            return (float) (1 - Math.pow(0.9f, getBuffedBonus(target, Agility.class)));
-
+            return (float) (1 - Math.pow(0.95f, getBuffedBonus(target, Agility.class)));
         } else {
-            return (float) (Math.pow(0.9f, -getBuffedBonus(target, Agility.class))-1);
+            return (float) (Math.pow(0.95f, -getBuffedBonus(target, Agility.class)) - 1);
 
         }
     }
