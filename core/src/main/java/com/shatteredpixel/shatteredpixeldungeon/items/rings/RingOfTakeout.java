@@ -57,11 +57,14 @@ public class RingOfTakeout extends Ring {
     }
 
     protected static float efficiency = 1f;// 效率
+    protected static float takeout_cooldown = 0f;// 效率
 
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
         bundle.put("efficiency", efficiency);
+        bundle.put("takeout_cooldown", takeout_cooldown);
+
     }
 
     @Override
@@ -80,8 +83,9 @@ public class RingOfTakeout extends Ring {
         @Override
         public boolean act() {
             // 触发拼好饭之戒
-            if (Math.random() < RingOfTakeout.takeoutChance(target) * efficiency && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
+            if (Math.random() < RingOfTakeout.takeoutChance(target) * efficiency * (1 - takeout_cooldown) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
                 efficiency *= 0.99f;
+                takeout_cooldown = 1f;
                 // 拼好饭戒指的进餐逻辑
                 if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 3) {
                     Buff.affect(Dungeon.hero, Hunger.class).satisfy(4f + 0.2f * RingOfTakeout.eatEffectSatiety(target));
@@ -92,6 +96,9 @@ public class RingOfTakeout extends Ring {
                 Talent.onFoodEaten(hero, RingOfTakeout.eatEffectSatiety(target), null);
                 spend(TICK);
                 return true;
+            } else {
+                takeout_cooldown -= 0.1f;
+                takeout_cooldown = takeout_cooldown < 0 ? 0 : takeout_cooldown;
             }
             return super.act();
         }
