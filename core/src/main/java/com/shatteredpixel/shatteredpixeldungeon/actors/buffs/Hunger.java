@@ -35,8 +35,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 
-import jdk.internal.net.http.common.Log;
-
 public class Hunger extends Buff implements Hero.Doom {
 
     public static final float HUNGRY = 300f;
@@ -140,7 +138,11 @@ public class Hunger extends Buff implements Hero.Doom {
     }
 
     public float full() {
-        return STARVING - level;
+        if (Dungeon.hero != null) {
+            return STARVING - level;
+        } else {
+            return 0;
+        }
     }
 
     public void affectHunger(float energy, boolean overrideLimits) {
