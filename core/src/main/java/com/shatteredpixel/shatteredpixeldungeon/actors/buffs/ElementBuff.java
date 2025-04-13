@@ -543,7 +543,7 @@ public class ElementBuff extends Buff {
         geo.quantity -= consume;
         other.quantity -= consume;
         // 给英雄添加护盾
-        int amount = (int) (Dungeon.hero.HT * consume / 20);
+        int amount = (int) (consume + Dungeon.hero.HT * consume / 50);
         Barrier b = Buff.affect(Dungeon.hero, Barrier.class);
         if (b.shielding() <= amount) {
             b.setShield(amount);
@@ -604,7 +604,7 @@ public class ElementBuff extends Buff {
     static float Burn(ElementBuff pyro, ElementBuff dendro, Char ch) {
         float consume = Math.min(pyro.quantity, dendro.quantity);
         if (consume > 0) {
-            // 在怪物的图标上显示超导文本
+            // 在怪物的图标上显示燃烧文本
             CharSprite cs = ch.sprite;
             cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "burn"));
         } else {
