@@ -43,7 +43,7 @@ public enum HeroSubClass {
     // 女猎
     SNIPER(HeroIcon.SNIPER),
     WARDEN(HeroIcon.WARDEN),
-    // 决斗家
+    // 女侠
     CHAMPION(HeroIcon.CHAMPION),
     MONK(HeroIcon.MONK),
     // 牧师

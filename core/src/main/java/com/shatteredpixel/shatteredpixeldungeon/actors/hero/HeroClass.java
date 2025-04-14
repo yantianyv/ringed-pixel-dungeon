@@ -281,7 +281,7 @@ public enum HeroClass {
         new ScrollOfLullaby().identify();
     }
 
-    private static void initDuelist(Hero hero) {    //  决斗家
+    private static void initDuelist(Hero hero) {    //  女侠
         // 武器
         (hero.belongings.weapon = new Rapier()).identify();
         hero.belongings.weapon.activate(hero);
