@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
+import com.watabou.utils.Random;
 
 public class Healing extends Buff {
 
@@ -38,8 +39,6 @@ public class Healing extends Buff {
 
     private boolean healingLimited = false;
 
-
-
     {
         //unlike other buffs, this one acts after the hero and takes priority against other effects
         //healing is much more useful if you get some of it off before taking damage
@@ -49,6 +48,14 @@ public class Healing extends Buff {
 
     @Override
     public boolean act() {
+        if (target instanceof Hero && target.HP >= target.HT && healingLeft > 0 && VialOfBlood.delayBurstHealing()) {
+            spend(TICK);
+            if (Random.Int(100 / (healingThisTick() % 100)) == 0) {
+                healingLeft -= 1;
+            }
+            healingLeft -= healingThisTick() / 100;
+            return true;
+        }
 
         if (target.HP < target.HT) {
             target.HP = Math.min(target.HT, target.HP + healingThisTick());

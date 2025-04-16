@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import java.util.ArrayList;
 
-import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -341,7 +340,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
         // Badges.validateDeathFromElement();
 
         Dungeon.fail(this);
-        GLog.n(Messages.get(this, "ondeath"));
+        GLog.n(Messages.get(this, "on_death"));
     }
 
     // ====================== 元素反应方法 ======================
