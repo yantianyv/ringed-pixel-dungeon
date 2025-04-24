@@ -257,7 +257,7 @@ public class ShopRoom extends SpecialRoom {
                 break;
         }
         w.enchant(null);
-        w.cursed = false;
+        w.curse(false);
         w.level(0);
         w.identify(false);
         itemsToSpawn.add(w);
@@ -352,7 +352,7 @@ public class ShopRoom extends SpecialRoom {
             default:
                 rare = new Stylus();
         }
-        rare.cursed = false;
+        rare.curse(false);
         rare.cursedKnown = true;
         itemsToSpawn.add(rare);
 

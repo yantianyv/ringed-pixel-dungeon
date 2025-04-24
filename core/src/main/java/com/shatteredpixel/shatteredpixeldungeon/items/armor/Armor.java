@@ -449,7 +449,7 @@ public class Armor extends EquipableItem {
             }
         }
 
-        cursed = false;
+        curse(false);
 
         if (seal != null && seal.level() == 0) {
             seal.upgrade();
@@ -638,7 +638,7 @@ public class Armor extends EquipableItem {
         float effectRoll = Random.Float();
         if (effectRoll < 0.3f * ParchmentScrap.curseChanceMultiplier()) {
             inscribe(Glyph.randomCurse());
-            cursed = true;
+            curse(true);
         } else if (effectRoll >= 1f - (0.15f * ParchmentScrap.enchantChanceMultiplier())) {
             inscribe();
         }
@@ -800,8 +800,8 @@ public class Armor extends EquipableItem {
 
         public String name() {
             if (!curse()) {
-                return name(Messages.get(this, "glyph")); 
-            }else {
+                return name(Messages.get(this, "glyph"));
+            } else {
                 return name(Messages.get(Item.class, "curse"));
             }
         }

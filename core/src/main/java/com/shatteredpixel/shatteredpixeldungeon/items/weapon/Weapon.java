@@ -381,7 +381,7 @@ abstract public class Weapon extends KindOfWeapon {
             }
         }
 
-        cursed = false;
+        curse(false);
 
         return super.upgrade();
     }
@@ -420,7 +420,7 @@ abstract public class Weapon extends KindOfWeapon {
         float effectRoll = Random.Float();
         if (effectRoll < 0.3f * ParchmentScrap.curseChanceMultiplier()) {
             enchant(Enchantment.randomCurse());
-            cursed = true;
+            curse(true);
         } else if (effectRoll >= 1f - (0.1f * ParchmentScrap.enchantChanceMultiplier())) {
             enchant();
         }

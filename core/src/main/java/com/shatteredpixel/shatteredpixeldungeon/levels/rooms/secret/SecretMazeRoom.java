@@ -100,7 +100,7 @@ public class SecretMazeRoom extends SecretRoom {
         if (((Armor) prize).hasCurseGlyph()) {
             ((Armor) prize).inscribe(null);
         }
-        prize.cursed = false;
+        prize.curse(false);
         prize.cursedKnown = true;
 
         //33% chance for an extra update.

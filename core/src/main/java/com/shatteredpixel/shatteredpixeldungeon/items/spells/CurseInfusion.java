@@ -42,6 +42,8 @@ import com.watabou.noosa.audio.Sample;
 
 import java.util.ArrayList;
 
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing;
+
 public class CurseInfusion extends InventorySpell {
 
     {
@@ -61,8 +63,10 @@ public class CurseInfusion extends InventorySpell {
         CellEmitter.get(curUser.pos).burst(ShadowParticle.UP, 5);
         Sample.INSTANCE.play(Assets.Sounds.CURSED);
 
-        item.cursed = true;
-        if (item instanceof MeleeWeapon || item instanceof SpiritBow) {
+        item.curse(true);
+        if (item instanceof YogRing) {
+            // pass
+        } else if (item instanceof MeleeWeapon || item instanceof SpiritBow) {
             Weapon w = (Weapon) item;
             if (w.enchantment != null) {
                 //if we are freshly applying curse infusion, don't replace an existing curse

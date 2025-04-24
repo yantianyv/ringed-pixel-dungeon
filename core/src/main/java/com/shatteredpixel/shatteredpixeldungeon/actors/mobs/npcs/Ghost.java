@@ -305,7 +305,7 @@ public class Ghost extends NPC {
                 ring = (Ring) Generator.random(Generator.Category.RING);
                 special_ring = new WeddingRing();
 
-                ring.cursed = false;
+                ring.curse(false);
                 ring.upgrade(3);
 
             }

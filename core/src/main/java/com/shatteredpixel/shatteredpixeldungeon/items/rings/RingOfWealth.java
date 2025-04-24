@@ -335,7 +335,7 @@ public class RingOfWealth extends Ring {
         if (result instanceof Ring) {
             result.level(result.level() + Random.Int((level + 1) / 2));
         }
-        result.cursed = false;
+        result.curse(false);
         result.cursedKnown = true;
         if (result.level() >= 2) {
             latestDropTier = 4;

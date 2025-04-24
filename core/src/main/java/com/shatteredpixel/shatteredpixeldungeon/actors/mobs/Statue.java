@@ -65,7 +65,7 @@ public class Statue extends Mob {
             weapon = (MeleeWeapon) Generator.randomUsingDefaults(Generator.Category.WEAPON);
         }
         levelGenStatue = useDecks;
-        weapon.cursed = false;
+        weapon.curse(false);
         weapon.enchant(Enchantment.random());
     }
 
@@ -198,7 +198,8 @@ public class Statue extends Mob {
         if (altChance > 0.1f) {
             altChance = (altChance + 0.1f) / 2f; //rat skull is 1/2 as effective here
 
-                }if (Random.Float() < altChance) {
+        }
+        if (Random.Float() < altChance) {
             statue = new ArmoredStatue();
         } else {
             statue = new Statue();

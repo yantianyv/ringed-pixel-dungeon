@@ -95,7 +95,7 @@ public class MagesStaff extends MeleeWeapon {
     public MagesStaff(Wand wand) {
         this();
         wand.identify();
-        wand.cursed = false;
+        wand.curse(false);
         this.wand = wand;
         updateWand(false);
         wand.curCharges = wand.maxCharges;
@@ -149,9 +149,9 @@ public class MagesStaff extends MeleeWeapon {
             }
 
             if (cursed || hasCurseEnchant()) {
-                wand.cursed = true;
+                wand.curse(true);
             } else {
-                wand.cursed = false;
+                wand.curse(false);
             }
             wand.execute(hero, AC_ZAP);
         }

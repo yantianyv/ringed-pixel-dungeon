@@ -148,7 +148,7 @@ public class TrapsRoom extends SpecialRoom {
             ((Armor) prize).inscribe(null);
         }
 
-        prize.cursed = false;
+        prize.curse(false);
         prize.cursedKnown = true;
 
         //33% chance for an extra update.

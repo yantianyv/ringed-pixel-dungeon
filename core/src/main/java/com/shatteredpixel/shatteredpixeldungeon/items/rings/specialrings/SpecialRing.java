@@ -1,8 +1,11 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
 public abstract class SpecialRing extends Ring {
 
@@ -12,11 +15,25 @@ public abstract class SpecialRing extends Ring {
         unique = true;
     }
 
-    // 3. 完全跳过宝石系统的 reset 逻辑
+    // 同类特殊戒指只能装备一个
+    @Override
+    public boolean doEquip(Hero hero) {
+        // 检查是否已装备同类型戒指
+        for (Item item : hero.belongings) {
+            if (item != this && item.getClass() == this.getClass() && item.isEquipped(hero)) {
+                GLog.w(Messages.get(this, "already_equipped"));
+                hero.spendAndNext(0f); // 取消装备动作
+                return false; // 装备失败
+            }
+        }
+        return super.doEquip(hero); // 没有冲突，正常装备
+    }
+
+    // 完全跳过宝石系统的 reset 逻辑
     @Override
     public void reset() {
         // 不调用 super.reset()，避免父类重置宝石关联字段
-        cursed = false;
+        curse(false);
         cursedKnown = false;
         levelKnown = false;
     }

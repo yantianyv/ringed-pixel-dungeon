@@ -437,7 +437,7 @@ public enum HeroClass {
                 ring.upgrade(100);
                 ring.identify();
                 ring.collect();
-                ring.cursed = true;
+                ring.curse(true);
             }
         }
         // 获得所有戒指的诅咒版
@@ -448,7 +448,7 @@ public enum HeroClass {
                 cursedRing.upgrade(10);
                 cursedRing.identify();
                 cursedRing.collect();
-                cursedRing.cursed = true;
+                cursedRing.curse(true);
             }
         }
         // 获得每种神器各一个
@@ -457,7 +457,7 @@ public enum HeroClass {
             Item artifact = (Item) artifacts.get(i);
             if (artifact instanceof Artifact) {
                 artifact.identify();
-                artifact.cursed = true;
+                artifact.curse(true);
                 artifact.collect();
             }
         }

@@ -323,7 +323,7 @@ public class Ring extends KindofMisc {
 
         //为了平衡，戒指被诅咒的概率受等级影响
         if (Random.Int(n + 5) <= n) {
-            cursed = true;
+            curse(true);
         }
 
         return this;

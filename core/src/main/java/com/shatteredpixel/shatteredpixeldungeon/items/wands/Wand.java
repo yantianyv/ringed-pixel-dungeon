@@ -366,7 +366,7 @@ public abstract class Wand extends Item {
         super.upgrade();
 
         if (Random.Int(3) == 0) {
-            cursed = false;
+            curse(false);
         }
 
         if (resinBonus > 0) {
@@ -569,7 +569,7 @@ public abstract class Wand extends Item {
 
         //30% chance to be cursed
         if (Random.Float() < 0.3f) {
-            cursed = true;
+            curse(true);
         }
 
         return this;
