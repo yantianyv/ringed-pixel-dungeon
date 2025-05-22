@@ -306,7 +306,7 @@ public class DwarfKing extends Mob {
             int dmg = Dungeon.hero.HP / 10;
             ((Char) Dungeon.hero).damage(dmg, this);
             dmg = dmg > HP / 10 ? HP / 10 : dmg;
-            damage(dmg, Dungeon.hero);
+            damage(dmg, this);
         }
 
         return super.act();
