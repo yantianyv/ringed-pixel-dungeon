@@ -42,7 +42,7 @@ public class Swarm extends Mob {
         spriteClass = SwarmSprite.class;
 
         HP = HT = 100;
-        defenseSkill = 5;
+        defenseSkill = 1;
 
         EXP = 3;
         maxLvl = 9;
@@ -103,7 +103,7 @@ public class Swarm extends Mob {
                 }
             }
 
-            if (candidates.size() > 0) {
+            if (!candidates.isEmpty()) {
 
                 Swarm clone = split();
                 clone.pos = Random.element(candidates);
@@ -125,6 +125,8 @@ public class Swarm extends Mob {
                 } else {
                     num_of_escape = num_of_escape / 2 + 1;
                 }
+            } else {
+                damage += 1;
             }
         }
 

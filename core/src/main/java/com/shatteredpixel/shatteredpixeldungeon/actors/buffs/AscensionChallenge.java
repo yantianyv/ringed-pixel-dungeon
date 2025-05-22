@@ -58,7 +58,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Warlock;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper;
 import com.shatteredpixel.shatteredpixeldungeon.items.Amulet;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -193,7 +192,7 @@ public class AscensionChallenge extends Buff {
             chal.stacks -= 1;
         }
         // 刷新时光行者之戒的效果
-        RingOfTimetraveler.refresh();
+        // RingOfTimetraveler.refresh();
         chal.stacks = Math.max(0, chal.stacks);
         if (chal.stacks < 8f && (int) (chal.stacks / 2) != (int) (oldStacks / 2f)) {
             GLog.p(Messages.get(AscensionChallenge.class, "weaken"));
