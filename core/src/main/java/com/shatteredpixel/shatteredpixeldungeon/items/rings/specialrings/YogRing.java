@@ -65,7 +65,7 @@ public class YogRing extends SpecialRing {
 
     @Override
     public Item curse(boolean x) {
-        if (x == false) {
+        if (x == false || this.cursed) {
             level(level() - 1);
         }
         return super.curse(x);
