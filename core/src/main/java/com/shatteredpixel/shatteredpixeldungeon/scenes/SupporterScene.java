@@ -155,7 +155,7 @@ public class SupporterScene extends PixelScene {
             String message = Messages.get(SupporterScene.class, "intro");
             message += "\n\n" + Messages.get(SupporterScene.class, "patreon_msg");
 
-            message += "\n\n- HuaJi";
+            message += "\n\n- yantianyv";
 
             text = PixelScene.renderTextBlock(message, 6);
             add(text);
@@ -174,7 +174,7 @@ public class SupporterScene extends PixelScene {
             text.setPos(x + bg.marginLeft(), y + bg.marginTop() + 1);
 
             icon.y = text.bottom() - icon.height() + 4;
-            icon.x = x + 25;
+            icon.x = x + 40;
 
             height = (text.bottom() + 3) - y;
 
