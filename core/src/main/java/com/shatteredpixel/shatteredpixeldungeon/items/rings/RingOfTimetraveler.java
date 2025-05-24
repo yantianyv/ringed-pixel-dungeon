@@ -72,6 +72,7 @@ public class RingOfTimetraveler extends Ring {
         }
         return (isKnown() ? super.desc() : Messages.get(this, "unknown_desc")) + ascension;
     }
+    
     protected static float efficiency = 1f;// 效率
 
     @Override

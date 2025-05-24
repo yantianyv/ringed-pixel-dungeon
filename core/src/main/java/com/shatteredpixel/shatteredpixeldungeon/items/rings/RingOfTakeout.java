@@ -52,12 +52,21 @@ public class RingOfTakeout extends Ring {
         return new Takeout();
     }
 
+    @Override
+    public String desc() {
+        String ascension = "";
+        if (Dungeon.hero != null && this.isIdentified()) {
+            ascension = Messages.get(this, "ascension_desc", (int) (efficiency * 100));
+        }
+        return (isKnown() ? super.desc() : Messages.get(this, "unknown_desc")) + ascension;
+    }
+
     public static float takeoutChance(Char target) {// 触发进食的几率
         return (float) (1 - Math.pow(0.995, getBuffedBonus(target, Takeout.class)));
     }
 
     protected static float efficiency = 1f;// 效率
-    protected static float takeout_cooldown = 0f;// 效率
+    protected static float takeout_cooldown = 0f;// 冷却
 
     @Override
     public void storeInBundle(Bundle bundle) {
@@ -84,7 +93,7 @@ public class RingOfTakeout extends Ring {
         public boolean act() {
             // 触发拼好饭之戒
             if (Math.random() < RingOfTakeout.takeoutChance(target) * efficiency * (1f - takeout_cooldown) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
-                efficiency *= 0.99f;
+                efficiency *= 0.95f;
                 takeout_cooldown = 1f;
                 // 拼好饭戒指的进餐逻辑
                 if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 3) {
