@@ -50,7 +50,7 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
-public class Ring extends KindofMisc {
+public abstract class Ring extends KindofMisc {
 
     protected Buff buff;
     protected Class<? extends RingBuff> buffClass;
@@ -126,6 +126,22 @@ public class Ring extends KindofMisc {
         public String info() {
             return "";
         }
+        // ————————————————戒指效率————————————————
+        private static float efficiency = 1.0f;
+
+        @Override
+        public float efficiency() {
+            return efficiency; // 返回当前类别的共享效率
+        }
+
+        @Override
+        public void efficiency(float x) {
+            x = x > 1 ? 1 : x;
+            x = x < 0 ? 0 : x;
+            efficiency = x;
+        }
+
+        // ————————————————————————————————————————
     }
     //anonymous rings are always IDed, do not affect ID status,
     //and their sprite is replaced by a placeholder if they are not known,
@@ -243,7 +259,7 @@ public class Ring extends KindofMisc {
         }
 
         if (isKnown()) {
-            desc += "\n\n" + statsInfo();
+            desc += "\n\n" + statsInfo() + "\n\n" + Messages.get(Ring.class, "efficiency", (int) (efficiency() * 100));
         }
 
         return desc;
@@ -370,12 +386,14 @@ public class Ring extends KindofMisc {
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
         bundle.put(LEVELS_TO_ID, levelsToID);
+        bundle.put("efficiency", efficiency());
     }
 
     @Override
     public void restoreFromBundle(Bundle bundle) {
         super.restoreFromBundle(bundle);
         levelsToID = bundle.getFloat(LEVELS_TO_ID);
+        efficiency(bundle.getFloat("efficiency"));
     }
 
     @Override
@@ -522,6 +540,23 @@ public class Ring extends KindofMisc {
         return cursedKnown && cursed;
     }
 
+    // ————————————————效率相关代码————————————————
+    // 抽象方法：获取效率（子类必须实现）
+    public abstract float efficiency();
+
+    // 抽象方法：设置效率（子类必须实现）
+    public abstract void efficiency(float value);
+
+    // 默认方法：重置效率（子类可选择覆盖）
+    public void refresh() {
+        efficiency(1.0f); // 默认重置为1.0
+    }
+
+    public void efficiency_multy(float value) {
+        efficiency(efficiency() * value);
+    }
+
+    // ———————————————————————————————————————————
     public class RingBuff extends Buff {
 
         @Override
@@ -549,6 +584,5 @@ public class Ring extends KindofMisc {
         public int buffedLvl() {
             return Ring.this.soloBuffedBonus();
         }
-
     }
 }

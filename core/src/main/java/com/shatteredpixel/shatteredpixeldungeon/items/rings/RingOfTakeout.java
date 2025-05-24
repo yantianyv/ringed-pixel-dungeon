@@ -56,7 +56,7 @@ public class RingOfTakeout extends Ring {
     public String desc() {
         String ascension = "";
         if (Dungeon.hero != null && this.isIdentified()) {
-            ascension = Messages.get(this, "ascension_desc", (int) (efficiency * 100));
+            ascension = Messages.get(this, "ascension_desc", (int) (efficiency() * 100));
         }
         return (isKnown() ? super.desc() : Messages.get(this, "unknown_desc")) + ascension;
     }
@@ -65,13 +65,12 @@ public class RingOfTakeout extends Ring {
         return (float) (1 - Math.pow(0.995, getBuffedBonus(target, Takeout.class)));
     }
 
-    protected static float efficiency = 1f;// 效率
     protected static float takeout_cooldown = 0f;// 冷却
 
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
-        bundle.put("efficiency", efficiency);
+        bundle.put("efficiency", efficiency());
         bundle.put("takeout_cooldown", takeout_cooldown);
 
     }
@@ -79,12 +78,24 @@ public class RingOfTakeout extends Ring {
     @Override
     public void restoreFromBundle(Bundle bundle) {
         super.restoreFromBundle(bundle);
-        efficiency = bundle.getFloat("efficiency");
+        efficiency(bundle.getFloat("efficiency"));
     }
 
-    public static void refresh() {
-        efficiency = 1f;
+    // ————————————————戒指效率————————————————
+    private static float efficiency = 1.0f;
+
+    @Override
+    public float efficiency() {
+        return efficiency; // 返回当前类别的共享效率
     }
+
+    @Override
+    public void efficiency(float x) {
+        x = x > 1 ? 1 : x;
+        x = x < 0 ? 0 : x;
+        efficiency = x;
+    }
+    // ————————————————————————————————————————
 
     // 定义RingBuff类
     public class Takeout extends RingBuff {
@@ -92,8 +103,8 @@ public class RingOfTakeout extends Ring {
         @Override
         public boolean act() {
             // 触发拼好饭之戒
-            if (Math.random() < RingOfTakeout.takeoutChance(target) * efficiency * (1f - takeout_cooldown) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
-                efficiency *= 0.95f;
+            if (Math.random() < RingOfTakeout.takeoutChance(target) * efficiency() * (1f - takeout_cooldown) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
+                efficiency(0.95f*efficiency);
                 takeout_cooldown = 1f;
                 // 拼好饭戒指的进餐逻辑
                 if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 3) {

@@ -42,32 +42,20 @@ public class RingOfNahida extends Ring {
         return (float) (1 - Math.pow(0.95, getBuffedBonus(target, Nahida.class)));
     }
 
-    protected static float efficiency = 1f;// 效率
+    // ————————————————戒指效率————————————————
+    private static float efficiency = 1.0f;
 
     @Override
-    public void storeInBundle(Bundle bundle) {
-        super.storeInBundle(bundle);
-        bundle.put("efficiency", efficiency);
-    }
-
-    @Override
-    public void restoreFromBundle(Bundle bundle) {
-        super.restoreFromBundle(bundle);
-        efficiency = bundle.getFloat("efficiency");
-    }
-
-    public static void refresh() {
-        efficiency = 1f;
-    }
-
-    public static float efficiency() {
+    public float efficiency() {
         return efficiency;
     }
 
-    public static void efficiency(float multi) {
-        efficiency *= multi;
+    @Override
+    public void efficiency(float x) {
+        efficiency = x;
     }
 
+    // ————————————————————————————————————————
     // 定义RingBuff类
     public class Nahida extends RingBuff {
     }

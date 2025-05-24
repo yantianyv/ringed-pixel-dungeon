@@ -54,8 +54,6 @@ public class RingOfDiscount extends Ring {
         return (float) Math.pow(0.99, getBuffedBonus(target, Discount.class));
     }
 
-    protected static float efficiency = 1f;// 效率
-
     @Override
     public void storeInBundle(Bundle bundle) {
         if (goodHeap != null) {
@@ -66,19 +64,24 @@ public class RingOfDiscount extends Ring {
             goodHeap = null;
         }
         super.storeInBundle(bundle);
-        bundle.put("efficiency", efficiency);
+    }
+
+    // ————————————————戒指效率————————————————
+    private static float efficiency = 1.0f;
+
+    @Override
+    public float efficiency() {
+        return efficiency; // 返回当前类别的共享效率
     }
 
     @Override
-    public void restoreFromBundle(Bundle bundle) {
-        super.restoreFromBundle(bundle);
-        efficiency = bundle.getFloat("efficiency");
+    public void efficiency(float x) {
+        x = x > 1 ? 1 : x;
+        x = x < 0 ? 0 : x;
+        efficiency = x;
     }
 
-    public static void refresh() {
-        efficiency = 1f;
-    }
-
+    // ————————————————————————————————————————
     // 定义RingBuff类
     public class Discount extends RingBuff {
 

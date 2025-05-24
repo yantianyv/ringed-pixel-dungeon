@@ -86,7 +86,6 @@ public class IronRing extends SpecialRing {
     public static float killThreshold(Char target) {
         return (float) (1 - (pow(0.95, getBuffedBonus(target, Ironring.class)))) / 2;
     }
-
     // 定义RingBuff类
     public class Ironring extends RingBuff {
     }

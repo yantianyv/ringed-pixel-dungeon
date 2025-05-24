@@ -71,5 +71,19 @@ public abstract class SpecialRing extends Ring {
     public boolean isUpgradable() {
         return level() > 5;
     }
+    // ————————————————戒指效率————————————————
+    private static float efficiency = 1.0f;
 
+    @Override
+    public float efficiency() {
+        return efficiency; // 返回当前类别的共享效率
+    }
+
+    @Override
+    public void efficiency(float x) {
+        x = x > 1 ? 1 : x;
+        x = x < 0 ? 0 : x;
+        efficiency = x;
+    }
+    // ————————————————————————————————————————
 }

@@ -58,23 +58,36 @@ public class RingOfTimetraveler extends Ring {
         }
         return Messages.decimalFormat("#.##", 100f * (Math.pow(0.9f, level) - 1f)) + "%";
     }
+    // ————————————————戒指效率————————————————
+    private static float efficiency = 1.0f;
 
+    @Override
+    public float efficiency() {
+        return efficiency; // 返回当前类别的共享效率
+    }
+
+    @Override
+    public void efficiency(float x) {
+        x = x > 1 ? 1 : x;
+        x = x < 0 ? 0 : x;
+        efficiency = x;
+    }
+
+    // ————————————————————————————————————————
     @Override
     protected RingBuff buff() {
         return new TimeCompression();
     }
 
-    @Override
-    public String desc() {
-        String ascension = "";
-        if (Dungeon.hero != null && this.isIdentified()) {
-            ascension = Messages.get(this, "ascension_desc", (int) (efficiency * 100));
-        }
-        return (isKnown() ? super.desc() : Messages.get(this, "unknown_desc")) + ascension;
-    }
+    // @Override
+    // public String desc() {
+    //     String ascension = "";
+    //     if (Dungeon.hero != null && this.isIdentified()) {
+    //         ascension = Messages.get(this, "ascension_desc", (int) (efficiency * 100));
+    //     }
+    //     return (isKnown() ? super.desc() : Messages.get(this, "unknown_desc")) + ascension;
+    // }
     
-    protected static float efficiency = 1f;// 效率
-
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
@@ -85,10 +98,6 @@ public class RingOfTimetraveler extends Ring {
     public void restoreFromBundle(Bundle bundle) {
         super.restoreFromBundle(bundle);
         efficiency = bundle.getFloat("efficiency");
-    }
-
-    public static void refresh() {
-        efficiency = 1f;
     }
 
     public static float timeMultiplier(Char target) {

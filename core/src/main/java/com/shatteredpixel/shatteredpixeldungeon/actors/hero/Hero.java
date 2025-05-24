@@ -2091,11 +2091,9 @@ public class Hero extends Char {
             }
         }
         // 刷新拼好饭之戒的效率
-        RingOfTakeout.refresh();
-        // 刷新纳西妲之戒的效率
-        RingOfNahida.refresh();
+        new RingOfTakeout().refresh();
         // 刷新百亿补贴之戒的效率
-        RingOfDiscount.refresh();
+        new RingOfTakeout().refresh();
 
         //xp granted by ascension challenge is only for on-exp gain effects
         if (source != AscensionChallenge.class) {
