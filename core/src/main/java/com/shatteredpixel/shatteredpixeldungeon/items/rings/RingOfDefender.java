@@ -93,9 +93,9 @@ public class RingOfDefender extends Ring {
 
     public static float damageMultiplier(Char t) {
         //(HT - HP)/HT = heroes current % missing health.
-        float effect_rate = Math.max(((float) (t.HT - t.HP) / t.HT), getBuffedBonus(t, Defender.class) * 0.01f);
-        effect_rate = effect_rate < 1f ? effect_rate : 1f;
-        return (float) Math.pow(0.85, getBuffedBonus(t, Defender.class) * effect_rate);
+        // float effect_rate = Math.max(((float) (t.HT - t.HP) / t.HT), getBuffedBonus(t, Defender.class) * 0.01f);
+        // effect_rate = effect_rate < 1f ? effect_rate : 1f;
+        return (float) Math.pow(0.85, getBuffedBonus(t, Defender.class) * (1 - efficiency));
     }
 
     public static final HashSet<Class> RESISTS = new HashSet<>();
@@ -122,9 +122,9 @@ public class RingOfDefender extends Ring {
 
         for (Class c : RESISTS) {
             if (c.isAssignableFrom(effect)) {
-                float effect_rate = Math.max(((float) (target.HP) / target.HT), getBuffedBonus(target, Defender.class) * 0.01f);
-                effect_rate = effect_rate < 1f ? effect_rate : 1f;
-                return (float) Math.pow(0.85, getBuffedBonus(target, Resistance.class) * effect_rate);
+                // float effect_rate = Math.max(((float) (target.HP) / target.HT), getBuffedBonus(target, Defender.class) * 0.01f);
+                // effect_rate = effect_rate < 1f ? effect_rate : 1f;
+                return (float) Math.pow(0.85, getBuffedBonus(target, Resistance.class) * (1 - efficiency));
             }
         }
 
@@ -151,6 +151,14 @@ public class RingOfDefender extends Ring {
 
     // ————————————————————————————————————————
     public class Defender extends RingBuff {
+
+        @Override
+        public boolean act() {
+            float target_efficiency = 1f - Dungeon.hero.HP / (float) Dungeon.hero.HT;
+            efficiency = efficiency < target_efficiency ? target_efficiency : efficiency * 0.99f + target_efficiency * 0.01f;
+            spend(TICK);
+            return true;
+        }
     }
 
     public class Resistance extends RingBuff {
