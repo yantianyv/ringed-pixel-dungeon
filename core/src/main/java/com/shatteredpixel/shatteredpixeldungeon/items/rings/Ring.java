@@ -312,6 +312,15 @@ public abstract class Ring extends KindofMisc {
     }
 
     @Override
+    public String status() {
+        if (isIdentified() && efficiency() < 0.99) {
+            return (int) (efficiency() * 100) + "%";
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public Item identify(boolean byHero) {
         setKnown();
         levelsToID = 0;
