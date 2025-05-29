@@ -845,11 +845,7 @@ public enum Talent {
     public static void onFoodEaten(Hero hero, float foodVal, Item foodSource) {
         // 丰盛一餐
         if (hero.hasTalent(HEARTY_MEAL)) {
-            // int healing = 1 + 2 * hero.pointsInTalent(HEARTY_MEAL);
-            int healing = (hero.HT - hero.HP) * hero.pointsInTalent(HEARTY_MEAL) / 50;
-            if (healing < hero.pointsInTalent(HEARTY_MEAL)) {
-                healing = hero.pointsInTalent(HEARTY_MEAL);
-            }
+            int healing = (hero.HT - hero.HP) * hero.pointsInTalent(HEARTY_MEAL) / 100 + hero.pointsInTalent(HEARTY_MEAL);
             hero.HP = Math.min(hero.HP + healing, hero.HT);
             hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healing), FloatingText.HEALING);
         }// 钢铁之胃
@@ -933,7 +929,7 @@ public enum Talent {
         if (hero.hasTalent(BALANCED_MEAL)) {
             switch (hero.pointsInTalent(BALANCED_MEAL)) {
                 case 3:
-                    Buff.affect(hero, Adrenaline.class,1f);
+                    Buff.affect(hero, Adrenaline.class, 1f);
                 case 2:
                     Buff.affect(hero, Health.class).boost(3);
                     Barrier b = Buff.affect(Dungeon.hero, Barrier.class);

@@ -244,7 +244,8 @@ public enum Rankings {
 
         // 没有分数的情况
         if (Dungeon.isChallenged(Challenges.XP_DUNGEON)
-                || Statistics.wealth == true) {
+                || Statistics.wealth == true
+                || Dungeon.is_developer_mode()) {
             Statistics.totalScore = 0;
         }
 

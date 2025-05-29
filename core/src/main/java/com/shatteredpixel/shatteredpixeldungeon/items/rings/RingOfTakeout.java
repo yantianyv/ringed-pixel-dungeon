@@ -55,9 +55,6 @@ public class RingOfTakeout extends Ring {
     @Override
     public String desc() {
         String ascension = "";
-        if (Dungeon.hero != null && this.isIdentified()) {
-            ascension = Messages.get(this, "ascension_desc", (int) (efficiency() * 100));
-        }
         return (isKnown() ? super.desc() : Messages.get(this, "unknown_desc")) + ascension;
     }
 
@@ -70,7 +67,6 @@ public class RingOfTakeout extends Ring {
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
-        bundle.put("efficiency", efficiency());
         bundle.put("takeout_cooldown", takeout_cooldown);
 
     }
@@ -78,7 +74,6 @@ public class RingOfTakeout extends Ring {
     @Override
     public void restoreFromBundle(Bundle bundle) {
         super.restoreFromBundle(bundle);
-        efficiency(bundle.getFloat("efficiency"));
     }
 
     // ————————————————戒指效率————————————————
@@ -97,8 +92,8 @@ public class RingOfTakeout extends Ring {
     }
 
     public void charge(float x) {
-        float charge = (2 - efficiency) * x / 3000;
-        efficiency += charge;
+        float charge = x / 3000;
+        efficiency += (charge + (1f - efficiency) / 5f);
         efficiency = efficiency > 1 ? 1 : efficiency;
     }
     // ————————————————————————————————————————
@@ -123,7 +118,7 @@ public class RingOfTakeout extends Ring {
                 spend(TICK);
                 return true;
             } else {
-                takeout_cooldown -= 0.01f;
+                takeout_cooldown -= 0.05f;
                 takeout_cooldown = takeout_cooldown < 0 ? 0 : takeout_cooldown;
             }
             return super.act();
