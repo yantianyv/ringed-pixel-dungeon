@@ -1593,7 +1593,7 @@ public class Hero extends Char {
         }
 
         // 战士的反伤
-        if (Dungeon.hero.hasTalent(Talent.PROVOKED_ANGER)) {
+        if (Dungeon.hero.hasTalent(Talent.PROVOKED_ANGER) || damage > 0) {
             if (enemy.buff(Bleeding.class) == null || raw_damage > enemy.buff(Bleeding.class).level()) {
                 Buff.affect(enemy, Bleeding.class).extend(Dungeon.hero.pointsInTalent(Talent.PROVOKED_ANGER));
             }

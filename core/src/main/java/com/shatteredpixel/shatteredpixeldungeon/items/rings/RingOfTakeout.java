@@ -97,7 +97,7 @@ public class RingOfTakeout extends Ring {
     }
 
     public void charge(float x) {
-        float charge = x / 1000;
+        float charge = (2 - efficiency) * x / 3000;
         efficiency += charge;
         efficiency = efficiency > 1 ? 1 : efficiency;
     }
