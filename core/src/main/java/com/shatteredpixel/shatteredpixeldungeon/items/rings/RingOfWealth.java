@@ -25,9 +25,12 @@ import java.util.Collections;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Rankings;
+import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.CounterBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
@@ -344,6 +347,13 @@ public class RingOfWealth extends Ring {
         }
         return result;
     }
+
+    @Override
+    public boolean doEquip(final Hero hero) {
+        Statistics.wealth = true;
+        return super.doEquip(hero);
+    }
+
     // ————————————————戒指效率————————————————
     private static float efficiency = 1.0f;
 
@@ -361,6 +371,7 @@ public class RingOfWealth extends Ring {
 
     // ————————————————————————————————————————
     public class Wealth extends RingBuff {
+
     }
 
     public static class TriesToDropTracker extends CounterBuff {
