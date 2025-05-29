@@ -96,8 +96,10 @@ public class RingOfTakeout extends Ring {
         efficiency = x;
     }
 
-    public void refreesh(){
-        
+    public void charge(float x) {
+        float charge = x / 1000;
+        efficiency += charge;
+        efficiency = efficiency > 1 ? 1 : efficiency;
     }
     // ————————————————————————————————————————
 
@@ -108,7 +110,7 @@ public class RingOfTakeout extends Ring {
         public boolean act() {
             // 触发拼好饭之戒
             if (Math.random() < RingOfTakeout.takeoutChance(target) * efficiency() * (1f - takeout_cooldown) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
-                efficiency(0.95f*efficiency);
+                efficiency(0.95f * efficiency);
                 takeout_cooldown = 1f;
                 // 拼好饭戒指的进餐逻辑
                 if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 3) {
