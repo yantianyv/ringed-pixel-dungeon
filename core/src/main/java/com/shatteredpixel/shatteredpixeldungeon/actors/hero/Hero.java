@@ -1629,6 +1629,10 @@ public class Hero extends Char {
             interrupt();
         }
 
+        if (src instanceof ElementBuff || buff(RingOfNahida.Nahida.class) != null) {
+            dmg /= RingOfNahida.elementalMastery(Dungeon.hero);
+        }
+
         if (this.buff(Drowsy.class) != null) {
             Buff.detach(this, Drowsy.class);
             GLog.w(Messages.get(this, "pain_resist"));

@@ -95,6 +95,10 @@ public class RingOfTakeout extends Ring {
         x = x < 0 ? 0 : x;
         efficiency = x;
     }
+
+    public void refreesh(){
+        
+    }
     // ————————————————————————————————————————
 
     // 定义RingBuff类

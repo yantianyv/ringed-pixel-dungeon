@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfNahida;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave.BlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
@@ -156,6 +157,13 @@ public class ElementBuff extends Buff implements Hero.Doom {
             case CRYO:
                 buff = new CryoElement();
                 break;
+        }
+        if (Dungeon.hero != null && Dungeon.hero.buff(RingOfNahida.Nahida.class) != null) {
+            if (defender instanceof Hero) {
+                quantity /= RingOfNahida.elementalMastery(Dungeon.hero);
+            } else {
+                quantity *= RingOfNahida.elementalMastery(Dungeon.hero);
+            }
         }
 
         // 如果目标不存在同类buff就添加一个新buff

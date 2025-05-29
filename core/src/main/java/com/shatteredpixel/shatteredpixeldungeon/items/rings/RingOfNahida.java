@@ -4,7 +4,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.watabou.utils.Bundle;
 
 public class RingOfNahida extends Ring {
 
@@ -20,11 +19,11 @@ public class RingOfNahida extends Ring {
         if (isIdentified()) {
             // 基本统计信息，其中soloBuffedBonus()是当前戒指等级
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100 * (1 - Math.pow(0.95, soloBuffedBonus()))));
+                    Messages.decimalFormat("#.##", 100 * (Math.pow(1.05, soloBuffedBonus()))));
             //组合统计信息，其中combinedBuffedBonus(Dungeon.hero)是所有已装备同类戒指的等级之和
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100 * (1 - Math.pow(0.95, combinedBuffedBonus(Dungeon.hero)))));
+                        Messages.decimalFormat("#.##", 100 * (Math.pow(1.05, combinedBuffedBonus(Dungeon.hero)))));
             }
             return info;
         } else {// 鉴定前的通用信息
@@ -38,8 +37,8 @@ public class RingOfNahida extends Ring {
         return new Nahida();
     }
 
-    public static float grassBonusChance(Char target) {// 触发踩草的几率
-        return (float) (1 - Math.pow(0.95, getBuffedBonus(target, Nahida.class)));
+    public static float elementalMastery(Char target) {
+        return (float) Math.pow(1.05, getBuffedBonus(target, Nahida.class)) * efficiency;
     }
 
     // ————————————————戒指效率————————————————
@@ -55,9 +54,21 @@ public class RingOfNahida extends Ring {
         efficiency = x;
     }
 
+    public void refresh(float x) {
+        efficiency += 0.1;
+        efficiency = efficiency > 1 ? 1 : efficiency;
+    }
+
     // ————————————————————————————————————————
     // 定义RingBuff类
     public class Nahida extends RingBuff {
+
+        @Override
+        public boolean act() {
+            efficiency *= 0.999;
+            spend(TICK);
+            return true;
+        }
     }
 
 }
