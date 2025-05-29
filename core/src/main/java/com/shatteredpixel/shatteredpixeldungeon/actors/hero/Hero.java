@@ -516,9 +516,12 @@ public class Hero extends Char {
 
         float accuracy = 1;
         if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
+            new RingOfAgility().efficiency_multy(0.9f);
             return INFINITE_ACCURACY;
         } else if (Random.Float(1) < -RingOfAgility.agilityChance(this)) {
             return 0;
+        } else {
+            new RingOfAgility().refresh();
         }
         if (wep instanceof MissileWeapon) {
             if (Dungeon.level.adjacent(pos, target.pos)) {
@@ -597,9 +600,12 @@ public class Hero extends Char {
         float evasion = defenseSkill;
 
         if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
+            new RingOfAgility().efficiency_multy(0.9f);
             return INFINITE_EVASION;
         } else if (Random.Float(1) < -RingOfAgility.agilityChance(this)) {
             return 0;
+        } else {
+            new RingOfAgility().refresh();
         }
 
         if (buff(Talent.LiquidAgilEVATracker.class) != null) {
@@ -1604,7 +1610,7 @@ public class Hero extends Char {
                 }
                 enemy.damage(effect, this);
             }
-        
+
         }
 
         return super.defenseProc(enemy, damage);

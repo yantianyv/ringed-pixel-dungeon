@@ -88,10 +88,9 @@ public class RingOfAgility extends Ring {
 
     public static float agilityChance(Char target) {
         if (getBuffedBonus(target, Agility.class) > 0) {
-            return (float) (1 - Math.pow(0.95f, getBuffedBonus(target, Agility.class)));
+            return (float) (1 - Math.pow(0.95f, getBuffedBonus(target, Agility.class))) * efficiency;
         } else {
             return (float) (Math.pow(0.95f, -getBuffedBonus(target, Agility.class)) - 1);
-
         }
     }
 
