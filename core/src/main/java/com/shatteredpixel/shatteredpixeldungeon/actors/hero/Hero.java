@@ -1593,11 +1593,18 @@ public class Hero extends Char {
         }
 
         // 战士的反伤
-        if (Dungeon.hero.hasTalent(Talent.PROVOKED_ANGER) || damage > 0) {
-            if (enemy.buff(Bleeding.class) == null || raw_damage > enemy.buff(Bleeding.class).level()) {
-                Buff.affect(enemy, Bleeding.class).extend(Dungeon.hero.pointsInTalent(Talent.PROVOKED_ANGER));
+        if (Dungeon.hero.hasTalent(Talent.PROVOKED_ANGER)) {
+            int effect = damage > 0 ? 1 : 0;
+            if (Dungeon.hero.pointsInTalent(Talent.PROVOKED_ANGER) >= 2) {
+                effect += 1;
             }
-            enemy.damage(Dungeon.hero.pointsInTalent(Talent.PROVOKED_ANGER), this);
+            if (effect > 0) {
+                if (enemy.buff(Bleeding.class) == null || raw_damage > enemy.buff(Bleeding.class).level()) {
+                    Buff.affect(enemy, Bleeding.class).extend(effect);
+                }
+                enemy.damage(effect, this);
+            }
+        
         }
 
         return super.defenseProc(enemy, damage);
