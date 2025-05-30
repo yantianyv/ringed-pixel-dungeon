@@ -33,12 +33,14 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDiscount;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
 public class WndTradeItem extends WndInfoItem {
 
@@ -147,7 +149,8 @@ public class WndTradeItem extends WndInfoItem {
         if (thievery != null && !thievery.isCursed() && thievery.chargesToUse(item) > 0) {
             final float chance = thievery.stealChance(item);
             final int chargesToUse = thievery.chargesToUse(item);
-            RedButton btnSteal = new RedButton(Messages.get(this, "steal", Math.min(100, (int) (chance * 100)), chargesToUse), 6) {
+            RedButton btnSteal;
+            btnSteal = new RedButton(Messages.get(this, "steal", Math.min(100, (int) (chance * 100)), chargesToUse), 6) {
                 @Override
                 protected void onClick() {
                     if (chance >= 1) {
@@ -178,13 +181,19 @@ public class WndTradeItem extends WndInfoItem {
                                             Dungeon.level.drop(item, heap.pos).sprite.drop();
                                         }
                                     } else {
-                                        for (Mob mob : Dungeon.level.mobs) {
-                                            if (mob instanceof Shopkeeper) {
-                                                mob.yell(Messages.get(mob, "thief"));
-                                                ((Shopkeeper) mob).flee();
-                                                break;
+                                        if (item == RingOfDiscount.good()) {
+                                            RingOfDiscount.ban();
+                                            GLog.n(Messages.get(RingOfDiscount.class, "thief"));
+                                        } else {
+                                            for (Mob mob : Dungeon.level.mobs) {
+                                                if (mob instanceof Shopkeeper) {
+                                                    mob.yell(Messages.get(mob, "thief"));
+                                                    ((Shopkeeper) mob).flee();
+                                                    break;
+                                                }
                                             }
                                         }
+
                                         WndTradeItem.this.hide();
                                     }
                                 }

@@ -1642,7 +1642,7 @@ public class Hero extends Char {
             interrupt();
         }
 
-        if (src instanceof ElementBuff || buff(RingOfNahida.Nahida.class) != null) {
+        if (src instanceof ElementBuff && buff(RingOfNahida.Nahida.class) != null) {
             dmg /= RingOfNahida.elementalMastery(Dungeon.hero);
         }
 

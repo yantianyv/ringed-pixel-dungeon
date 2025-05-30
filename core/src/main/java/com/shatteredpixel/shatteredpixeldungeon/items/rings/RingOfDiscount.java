@@ -25,6 +25,7 @@ public class RingOfDiscount extends Ring {
 
     static Heap goodHeap;
     static Item good;
+    static public boolean baned = false;
 
     // 返回物品描述
     public String statsInfo() {
@@ -66,19 +67,34 @@ public class RingOfDiscount extends Ring {
         super.storeInBundle(bundle);
     }
 
+    public static Item good() {
+        return good;
+    }
+
+    public static void ban() {
+        baned = true;
+    }
     // ————————————————戒指效率————————————————
     private static float efficiency = 1.0f;
 
     @Override
     public float efficiency() {
+        if (baned) {
+            return 0;
+        }
         return efficiency; // 返回当前类别的共享效率
     }
 
     @Override
     public void efficiency(float x) {
-        x = x > 1 ? 1 : x;
-        x = x < 0 ? 0 : x;
-        efficiency = x;
+        if (baned){
+            efficiency = 0;
+        }else{
+            x = x > 1 ? 1 : x;
+            x = x < 0 ? 0 : x;
+            efficiency = x;
+        }
+
     }
 
     // ————————————————————————————————————————
