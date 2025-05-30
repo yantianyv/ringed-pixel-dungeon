@@ -56,7 +56,9 @@ public class RingOfDiscount extends Ring {
     }
 
     public static float discountMultiplier(Char target) {
-        if (baned)
+        if (baned){
+            return 1f;
+        }
         return (float) Math.pow(0.99, getBuffedBonus(target, Discount.class));
     }
 
