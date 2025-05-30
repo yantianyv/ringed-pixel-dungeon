@@ -52,6 +52,10 @@ import com.watabou.utils.Random;
 
 public abstract class Ring extends KindofMisc {
 
+    {
+        efficiency(1f);
+    }
+
     protected Buff buff;
     protected Class<? extends RingBuff> buffClass;
 
@@ -109,6 +113,7 @@ public abstract class Ring extends KindofMisc {
     public Ring() {
         super();
         reset();
+
     }
 
     public static class PlaceHolder extends Ring {
@@ -157,18 +162,29 @@ public abstract class Ring extends KindofMisc {
 
     @Override
     public void reset() {
+        // 调用父类的reset方法
         super.reset();
         levelsToID = 1;
+        // 如果buffClass是Oldring类
         if (this.buffClass == Oldring.class) {
+            // 设置image为ItemSpriteSheet.RING_VOID
             image = ItemSpriteSheet.RING_VOID;
+            // 设置gem为"void"
             gem = "void";
+            // 如果handler不为空且handler包含当前对象
         } else if (handler != null && handler.contains(this)) {
+            // 设置image为handler.image(this)
             image = handler.image(this);
+            // 设置gem为handler.label(this)
             gem = handler.label(this);
+            // 否则
         } else {
+            // 设置image为ItemSpriteSheet.RING_VOID
             image = ItemSpriteSheet.RING_VOID;
+            // 设置gem为"void"
             gem = "void";
         }
+        efficiency(1f);
     }
 
     @Override

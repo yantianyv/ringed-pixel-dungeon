@@ -181,19 +181,19 @@ public class WndTradeItem extends WndInfoItem {
                                             Dungeon.level.drop(item, heap.pos).sprite.drop();
                                         }
                                     } else {
-                                        if (item == RingOfDiscount.good()) {
-                                            RingOfDiscount.ban();
-                                            GLog.n(Messages.get(RingOfDiscount.class, "thief"));
-                                        } else {
-                                            for (Mob mob : Dungeon.level.mobs) {
-                                                if (mob instanceof Shopkeeper) {
-                                                    mob.yell(Messages.get(mob, "thief"));
-                                                    ((Shopkeeper) mob).flee();
-                                                    break;
-                                                }
+                                        boolean no_shop_keeper = true;
+                                        for (Mob mob : Dungeon.level.mobs) {
+                                            if (mob instanceof Shopkeeper) {
+                                                mob.yell(Messages.get(mob, "thief"));
+                                                ((Shopkeeper) mob).flee();
+                                                no_shop_keeper = false;
+                                                break;
                                             }
                                         }
-
+                                        if (no_shop_keeper) {
+                                            GLog.n(Messages.get(RingOfDiscount.class, "thief"));
+                                            RingOfDiscount.ban();
+                                        }
                                         WndTradeItem.this.hide();
                                     }
                                 }

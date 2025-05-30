@@ -87,7 +87,6 @@ public class RingOfTimetraveler extends Ring {
     //     }
     //     return (isKnown() ? super.desc() : Messages.get(this, "unknown_desc")) + ascension;
     // }
-    
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);

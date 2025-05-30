@@ -30,6 +30,10 @@ public class RingOfDiscount extends Ring {
     // 返回物品描述
     public String statsInfo() {
         // 依据是否鉴定返回不同信息
+        if (baned){
+            return Messages.get(this, "ban");
+
+        }
         if (isIdentified()) {
             // 基本统计信息，其中soloBuffedBonus()是当前戒指等级
             String info = Messages.get(this, "stats",
@@ -52,6 +56,7 @@ public class RingOfDiscount extends Ring {
     }
 
     public static float discountMultiplier(Char target) {
+        if (baned)
         return (float) Math.pow(0.99, getBuffedBonus(target, Discount.class));
     }
 
@@ -65,14 +70,34 @@ public class RingOfDiscount extends Ring {
             goodHeap = null;
         }
         super.storeInBundle(bundle);
+        bundle.put("baned", baned);
     }
 
-    public static Item good() {
-        return good;
+    @Override
+    public void restoreFromBundle(Bundle bundle) {
+        super.restoreFromBundle(bundle);
+        baned = bundle.getBoolean("baned");
     }
 
     public static void ban() {
         baned = true;
+        rm_good();
+    }
+
+    public static void unban() {
+        baned = false;
+    }
+
+    private static void rm_good() {
+        if (goodHeap != null && goodHeap.type == Heap.Type.FOR_SALE) {
+            // GLog.p("移除商品" + good);
+            if (goodHeap.items.remove(good) && goodHeap.items.isEmpty()) {
+                goodHeap.destroy();
+            } else {
+                goodHeap.type = Heap.Type.HEAP;
+                goodHeap = null;
+            }
+        }
     }
     // ————————————————戒指效率————————————————
     private static float efficiency = 1.0f;
@@ -138,15 +163,7 @@ public class RingOfDiscount extends Ring {
                     efficiency *= 0.9;
                     // 触发百亿补贴
                     VisualShop visualshop = new VisualShop();
-                    if (goodHeap != null && goodHeap.type == Heap.Type.FOR_SALE) {
-                        GLog.p("移除商品" + good);
-                        if (goodHeap.items.remove(good) && goodHeap.items.isEmpty()) {
-                            goodHeap.destroy();
-                        } else {
-                            goodHeap.type = Heap.Type.HEAP;
-                            goodHeap = null;
-                        }
-                    }
+                    rm_good();
                     good = visualshop.chooseRandom();
                     goodHeap = Dungeon.level.drop(good, pospointer);
                     goodHeap.type = Heap.Type.FOR_SALE;
