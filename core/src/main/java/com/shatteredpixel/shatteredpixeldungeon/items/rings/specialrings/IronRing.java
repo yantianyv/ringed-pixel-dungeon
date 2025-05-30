@@ -22,13 +22,13 @@ public class IronRing extends SpecialRing {
         // 依据是否鉴定返回不同信息
         if (isIdentified()) {
             // 基本统计信息，其中soloBuffedBonus()是当前戒指等级
-            float soloBonus = (float) (1 - (pow(0.9, soloBuffedBonus()))) / 3;
+            float soloBonus = (float) (pow(0.9, soloBuffedBonus())) / 3;
             String info = Messages.get(this, "stats",
                     Messages.decimalFormat("#.##", soloBonus * 100f));
 
             //组合统计信息，其中combinedBuffedBonus(Dungeon.hero)是所有已装备同类戒指的等级之和
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
-                float combinedBonus = (float) (1 - (pow(0.9, combinedBuffedBonus(Dungeon.hero)))) / 3;
+                float combinedBonus = (float) (pow(0.9, combinedBuffedBonus(Dungeon.hero))) / 3;
                 info += "\n\n" + Messages.get(this, "combined_stats",
                         Messages.decimalFormat("#.##", combinedBonus * 100f));
             }
@@ -44,7 +44,6 @@ public class IronRing extends SpecialRing {
         return new Ironring();
     }
 
-    // 戒指的核心特色：等级负负得正
     @Override
     public int soloBonus() {
         if (cursed) {
@@ -63,14 +62,6 @@ public class IronRing extends SpecialRing {
         }
     }
 
-    @Override
-    public Item curse(boolean x) {
-        if (x == false) {
-            level(level() - 1);
-        }
-        return super.curse(x);
-    }
-
     private static Item getEquippedRing(Char target, Class<? extends Ring> type) {
         if (target instanceof Hero) {
             for (Item item : ((Hero) target).belongings) {
@@ -83,9 +74,10 @@ public class IronRing extends SpecialRing {
         return null;
     }
 
-    public static float killThreshold(Char target) {
-        return (float) (1 - (pow(0.95, getBuffedBonus(target, Ironring.class)))) / 2;
+    public static float maxHurtRate(Char target) {
+        return (float) (pow(0.95, getBuffedBonus(target, Ironring.class))) / 3;
     }
+
     // 定义RingBuff类
     public class Ironring extends RingBuff {
     }

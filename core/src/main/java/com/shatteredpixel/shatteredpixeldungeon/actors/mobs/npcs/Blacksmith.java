@@ -49,6 +49,8 @@ import com.watabou.utils.Random;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.IronRing;
+
 public class Blacksmith extends NPC {
 
     {
@@ -377,51 +379,71 @@ public class Blacksmith extends NPC {
         }
 
         public static void generateRewards(boolean useDecks) {
+            //生成smithRewards列表，用于存储smith的奖励
             smithRewards = new ArrayList<>();
+            //向smithRewards列表中添加两件随机生成的3级装备和一枚随机戒指
             smithRewards.add(Generator.randomArmor(3));
             smithRewards.add(Generator.randomArmor(3));
+            smithRewards.add(new IronRing());
+            //创建一个列表，用于存储需要撤销的物品
             ArrayList<Item> toUndo = new ArrayList<>();
+            //如果smithRewards列表中的前两件物品类型相同，则进行循环
             while (smithRewards.get(0).getClass() == smithRewards.get(1).getClass()) {
+                //如果useDecks为true，则将smithRewards列表中的第二件物品添加到toUndo列表中
                 if (useDecks) {
                     toUndo.add(smithRewards.get(1));
                 }
+                //从smithRewards列表中移除第二件物品
                 smithRewards.remove(1);
-                smithRewards.add(Generator.randomArmor(3));
+                //向smithRewards列表中添加一个新的随机生成的3级装备
+                smithRewards.add(1, Generator.randomArmor(3));
             }
+            //遍历toUndo列表，撤销其中的物品
             for (Item i : toUndo) {
                 Generator.undoDrop(i);
             }
-            smithRewards.add(Generator.randomArmor(3));
 
             //30%:+0, 45%:+1, 20%:+2, 5%:+3
+            //生成奖励等级
             int rewardLevel;
+            //生成一个0-1之间的随机数
             float itemLevelRoll = Random.Float();
+            //根据随机数的大小，确定奖励等级
             if (itemLevelRoll < 0.3f) {
-                rewardLevel = 0;
-            } else if (itemLevelRoll < 0.75f) {
-                rewardLevel = 1;
-            } else if (itemLevelRoll < 0.95f) {
                 rewardLevel = 2;
-            } else {
+            } else if (itemLevelRoll < 0.75f) {
                 rewardLevel = 3;
+            } else if (itemLevelRoll < 0.95f) {
+                rewardLevel = 4;
+            } else {
+                rewardLevel = 5;
             }
 
+            //遍历smithRewards列表，为其中的物品设置奖励等级
             for (Item i : smithRewards) {
                 i.level(rewardLevel);
+                //如果物品是武器，则为其添加随机附魔
                 if (i instanceof Weapon) {
                     ((Weapon) i).enchant(null);
+                    //如果物品是护甲，则为其添加随机铭文
                 } else if (i instanceof Armor) {
                     ((Armor) i).inscribe(null);
+                } else {
+                    i.level(0);
                 }
+                //为物品取消诅咒
                 i.curse(false);
             }
 
             // 30% base chance to be enchanted, stored separately so status isn't revealed early
             //we generate first so that the outcome doesn't affect the number of RNG rolls
+            //生成随机附魔和铭文
             smithEnchant = Weapon.Enchantment.random();
             smithGlyph = Armor.Glyph.random();
 
+            //生成一个0-1之间的随机数
             float enchantRoll = Random.Float();
+            //如果随机数大于附魔概率乘以ParchmentScrap.enchantChanceMultiplier()，则取消附魔和铭文
             if (enchantRoll > 0.3f * ParchmentScrap.enchantChanceMultiplier()) {
                 smithEnchant = null;
                 smithGlyph = null;

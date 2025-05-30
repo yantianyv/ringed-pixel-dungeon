@@ -141,6 +141,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfNahida;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.IronRing;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing.Yogring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
@@ -1631,21 +1632,23 @@ public class Hero extends Char {
 
     @Override
     public void damage(int dmg, Object src) {
+        //如果玩家处于时间停滞状态，则不进行伤害计算
         if (buff(TimekeepersHourglass.timeStasis.class) != null
                 || buff(TimeStasis.class) != null) {
             return;
         }
 
-        //regular damage interrupt, triggers on any damage except specific mild DOT effects
-        // unless the player recently hit 'continue moving', in which case this is ignored
+        //如果伤害不是来自饥饿、粘稠伤害或元素增益，并且伤害中断标志为true，则中断
         if (!(src instanceof Hunger || src instanceof Viscosity.DeferedDamage || src instanceof ElementBuff) && damageInterrupt) {
             interrupt();
         }
 
+        //如果伤害来自元素增益，并且玩家拥有纳希塔戒指，则减少伤害
         if (src instanceof ElementBuff && buff(RingOfNahida.Nahida.class) != null) {
             dmg /= RingOfNahida.elementalMastery(Dungeon.hero);
         }
 
+        //如果玩家拥有昏睡状态，则解除昏睡状态，并显示提示信息
         if (this.buff(Drowsy.class) != null) {
             Buff.detach(this, Drowsy.class);
             GLog.w(Messages.get(this, "pain_resist"));
@@ -1654,6 +1657,7 @@ public class Hero extends Char {
         //temporarily assign to a float to avoid rounding a bunch
         float damage = dmg;
 
+        //如果伤害不是来自角色，则根据耐久状态调整伤害
         Endure.EndureTracker endure = buff(Endure.EndureTracker.class);
         if (!(src instanceof Char)) {
             //reduce damage here if it isn't coming from a character (if it is we already reduced it)
@@ -1661,10 +1665,12 @@ public class Hero extends Char {
                 damage = endure.adjustDamageTaken(dmg);
             }
             //the same also applies to challenge scroll damage reduction
+            //如果玩家拥有挑战卷轴，则减少伤害
             if (buff(ScrollOfChallenge.ChallengeArena.class) != null) {
                 damage *= 0.67f;
             }
             //and to monk meditate damage reduction
+            //如果玩家拥有武僧冥想增益，则减少伤害
             if (buff(MonkEnergy.MonkAbility.Meditate.MeditateResistance.class) != null) {
                 damage *= 0.2f;
             }
@@ -1676,6 +1682,7 @@ public class Hero extends Char {
             damage = thorns.proc((int) damage, (src instanceof Char ? (Char) src : null), this);
         }
 
+        //如果玩家拥有战士食物免疫增益，则减少伤害
         if (buff(Talent.WarriorFoodImmunity.class) != null) {
             if (pointsInTalent(Talent.IRON_STOMACH) == 1) {
                 damage /= 3f;
@@ -1684,15 +1691,24 @@ public class Hero extends Char {
             }
         }
 
+        //将伤害值四舍五入
         dmg = Math.round(damage);
 
         //we ceil this one to avoid letting the player easily take 0 dmg from tenacity early
+        //根据防御者戒指的增益，增加伤害
         dmg = (int) Math.ceil(dmg * RingOfDefender.damageMultiplier(this));
 
+        if (buff(IronRing.Ironring.class) != null) {
+            float maxdmg = IronRing.maxHurtRate(Dungeon.hero) * HT;
+            dmg = (int) (dmg > maxdmg ? maxdmg : dmg);
+        }
+
+        //记录受伤前后的生命值
         int preHP = HP + shielding();
         if (src instanceof Hunger) {
             preHP -= shielding();
         }
+        //计算实际受到的伤害
         super.damage(dmg, src);
         int postHP = HP + shielding();
         if (src instanceof Hunger) {
@@ -1700,30 +1716,38 @@ public class Hero extends Char {
         }
         int effectiveDamage = preHP - postHP;
 
+        //如果实际受到的伤害为0，则不进行后续处理
         if (effectiveDamage <= 0) {
             return;
         }
 
+        //如果玩家处于决斗状态，则增加伤害值
         if (buff(Challenge.DuelParticipant.class) != null) {
             buff(Challenge.DuelParticipant.class).addDamage(effectiveDamage);
         }
 
         //flash red when hit for serious damage.
+        //计算受到的伤害百分比和剩余生命值百分比
         float percentDMG = effectiveDamage / (float) preHP; //percent of current HP that was taken
         float percentHP = 1 - ((HT - postHP) / (float) HT); //percent health after damage was taken
         // The flash intensity increases primarily based on damage taken and secondarily on missing HP.
+        //计算闪烁强度
         float flashIntensity = 0.25f * (percentDMG * percentDMG) / percentHP;
         //if the intensity is very low don't flash at all
+        //如果闪烁强度非常低，则不闪烁
         if (flashIntensity >= 0.05f) {
             flashIntensity = Math.min(1 / 3f, flashIntensity); //cap intensity at 1/3
+            //闪烁效果
             GameScene.flash((int) (0xFF * flashIntensity) << 16);
             if (isAlive()) {
+                //根据闪烁强度播放不同的音效
                 if (flashIntensity >= 1 / 6f) {
                     Sample.INSTANCE.play(Assets.Sounds.HEALTH_CRITICAL, 1 / 3f + flashIntensity * 2f);
                 } else {
                     Sample.INSTANCE.play(Assets.Sounds.HEALTH_WARN, 1 / 3f + flashIntensity * 4f);
                 }
                 //hero gets interrupted on taking serious damage, regardless of any other factor
+                //受到严重伤害时，无论其他因素如何，都会中断
                 interrupt();
                 damageInterrupt = true;
             }

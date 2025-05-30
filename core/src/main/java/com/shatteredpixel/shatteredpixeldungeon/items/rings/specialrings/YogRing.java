@@ -84,7 +84,7 @@ public class YogRing extends SpecialRing {
     }
 
     public static float killThreshold(Char target) {
-        return (float) (1 - (pow(0.95, getBuffedBonus(target, Yogring.class)))) / 2;
+        return (float) (1 - (pow(0.95, getBuffedBonus(target, Yogring.class)))) / 3;
     }
 
     // 腐化概率：仅在戒指被诅咒时生效
