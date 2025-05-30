@@ -87,14 +87,17 @@ public class RingOfDiscount extends Ring {
 
     @Override
     public void efficiency(float x) {
-        if (baned){
+        if (baned) {
             efficiency = 0;
-        }else{
+        } else {
             x = x > 1 ? 1 : x;
             x = x < 0 ? 0 : x;
             efficiency = x;
         }
+    }
 
+    public void charge(float x) {
+        efficiency(efficiency + x);
     }
 
     // ————————————————————————————————————————
@@ -127,6 +130,7 @@ public class RingOfDiscount extends Ring {
                     Item gold = new Gold();
                     gold.quantity(1);
                     // Dungeon.level.drop(gold, pos);
+                    Dungeon.hero.spend(-TIME_TO_PICK_UP);
                     gold.doPickUp(Dungeon.hero);
                     GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
                     spend(30f);
