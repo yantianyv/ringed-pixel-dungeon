@@ -2108,6 +2108,11 @@ public class Hero extends Char {
             }
         }
 
+        // 百亿补贴之戒
+        if (buff(RingOfDiscount.Discount.class) != null) {
+            new RingOfDiscount().refresh();
+        }
+
         //xp granted by ascension challenge is only for on-exp gain effects
         if (source != AscensionChallenge.class) {
             this.exp += exp;

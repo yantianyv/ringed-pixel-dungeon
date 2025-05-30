@@ -73,10 +73,6 @@ public class Gold extends Item {
         Sample.INSTANCE.play(Assets.Sounds.GOLD, 1, 1, Random.Float(0.9f, 1.1f));
         updateQuickslot();
 
-        if (hero.buff(RingOfDiscount.Discount.class) != null) {
-            new RingOfDiscount().charge(quantity / 1000);
-        }
-
         return true;
     }
 
