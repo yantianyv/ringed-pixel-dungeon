@@ -608,7 +608,6 @@ private class GameOptions extends Component {
     private NinePatch bg;
 
     private ArrayList<StyledButton> buttons;
-    private ArrayList<IconButton> iconButtons;
     private ArrayList<ColorBlock> spacers;
 
     @Override
@@ -618,7 +617,6 @@ private class GameOptions extends Component {
         add(bg);
 
         buttons = new ArrayList<>();
-        iconButtons = new ArrayList<>();
         spacers = new ArrayList<>();
 
         // Add seed button
@@ -834,7 +832,7 @@ private class GameOptions extends Component {
         buttons.add(challengeButton);
 
         // Add cheat button
-        IconButton btnCheat = new IconButton(Icons.get(Icons.COPY)) {
+        StyledButton cheatButton = new StyledButton(Chrome.Type.BLANK, Messages.get("cheat"), 6) {
             @Override
             protected void onClick() {
                 super.onClick();
@@ -843,12 +841,13 @@ private class GameOptions extends Component {
 
             @Override
             protected String hoverText() {
-                return Messages.get("cheat");
+                return Messages.get("cheat_desc");
             }
         };
-        btnCheat.visible = btnCheat.active = true;
-        iconButtons.add(btnCheat);
-        add(btnCheat);
+        cheatButton.leftJustify = true;
+        cheatButton.icon(Icons.get(Icons.COPY));
+        add(cheatButton);
+        buttons.add(cheatButton);
 
         // Add spacers between buttons
         for (int i = 1; i < buttons.size(); i++) {
@@ -889,13 +888,6 @@ private class GameOptions extends Component {
         this.width = width;
         this.height = top + bg.marginBottom() - y - 1;
         bg.size(this.width, this.height);
-
-        // Layout icon buttons
-        top += 16; // Add some spacing after styled buttons
-        for (IconButton btn : iconButtons) {
-            btn.setRect(x + bg.marginLeft(), top, width - bg.marginHor(), 16);
-            top = (int) btn.bottom();
-        }
     }
 
     public void alpha(float value) {
