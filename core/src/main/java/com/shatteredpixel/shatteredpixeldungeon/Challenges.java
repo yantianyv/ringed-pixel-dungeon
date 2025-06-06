@@ -37,10 +37,7 @@ public class Challenges {
     public static final int STRONGER_BOSSES = 256;
     public static final int INVISIBLE_WAR = 512;
 
-
-public static final int UNLOCK_CHEAT = 4096;
-
-public static final int MAX_VALUE = 6143;
+public static final int MAX_VALUE = 1024;
 
 public static final String[] NAME_IDS = {
     "champion_enemies",
@@ -53,11 +50,10 @@ public static final String[] NAME_IDS = {
     "darkness",
     "no_scrolls",
     "invisible_war",
-    "unlock_cheat"
 };
 
 public static final int[] MASKS = {
-    CHAMPION_ENEMIES, STRONGER_BOSSES, NO_FOOD, NO_ARMOR, NO_HEALING, NO_HERBALISM, SWARM_INTELLIGENCE, DARKNESS, NO_SCROLLS, INVISIBLE_WAR, UNLOCK_CHEAT
+    CHAMPION_ENEMIES, STRONGER_BOSSES, NO_FOOD, NO_ARMOR, NO_HEALING, NO_HERBALISM, SWARM_INTELLIGENCE, DARKNESS, NO_SCROLLS, INVISIBLE_WAR
 };
 
     public static int activeChallenges() {

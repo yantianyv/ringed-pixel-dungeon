@@ -21,6 +21,8 @@
 
 package com.shatteredpixel.shatteredpixeldungeon;
 
+import java.util.Locale;
+
 import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -30,8 +32,6 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.DeviceCompat;
 import com.watabou.utils.GameSettings;
 import com.watabou.utils.Point;
-
-import java.util.Locale;
 
 public class SPDSettings extends GameSettings {
 	
@@ -258,13 +258,23 @@ public class SPDSettings extends GameSettings {
 		return getInt( KEY_LAST_CLASS, 0, 0, 3 );
 	}
 	
-	public static void challenges( int value ) {
-		put( KEY_CHALLENGES, value );
-	}
-	
-	public static int challenges() {
-		return getInt( KEY_CHALLENGES, 0, 0, Challenges.MAX_VALUE );
-	}
+    public static void challenges( int value ) {
+        put( KEY_CHALLENGES, value );
+    }
+
+    public static int challenges() {
+        return getInt( KEY_CHALLENGES, 0, 0, Challenges.MAX_VALUE );
+    }
+
+    public static final String KEY_UNLOCK_CHEAT = "unlock_cheat";
+
+    public static void setUnlockCheat(boolean value) {
+        put(KEY_UNLOCK_CHEAT, value);
+    }
+
+    public static boolean unlockCheat() {
+        return getBoolean(KEY_UNLOCK_CHEAT, false);
+    }
 
 	public static void customSeed( String value ){
 		put( KEY_CUSTOM_SEED, value );

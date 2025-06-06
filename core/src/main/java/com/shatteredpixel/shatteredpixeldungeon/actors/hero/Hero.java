@@ -20,7 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
-import com.shatteredpixel.shatteredpixeldungeon.Cheat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +28,6 @@ import java.util.LinkedHashMap;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
-import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
@@ -93,12 +91,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Monk;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CheckedCell;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Surprise;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Wound;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
@@ -141,14 +137,12 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDiscount;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfNahida;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.IronRing;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing.Yogring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ThirteenLeafClover;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
@@ -2386,10 +2380,6 @@ public class Hero extends Char {
         super.die(cause);
         reallyDie(cause);
 
-        // Apply cheat if unlocked
-        if (Dungeon.isChallenged(Challenges.UNLOCK_CHEAT)) {
-            Cheat.applyCheatToHero();
-        }
     }
 
     public static void reallyDie(Object cause) {

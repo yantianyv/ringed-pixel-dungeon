@@ -21,7 +21,6 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -51,20 +50,14 @@ public class WndCheat extends Window {
         PixelScene.align(title);
         add(title);
 
-        checkBox = new CheckBox(Messages.titleCase(Messages.get(Challenges.class, "unlock_cheat"))) {
+        checkBox = new CheckBox(Messages.titleCase(Messages.get(WndCheat.class, "unlock_cheat"))) {
             @Override
             protected void onClick() {
                 super.onClick();
-                int value = SPDSettings.challenges();
-                if (checked()) {
-                    value |= Challenges.UNLOCK_CHEAT;
-                } else {
-                    value &= ~Challenges.UNLOCK_CHEAT;
-                }
-                SPDSettings.challenges(value);
+                SPDSettings.setUnlockCheat(checked());
             }
         };
-        checkBox.checked((SPDSettings.challenges() & Challenges.UNLOCK_CHEAT) != 0);
+        checkBox.checked(SPDSettings.unlockCheat());
         checkBox.setRect(0, TTL_HEIGHT + GAP, WIDTH - 16, BTN_HEIGHT);
         add(checkBox);
 
