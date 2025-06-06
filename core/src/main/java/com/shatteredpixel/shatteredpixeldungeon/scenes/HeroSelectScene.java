@@ -832,16 +832,11 @@ private class GameOptions extends Component {
         buttons.add(challengeButton);
 
         // Add cheat button
-        StyledButton cheatButton = new StyledButton(Chrome.Type.BLANK, Messages.get("cheat"), 6) {
+        StyledButton cheatButton = new StyledButton(Chrome.Type.BLANK, Messages.get(WndCheat.class, "title"), 6) {
             @Override
             protected void onClick() {
                 super.onClick();
                 ShatteredPixelDungeon.scene().addToFront(new WndCheat());
-            }
-
-            @Override
-            protected String hoverText() {
-                return Messages.get("cheat_desc");
             }
         };
         cheatButton.leftJustify = true;
