@@ -21,51 +21,94 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
+import java.util.ArrayList;
+
+import com.shatteredpixel.shatteredpixeldungeon.Cheat;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
+import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
 public class WndCheat extends Window {
 
-    private static final int WIDTH = 120;
-    private static final int TTL_HEIGHT = 16;
-    private static final int BTN_HEIGHT = 16;
-    private static final int GAP = 1;
+	private static final int WIDTH		= 120;
+	private static final int TTL_HEIGHT = 16;
+	private static final int BTN_HEIGHT = 16;
+	private static final int GAP        = 1;
 
-    private CheckBox checkBox;
+	private boolean editable;
+	private ArrayList<CheckBox> boxes;
 
-    public WndCheat() {
+	public WndCheat( int checked, boolean editable ) {
 
-        super();
+		super();
 
-        RenderedTextBlock title = PixelScene.renderTextBlock(Messages.get(this, "title"), 12);
-        title.hardlight(TITLE_COLOR);
-        title.setPos(
-                (WIDTH - title.width()) / 2,
-                (TTL_HEIGHT - title.height()) / 2
-        );
-        PixelScene.align(title);
-        add(title);
+		this.editable = editable;
 
-        checkBox = new CheckBox(Messages.titleCase(Messages.get(WndCheat.class, "unlock_cheat"))) {
-            @Override
-            protected void onClick() {
-                super.onClick();
-                SPDSettings.setUnlockCheat(checked());
-            }
-        };
-        checkBox.checked(SPDSettings.unlockCheat());
-        checkBox.setRect(0, TTL_HEIGHT + GAP, WIDTH - 16, BTN_HEIGHT);
-        add(checkBox);
+		RenderedTextBlock title = PixelScene.renderTextBlock( Messages.get(this, "title"), 12 );
+		title.hardlight( TITLE_COLOR );
+		title.setPos(
+				(WIDTH - title.width()) / 2,
+				(TTL_HEIGHT - title.height()) / 2
+		);
+		PixelScene.align(title);
+		add( title );
 
-        resize(WIDTH, (int) checkBox.bottom());
-    }
+		boxes = new ArrayList<>();
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
+		float pos = TTL_HEIGHT;
+		for (int i=0; i < Cheat.NAME_IDS.length; i++) {
+
+			final String challenge = Cheat.NAME_IDS[i];
+			
+			CheckBox cb = new CheckBox( Messages.titleCase(Messages.get(Cheat.class, challenge)) );
+			cb.checked( (checked & Cheat.MASKS[i]) != 0 );
+			cb.active = editable;
+
+			if (i > 0) {
+				pos += GAP;
+			}
+			cb.setRect( 0, pos, WIDTH-16, BTN_HEIGHT );
+
+			add( cb );
+			boxes.add( cb );
+			
+			IconButton info = new IconButton(Icons.get(Icons.INFO)){
+				@Override
+				protected void onClick() {
+					super.onClick();
+					ShatteredPixelDungeon.scene().add(
+							new WndMessage(Messages.get(Cheat.class, challenge+"_desc"))
+					);
+				}
+			};
+			info.setRect(cb.right(), pos, 16, BTN_HEIGHT);
+			add(info);
+			
+			pos = cb.bottom();
+		}
+
+		resize( WIDTH, (int)pos );
+	}
+
+	@Override
+	public void onBackPressed() {
+
+		if (editable) {
+			int value = 0;
+			for (int i=0; i < boxes.size(); i++) {
+				if (boxes.get( i ).checked()) {
+					value |= Cheat.MASKS[i];
+				}
+			}
+			SPDSettings.cheat( value );
+		}
+
+		super.onBackPressed();
+	}
 }

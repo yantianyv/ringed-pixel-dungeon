@@ -180,6 +180,8 @@ public class Dungeon {
     }
 
     public static int challenges;
+    public static int cheat;
+
     public static int mobsToChampion;
 
     public static Hero hero;

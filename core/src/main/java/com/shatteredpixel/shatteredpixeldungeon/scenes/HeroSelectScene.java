@@ -217,7 +217,7 @@ IconButton btnCheat = new IconButton(Icons.get(Icons.COPY)) {
     @Override
     protected void onClick() {
         super.onClick();
-        ShatteredPixelDungeon.scene().addToFront(new WndCheat());
+                ShatteredPixelDungeon.scene().addToFront(new WndCheat(SPDSettings.cheat(), true));
     }
 
     @Override
@@ -836,7 +836,7 @@ private class GameOptions extends Component {
             @Override
             protected void onClick() {
                 super.onClick();
-                ShatteredPixelDungeon.scene().addToFront(new WndCheat());
+                ShatteredPixelDungeon.scene().addToFront(new WndCheat(SPDSettings.cheat(), true));
             }
         };
         cheatButton.leftJustify = true;
