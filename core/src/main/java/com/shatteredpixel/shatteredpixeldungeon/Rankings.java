@@ -57,6 +57,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Challenge;
+import com.shatteredpixel.shatteredpixeldungeon.Cheat;
 
 public enum Rankings {
 
@@ -244,7 +245,8 @@ public enum Rankings {
 
         // 没有分数的情况
 if (Statistics.wealth == true
-        || Dungeon.is_developer_mode()) {
+        || Dungeon.is_developer_mode()
+        || Cheat.isCheating()) {
     Statistics.totalScore = 0;
 }
 

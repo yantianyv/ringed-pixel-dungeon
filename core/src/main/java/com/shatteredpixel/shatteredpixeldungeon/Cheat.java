@@ -58,5 +58,8 @@ public class Cheat {
         return NAME_IDS[cheat];
     }
 
+    public static boolean isCheating() {
+        return activeCheat() > 0;
+    }
 
 }
