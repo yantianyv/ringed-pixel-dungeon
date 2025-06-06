@@ -31,7 +31,6 @@ public class Cheat {
     public static final int MAX_VALUE      = 16;
 
     public static final String[] NAME_IDS = {
-            "none",
             "xp_dungeon",
             "unlimited_hp",
             "unlimited_gold",
