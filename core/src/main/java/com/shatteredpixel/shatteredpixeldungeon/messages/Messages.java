@@ -34,17 +34,18 @@ public class Messages {
         return locale;
     }
 
-    private static String[] prop_files = new String[]{
-        Assets.Messages.ACTORS,
-        Assets.Messages.ITEMS,
-        Assets.Messages.JOURNAL,
-        Assets.Messages.LEVELS,
-        Assets.Messages.MISC,
-        Assets.Messages.PLANTS,
-        Assets.Messages.SCENES,
-        Assets.Messages.UI,
-        Assets.Messages.WINDOWS
-    };
+private static String[] prop_files = new String[]{
+    Assets.Messages.ACTORS,
+    Assets.Messages.ITEMS,
+    Assets.Messages.JOURNAL,
+    Assets.Messages.LEVELS,
+    Assets.Messages.MISC,
+    Assets.Messages.PLANTS,
+    Assets.Messages.SCENES,
+    Assets.Messages.UI,
+    Assets.Messages.WINDOWS,
+    "strings"
+};
 
     static {
         formatters = new HashMap<>();

@@ -25,7 +25,6 @@ import java.util.Collections;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.Rankings;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -144,28 +143,18 @@ public class RingOfWealth extends Ring {
         while (triesToDrop.count() <= 0) {
             if (dropsToEquip.count() <= 0) {
                 int equipBonus = 0;
-                if (Dungeon.isChallenged(Challenges.XP_DUNGEON)) {
-                    int max_bonus = 0;
-                    for (Wealth w : target.buffs(Wealth.class)) {
-                        max_bonus = w.buffedLvl() > max_bonus ? w.buffedLvl() : max_bonus;
-                        equipBonus = w.buffedLvl() + equipBonus;
-                    }
-                    equipBonus -= (equipBonus - max_bonus) / 3;
-                } else {
-                    ArrayList<Integer> bufflevels = new ArrayList<>();
-                    for (Wealth w : target.buffs(Wealth.class)) {
-                        bufflevels.add(w.buffedLvl());
-                    }
-                    // 按从小到大排列
-                    Collections.sort(bufflevels);
-                    // 第一枚副戒提供最多2级加成，第二枚提供3级，以此类推
-                    for (int i = 0; i < bufflevels.size() - 1; i++) {
-                        int b = bufflevels.get(i);
-                        equipBonus += b > i + 2 ? i + 2 : b;
-                    }
-                    equipBonus += bufflevels.get(bufflevels.size() - 1);
-
+                ArrayList<Integer> bufflevels = new ArrayList<>();
+                for (Buff w : target.buffs(Wealth.class)) {
+                    bufflevels.add(((Wealth) w).buffedLvl());
                 }
+                // 按从小到大排列
+                Collections.sort(bufflevels);
+                // 第一枚副戒提供最多2级加成，第二枚提供3级，以此类推
+                for (int i = 0; i < bufflevels.size() - 1; i++) {
+                    int b = bufflevels.get(i);
+                    equipBonus += b > i + 2 ? i + 2 : b;
+                }
+                equipBonus += bufflevels.get(bufflevels.size() - 1);
 
                 Item i;
                 do {

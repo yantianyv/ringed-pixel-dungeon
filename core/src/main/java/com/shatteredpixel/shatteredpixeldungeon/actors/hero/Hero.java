@@ -20,6 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
+import com.shatteredpixel.shatteredpixeldungeon.Cheat;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -2113,24 +2115,6 @@ public class Hero extends Char {
     public void earnExp(int exp, Class source) {
         // 经验地牢挑战
         boolean dropsuccess = false;
-        if (Dungeon.isChallenged(Challenges.XP_DUNGEON)) {
-            for (int i = 0; i < exp / 100; i++) {
-                Item scroll = new ScrollOfUpgrade();
-                Dungeon.level.drop(scroll, pos);
-                dropsuccess = true;
-            }
-            if (Random.Int(100) < exp) {
-                Item scroll = new ScrollOfUpgrade();
-                Dungeon.level.drop(scroll, pos);
-                dropsuccess = true;
-            }
-            if (dropsuccess) {
-                new Flare(7, 100).color(0x00FF00, true).show(sprite, 5f);
-                new Flare(11, 100).color(0xFF0000, true).show(sprite, 5f);
-                new Flare(13, 100).color(0x0000FF, true).show(sprite, 5f);
-
-            }
-        }
 
         // 百亿补贴之戒
         if (buff(RingOfDiscount.Discount.class) != null) {
@@ -2339,10 +2323,8 @@ public class Hero extends Char {
         Ankh ankh = null;
 
         //look for ankhs in player inventory, prioritize ones which are blessed.
-        for (Ankh i : belongings.getAllItems(Ankh.class
-        )) {
-            if (ankh
-                    == null || i.isBlessed()) {
+        for (Ankh i : belongings.getAllItems(Ankh.class)) {
+            if (ankh == null || i.isBlessed()) {
                 ankh = i;
             }
         }
@@ -2354,18 +2336,14 @@ public class Hero extends Char {
                 this.HP = HT / 4;
 
                 PotionOfHealing.cure(this);
-                Buff
-                        .prolong(this, Invulnerability.class,
-                                Invulnerability.DURATION);
+                Buff.prolong(this, Invulnerability.class, Invulnerability.DURATION);
 
                 SpellSprite.show(this, SpellSprite.ANKH);
                 GameScene.flash(0x80FFFF40);
                 Sample.INSTANCE.play(Assets.Sounds.TELEPORT);
                 GLog.w(Messages.get(this, "revive"));
                 Statistics.ankhsUsed++;
-                Catalog
-                        .countUse(Ankh.class
-                        );
+                Catalog.countUse(Ankh.class);
 
                 ankh.detach(belongings.backpack);
 
@@ -2395,8 +2373,7 @@ public class Hero extends Char {
 
                 }
 
-                SacrificialFire.Marked sacMark = buff(SacrificialFire.Marked.class
-                );
+                SacrificialFire.Marked sacMark = buff(SacrificialFire.Marked.class);
                 if (sacMark != null) {
                     sacMark.detach();
                 }
@@ -2408,6 +2385,11 @@ public class Hero extends Char {
         Actor.fixTime();
         super.die(cause);
         reallyDie(cause);
+
+        // Apply cheat if unlocked
+        if (Dungeon.isChallenged(Challenges.UNLOCK_CHEAT)) {
+            Cheat.applyCheatToHero();
+        }
     }
 
     public static void reallyDie(Object cause) {

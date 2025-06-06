@@ -243,11 +243,10 @@ public enum Rankings {
         Statistics.totalScore *= Statistics.winMultiplier * Statistics.chalMultiplier;
 
         // 没有分数的情况
-        if (Dungeon.isChallenged(Challenges.XP_DUNGEON)
-                || Statistics.wealth == true
-                || Dungeon.is_developer_mode()) {
-            Statistics.totalScore = 0;
-        }
+if (Statistics.wealth == true
+        || Dungeon.is_developer_mode()) {
+    Statistics.totalScore = 0;
+}
 
         return Statistics.totalScore;
     }
