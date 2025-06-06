@@ -98,7 +98,9 @@ public enum Rankings {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
         rec.date = format.format(new Date(Game.realTime));
 
-        rec.cause = cause instanceof Class ? (Class) cause : cause.getClass();
+        @SuppressWarnings("unchecked")
+        Class<?> causeClass = cause instanceof Class ? (Class<?>) cause : cause.getClass();
+        rec.cause = causeClass;
         rec.win = win;
         rec.heroClass = Dungeon.hero.heroClass;
         rec.armorTier = Dungeon.hero.tier();
@@ -275,9 +277,9 @@ if (Statistics.wealth == true
         Belongings belongings = Dungeon.hero.belongings;
 
         //save the hero and belongings
-        ArrayList<Item> allItems = (ArrayList<Item>) belongings.backpack.items.clone();
+        ArrayList<Item> allItems = new ArrayList<>(belongings.backpack.items);
         //remove items that won't show up in the rankings screen
-        for (Item item : belongings.backpack.items.toArray(new Item[0])) {
+        for (Item item : belongings.backpack.items.toArray(new Item[belongings.backpack.items.size()])) {
             if (item instanceof Bag) {
                 for (Item bagItem : ((Bag) item).items.toArray(new Item[0])) {
                     if (Dungeon.quickslot.contains(bagItem)

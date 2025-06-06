@@ -213,17 +213,14 @@ public class HeroSelectScene extends PixelScene {
         updateOptionsColor();
         btnOptions.visible = false;
 
-IconButton btnCheat = new IconButton(Icons.get(Icons.COPY)) {
+IconButton btnCheat = new IconButton(Icons.get(Icons.TALENT)) {
     @Override
     protected void onClick() {
         super.onClick();
                 ShatteredPixelDungeon.scene().addToFront(new WndCheat(SPDSettings.cheat(), true));
     }
 
-    @Override
-    protected String hoverText() {
-        return Messages.get("cheat");
-    }
+
 };
 btnCheat.visible = btnCheat.active = true;
 
@@ -396,7 +393,10 @@ if (!SPDSettings.intro()) {
     }
 
     private void updateOptionsColor() {
-        if (!SPDSettings.customSeed().isEmpty()) {
+        // 添加对作弊是否开启的判断
+        if (SPDSettings.cheat()>0) {
+            btnOptions.icon().hardlight(2f, 2f, 0.5f); // 柠檬黄色
+        } else if (!SPDSettings.customSeed().isEmpty()) {
             btnOptions.icon().hardlight(1f, 1.5f, 0.67f);
         } else if (SPDSettings.challenges() != 0) {
             btnOptions.icon().hardlight(2f, 1.33f, 0.5f);
@@ -836,11 +836,30 @@ private class GameOptions extends Component {
             @Override
             protected void onClick() {
                 super.onClick();
-                ShatteredPixelDungeon.scene().addToFront(new WndCheat(SPDSettings.cheat(), true));
+                ShatteredPixelDungeon.scene().addToFront(new WndCheat(SPDSettings.cheat(), true) {
+                    @Override
+                    public void onBackPressed() {
+                        super.onBackPressed();
+                        if (SPDSettings.cheat() > 0) {
+                            icon(Icons.get(Icons.TALENT));
+                            icon.resetColor();
+                        } else {
+                            icon(Icons.get(Icons.TALENT));
+                            icon.hardlight(0.3f, 0.3f, 0.5f); // 设置为黑白
+                        }
+                        updateOptionsColor();
+                    }
+                });
             }
         };
         cheatButton.leftJustify = true;
-        cheatButton.icon(Icons.get(Icons.COPY));
+        cheatButton.icon(Icons.get(Icons.TALENT));                        if (SPDSettings.cheat() > 0) {
+            cheatButton.icon(Icons.get(Icons.TALENT));
+        } else {
+            cheatButton.icon(Icons.get(Icons.TALENT));
+            cheatButton.icon().hardlight(0.3f, 0.3f, 0.5f); // 设置为黑白
+        }
+
         add(cheatButton);
         buttons.add(cheatButton);
 
