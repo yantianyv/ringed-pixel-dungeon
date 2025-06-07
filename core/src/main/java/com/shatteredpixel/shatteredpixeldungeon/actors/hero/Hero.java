@@ -28,6 +28,8 @@ import java.util.LinkedHashMap;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
+import com.shatteredpixel.shatteredpixeldungeon.Cheat;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
@@ -91,6 +93,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Monk;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CheckedCell;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
@@ -143,6 +146,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing.Yogring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ThirteenLeafClover;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
@@ -2109,7 +2113,24 @@ public class Hero extends Char {
     public void earnExp(int exp, Class source) {
         // 经验地牢挑战
         boolean dropsuccess = false;
+        if (Dungeon.isCheated(Cheat.XP_DUNGEON)) {
+            for (int i = 0; i < exp / 100; i++) {
+                Item scroll = new ScrollOfUpgrade();
+                Dungeon.level.drop(scroll, pos);
+                dropsuccess = true;
+            }
+            if (Random.Int(100) < exp) {
+                Item scroll = new ScrollOfUpgrade();
+                Dungeon.level.drop(scroll, pos);
+                dropsuccess = true;
+            }
+            if (dropsuccess) {
+                new Flare(7, 100).color(0x00FF00, true).show(sprite, 5f);
+                new Flare(11, 100).color(0xFF0000, true).show(sprite, 5f);
+                new Flare(13, 100).color(0x0000FF, true).show(sprite, 5f);
 
+            }
+        }
         // 百亿补贴之戒
         if (buff(RingOfDiscount.Discount.class) != null) {
             new RingOfDiscount().refresh();

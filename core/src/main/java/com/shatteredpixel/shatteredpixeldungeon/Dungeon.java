@@ -240,6 +240,8 @@ public class Dungeon {
 
         initialVersion = version = Game.versionCode;
         challenges = SPDSettings.challenges();
+        cheat = SPDSettings.cheat();
+
         mobsToChampion = -1;
 
         Actor.clear();
@@ -296,6 +298,10 @@ public class Dungeon {
 
     public static boolean isChallenged(int mask) {
         return (challenges & mask) != 0;
+    }
+
+    public static boolean isCheated(int mask) {
+        return (cheat & mask) != 0;
     }
 
     public static boolean levelHasBeenGenerated(int depth, int branch) {
@@ -626,6 +632,7 @@ public class Dungeon {
     private static final String DAILY_REPLAY = "daily_replay";
     private static final String LAST_PLAYED = "last_played";
     private static final String CHALLENGES = "challenges";
+    private static final String CHEAT = "cheat";
     private static final String MOBS_TO_CHAMPION = "mobs_to_champion";
     private static final String HERO = "hero";
     private static final String DEPTH = "depth";
@@ -653,6 +660,7 @@ public class Dungeon {
             bundle.put(DAILY_REPLAY, dailyReplay);
             bundle.put(LAST_PLAYED, lastPlayed = Game.realTime);
             bundle.put(CHALLENGES, challenges);
+            bundle.put(CHEAT, cheat);
             bundle.put(MOBS_TO_CHAMPION, mobsToChampion);
             bundle.put(HERO, hero);
             bundle.put(DEPTH, depth);
@@ -760,6 +768,7 @@ public class Dungeon {
         Toolbar.swappedQuickslots = false;
 
         Dungeon.challenges = bundle.getInt(CHALLENGES);
+        Dungeon.cheat = bundle.getInt(CHEAT);
         Dungeon.mobsToChampion = bundle.getInt(MOBS_TO_CHAMPION);
 
         Dungeon.level = null;
@@ -879,6 +888,7 @@ public class Dungeon {
         info.depth = bundle.getInt(DEPTH);
         info.version = bundle.getInt(VERSION);
         info.challenges = bundle.getInt(CHALLENGES);
+        info.cheat = bundle.getInt(CHEAT);
         info.seed = bundle.getLong(SEED);
         info.customSeed = bundle.getString(CUSTOM_SEED);
         info.daily = bundle.getBoolean(DAILY);

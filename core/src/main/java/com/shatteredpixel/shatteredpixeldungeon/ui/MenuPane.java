@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
+import com.shatteredpixel.shatteredpixeldungeon.Cheat;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDAction;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
@@ -33,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndChallenges;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndCheat;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndJournal;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndKeyBindings;
@@ -56,6 +58,10 @@ public class MenuPane extends Component {
 	private Image challengeIcon;
 	private BitmapText challengeText;
 	private Button challengeButton;
+
+	private Image cheatIcon;
+	private BitmapText cheatText;
+	private Button cheatButton;
 
 	private JournalButton btnJournal;
 	private MenuButton btnMenu;
@@ -131,6 +137,29 @@ public class MenuPane extends Component {
 			add(challengeButton);
 		}
 
+		if (Cheat.activeCheat() > 0){
+			cheatIcon = Icons.get(Icons.TALENT);
+			add(cheatIcon);
+
+			cheatText = new BitmapText( Integer.toString( Cheat.activeCheat() ), PixelScene.pixelFont);
+			cheatText.hardlight( 0xCACFC2 );
+			cheatText.measure();
+			add( cheatText );
+
+			cheatButton = new Button(){
+				@Override
+				protected void onClick() {
+					GameScene.show(new WndCheat(Dungeon.cheat, false));
+				}
+
+				@Override
+				protected String hoverText() {
+					return Messages.get(WndCheat.class, "title");
+				}
+			};
+			add(cheatButton);
+		}
+
 		btnJournal = new JournalButton();
 		add( btnJournal );
 
@@ -182,6 +211,30 @@ public class MenuPane extends Component {
 			PixelScene.align(challengeText);
 
 			challengeButton.setRect(challengeIcon.x, challengeIcon.y, challengeIcon.width(), challengeIcon.height() + challengeText.height());
+		}
+
+		if (cheatIcon != null) {
+			// 缩小 cheatIcon
+			cheatIcon.scale.set(PixelScene.align(0.35f)); // 调整缩放比例
+			
+			// 如果 challengeIcon 存在，则放在它的左边
+			if (challengeIcon != null) {
+				cheatIcon.x = challengeIcon.x - cheatIcon.width() ; // 向左偏移，并留 2px 间距
+			} else {
+				cheatIcon.x = btnJournal.left() - 14 + (7 - cheatIcon.width())/2f - 0.1f;
+			}
+			
+			cheatIcon.y = y + 2.67f;
+			if (SPDSettings.interfaceSize() == 0) cheatIcon.y++;
+			PixelScene.align(cheatIcon);
+		
+			// 调整 cheatText 大小和位置
+			cheatText.scale.set(PixelScene.align(0.5f)); // 更小的文字
+			cheatText.x = cheatIcon.x + (cheatIcon.width() - cheatText.width())/2f;
+			cheatText.y = cheatIcon.y + cheatIcon.height();
+			PixelScene.align(cheatText);
+		
+			cheatButton.setRect(cheatIcon.x, cheatIcon.y, cheatIcon.width(), cheatIcon.height() + cheatText.height());
 		}
 
 		version.scale.set(PixelScene.align(0.5f));

@@ -21,6 +21,10 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -37,10 +41,6 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.tweeners.AlphaTweener;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.GameMath;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 
 public class BuffIndicator extends Component {
 	
@@ -133,6 +133,7 @@ public class BuffIndicator extends Component {
 	public static final int ILLUMINATED = 81;
 	public static final int TRINITY_FORM= 82;
 	public static final int MANY_POWER  = 83;
+	public static final int CHEAT       = 84;
 
 	public static final int SIZE_SMALL  = 7;
 	public static final int SIZE_LARGE  = 16;

@@ -532,24 +532,30 @@ if (Statistics.wealth == true
         public String date;
         public String version;
 
-        public String desc() {
-            if (win) {
-                if (ascending) {
-                    return Messages.get(this, "ascended");
-                } else {
-                    return Messages.get(this, "won");
-                }
-            } else if (cause == null) {
-                return Messages.get(this, "something");
-            } else {
-                String result = Messages.get(cause, "rankings_desc", (Messages.get(cause, "name")));
-                if (result.contains(Messages.NO_TEXT_FOUND)) {
-                    return Messages.get(this, "something");
-                } else {
-                    return result;
-                }
-            }
-        }
+		public String desc() {
+			String desc;
+			if (win) {
+				if (ascending) {
+					desc = Messages.get(this, "ascended");
+				} else {
+					desc = Messages.get(this, "won");
+				}
+			} else if (cause == null) {
+				desc = Messages.get(this, "something");
+			} else {
+				String result = Messages.get(cause, "rankings_desc", (Messages.get(cause, "name")));
+				if (result.contains(Messages.NO_TEXT_FOUND)) {
+					desc = Messages.get(this, "something");
+				} else {
+					desc = result;
+				}
+			}
+			
+			if (Cheat.isCheating()) {
+				desc += " " + Messages.get(Cheat.class, "cheated");
+			}
+			return desc;
+		}
 
         @Override
         public void restoreFromBundle(Bundle bundle) {

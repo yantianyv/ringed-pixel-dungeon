@@ -27,6 +27,7 @@ import java.util.HashSet;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
+import com.shatteredpixel.shatteredpixeldungeon.Cheat;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
@@ -968,6 +969,9 @@ public abstract class Mob extends Char {
                 AscensionChallenge.processEnemyKill(this);
 
                 int exp = Dungeon.hero.lvl <= maxLvl ? EXP : 0;
+                if (Dungeon.isCheated(Cheat.XP_DUNGEON)) {
+                    exp = EXP;
+                }
                 //during ascent, under-levelled enemies grant 10 xp each until level 30
                 // after this enemy kills which reduce the amulet curse still grant 10 effective xp
                 // for the purposes of on-exp effects, see AscensionChallenge.processEnemyKill
@@ -1061,7 +1065,9 @@ public abstract class Mob extends Char {
     }
 
     public void rollToDropLoot() {
-
+        if (Dungeon.hero.lvl > maxLvl + 2 && !Dungeon.isCheated(Cheat.XP_DUNGEON)) {
+            return;
+        }
         MasterThievesArmband.StolenTracker stolen = buff(MasterThievesArmband.StolenTracker.class);
         if (stolen == null || !stolen.itemWasStolen()) {
             if (Random.Float() < lootChance()) {

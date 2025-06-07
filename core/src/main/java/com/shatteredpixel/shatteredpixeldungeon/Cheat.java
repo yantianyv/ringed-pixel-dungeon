@@ -20,28 +20,38 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon;
 
-public class Cheat {
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
-    public static final int NONE           = 0;
+public class Cheat extends Buff {
+
+    @Override
+    public int icon() {
+        return BuffIndicator.CHEAT;
+    }
+
+    @Override
+    public String toString() {
+        return Messages.get(this, "name");
+    }
+
+    @Override
+    public String desc() {
+        return Messages.get(this, "desc");
+    }
+
     public static final int XP_DUNGEON     = 1;
-    public static final int UNLIMITED_HP   = 2;
-    public static final int UNLIMITED_GOLD = 4;
-    public static final int ALL_ITEMS      = 8;
+
     
     public static final int MAX_VALUE      = 16;
 
     public static final String[] NAME_IDS = {
-            "xp_dungeon",
-            "unlimited_hp",
-            "unlimited_gold",
-            "all_items"
+            "xp_dungeon"
     };
 
     public static final int[] MASKS = {
-            XP_DUNGEON,
-            UNLIMITED_HP,
-            UNLIMITED_GOLD,
-            ALL_ITEMS
+            XP_DUNGEON
     };
 
     public static int activeCheat() {
