@@ -2114,6 +2114,10 @@ public class Hero extends Char {
         // 经验地牢挑战
         boolean dropsuccess = false;
         if (Dungeon.isCheated(Cheat.XP_DUNGEON)) {
+            // 如果英雄有bless buff则经验值翻倍
+            if(this.buffs(Bless.class)!=null){
+                exp *= 2;
+            }
             for (int i = 0; i < exp / 100; i++) {
                 Item scroll = new ScrollOfUpgrade();
                 Dungeon.level.drop(scroll, pos);
@@ -2220,7 +2224,7 @@ public class Hero extends Char {
                 ).detach();
             }
 
-            if (lvl < MAX_LEVEL) {
+            if (lvl < MAX_LEVEL || Dungeon.isCheated(Cheat.XP_DUNGEON)) {
                 lvl++;
                 levelUp = true;
 

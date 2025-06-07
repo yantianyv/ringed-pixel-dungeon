@@ -48,8 +48,11 @@ public class Window extends Group implements Signal.Listener<KeyEvent> {
 	protected ShadowBox shadow;
 	protected NinePatch chrome;
 
+	// 定义白色常量
 	public static final int WHITE = 0xFFFFFF;
+	// 定义标题颜色常量
 	public static final int TITLE_COLOR = 0xFFFF44;
+	// 定义SPX颜色常量
 	public static final int SHPX_COLOR = 0x33BB33;
 	
 	public Window() {
