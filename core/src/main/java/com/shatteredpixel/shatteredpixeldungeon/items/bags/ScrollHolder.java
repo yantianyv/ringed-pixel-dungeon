@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.bags;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.ArcaneResin;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.Stylus;
@@ -36,21 +37,21 @@ public class ScrollHolder extends Bag {
 	}
 
 	@Override
-	public boolean canHold( Item item ) {
+	public boolean canHold(Item item) {
 		if (item instanceof Scroll || item instanceof Spell
-				|| item instanceof ArcaneResin || item instanceof Stylus){
+				|| item instanceof ArcaneResin || item instanceof Stylus) {
 			return super.canHold(item);
 		} else {
 			return false;
 		}
 	}
 
-	public int capacity(){
-		return 39;
+	public int capacity() {
+		return 19 + Dungeon.hero.lvl > 39 ? 39 : 19 + Dungeon.hero.lvl; // default container size
 	}
-	
+
 	@Override
-	public void onDetach( ) {
+	public void onDetach() {
 		super.onDetach();
 		for (Item item : items) {
 			if (item instanceof BeaconOfReturning) {
@@ -58,7 +59,7 @@ public class ScrollHolder extends Bag {
 			}
 		}
 	}
-	
+
 	@Override
 	public int value() {
 		return 40;

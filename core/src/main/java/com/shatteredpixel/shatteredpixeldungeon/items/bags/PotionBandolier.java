@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.bags;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.LiquidMetal;
 import com.shatteredpixel.shatteredpixeldungeon.items.Waterskin;
@@ -34,16 +35,16 @@ public class PotionBandolier extends Bag {
 	}
 
 	@Override
-	public boolean canHold( Item item ) {
-		if (item instanceof Potion || item instanceof LiquidMetal || item instanceof Waterskin){
+	public boolean canHold(Item item) {
+		if (item instanceof Potion || item instanceof LiquidMetal || item instanceof Waterskin) {
 			return super.canHold(item);
 		} else {
 			return false;
 		}
 	}
 
-	public int capacity(){
-		return 39;
+	public int capacity() {
+		return 19 + Dungeon.hero.lvl > 39 ? 39 : 19 + Dungeon.hero.lvl; // default container size
 	}
 
 	@Override

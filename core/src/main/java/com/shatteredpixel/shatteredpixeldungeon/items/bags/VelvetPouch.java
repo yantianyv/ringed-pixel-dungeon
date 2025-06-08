@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.bags;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.GooBlob;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard;
@@ -44,7 +45,7 @@ public class VelvetPouch extends Bag {
     }
 
     public int capacity() {
-        return 39;
+        return 19 + Dungeon.hero.lvl > 39 ? 39 : 19 + Dungeon.hero.lvl; // default container size
     }
 
     @Override

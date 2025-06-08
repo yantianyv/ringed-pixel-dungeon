@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.bags;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.OriginGem;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
@@ -42,7 +43,7 @@ public class RingString extends Bag {
 
     @Override
     public int capacity() {
-        return 39;
+        return 19 + Dungeon.hero.lvl > 39 ? 39 : 19 + Dungeon.hero.lvl; // default container size
     }
 
     @Override

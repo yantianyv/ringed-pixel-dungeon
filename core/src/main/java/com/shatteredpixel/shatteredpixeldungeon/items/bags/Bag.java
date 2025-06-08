@@ -51,7 +51,10 @@ public class Bag extends Item implements Iterable<Item> {
 	public ArrayList<Item> items = new ArrayList<>();
 
 	public int capacity(){
-		return 40; // default container size
+        if (Dungeon.hero == null){
+            return 10;
+        }
+		return 20+Dungeon.hero.lvl*2/3>40?40: 20 + Dungeon.hero.lvl * 2 / 3; // default container size
 	}
 
 	//if an item is being quick-used from the bag, the bag should take on its targeting properties

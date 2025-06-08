@@ -316,6 +316,7 @@ public class InventoryPane extends Component {
         equipped.get(9).item(stuff.ring6 == null ? new WndBag.Placeholder(ItemSpriteSheet.RING_HOLDER) : stuff.ring6);
 
         ArrayList<Item> items = (ArrayList<Item>) lastBag.items.clone();
+        int capacity = lastBag.capacity();
 
         if (lastBag == stuff.backpack && stuff.secondWep != null) {
             items.add(0, stuff.secondWep);
@@ -331,12 +332,20 @@ public class InventoryPane extends Component {
                 if (items.get(j) instanceof Bag) {
                     j++;
                     i--;
+                    capacity --;
                     continue;
                 }
                 bagItems.get(i).item(items.get(j));
                 j++;
             } else {
                 bagItems.get(i).item(null);
+            }
+            
+            // Apply visual effect for slots beyond current capacity
+            if (i >= capacity) {
+                bagItems.get(i).alpha(0.0f);
+            } else {
+                bagItems.get(i).alpha(1f);
             }
         }
 
