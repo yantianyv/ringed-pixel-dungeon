@@ -36,8 +36,11 @@ public class RingOfTimetraveler extends Ring {
     @Override
     public String statsInfo() {
         if (isIdentified()) {
-            float solo_rate = (float) Math.abs(Math.pow(0.9f, soloBuffedBonus()) > 0.01f ? Math.pow(0.9f, soloBuffedBonus()) : 0.01f);
-            float combined_rate = (float) Math.abs(Math.pow(0.9f, combinedBonus(Dungeon.hero)) > 0.01f ? Math.pow(0.9f, combinedBonus(Dungeon.hero)) : 0.01f);
+            float solo_rate = (float) Math
+                    .abs(Math.pow(0.9f, soloBuffedBonus()) > 0.01f ? Math.pow(0.9f, soloBuffedBonus()) : 0.01f);
+            float combined_rate = (float) Math.abs(
+                    Math.pow(0.9f, combinedBonus(Dungeon.hero)) > 0.01f ? Math.pow(0.9f, combinedBonus(Dungeon.hero))
+                            : 0.01f);
             String info = Messages.get(this,
                     "stats",
                     Messages.decimalFormat("#.##", 100f * solo_rate));
@@ -58,6 +61,7 @@ public class RingOfTimetraveler extends Ring {
         }
         return Messages.decimalFormat("#.##", 100f * (Math.pow(0.9f, level) - 1f)) + "%";
     }
+
     // ————————————————戒指效率————————————————
     private static float efficiency = 1.0f;
 
@@ -79,14 +83,6 @@ public class RingOfTimetraveler extends Ring {
         return new TimeCompression();
     }
 
-    // @Override
-    // public String desc() {
-    //     String ascension = "";
-    //     if (Dungeon.hero != null && this.isIdentified()) {
-    //         ascension = Messages.get(this, "ascension_desc", (int) (efficiency * 100));
-    //     }
-    //     return (isKnown() ? super.desc() : Messages.get(this, "unknown_desc")) + ascension;
-    // }
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
@@ -110,8 +106,10 @@ public class RingOfTimetraveler extends Ring {
 
         @Override
         public boolean act() {
-            float target_efficiency = 1f - Dungeon.hero.HP / (float) Dungeon.hero.HT;
-            efficiency = efficiency > target_efficiency ? target_efficiency : efficiency * 0.99f + target_efficiency * 0.01f;
+            float target_efficiency = 1.05f - Dungeon.hero.HP / (float) Dungeon.hero.HT;
+            target_efficiency = target_efficiency > 1f ? 1f : target_efficiency;
+            efficiency = efficiency > target_efficiency ? target_efficiency
+                    : efficiency * 0.99f + target_efficiency * 0.01f;
             spend(TICK);
             return true;
         }
