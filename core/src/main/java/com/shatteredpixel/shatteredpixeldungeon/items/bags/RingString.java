@@ -43,6 +43,9 @@ public class RingString extends Bag {
 
     @Override
     public int capacity() {
+        if (Dungeon.hero == null || Dungeon.is_developer_mode()) {
+            return 40;
+        }
         return 19 + Dungeon.hero.lvl > 39 ? 39 : 19 + Dungeon.hero.lvl; // default container size
     }
 

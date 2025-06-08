@@ -43,35 +43,36 @@ public class Bag extends Item implements Iterable<Item> {
 
         defaultAction = AC_OPEN;
 
-		unique = true;
-	}
-	
-	public Char owner;
+        unique = true;
+    }
 
-	public ArrayList<Item> items = new ArrayList<>();
+    public Char owner;
 
-	public int capacity(){
-        if (Dungeon.hero == null){
-            return 10;
+    public ArrayList<Item> items = new ArrayList<>();
+
+    public int capacity() {
+        if (Dungeon.hero == null || Dungeon.is_developer_mode()) {
+            return 40;
         }
-		return 20+Dungeon.hero.lvl*2/3>40?40: 20 + Dungeon.hero.lvl * 2 / 3; // default container size
-	}
+        return 20 + Dungeon.hero.lvl * 2 / 3 > 40 ? 40 : 20 + Dungeon.hero.lvl * 2 / 3; // default container size
+    }
 
-	//if an item is being quick-used from the bag, the bag should take on its targeting properties
-	public Item quickUseItem;
+    // if an item is being quick-used from the bag, the bag should take on its
+    // targeting properties
+    public Item quickUseItem;
 
-	@Override
-	public int targetingPos(Hero user, int dst) {
-		if (quickUseItem != null){
-			return quickUseItem.targetingPos(user, dst);
-		} else {
-			return super.targetingPos(user, dst);
-		}
-	}
+    @Override
+    public int targetingPos(Hero user, int dst) {
+        if (quickUseItem != null) {
+            return quickUseItem.targetingPos(user, dst);
+        } else {
+            return super.targetingPos(user, dst);
+        }
+    }
 
-	@Override
-	public void execute( Hero hero, String action ) {
-		quickUseItem = null;
+    @Override
+    public void execute(Hero hero, String action) {
+        quickUseItem = null;
 
         super.execute(hero, action);
 
@@ -87,7 +88,8 @@ public class Bag extends Item implements Iterable<Item> {
 
         grabItems(container);
 
-        //if there are any quickslot placeholders that match items in this bag, assign them
+        // if there are any quickslot placeholders that match items in this bag, assign
+        // them
         for (Item item : items) {
             Dungeon.quickslot.replacePlaceholder(item);
         }
@@ -164,7 +166,7 @@ public class Bag extends Item implements Iterable<Item> {
         bundle.put(ITEMS, items);
     }
 
-    //temp variable so that bags can load contents even with lost inventory debuff
+    // temp variable so that bags can load contents even with lost inventory debuff
     private boolean loading;
 
     @Override
@@ -175,7 +177,8 @@ public class Bag extends Item implements Iterable<Item> {
         for (Bundlable item : bundle.getCollection(ITEMS)) {
             if (item != null) {
                 if (!((Item) item).collect(this)) {
-                    //force-add the item if necessary, such as if its item category changed after an update
+                    // force-add the item if necessary, such as if its item category changed after
+                    // an update
                     items.add((Item) item);
                 }
             }
