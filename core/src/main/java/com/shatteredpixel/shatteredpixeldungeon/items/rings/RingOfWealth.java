@@ -149,10 +149,11 @@ public class RingOfWealth extends Ring {
                 }
                 // 按从小到大排列
                 Collections.sort(bufflevels);
-                // 第一枚副戒提供最多2级加成，第二枚提供3级，以此类推
+                float baselevel = bufflevels.get(bufflevels.size() - 1)/6f;
+                // 副戒提供的最大等级与主戒相关，第一枚最高提供主戒的1/6，第二枚2/6，以此类推。
                 for (int i = 0; i < bufflevels.size() - 1; i++) {
                     int b = bufflevels.get(i);
-                    equipBonus += b > i + 2 ? i + 2 : b;
+                    equipBonus += Math.round(b > i * baselevel ? i * baselevel : b);
                 }
                 equipBonus += bufflevels.get(bufflevels.size() - 1);
 
@@ -262,6 +263,7 @@ public class RingOfWealth extends Ring {
                 return new Bomb();
             case 5:
                 return new Honeypot();
+
         }
     }
 
@@ -288,7 +290,7 @@ public class RingOfWealth extends Ring {
         Item result;
         //each upgrade increases depth used for calculating drops by 1
         int floorset = (Dungeon.depth + level) / 5;
-        switch (Random.Int(5)) {
+        switch (Random.Int(6)) {
             default:
             case 0:
             case 1:
@@ -314,6 +316,9 @@ public class RingOfWealth extends Ring {
                 break;
             case 4:
                 result = Generator.random(Generator.Category.ARTIFACT);
+                break;
+            case 5:
+                result = new RingOfWealth();
                 break;
         }
         //minimum level is 1/2/3/4/5/6 when ring level is 1/3/5/7/9/11

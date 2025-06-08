@@ -395,7 +395,7 @@ if (!SPDSettings.intro()) {
     private void updateOptionsColor() {
         // 添加对作弊是否开启的判断
         if (SPDSettings.cheat()>0) {
-            btnOptions.icon().hardlight(2f, 2f, 0.5f); // 柠檬黄色
+            btnOptions.icon().hardlight(0x8b00f0); // 紫色
         } else if (!SPDSettings.customSeed().isEmpty()) {
             btnOptions.icon().hardlight(1f, 1.5f, 0.67f);
         } else if (SPDSettings.challenges() != 0) {
@@ -842,10 +842,10 @@ private class GameOptions extends Component {
                         super.onBackPressed();
                         if (SPDSettings.cheat() > 0) {
                             icon(Icons.get(Icons.TALENT));
-                            icon.resetColor();
+                            icon.hardlight(0x7b5bff); // 设置为紫色
                         } else {
                             icon(Icons.get(Icons.TALENT));
-                            icon.hardlight(0.3f, 0.3f, 0.5f); // 设置为黑白
+                            icon.hardlight(0.1f, 0.1f, 0.2f); // 设置为黑白
                         }
                         updateOptionsColor();
                     }
@@ -855,9 +855,11 @@ private class GameOptions extends Component {
         cheatButton.leftJustify = true;
         cheatButton.icon(Icons.get(Icons.TALENT));                        if (SPDSettings.cheat() > 0) {
             cheatButton.icon(Icons.get(Icons.TALENT));
+            cheatButton.icon().hardlight(0x7b5bff); // 设置为黑白
+
         } else {
             cheatButton.icon(Icons.get(Icons.TALENT));
-            cheatButton.icon().hardlight(0.3f, 0.3f, 0.5f); // 设置为黑白
+            cheatButton.icon().hardlight(0.1f, 0.1f, 0.2f); // 设置为黑白
         }
 
         add(cheatButton);

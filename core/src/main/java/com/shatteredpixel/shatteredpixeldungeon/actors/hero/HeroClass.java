@@ -25,6 +25,7 @@ import java.util.List;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
+import com.shatteredpixel.shatteredpixeldungeon.Cheat;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.QuickSlot;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
@@ -76,6 +77,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
@@ -170,6 +172,10 @@ public enum HeroClass {
         }
         if (Dungeon.is_developer_mode()) {
             develop_mode(); // 初始化开发者模式
+        }
+        if (Dungeon.isCheated(Cheat.BOOTSTRAPPING)){
+            (hero.belongings.ring2 = new RingOfWealth()).identify();
+            hero.belongings.ring2.activate(hero);
         }
         if (SPDSettings.quickslotWaterskin()) {
             for (int s = 0; s < QuickSlot.SIZE; s++) {

@@ -215,8 +215,9 @@ public class MenuPane extends Component {
 
 		if (cheatIcon != null) {
 			// 缩小 cheatIcon
-			cheatIcon.scale.set(PixelScene.align(0.35f)); // 调整缩放比例
-			
+			cheatIcon.scale.set(0.433f); // 使用固定缩放比例
+			cheatIcon.hardlight(0x8b00f0); // 添加紫色的hardlight效果
+
 			// 如果 challengeIcon 存在，则放在它的左边
 			if (challengeIcon != null) {
 				cheatIcon.x = challengeIcon.x - cheatIcon.width() ; // 向左偏移，并留 2px 间距
@@ -224,14 +225,14 @@ public class MenuPane extends Component {
 				cheatIcon.x = btnJournal.left() - 14 + (7 - cheatIcon.width())/2f - 0.1f;
 			}
 			
-			cheatIcon.y = y + 2.67f;
+			cheatIcon.y = y + 2.1f;
 			if (SPDSettings.interfaceSize() == 0) cheatIcon.y++;
 			PixelScene.align(cheatIcon);
 		
 			// 调整 cheatText 大小和位置
-			cheatText.scale.set(PixelScene.align(0.5f)); // 更小的文字
+			cheatText.scale.set(PixelScene.align(0.67f)); // 更小的文字
 			cheatText.x = cheatIcon.x + (cheatIcon.width() - cheatText.width())/2f;
-			cheatText.y = cheatIcon.y + cheatIcon.height();
+			cheatText.y = cheatIcon.y + cheatIcon.height()+0.4f;
 			PixelScene.align(cheatText);
 		
 			cheatButton.setRect(cheatIcon.x, cheatIcon.y, cheatIcon.width(), cheatIcon.height() + cheatText.height());

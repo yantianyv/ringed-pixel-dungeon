@@ -48,11 +48,11 @@ public class PotionOfExperience extends Potion {
 		new Flare(6, 32).color(0xFFFF00, true).show(curUser.sprite, 2f);
         if (Dungeon.isCheated(Cheat.XP_DUNGEON)) {
             // 赋予英雄祝福效果
-            Buff.prolong(hero, Bless.class, Bless.DURATION);
-			// 赋予英雄治疗效果
+            Buff.prolong(hero, Bless.class, 67);
+			// 赋予英雄疗愈效果
 			PotionOfHealing.cure(hero);
 			// 赋予英雄无敌效果
-			Buff.prolong(hero, Invulnerability.class, Invulnerability.DURATION);    
+			Buff.prolong(hero, Invulnerability.class, 7);    
 			// 终止后续结算        
 			return;
         }
