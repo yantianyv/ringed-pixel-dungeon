@@ -12,7 +12,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class IronRing extends SpecialRing {
 
-    //这是一个戒指模板文件
+    // 这是一个戒指模板文件
     {
         buffClass = Ironring.class;// 戒指的buff类型
         image = ItemSpriteSheet.IRON_RING;
@@ -26,7 +26,7 @@ public class IronRing extends SpecialRing {
             String info = Messages.get(this, "stats",
                     Messages.decimalFormat("#.##", soloBonus * 100f));
 
-            //组合统计信息，其中combinedBuffedBonus(Dungeon.hero)是所有已装备同类戒指的等级之和
+            // 组合统计信息，其中combinedBuffedBonus(Dungeon.hero)是所有已装备同类戒指的等级之和
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 float combinedBonus = (float) (pow(0.9, combinedBuffedBonus(Dungeon.hero))) / 3;
                 info += "\n\n" + Messages.get(this, "combined_stats",
@@ -75,7 +75,7 @@ public class IronRing extends SpecialRing {
     }
 
     public static float maxHurtRate(Char target) {
-        return (float) (pow(0.95, getBuffedBonus(target, Ironring.class))) / 3;
+        return (float) (pow(0.99, getBuffedBonus(target, Ironring.class))) / 10;
     }
 
     // 定义RingBuff类
