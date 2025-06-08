@@ -48,7 +48,7 @@ public class PotionBandolier extends Bag {
 		if (Dungeon.hero == null || Dungeon.is_developer_mode()) {
 			return 40;
 		}
-		return 19 + Dungeon.hero.lvl > 39 ? 39 : 19 + Dungeon.hero.lvl; // default container size
+		return 9 + Dungeon.hero.lvl > 39 ? 39 : 9 + Dungeon.hero.lvl; // default container size
 	}
 
 	@Override
