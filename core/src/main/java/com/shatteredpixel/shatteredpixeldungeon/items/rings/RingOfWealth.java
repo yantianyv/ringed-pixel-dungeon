@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
+import com.shatteredpixel.shatteredpixeldungeon.Cheat;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -71,7 +72,8 @@ public class RingOfWealth extends Ring {
                     Messages.decimalFormat("#.##", 100f * (Math.pow(1.20f, soloBuffedBonus()) - 1f)));
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100f * (Math.pow(1.20f, combinedBuffedBonus(Dungeon.hero)) - 1f)));
+                        Messages.decimalFormat("#.##",
+                                100f * (Math.pow(1.20f, combinedBuffedBonus(Dungeon.hero)) - 1f)));
             }
             return info;
         } else {
@@ -136,7 +138,7 @@ public class RingOfWealth extends Ring {
             dropsToEquip.countUp(Random.NormalIntRange(5, 10));
         }
 
-        //now handle reward logic
+        // now handle reward logic
         ArrayList<Item> drops = new ArrayList<>();
 
         triesToDrop.countDown(tries);
@@ -149,7 +151,7 @@ public class RingOfWealth extends Ring {
                 }
                 // 按从小到大排列
                 Collections.sort(bufflevels);
-                float baselevel = bufflevels.get(bufflevels.size() - 1)/6f;
+                float baselevel = bufflevels.get(bufflevels.size() - 1) / 6f;
                 // 副戒提供的最大等级与主戒相关，第一枚最高提供主戒的1/6，第二枚2/6，以此类推。
                 for (int i = 0; i < bufflevels.size() - 1; i++) {
                     int b = bufflevels.get(i);
@@ -177,7 +179,7 @@ public class RingOfWealth extends Ring {
         return drops;
     }
 
-    //used for visuals
+    // used for visuals
     // 1/2/3 used for low/mid/high tier consumables
     // 3 used for +0-1 equips, 4 used for +2 or higher equips
     private static int latestDropTier = 0;
@@ -188,7 +190,7 @@ public class RingOfWealth extends Ring {
         }
         switch (latestDropTier) {
             default:
-                break; //do nothing
+                break; // do nothing
             case 1:
                 new Flare(6, 20).color(0x00FF00, true).show(vis, 3f);
                 break;
@@ -207,15 +209,15 @@ public class RingOfWealth extends Ring {
 
     public static Item genConsumableDrop(int level) {
         float roll = Random.Float();
-        //60% chance - 4% per level. Starting from +15: 0%
+        // 60% chance - 4% per level. Starting from +15: 0%
         if (roll < (0.6f - 0.04f * level)) {
             latestDropTier = 1;
             return genLowValueConsumable();
-            //30% chance + 2% per level. Starting from +15: 60%-2%*(lvl-15)
+            // 30% chance + 2% per level. Starting from +15: 60%-2%*(lvl-15)
         } else if (roll < (0.9f - 0.02f * level)) {
             latestDropTier = 2;
             return genMidValueConsumable();
-            //10% chance + 2% per level. Starting from +15: 40%+2%*(lvl-15)
+            // 10% chance + 2% per level. Starting from +15: 40%+2%*(lvl-15)
         } else {
             latestDropTier = 3;
             return genHighValueConsumable();
@@ -280,17 +282,19 @@ public class RingOfWealth extends Ring {
             case 1:
                 return new StoneOfEnchantment();
             case 2:
-                return Random.Float() < ExoticCrystals.consumableExoticChance() ? new PotionOfDivineInspiration() : new PotionOfExperience();
+                return Random.Float() < ExoticCrystals.consumableExoticChance() ? new PotionOfDivineInspiration()
+                        : new PotionOfExperience();
             case 3:
-                return Random.Float() < ExoticCrystals.consumableExoticChance() ? new ScrollOfMetamorphosis() : new ScrollOfTransmutation();
+                return Random.Float() < ExoticCrystals.consumableExoticChance() ? new ScrollOfMetamorphosis()
+                        : new ScrollOfTransmutation();
         }
     }
 
     private static Item genEquipmentDrop(int level) {
         Item result;
-        //each upgrade increases depth used for calculating drops by 1
+        // each upgrade increases depth used for calculating drops by 1
         int floorset = (Dungeon.depth + level) / 5;
-        switch (Random.Int(6)) {
+        switch (Random.Int(5 + (Dungeon.isCheated(Cheat.BOOTSTRAPPING) ? 1 : 0))) {
             default:
             case 0:
             case 1:
@@ -321,14 +325,14 @@ public class RingOfWealth extends Ring {
                 result = new RingOfWealth();
                 break;
         }
-        //minimum level is 1/2/3/4/5/6 when ring level is 1/3/5/7/9/11
+        // minimum level is 1/2/3/4/5/6 when ring level is 1/3/5/7/9/11
         if (result.isUpgradable()) {
             int minLevel = (level + 1) / 2;
             if (result.level() < minLevel) {
                 result.level(minLevel);
             }
         }
-        //为戒指单独写的逻辑
+        // 为戒指单独写的逻辑
         if (result instanceof Ring) {
             result.level(result.level() + Random.Int((level + 1) / 2));
         }
