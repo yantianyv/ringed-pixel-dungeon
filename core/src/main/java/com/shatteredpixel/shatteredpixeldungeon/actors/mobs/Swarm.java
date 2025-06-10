@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
@@ -52,7 +53,7 @@ public class Swarm extends Mob {
         loot = PotionOfHealing.class;
         lootChance = 0.1667f;
 
-        num_of_escape = 8;//by default, see lootChance()
+        num_of_escape = 8;// by default, see lootChance()
     }
 
     private static final float SPLIT_DELAY = 1f;
@@ -93,7 +94,7 @@ public class Swarm extends Mob {
         if (HP >= damage + 2) {
             ArrayList<Integer> candidates = new ArrayList<>();
 
-            int[] neighbours = {pos + 1, pos - 1, pos + Dungeon.level.width(), pos - Dungeon.level.width()};
+            int[] neighbours = { pos + 1, pos - 1, pos + Dungeon.level.width(), pos - Dungeon.level.width() };
             for (int n : neighbours) {
                 if (!Dungeon.level.solid[n]
                         && Actor.findChar(n) == null
@@ -108,7 +109,7 @@ public class Swarm extends Mob {
                 Swarm clone = split();
                 clone.pos = Random.element(candidates);
                 clone.state = clone.HUNTING;
-                GameScene.add(clone, SPLIT_DELAY); //we add before assigning HP due to ascension
+                GameScene.add(clone, SPLIT_DELAY); // we add before assigning HP due to ascension
 
                 clone.HP = (HP - damage) / 2;
                 clone.HT = clone.HP;
@@ -126,7 +127,9 @@ public class Swarm extends Mob {
                     num_of_escape = num_of_escape / 2 + 1;
                 }
             } else {
-                damage += 1;
+                damage -= 1;
+                Buff.affect(this, Amok.class, 1f); // 给自身添加3回合的狂乱debuff
+
             }
         }
 
