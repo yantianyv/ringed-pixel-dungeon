@@ -53,7 +53,7 @@ public class Swarm extends Mob {
         loot = PotionOfHealing.class;
         lootChance = 0.1667f;
 
-        num_of_escape = 8;// by default, see lootChance()
+        num_of_escape = Integer.MAX_VALUE;
     }
 
     private static final float SPLIT_DELAY = 1f;
