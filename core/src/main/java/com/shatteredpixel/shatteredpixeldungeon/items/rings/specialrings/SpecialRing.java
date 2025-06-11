@@ -33,7 +33,7 @@ public abstract class SpecialRing extends Ring {
     @Override
     public void reset() {
         // 不调用 super.reset()，避免父类重置宝石关联字段
-        curse(false);
+        cursed = false;
         cursedKnown = false;
         levelKnown = false;
     }
@@ -71,6 +71,7 @@ public abstract class SpecialRing extends Ring {
     public boolean isUpgradable() {
         return level() > 5;
     }
+
     // ————————————————戒指效率————————————————
     private static float efficiency = 1.0f;
 
