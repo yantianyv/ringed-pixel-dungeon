@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.LingeringMagicTracker;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.ElementalStrike;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.BodyForm;
@@ -79,9 +80,9 @@ import com.watabou.utils.Reflection;
 
 abstract public class Weapon extends KindOfWeapon {
 
-    public float ACC = 1f;	// Accuracy modifier
-    public float DLY = 1f;	// Speed modifier
-    public int RCH = 1;    // Reach modifier (only applies to melee hits)
+    public float ACC = 1f; // Accuracy modifier
+    public float DLY = 1f; // Speed modifier
+    public int RCH = 1; // Reach modifier (only applies to melee hits)
 
     public enum Augment {
         SPEED(0.7f, 2 / 3f),
@@ -125,7 +126,8 @@ abstract public class Weapon extends KindOfWeapon {
             Enchantment trinityEnchant = null;
             if (Dungeon.hero.buff(BodyForm.BodyFormBuff.class) != null && this instanceof MeleeWeapon) {
                 trinityEnchant = Dungeon.hero.buff(BodyForm.BodyFormBuff.class).enchant();
-                if (enchantment != null && trinityEnchant != null && trinityEnchant.getClass() == enchantment.getClass()) {
+                if (enchantment != null && trinityEnchant != null
+                        && trinityEnchant.getClass() == enchantment.getClass()) {
                     trinityEnchant = null;
                 }
             }
@@ -144,7 +146,8 @@ abstract public class Weapon extends KindOfWeapon {
                 }
                 if (defender.isAlive() && !becameAlly) {
                     int dmg = ((Hero) attacker).subClass == HeroSubClass.PALADIN ? 6 : 2;
-                    defender.damage(Math.round(dmg * Enchantment.genericProcChanceMultiplier(attacker)), HolyWeapon.INSTANCE);
+                    defender.damage(Math.round(dmg * Enchantment.genericProcChanceMultiplier(attacker)),
+                            HolyWeapon.INSTANCE);
                 }
 
             } else {
@@ -190,7 +193,7 @@ abstract public class Weapon extends KindOfWeapon {
     public void onHeroGainExp(float levelPercent, Hero hero) {
         levelPercent *= Talent.itemIDSpeedFactor(hero, this);
         if (!levelKnown && isEquipped(hero) && availableUsesToID <= USES_TO_ID / 2f) {
-            //gains enough uses to ID over 0.5 levels
+            // gains enough uses to ID over 0.5 levels
             availableUsesToID = Math.min(USES_TO_ID / 2f, availableUsesToID + levelPercent * USES_TO_ID);
         }
     }
@@ -314,13 +317,16 @@ abstract public class Weapon extends KindOfWeapon {
     public int reachFactor(Char owner) {
         int reach = RCH;
         if (owner instanceof Hero && RingOfKungfu.fightingUnarmed((Hero) owner)) {
-            reach = 1; //brawlers stance benefits from enchantments, but not innate reach
+            reach = 1; // brawlers stance benefits from enchantments, but not innate reach
             if (!RingOfKungfu.unarmedGetsWeaponEnchantment((Hero) owner)) {
                 return reach;
             }
         }
         if (owner instanceof Hero && owner.buff(AscendedForm.AscendBuff.class) != null) {
             reach += 2;
+        }
+        if (owner.buff(LingeringMagicTracker.class) != null) {
+            reach += 1;
         }
         if (hasEnchant(Projecting.class, owner)) {
             return reach + Math.round(enchantment.procChanceMultiplier(owner));
@@ -338,7 +344,7 @@ abstract public class Weapon extends KindOfWeapon {
     protected static int STRReq(int tier, int lvl) {
         lvl = Math.max(0, lvl);
 
-        //strength req decreases at +1,+3,+6,+10,etc.
+        // strength req decreases at +1,+3,+6,+10,etc.
         return (8 + tier * 2) - (int) (Math.sqrt(8 * lvl + 1) - 1) / 2;
     }
 
@@ -363,19 +369,21 @@ abstract public class Weapon extends KindOfWeapon {
                 enchant(Enchantment.random());
             }
         } else if (enchantment != null) {
-            //chance to lose harden buff is 10/20/40/80/100% when upgrading from +6/7/8/9/10
+            // chance to lose harden buff is 10/20/40/80/100% when upgrading from
+            // +6/7/8/9/10
             if (enchantHardened) {
                 if (level() >= 6 && Random.Float(10) < Math.pow(2, level() - 6)) {
                     enchantHardened = false;
                 }
 
-                //chance to remove curse is a static 33%
+                // chance to remove curse is a static 33%
             } else if (hasCurseEnchant()) {
                 if (Random.Int(3) == 0) {
                     enchant(null);
                 }
 
-                //otherwise chance to lose enchant is 10/20/40/80/100% when upgrading from +4/5/6/7/8
+                // otherwise chance to lose enchant is 10/20/40/80/100% when upgrading from
+                // +4/5/6/7/8
             } else if (level() >= 4 && Random.Float(10) < Math.pow(2, level() - 4)) {
                 enchant(null);
             }
@@ -392,16 +400,17 @@ abstract public class Weapon extends KindOfWeapon {
                 && (Dungeon.hero.subClass != HeroSubClass.PALADIN || enchantment == null)) {
             return Messages.get(HolyWeapon.class, "ench_name", super.name());
         } else {
-            return enchantment != null && (cursedKnown || !enchantment.curse()) ? enchantment.name(super.name()) : super.name();
+            return enchantment != null && (cursedKnown || !enchantment.curse()) ? enchantment.name(super.name())
+                    : super.name();
 
         }
     }
 
     @Override
     public Item random() {
-        //+0: 75% (3/4)
-        //+1: 20% (4/20)
-        //+2: 5%  (1/20)
+        // +0: 75% (3/4)
+        // +1: 20% (4/20)
+        // +2: 5% (1/20)
         int n = 0;
         if (Random.Int(4) == 0) {
             n++;
@@ -411,12 +420,13 @@ abstract public class Weapon extends KindOfWeapon {
         }
         level(n);
 
-        //we use a separate RNG here so that variance due to things like parchment scrap
-        //does not affect levelgen
+        // we use a separate RNG here so that variance due to things like parchment
+        // scrap
+        // does not affect levelgen
         Random.pushGenerator(Random.Long());
 
-        //30% chance to be cursed
-        //10% chance to be enchanted
+        // 30% chance to be cursed
+        // 10% chance to be enchanted
         float effectRoll = Random.Float();
         if (effectRoll < 0.3f * ParchmentScrap.curseChanceMultiplier()) {
             enchant(Enchantment.randomCurse());
@@ -472,7 +482,8 @@ abstract public class Weapon extends KindOfWeapon {
         }
     }
 
-    //these are not used to process specific enchant effects, so magic immune doesn't affect them
+    // these are not used to process specific enchant effects, so magic immune
+    // doesn't affect them
     public boolean hasGoodEnchant() {
         return enchantment != null && !enchantment.curse();
     }
@@ -495,25 +506,25 @@ abstract public class Weapon extends KindOfWeapon {
 
     public static abstract class Enchantment implements Bundlable {
 
-        public static final Class<?>[] common = new Class<?>[]{
-            Blazing.class, Chilling.class, Kinetic.class, Shocking.class};
+        public static final Class<?>[] common = new Class<?>[] {
+                Blazing.class, Chilling.class, Kinetic.class, Shocking.class };
 
-        public static final Class<?>[] uncommon = new Class<?>[]{
-            Blocking.class, Blooming.class, Elastic.class,
-            Lucky.class, Projecting.class, Unstable.class};
+        public static final Class<?>[] uncommon = new Class<?>[] {
+                Blocking.class, Blooming.class, Elastic.class,
+                Lucky.class, Projecting.class, Unstable.class };
 
-        public static final Class<?>[] rare = new Class<?>[]{
-            Corrupting.class, Grim.class, Vampiric.class};
+        public static final Class<?>[] rare = new Class<?>[] {
+                Corrupting.class, Grim.class, Vampiric.class };
 
-        public static final float[] typeChances = new float[]{
-            50, //12.5% each
-            40, //6.67% each
-            10 //3.33% each
+        public static final float[] typeChances = new float[] {
+                50, // 12.5% each
+                40, // 6.67% each
+                10 // 3.33% each
         };
 
-        public static final Class<?>[] curses = new Class<?>[]{
-            Annoying.class, Displacing.class, Dazzling.class, Explosive.class,
-            Sacrificial.class, Wayward.class, Polarized.class, Friendly.class
+        public static final Class<?>[] curses = new Class<?>[] {
+                Annoying.class, Displacing.class, Dazzling.class, Explosive.class,
+                Sacrificial.class, Wayward.class, Polarized.class, Friendly.class
         };
 
         public abstract int proc(Weapon weapon, Char attacker, Char defender, int damage);
