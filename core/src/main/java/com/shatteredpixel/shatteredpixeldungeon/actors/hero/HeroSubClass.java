@@ -38,8 +38,9 @@ public enum HeroSubClass {
     BATTLEMAGE(HeroIcon.BATTLEMAGE),
     WARLOCK(HeroIcon.WARLOCK),
     // 盗贼
-    ASSASSIN(HeroIcon.ASSASSIN),
-    FREERUNNER(HeroIcon.FREERUNNER),
+    ASSASSIN(HeroIcon.ASSASSIN),        // 刺客
+    FREERUNNER(HeroIcon.FREERUNNER),    // 疾行客
+    MAGICIAN(HeroIcon.MAGICIAN),        // 魔术师
     // 女猎
     SNIPER(HeroIcon.SNIPER),
     WARDEN(HeroIcon.WARDEN),

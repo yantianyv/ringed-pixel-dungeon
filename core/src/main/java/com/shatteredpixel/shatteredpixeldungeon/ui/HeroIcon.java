@@ -19,13 +19,20 @@ public class HeroIcon extends Image {
     //subclasses
     public static final int BERSERKER = 0;
     public static final int GLADIATOR = 1;
-    public static final int MUKBANGER = 1000;// 美食家
+    public static final int MUKBANGER = 1000;   // 美食家
+    // 预留给战士第四天赋（1001）
     public static final int BATTLEMAGE = 2;
     public static final int WARLOCK = 3;
+    // 预留给法师第三天赋（1002）
+    // 预留给法师第四天赋（1003）
     public static final int ASSASSIN = 4;
     public static final int FREERUNNER = 5;
+    public static final int MAGICIAN = 1004;    // 魔术师
+    // 预留给盗贼第四天赋（1005）
     public static final int SNIPER = 6;
     public static final int WARDEN = 7;
+    // 预留给女猎第三天赋（1006）
+    // 预留给女猎第四天赋（1007）
     public static final int CHAMPION = 8;
     public static final int MONK = 9;
     public static final int PRIEST = 10;
