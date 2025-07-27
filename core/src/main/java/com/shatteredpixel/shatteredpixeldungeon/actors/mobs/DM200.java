@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -45,8 +46,8 @@ public class DM200 extends Mob {
         EXP = 9;
         maxLvl = 17;
 
-        loot = Random.oneOf(Generator.Category.RING, Generator.Category.ARMOR);
-        lootChance = 0.2f; //initially, see lootChance()
+        loot = Random.oneOf(Generator.Category.WEAPON, Generator.Category.ARMOR);
+        lootChance = 0.2f; // initially, see lootChance()
 
         properties.add(Property.INORGANIC);
         properties.add(Property.LARGE);
@@ -71,16 +72,16 @@ public class DM200 extends Mob {
 
     @Override
     public float lootChance() {
-        //each drop makes future drops 1/3 as likely
+        // each drop makes future drops 1/3 as likely
         // so loot chance looks like: 1/5, 1/15, 1/45, 1/135, etc.
         return super.lootChance() * (float) Math.pow(1 / 3f, Dungeon.LimitedDrops.DM200_EQUIP.count);
     }
 
     public Item createLoot() {
         Dungeon.LimitedDrops.DM200_EQUIP.count++;
-        //uses probability tables for dwarf city
-        if (loot == Generator.Category.RING) {
-            return Generator.randomArmor(4);
+        // uses probability tables for dwarf city
+        if (loot == Generator.Category.WEAPON) {
+            return Generator.randomWeapon(4, true);
         } else {
             return Generator.randomArmor(4);
         }
@@ -127,11 +128,11 @@ public class DM200 extends Mob {
     }
 
     protected boolean canVent(int target) {
-        if (ventCooldown > 0) {
+        if (ventCooldown > 0)
             return false;
-        }
-        PathFinder.buildDistanceMap(target, BArray.not(Dungeon.level.solid, null), Dungeon.level.distance(pos, target) + 1);
-        //vent can go around blocking terrain, but not through it
+        PathFinder.buildDistanceMap(target, BArray.not(Dungeon.level.solid, null),
+                Dungeon.level.distance(pos, target) + 1);
+        // vent can go around blocking terrain, but not through it
         if (PathFinder.distance[pos] == Integer.MAX_VALUE) {
             return false;
         }
