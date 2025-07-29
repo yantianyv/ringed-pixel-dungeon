@@ -4,5 +4,6 @@
     "codium.codeCompletion.enable": false,
     "Codegeex.RepoIndex": true,
     "java.configuration.updateBuildConfiguration": "disabled",
-    "editor.formatOnSave": false
+    "editor.formatOnSave": false,
+    "git.ignoreLimitWarning": true
 }

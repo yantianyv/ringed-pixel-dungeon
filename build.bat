@@ -1,6 +1,16 @@
 @echo off
 chcp 65001
 setlocal enabledelayedexpansion
+
+rem 设置Android SDK路径
+set ANDROID_HOME=./asdk/
+echo sdk.dir=%ANDROID_HOME%>local.properties
+
+rem 接受SDK许可证并安装必要组件
+if exist "%ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager.bat" (
+    call "%ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager.bat" --licenses
+    call "%ANDROID_HOME%\cmdline-tools\latest\bin\sdkmanager.bat" "platform-tools" "build-tools;35.0.0" "platforms;android-35"
+)
 call ./gradlew clean
 call ./gradlew --stop
 

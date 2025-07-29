@@ -220,7 +220,7 @@ public class AndroidPlatformSupport extends PlatformSupport {
 				case KOREAN:
 					typeFace = 1;
 					break;
-				case CHI_SMPL:
+				case CHINESE:
 				default:
 					typeFace = 2;
 					break;
