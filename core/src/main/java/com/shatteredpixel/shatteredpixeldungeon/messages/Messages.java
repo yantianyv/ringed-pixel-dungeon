@@ -84,7 +84,7 @@ public class Messages {
         // 加载用户语言
         bundles = new ArrayList<>();
         for (String file : prop_files) {
-            if (bundleLocal.getLanguage().equals("id")) {
+            if (locale.getLanguage().equals("id")) {
                 // This is a really silly hack to fix some platforms using "id" for indonesian
                 // and some using "in" (Android 14- mostly).
                 // So if we detect "id" then we treat "###_in" as the base bundle so that it

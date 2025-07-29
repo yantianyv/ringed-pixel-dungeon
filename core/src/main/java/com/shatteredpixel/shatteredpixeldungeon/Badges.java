@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -186,9 +187,11 @@ public class Badges {
 		VICTORY_CLERIC,
 		VICTORY_ALL_CLASSES         ( 102, BadgeType.GLOBAL ),
 		DEATH_FROM_ALL              ( 103, BadgeType.GLOBAL ),
-		BOSS_SLAIN_3_GLADIATOR,
-		BOSS_SLAIN_3_BERSERKER,
-		BOSS_SLAIN_3_WARLOCK,
+BOSS_SLAIN_3_GLADIATOR,
+BOSS_SLAIN_3_BERSERKER,
+BOSS_SLAIN_3_MUKBANGER, // 大胃王
+BOSS_SLAIN_3_WARLOCK,
+BOSS_SLAIN_3_MAGICIAN, // 魔术师
 		BOSS_SLAIN_3_BATTLEMAGE,
 		BOSS_SLAIN_3_FREERUNNER,
 		BOSS_SLAIN_3_ASSASSIN,
@@ -904,8 +907,8 @@ public class Badges {
         thirdBossSubclassBadges.put(HeroSubClass.BATTLEMAGE, Badge.BOSS_SLAIN_3_BATTLEMAGE);
         thirdBossSubclassBadges.put(HeroSubClass.WARLOCK, Badge.BOSS_SLAIN_3_WARLOCK);
         thirdBossSubclassBadges.put(HeroSubClass.ASSASSIN, Badge.BOSS_SLAIN_3_ASSASSIN); // 刺客
-        thirdBossSubclassBadges.put(HeroSubClass.FREERUNNER, Badge.BOSS_SLAIN_3_FREERUNNER);// 疾行客
-        thirdBossSubclassBadges.put(HeroSubClass.FREERUNNER, Badge.BOSS_SLAIN_3_MAGICIAN);// 魔术师
+thirdBossSubclassBadges.put(HeroSubClass.FREERUNNER, Badge.BOSS_SLAIN_3_FREERUNNER);// 疾行客
+thirdBossSubclassBadges.put(HeroSubClass.MAGICIAN, Badge.BOSS_SLAIN_3_MAGICIAN);// 魔术师
         thirdBossSubclassBadges.put(HeroSubClass.SNIPER, Badge.BOSS_SLAIN_3_SNIPER);
         thirdBossSubclassBadges.put(HeroSubClass.WARDEN, Badge.BOSS_SLAIN_3_WARDEN);
         thirdBossSubclassBadges.put(HeroSubClass.CHAMPION, Badge.BOSS_SLAIN_3_CHAMPION);
