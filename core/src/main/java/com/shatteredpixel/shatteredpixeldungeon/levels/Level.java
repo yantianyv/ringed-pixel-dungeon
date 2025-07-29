@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -771,13 +771,15 @@ public abstract class Level implements Bundlable {
     public boolean spawnMob(int disLimit) {
         PathFinder.buildDistanceMap(Dungeon.hero.pos, BArray.or(passable, avoid, null));
 
-        Mob mob = createMob();
-        mob.state = mob.WANDERING;
-        int tries = 30;
-        do {
-            mob.pos = randomRespawnCell(mob);
-            tries--;
-        } while ((mob.pos == -1 || PathFinder.distance[mob.pos] < disLimit) && tries > 0);
+		Mob mob = createMob();
+		if (mob.state != mob.PASSIVE) {
+			mob.state = mob.WANDERING;
+		}
+		int tries = 30;
+		do {
+			mob.pos = randomRespawnCell(mob);
+			tries--;
+		} while ((mob.pos == -1 || PathFinder.distance[mob.pos] < disLimit) && tries > 0);
 
         if (Dungeon.hero.isAlive() && mob.pos != -1 && PathFinder.distance[mob.pos] >= disLimit) {
             GameScene.add(mob);
@@ -953,15 +955,21 @@ public abstract class Level implements Bundlable {
             level.traps.remove(cell);
         }
 
-        int flags = Terrain.flags[terrain];
-        level.passable[cell] = (flags & Terrain.PASSABLE) != 0;
-        level.losBlocking[cell] = (flags & Terrain.LOS_BLOCKING) != 0;
-        level.flamable[cell] = (flags & Terrain.FLAMABLE) != 0;
-        level.secret[cell] = (flags & Terrain.SECRET) != 0;
-        level.solid[cell] = (flags & Terrain.SOLID) != 0;
-        level.avoid[cell] = (flags & Terrain.AVOID) != 0;
-        level.pit[cell] = (flags & Terrain.PIT) != 0;
-        level.water[cell] = terrain == Terrain.WATER;
+		int flags = Terrain.flags[terrain];
+		level.passable[cell]		= (flags & Terrain.PASSABLE) != 0;
+		level.losBlocking[cell]	    = (flags & Terrain.LOS_BLOCKING) != 0;
+		level.flamable[cell]		= (flags & Terrain.FLAMABLE) != 0;
+		level.secret[cell]		    = (flags & Terrain.SECRET) != 0;
+		level.solid[cell]			= (flags & Terrain.SOLID) != 0;
+		level.avoid[cell]			= (flags & Terrain.AVOID) != 0;
+		level.pit[cell]			    = (flags & Terrain.PIT) != 0;
+		level.water[cell]			= terrain == Terrain.WATER;
+
+		if (level instanceof SewerLevel){
+			if (level.map[cell] == Terrain.REGION_DECO || level.map[cell] == Terrain.REGION_DECO_ALT){
+				level.flamable[cell] = true;
+			}
+		}
 
         for (int i : PathFinder.NEIGHBOURS9) {
             i = cell + i;
@@ -1556,30 +1564,30 @@ public abstract class Level implements Bundlable {
 
     }
 
-    public boolean isLevelExplored(int depth) {
-        return false;
-    }
-
-    public int distance(int a, int b) {
-        int ax = a % width();
-        int ay = a / width();
-        int bx = b % width();
-        int by = b / width();
-        return Math.max(Math.abs(ax - bx), Math.abs(ay - by));
-    }
-
-    public boolean adjacent(int a, int b) {
-        return distance(a, b) == 1;
-    }
-
-    //uses pythagorean theorum for true distance, as if there was no movement grid
-    public float trueDistance(int a, int b) {
-        int ax = a % width();
-        int ay = a / width();
-        int bx = b % width();
-        int by = b / width();
-        return (float) Math.sqrt(Math.pow(Math.abs(ax - bx), 2) + Math.pow(Math.abs(ay - by), 2));
-    }
+	public float levelExplorePercent( int depth ){
+		return 0;
+	}
+	
+	public int distance( int a, int b ) {
+		int ax = a % width();
+		int ay = a / width();
+		int bx = b % width();
+		int by = b / width();
+		return Math.max( Math.abs( ax - bx ), Math.abs( ay - by ) );
+	}
+	
+	public boolean adjacent( int a, int b ) {
+		return distance( a, b ) == 1;
+	}
+	
+	//uses pythagorean theorum for true distance, as if there was no movement grid
+	public float trueDistance(int a, int b){
+		int ax = a % width();
+		int ay = a / width();
+		int bx = b % width();
+		int by = b / width();
+		return (float)Math.sqrt(Math.pow(Math.abs( ax - bx ), 2) + Math.pow(Math.abs( ay - by ), 2));
+	}
 
     //usually just if a cell is solid, but other cases exist too
     public boolean invalidHeroPos(int tile) {

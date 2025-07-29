@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -368,20 +368,27 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 
     private final HashSet<State> stateAdditions = new HashSet<>();
 
-    public void add(State state) {
-        synchronized (State.class) {
-            stateRemovals.remove(state);
-            stateAdditions.add(state);
-        }
-    }
+	public void add( State state ) {
+		//instant as it just changes an animation property that will get read later
+		if (state == State.PARALYSED){
+			paused = true;
+		} else {
+			synchronized (State.class) {
+				stateRemovals.remove(state);
+				stateAdditions.add(state);
+			}
+		}
+	}
 
-    private int auraColor = 0;
+	private int auraColor = 0;
+	private int auraRays = 0;
 
-    //Aura needs color data too
-    public void aura(int color) {
-        add(State.AURA);
-        auraColor = color;
-    }
+	//Aura needs color and ray count data too
+	public void aura( int color, int nRays ){
+		add(State.AURA);
+		auraColor = color;
+		auraRays = nRays;
+	}
 
     protected synchronized void processStateAddition(State state) {
         switch (state) {
@@ -486,7 +493,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
                 }
                 float size = Math.max(width(), height());
                 size = Math.max(size + 4, 16);
-                aura = new Flare(5, size);
+                aura = new Flare(auraRays, size);
                 aura.angularSpeed = 90;
                 aura.color(auraColor, true);
                 aura.visible = visible;
@@ -500,12 +507,17 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 
     private final HashSet<State> stateRemovals = new HashSet<>();
 
-    public void remove(State state) {
-        synchronized (State.class) {
-            stateAdditions.remove(state);
-            stateRemovals.add(state);
-        }
-    }
+	public void remove( State state ) {
+		//instant as it just changes an animation property that will get read later
+		if (state == State.PARALYSED){
+			paused = false;
+		} else {
+			synchronized (State.class) {
+				stateAdditions.remove(state);
+				stateRemovals.add(state);
+			}
+		}
+	}
 
     public void clearAura() {
         remove(State.AURA);

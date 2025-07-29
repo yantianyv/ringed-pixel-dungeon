@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -182,7 +185,7 @@ public class PotionOfDragonsBreath extends ExoticPotion {
 											if (ch != null) {
 												
 												Buff.affect( ch, Burning.class ).reignite( ch );
-												Buff.affect(ch, Cripple.class, 5f);
+												Buff.prolong(ch, Cripple.class, 5f);
 											}
 										}
 

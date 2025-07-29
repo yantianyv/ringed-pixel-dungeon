@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,18 +72,20 @@ public class SummoningTrap extends Trap {
 
         ArrayList<Mob> mobs = new ArrayList<>();
 
-        for (Integer point : respawnPoints) {
-            Mob mob = Dungeon.level.createMob();
-            while (Char.hasProp(mob, Char.Property.LARGE) && !Dungeon.level.openSpace[point]) {
-                mob = Dungeon.level.createMob();
-            }
-            if (mob != null) {
-                mob.state = mob.WANDERING;
-                mob.pos = point;
-                GameScene.add(mob, DELAY);
-                mobs.add(mob);
-            }
-        }
+		for (Integer point : respawnPoints) {
+			Mob mob = Dungeon.level.createMob();
+			while (Char.hasProp(mob, Char.Property.LARGE) && !Dungeon.level.openSpace[point]){
+				mob = Dungeon.level.createMob();
+			}
+			if (mob != null) {
+				if (mob.state != mob.PASSIVE) {
+					mob.state = mob.WANDERING;
+				}
+				mob.pos = point;
+				GameScene.add(mob, DELAY);
+				mobs.add(mob);
+			}
+		}
 
         //important to process the visuals and pressing of cells last, so spawned mobs have a chance to occupy cells first
         Trap t;

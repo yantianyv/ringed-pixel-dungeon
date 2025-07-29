@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -831,20 +831,21 @@ public class AlchemyScene extends PixelScene {
 
     private boolean saveNeeded = false;
 
-    @Override
-    public void onPause() {
-        if (saveNeeded) {
-            saveNeeded = false;
-            clearSlots();
-            try {
-                Dungeon.saveAll();
-                Badges.saveGlobal();
-                Journal.saveGlobal();
-            } catch (IOException e) {
-                ShatteredPixelDungeon.reportException(e);
-            }
-        }
-    }
+	@Override
+	public void onPause() {
+		if (saveNeeded) {
+			saveNeeded = false;
+			clearSlots();
+			updateState();
+			try {
+				Dungeon.saveAll();
+				Badges.saveGlobal();
+				Journal.saveGlobal();
+			} catch (IOException e) {
+				ShatteredPixelDungeon.reportException(e);
+			}
+		}
+	}
 
     @Override
     public void destroy() {

@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,6 +159,13 @@ public class AscensionChallenge extends Buff {
         return speed;
     }
 
+	public static boolean qualifiedForPacifist(){
+		if (Dungeon.hero.buff(AscensionChallenge.class) != null){
+			return !Dungeon.hero.buff(AscensionChallenge.class).stacksLowered;
+		}
+		return false;
+	}
+
     public static void processEnemyKill(Char enemy) {
         AscensionChallenge chal = Dungeon.hero.buff(AscensionChallenge.class);
         if (chal == null) {
@@ -191,6 +201,7 @@ public class AscensionChallenge extends Buff {
         } else {
             chal.stacks -= 1;
         }
+		chal.stacksLowered = true;
         // 刷新时光行者之戒的效果
         // RingOfTimetraveler.refresh();
         chal.stacks = Math.max(0, chal.stacks);
@@ -241,6 +252,8 @@ public class AscensionChallenge extends Buff {
 
     private float stacks = 0;
     private float damageInc = 0;
+
+	private boolean stacksLowered = false;
 
     public void onLevelSwitch() {
         if (Dungeon.depth < Statistics.highestAscent) {
@@ -382,11 +395,14 @@ public class AscensionChallenge extends Buff {
     public static final String STACKS = "enemy_stacks";
     public static final String DAMAGE = "damage_inc";
 
+	public static final String STACKS_LOWERED = "stacks_lowered";
+
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
         bundle.put(STACKS, stacks);
         bundle.put(DAMAGE, damageInc);
+		bundle.put(STACKS_LOWERED, stacksLowered);
     }
 
     @Override
@@ -394,6 +410,12 @@ public class AscensionChallenge extends Buff {
         super.restoreFromBundle(bundle);
         stacks = bundle.getFloat(STACKS);
         damageInc = bundle.getFloat(DAMAGE);
+		if (bundle.contains(STACKS_LOWERED)){
+			stacksLowered = bundle.getBoolean(STACKS_LOWERED);
+		//pre-v3.1 saves
+		} else {
+			stacksLowered = true;
+		}
     }
 
     //chars with this buff are not boosted by the ascension challenge

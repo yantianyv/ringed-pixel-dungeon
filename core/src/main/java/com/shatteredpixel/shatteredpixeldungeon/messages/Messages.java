@@ -1,3 +1,24 @@
+/*
+ * Pixel Dungeon
+ * Copyright (C) 2012-2015 Oleg Dolya
+ *
+ * Shattered Pixel Dungeon
+ * Copyright (C) 2014-2025 Evan Debenham
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
+
 package com.shatteredpixel.shatteredpixeldungeon.messages;
 
 import java.text.DecimalFormat;
@@ -63,7 +84,15 @@ public class Messages {
         // 加载用户语言
         bundles = new ArrayList<>();
         for (String file : prop_files) {
-            bundles.add(I18NBundle.createBundle(Gdx.files.internal(file), userLocale));
+            if (bundleLocal.getLanguage().equals("id")) {
+                // This is a really silly hack to fix some platforms using "id" for indonesian
+                // and some using "in" (Android 14- mostly).
+                // So if we detect "id" then we treat "###_in" as the base bundle so that it
+                // gets loaded instead of English.
+                bundles.add(I18NBundle.createBundle(Gdx.files.internal(file + "_in"), userLocale));
+            } else {
+                bundles.add(I18NBundle.createBundle(Gdx.files.internal(file), userLocale));
+            }
         }
 
         // 加载中文语言包

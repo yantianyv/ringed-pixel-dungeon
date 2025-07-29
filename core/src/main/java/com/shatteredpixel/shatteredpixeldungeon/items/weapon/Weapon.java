@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -313,27 +313,24 @@ abstract public class Weapon extends KindOfWeapon {
         return multi;
     }
 
-    @Override
-    public int reachFactor(Char owner) {
-        int reach = RCH;
-        if (owner instanceof Hero && RingOfKungfu.fightingUnarmed((Hero) owner)) {
-            reach = 1; // brawlers stance benefits from enchantments, but not innate reach
-            if (!RingOfKungfu.unarmedGetsWeaponEnchantment((Hero) owner)) {
-                return reach;
-            }
-        }
-        if (owner instanceof Hero && owner.buff(AscendedForm.AscendBuff.class) != null) {
-            reach += 2;
-        }
-        if (owner.buff(LingeringMagicTracker.class) != null) {
-            reach += 1;
-        }
-        if (hasEnchant(Projecting.class, owner)) {
-            return reach + Math.round(enchantment.procChanceMultiplier(owner));
-        } else {
-            return reach;
-        }
-    }
+	@Override
+	public int reachFactor(Char owner) {
+		int reach = RCH;
+		if (owner instanceof Hero && RingOfKungfu.fightingUnarmed((Hero) owner)){
+			reach = 1; //brawlers stance benefits from enchantments, but not innate reach
+			if (!RingOfKungfu.unarmedGetsWeaponEnchantment((Hero) owner)){
+				return reach;
+			}
+		}
+		if (owner instanceof Hero && owner.buff(AscendedForm.AscendBuff.class) != null){
+			reach += 2;
+		}
+		if (hasEnchant(Projecting.class, owner)){
+			return reach + Math.round(Enchantment.genericProcChanceMultiplier(owner));
+		} else {
+			return reach;
+		}
+	}
 
     public int STRReq() {
         return STRReq(level());
@@ -462,31 +459,31 @@ abstract public class Weapon extends KindOfWeapon {
         return enchant(ench);
     }
 
-    public boolean hasEnchant(Class<? extends Enchantment> type, Char owner) {
-        if (enchantment == null) {
-            return false;
-        } else if (owner.buff(MagicImmune.class) != null) {
-            return false;
-        } else if (!enchantment.curse()
-                && owner instanceof Hero
-                && isEquipped((Hero) owner)
-                && owner.buff(HolyWeapon.HolyWepBuff.class) != null
-                && ((Hero) owner).subClass != HeroSubClass.PALADIN) {
-            return false;
-        } else if (owner.buff(BodyForm.BodyFormBuff.class) != null
-                && owner.buff(BodyForm.BodyFormBuff.class).enchant() != null
-                && owner.buff(BodyForm.BodyFormBuff.class).enchant().getClass().equals(type)) {
-            return true;
-        } else {
-            return enchantment.getClass() == type;
-        }
-    }
-
-    // these are not used to process specific enchant effects, so magic immune
-    // doesn't affect them
-    public boolean hasGoodEnchant() {
-        return enchantment != null && !enchantment.curse();
-    }
+	public boolean hasEnchant(Class<?extends Enchantment> type, Char owner) {
+		if (owner.buff(MagicImmune.class) != null) {
+			return false;
+		} else if (enchantment != null
+				&& !enchantment.curse()
+				&& owner instanceof Hero
+				&& isEquipped((Hero) owner)
+				&& owner.buff(HolyWeapon.HolyWepBuff.class) != null
+				&& ((Hero) owner).subClass != HeroSubClass.PALADIN) {
+			return false;
+		} else if (owner.buff(BodyForm.BodyFormBuff.class) != null
+				&& owner.buff(BodyForm.BodyFormBuff.class).enchant() != null
+				&& owner.buff(BodyForm.BodyFormBuff.class).enchant().getClass().equals(type)){
+			return true;
+		} else if (enchantment != null) {
+			return enchantment.getClass() == type;
+		} else {
+			return false;
+		}
+	}
+	
+	//these are not used to process specific enchant effects, so magic immune doesn't affect them
+	public boolean hasGoodEnchant(){
+		return enchantment != null && !enchantment.curse();
+	}
 
     public boolean hasCurseEnchant() {
         return enchantment != null && enchantment.curse();

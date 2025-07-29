@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,12 +45,17 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.EnhancedRings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LostInventory;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PhysicalEmpower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.RevealedArea;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ScrollEmpower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.WandEmpower;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.DeadlyFollowupTracker;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.LiquidAgilACCTracker;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.LiquidAgilEVATracker;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.PatientStrikeTracker;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.Ratmogrify;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.DivineSense;
@@ -864,22 +872,18 @@ public enum Talent {
             Buff.affect(hero, WandEmpower.class).set(1 + hero.pointsInTalent(EMPOWERING_MEAL), 3);
             ScrollOfRecharging.charge(hero);
         }// 充能一餐
+        int wandChargeTurns = 0;
         if (hero.hasTalent(ENERGIZING_MEAL)) {
-            //5/8 turns of recharging
-            Buff.prolong(hero, Recharging.class, 2 + 3 * (hero.pointsInTalent(ENERGIZING_MEAL)));
-            ScrollOfRecharging.charge(hero);
-            SpellSprite.show(hero, SpellSprite.CHARGE);
-        }// 秘术祭食
+            // 5/8 turns of recharging
+            wandChargeTurns += 2 + 3 * hero.pointsInTalent(ENERGIZING_MEAL);
+        }
+        int artifactChargeTurns = 0;
+        // 秘术祭食
         if (hero.hasTalent(MYSTICAL_MEAL)) {
             //3/5 turns of recharging
-            ArtifactRecharge buff = Buff.affect(hero, ArtifactRecharge.class);
-            if (buff.left() < 1 + 2 * (hero.pointsInTalent(MYSTICAL_MEAL))) {
-                buff.detach();
-                Buff.affect(hero, ArtifactRecharge.class).set(1 + 2 * (hero.pointsInTalent(MYSTICAL_MEAL))).ignoreHornOfPlenty = foodSource instanceof HornOfPlenty;
-            }
-            ScrollOfRecharging.charge(hero);
-            SpellSprite.show(hero, SpellSprite.CHARGE, 0, 1, 1);
-        }// 活力一餐
+            artifactChargeTurns += 1 + 2 * hero.pointsInTalent(MYSTICAL_MEAL);
+        }
+        // 活力一餐
         if (hero.hasTalent(INVIGORATING_MEAL)) {
             //effectively 1/2 turns of haste
             Buff.prolong(hero, Haste.class, 0.67f + hero.pointsInTalent(INVIGORATING_MEAL));
@@ -911,23 +915,26 @@ public enum Talent {
                 }
             }
         }// 启蒙圣餐
-        if (hero.hasTalent(ENLIGHTENING_MEAL)) {
-            if (hero.heroClass == HeroClass.CLERIC) {
-                HolyTome tome = hero.belongings.getItem(HolyTome.class);
-                if (tome != null) {
-                    tome.directCharge(0.5f * (1 + hero.pointsInTalent(ENLIGHTENING_MEAL)));
-                    ScrollOfRecharging.charge(hero);
-                }
-            } else {
-                //2/3 turns of recharging
-                ArtifactRecharge buff = Buff.affect(hero, ArtifactRecharge.class);
-                if (buff.left() < 1 + (hero.pointsInTalent(ENLIGHTENING_MEAL))) {
-                    Buff.affect(hero, ArtifactRecharge.class).set(1 + (hero.pointsInTalent(ENLIGHTENING_MEAL))).ignoreHornOfPlenty = foodSource instanceof HornOfPlenty;
-                }
-                Buff.prolong(hero, Recharging.class, 1 + (hero.pointsInTalent(ENLIGHTENING_MEAL)));
-                ScrollOfRecharging.charge(hero);
-                SpellSprite.show(hero, SpellSprite.CHARGE);
-            }
+        if (hero.hasTalent(ENLIGHTENING_MEAL)){
+			if (hero.heroClass == HeroClass.CLERIC) {
+				HolyTome tome = hero.belongings.getItem(HolyTome.class);
+				if (tome != null) {
+					// 2/3 of a charge at +1, 1 full charge at +2
+					tome.directCharge( (1+hero.pointsInTalent(ENLIGHTENING_MEAL))/3f );
+					ScrollOfRecharging.charge(hero);
+				}
+			} else {
+				//2/3 turns of recharging, both kinds
+				wandChargeTurns += 1 + hero.pointsInTalent(ENLIGHTENING_MEAL);
+				artifactChargeTurns += 1 + hero.pointsInTalent(ENLIGHTENING_MEAL);
+			}
+		}
+
+		//we process these at the end as they can stack together from some talents
+		if (wandChargeTurns > 0){
+			Buff.prolong( hero, Recharging.class, wandChargeTurns );
+			ScrollOfRecharging.charge( hero );
+			SpellSprite.show(hero, SpellSprite.CHARGE);
         }// 营养均衡
         if (hero.hasTalent(BALANCED_MEAL)) {
             switch (hero.pointsInTalent(BALANCED_MEAL)) {
@@ -981,66 +988,56 @@ public enum Talent {
         return factor;
     }
 
-    public static void onPotionUsed(Hero hero, int cell, float factor) {
-        if (hero.hasTalent(LIQUID_WILLPOWER)) {
-            if (hero.heroClass == HeroClass.WARRIOR) {
-                BrokenSeal.WarriorShield shield = hero.buff(BrokenSeal.WarriorShield.class);
-                if (shield != null) {
-                    // 50/75% of total shield
-                    int shieldToGive = Math.round(factor * shield.maxShield() * 0.25f * (1 + hero.pointsInTalent(LIQUID_WILLPOWER)));
-                    hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldToGive), FloatingText.SHIELDING);
-                    shield.supercharge(shieldToGive);
-                }
-            } else {
-                // 5/7.5% of max HP
-                int shieldToGive = Math.round(factor * hero.HT * (0.025f * (1 + hero.pointsInTalent(LIQUID_WILLPOWER))));
-                hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldToGive), FloatingText.SHIELDING);
-                Buff.affect(hero, Barrier.class).setShield(shieldToGive);
-            }
-        }
-        if (hero.hasTalent(LIQUID_NATURE)) {
-            ArrayList<Integer> grassCells = new ArrayList<>();
-            for (int i : PathFinder.NEIGHBOURS9) {
-                grassCells.add(cell + i);
-            }
-            Random.shuffle(grassCells);
-            for (int grassCell : grassCells) {
-                Char ch = Actor.findChar(grassCell);
-                if (ch != null && ch.alignment == Char.Alignment.ENEMY) {
-                    //1/2 turns of roots
-                    Buff.affect(ch, Roots.class, factor * hero.pointsInTalent(LIQUID_NATURE));
-                }
-                if (Dungeon.level.map[grassCell] == Terrain.EMPTY
-                        || Dungeon.level.map[grassCell] == Terrain.EMBERS
-                        || Dungeon.level.map[grassCell] == Terrain.EMPTY_DECO) {
-                    Level.set(grassCell, Terrain.GRASS);
-                    GameScene.updateMap(grassCell);
-                }
-                CellEmitter.get(grassCell).burst(LeafParticle.LEVEL_SPECIFIC, 4);
-            }
-            // 4/6 cells total
-            int totalGrassCells = (int) (factor * (2 + 2 * hero.pointsInTalent(LIQUID_NATURE)));
-            while (grassCells.size() > totalGrassCells) {
-                grassCells.remove(0);
-            }
-            for (int grassCell : grassCells) {
-                int t = Dungeon.level.map[grassCell];
-                if ((t == Terrain.EMPTY || t == Terrain.EMPTY_DECO || t == Terrain.EMBERS
-                        || t == Terrain.GRASS || t == Terrain.FURROWED_GRASS)
-                        && Dungeon.level.plants.get(grassCell) == null) {
-                    Level.set(grassCell, Terrain.HIGH_GRASS);
-                    GameScene.updateMap(grassCell);
-                }
-            }
-            Dungeon.observe();
-        }
-        if (hero.hasTalent(LIQUID_AGILITY)) {
-            Buff.prolong(hero, LiquidAgilEVATracker.class, hero.cooldown() + Math.max(0, factor - 1));
-            if (factor >= 0.5f) {
-                Buff.prolong(hero, LiquidAgilACCTracker.class, 5f).uses = Math.round(factor);
-            }
-        }
-    }
+	public static void onPotionUsed( Hero hero, int cell, float factor ){
+		if (hero.hasTalent(LIQUID_WILLPOWER)){
+			// 6.5/10% of max HP
+			int shieldToGive = Math.round( factor * hero.HT * (0.030f + 0.035f*hero.pointsInTalent(LIQUID_WILLPOWER)));
+			hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldToGive), FloatingText.SHIELDING);
+			Buff.affect(hero, Barrier.class).setShield(shieldToGive);
+		}
+		if (hero.hasTalent(LIQUID_NATURE)){
+			ArrayList<Integer> grassCells = new ArrayList<>();
+			for (int i : PathFinder.NEIGHBOURS9){
+				grassCells.add(cell+i);
+			}
+			Random.shuffle(grassCells);
+			for (int grassCell : grassCells){
+				Char ch = Actor.findChar(grassCell);
+				if (ch != null && ch.alignment == Char.Alignment.ENEMY){
+					//1/2 turns of roots
+					Buff.affect(ch, Roots.class, factor * hero.pointsInTalent(LIQUID_NATURE));
+				}
+				if (Dungeon.level.map[grassCell] == Terrain.EMPTY ||
+						Dungeon.level.map[grassCell] == Terrain.EMBERS ||
+						Dungeon.level.map[grassCell] == Terrain.EMPTY_DECO){
+					Level.set(grassCell, Terrain.GRASS);
+					GameScene.updateMap(grassCell);
+				}
+				CellEmitter.get(grassCell).burst(LeafParticle.LEVEL_SPECIFIC, 4);
+			}
+			// 4/6 cells total
+			int totalGrassCells = (int) (factor * (2 + 2 * hero.pointsInTalent(LIQUID_NATURE)));
+			while (grassCells.size() > totalGrassCells){
+				grassCells.remove(0);
+			}
+			for (int grassCell : grassCells){
+				int t = Dungeon.level.map[grassCell];
+				if ((t == Terrain.EMPTY || t == Terrain.EMPTY_DECO || t == Terrain.EMBERS
+						|| t == Terrain.GRASS || t == Terrain.FURROWED_GRASS)
+						&& Dungeon.level.plants.get(grassCell) == null){
+					Level.set(grassCell, Terrain.HIGH_GRASS);
+					GameScene.updateMap(grassCell);
+				}
+			}
+			Dungeon.observe();
+		}
+		if (hero.hasTalent(LIQUID_AGILITY)){
+			Buff.prolong(hero, LiquidAgilEVATracker.class, hero.cooldown() + Math.max(0, factor-1));
+			if (factor >= 0.5f){
+				Buff.prolong(hero, LiquidAgilACCTracker.class, 5f).uses = Math.round(factor);
+			}
+		}
+	}
 
     public static void onScrollUsed(Hero hero, int pos, float factor, Class<? extends Item> cls) {
         if (hero.hasTalent(INSCRIBED_POWER)) {
@@ -1100,7 +1097,8 @@ public enum Talent {
                 && Random.Int(10) < Dungeon.hero.pointsInTalent(Talent.CLEANSE)) {
             boolean removed = false;
             for (Buff b : Dungeon.hero.buffs()) {
-                if (b.type == Buff.buffType.NEGATIVE) {
+                if (b.type == Buff.buffType.NEGATIVE
+						&& !(b instanceof LostInventory)) {
                     b.detach();
                     removed = true;
                 }
@@ -1141,17 +1139,17 @@ public enum Talent {
 
     public static int onAttackProc(Hero hero, Char enemy, int dmg) {
 
-        // if (hero.hasTalent(Talent.PROVOKED_ANGER)
-        //         && hero.buff(ProvokedAngerTracker.class) != null) {
-        //     dmg += 1 + hero.pointsInTalent(Talent.PROVOKED_ANGER);
-        //     hero.buff(ProvokedAngerTracker.class).detach();
-        // }
-        if (hero.hasTalent(Talent.LINGERING_MAGIC)
-                && hero.buff(LingeringMagicTracker.class) != null) {
-            // dmg += Random.IntRange(hero.pointsInTalent(Talent.LINGERING_MAGIC), 2);
-            dmg *= ElementBuff.apply(ElementBuff.randomElement(), Dungeon.hero, enemy, hero.pointsInTalent(Talent.LINGERING_MAGIC) + 1);
-            // hero.buff(LingeringMagicTracker.class).detach();
-        }
+		if (hero.hasTalent(Talent.PROVOKED_ANGER)
+			&& hero.buff(ProvokedAngerTracker.class) != null){
+			dmg += 1 + 2*hero.pointsInTalent(Talent.PROVOKED_ANGER);
+			hero.buff(ProvokedAngerTracker.class).detach();
+		}
+
+		if (hero.hasTalent(Talent.LINGERING_MAGIC)
+				&& hero.buff(LingeringMagicTracker.class) != null){
+			dmg += Random.IntRange(hero.pointsInTalent(Talent.LINGERING_MAGIC) , 2);
+			hero.buff(LingeringMagicTracker.class).detach();
+		}
 
         if (hero.hasTalent(Talent.SUCKER_PUNCH)
                 && enemy instanceof Mob && ((Mob) enemy).surprisedBy(hero)

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -939,36 +939,36 @@ public class DriedRose extends Artifact {
                                 return item instanceof MeleeWeapon;
                             }
 
-                            @Override
-                            public void onSelect(Item item) {
-                                if (!(item instanceof MeleeWeapon)) {
-                                    //do nothing, should only happen when window is cancelled
-                                } else if (item.unique) {
-                                    GLog.w(Messages.get(WndGhostHero.class, "cant_unique"));
-                                    hide();
-                                } else if (!item.isIdentified()) {
-                                    GLog.w(Messages.get(WndGhostHero.class, "cant_unidentified"));
-                                    hide();
-                                } else if (item.cursed) {
-                                    GLog.w(Messages.get(WndGhostHero.class, "cant_cursed"));
-                                    hide();
-                                } else if (((MeleeWeapon) item).STRReq() > rose.ghostStrength()) {
-                                    GLog.w(Messages.get(WndGhostHero.class, "cant_strength"));
-                                    hide();
-                                } else {
-                                    if (item.isEquipped(Dungeon.hero)) {
-                                        ((MeleeWeapon) item).doUnequip(Dungeon.hero, false, false);
-                                    } else {
-                                        item.detach(Dungeon.hero.belongings.backpack);
-                                    }
-                                    rose.weapon = (MeleeWeapon) item;
-                                    item(rose.weapon);
-                                }
-
-                            }
-                        });
-                    }
-                }
+							@Override
+							public void onSelect(Item item) {
+								if (!(item instanceof MeleeWeapon)) {
+									//do nothing, should only happen when window is cancelled
+								} else if (item.unique) {
+									GLog.w( Messages.get(WndGhostHero.class, "cant_unique"));
+									hide();
+								} else if (item.cursed || !item.cursedKnown) {
+									GLog.w(Messages.get(WndGhostHero.class, "cant_cursed"));
+									hide();
+								}  else if (!item.levelKnown && ((MeleeWeapon)item).STRReq(0) > rose.ghostStrength()){
+									GLog.w( Messages.get(WndGhostHero.class, "cant_strength_unknown"));
+									hide();
+								} else if (((MeleeWeapon)item).STRReq() > rose.ghostStrength()) {
+									GLog.w( Messages.get(WndGhostHero.class, "cant_strength"));
+									hide();
+								} else {
+									if (item.isEquipped(Dungeon.hero)){
+										((MeleeWeapon) item).doUnequip(Dungeon.hero, false, false);
+									} else {
+										item.detach(Dungeon.hero.belongings.backpack);
+									}
+									rose.weapon = (MeleeWeapon) item;
+									item(rose.weapon);
+								}
+								
+							}
+						});
+					}
+				}
 
                 @Override
                 protected boolean onLongClick() {
@@ -1014,36 +1014,36 @@ public class DriedRose extends Artifact {
                                 return item instanceof Armor;
                             }
 
-                            @Override
-                            public void onSelect(Item item) {
-                                if (!(item instanceof Armor)) {
-                                    //do nothing, should only happen when window is cancelled
-                                } else if (item.unique || ((Armor) item).checkSeal() != null) {
-                                    GLog.w(Messages.get(WndGhostHero.class, "cant_unique"));
-                                    hide();
-                                } else if (!item.isIdentified()) {
-                                    GLog.w(Messages.get(WndGhostHero.class, "cant_unidentified"));
-                                    hide();
-                                } else if (item.cursed) {
-                                    GLog.w(Messages.get(WndGhostHero.class, "cant_cursed"));
-                                    hide();
-                                } else if (((Armor) item).STRReq() > rose.ghostStrength()) {
-                                    GLog.w(Messages.get(WndGhostHero.class, "cant_strength"));
-                                    hide();
-                                } else {
-                                    if (item.isEquipped(Dungeon.hero)) {
-                                        ((Armor) item).doUnequip(Dungeon.hero, false, false);
-                                    } else {
-                                        item.detach(Dungeon.hero.belongings.backpack);
-                                    }
-                                    rose.armor = (Armor) item;
-                                    item(rose.armor);
-                                }
-
-                            }
-                        });
-                    }
-                }
+							@Override
+							public void onSelect(Item item) {
+								if (!(item instanceof Armor)) {
+									//do nothing, should only happen when window is cancelled
+								} else if (item.unique || ((Armor) item).checkSeal() != null) {
+									GLog.w( Messages.get(WndGhostHero.class, "cant_unique"));
+									hide();
+								} else if (item.cursed || !item.cursedKnown) {
+									GLog.w(Messages.get(WndGhostHero.class, "cant_cursed"));
+									hide();
+								}  else if (!item.levelKnown && ((Armor)item).STRReq(0) > rose.ghostStrength()){
+									GLog.w( Messages.get(WndGhostHero.class, "cant_strength_unknown"));
+									hide();
+								} else if (((Armor)item).STRReq() > rose.ghostStrength()) {
+									GLog.w( Messages.get(WndGhostHero.class, "cant_strength"));
+									hide();
+								} else {
+									if (item.isEquipped(Dungeon.hero)){
+										((Armor) item).doUnequip(Dungeon.hero, false, false);
+									} else {
+										item.detach(Dungeon.hero.belongings.backpack);
+									}
+									rose.armor = (Armor) item;
+									item(rose.armor);
+								}
+								
+							}
+						});
+					}
+				}
 
                 @Override
                 protected boolean onLongClick() {

@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,6 +128,7 @@ public class HeavyBoomerang extends MissileWeapon {
 									new Callback() {
 										@Override
 										public void call() {
+											detach();
 											if (returnTarget == target){
 												if (!boomerang.spawnedForEffect) {
 													if (target instanceof Hero && boomerang.doPickUp((Hero) target)) {
@@ -153,7 +157,6 @@ public class HeavyBoomerang extends MissileWeapon {
 					visual.alpha(0f);
 					float duration = Dungeon.level.trueDistance(thrownPos, returnPos) / 20f;
 					target.sprite.parent.add(new AlphaTweener(visual, 1f, duration));
-					detach();
 					return false;
 				}
 			}

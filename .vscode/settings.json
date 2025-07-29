@@ -3,5 +3,6 @@
     "Codegeex.CommitMessageStyle": "ConventionalCommits",
     "codium.codeCompletion.enable": false,
     "Codegeex.RepoIndex": true,
-    "java.configuration.updateBuildConfiguration": "disabled"
+    "java.configuration.updateBuildConfiguration": "disabled",
+    "editor.formatOnSave": false
 }

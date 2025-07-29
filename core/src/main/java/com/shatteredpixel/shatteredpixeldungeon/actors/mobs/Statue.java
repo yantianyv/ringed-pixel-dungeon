@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,35 +125,37 @@ public class Statue extends Mob {
     @Override
     public void damage(int dmg, Object src) {
 
-        if (state == PASSIVE) {
-            state = HUNTING;
-        }
-
-        super.damage(dmg, src);
-    }
-
-    @Override
-    public int attackProc(Char enemy, int damage) {
-        damage = super.attackProc(enemy, damage);
-        damage = weapon.proc(this, enemy, damage);
-        if (!enemy.isAlive() && enemy == Dungeon.hero) {
-            Dungeon.fail(this);
-            GLog.n(Messages.capitalize(Messages.get(Char.class, "kill", name())));
-        }
-        return damage;
-    }
-
-    @Override
-    public void beckon(int cell) {
-        // Do nothing
-    }
-
-    @Override
-    public void die(Object cause) {
-        weapon.identify(false);
-        Dungeon.level.drop(weapon, pos).sprite.drop();
-        super.die(cause);
-    }
+		if (state == PASSIVE) {
+			state = HUNTING;
+		}
+		
+		super.damage( dmg, src );
+	}
+	
+	@Override
+	public int attackProc( Char enemy, int damage ) {
+		damage = super.attackProc( enemy, damage );
+		damage = weapon.proc( this, enemy, damage );
+		if (!enemy.isAlive() && enemy == Dungeon.hero){
+			Dungeon.fail(this);
+			GLog.n( Messages.capitalize(Messages.get(Char.class, "kill", name())) );
+		}
+		return damage;
+	}
+	
+	@Override
+	public void beckon( int cell ) {
+		if (state != PASSIVE){
+			super.beckon(cell);
+		}
+	}
+	
+	@Override
+	public void die( Object cause ) {
+		weapon.identify(false);
+		Dungeon.level.drop( weapon, pos ).sprite.drop();
+		super.die( cause );
+	}
 
     @Override
     public Notes.Landmark landmark() {

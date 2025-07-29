@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -279,28 +282,32 @@ public class Ghost extends NPC {
                 ring = (Ring) node.get(RING);
                 special_ring = (Ring) node.get(SPECIAL_RING);
 
-            } else {
-                reset();
-            }
-        }
-
-        public static void spawn(SewerLevel level, Room room) {
-            if (!spawned && Dungeon.depth > 1 && Random.Int(5 - Dungeon.depth) == 0) {
-
-                Ghost ghost = new Ghost();
-                do {
-                    ghost.pos = level.pointToCell(room.random());
-                } while (ghost.pos == -1 || level.solid[ghost.pos] || ghost.pos == level.exit());
-                level.mobs.add(ghost);
-
-                spawned = true;
-                //dungeon depth determines type of quest.
-                //depth2=fetid rat, 3=gnoll trickster, 4=great crab
-                type = Dungeon.depth - 1;
-
-                given = false;
-                processed = false;
-                depth = Dungeon.depth;
+				if (node.contains(ENCHANT)) {
+					enchant = (Weapon.Enchantment) node.get(ENCHANT);
+					glyph   = (Armor.Glyph) node.get(GLYPH);
+				}
+			} else {
+				reset();
+			}
+		}
+		
+		public static void spawn( SewerLevel level, Room room ) {
+			if (!spawned && Dungeon.depth > 1 && Random.Int( 5 - Dungeon.depth ) == 0) {
+				
+				Ghost ghost = new Ghost();
+				do {
+					ghost.pos = level.pointToCell(room.random());
+				} while (ghost.pos == -1 || level.solid[ghost.pos] || !level.openSpace[ghost.pos] || ghost.pos == level.exit());
+				level.mobs.add( ghost );
+				
+				spawned = true;
+				//dungeon depth determines type of quest.
+				//depth2=fetid rat, 3=gnoll trickster, 4=great crab
+				type = Dungeon.depth-1;
+				
+				given = false;
+				processed = false;
+				depth = Dungeon.depth;
 
                 ring = (Ring) Generator.random(Generator.Category.RING);
                 special_ring = new WeddingRing();
@@ -308,15 +315,15 @@ public class Ghost extends NPC {
                 ring.curse(false);
                 ring.upgrade(3);
 
-            }
-        }
-
-        public static void process() {
-            if (spawned && given && !processed && (depth == Dungeon.depth)) {
-                GLog.n(Messages.get(Ghost.class, "find_me"));
-                Sample.INSTANCE.play(Assets.Sounds.GHOST);
-                processed = true;
-                Statistics.questScores[0] = 1000;
+			}
+		}
+		
+		public static void process() {
+			if (spawned && given && !processed && (depth == Dungeon.depth)) {
+				GLog.n( Messages.get(Ghost.class, "find_me") );
+				Sample.INSTANCE.play( Assets.Sounds.GHOST );
+				processed = true;
+				Statistics.questScores[0] += 1000;
 
                 Game.runOnRenderThread(new Callback() {
                     @Override

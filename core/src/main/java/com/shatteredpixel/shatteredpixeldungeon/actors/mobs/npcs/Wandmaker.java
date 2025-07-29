@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +55,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndWandmaker;
 import com.watabou.noosa.Game;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Callback;
-import com.watabou.utils.Point;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
@@ -86,7 +89,7 @@ public class Wandmaker extends NPC {
 
     @Override
     public void damage(int dmg, Object src) {
-        //do nothing
+        // do nothing
     }
 
     @Override
@@ -301,15 +304,16 @@ public class Wandmaker extends NPC {
 
                 Wandmaker npc = new Wandmaker();
                 boolean validPos;
-                //Do not spawn wandmaker on the entrance, in front of a door, or on bad terrain.
+                // Do not spawn wandmaker on the entrance, in front of a door, or on bad
+                // terrain.
                 do {
                     validPos = true;
                     npc.pos = level.pointToCell(room.random((room.width() > 6 && room.height() > 6) ? 2 : 1));
-                    if (npc.pos == level.entrance()) {
+                    if (npc.pos == level.entrance() || level.solid[npc.pos]) {
                         validPos = false;
                     }
-                    for (Point door : room.connected.values()) {
-                        if (level.trueDistance(npc.pos, level.pointToCell(door)) <= 1) {
+                    for (int i : PathFinder.NEIGHBOURS4) {
+                        if (level.map[npc.pos + i] == Terrain.DOOR) {
                             validPos = false;
                         }
                     }
@@ -371,22 +375,22 @@ public class Wandmaker extends NPC {
             return rooms;
         }
 
-        //quest is active if:
+        // quest is active if:
         public static boolean active() {
-            //it is not completed
+            // it is not completed
             if (wand1 == null || wand2 == null
                     || !(Dungeon.level instanceof RegularLevel) || Dungeon.hero == null) {
                 return false;
             }
 
-            //and...
+            // and...
             if (type == 1) {
-                //hero is in the mass grave room
+                // hero is in the mass grave room
                 if (((RegularLevel) Dungeon.level).room(Dungeon.hero.pos) instanceof MassGraveRoom) {
                     return true;
                 }
 
-                //or if they are corpse dust cursed
+                // or if they are corpse dust cursed
                 for (Buff b : Dungeon.hero.buffs()) {
                     if (b instanceof CorpseDust.DustGhostSpawner) {
                         return true;
@@ -395,14 +399,14 @@ public class Wandmaker extends NPC {
 
                 return false;
             } else if (type == 2) {
-                //hero has summoned the newborn elemental
+                // hero has summoned the newborn elemental
                 for (Mob m : Dungeon.level.mobs) {
                     if (m instanceof Elemental.NewbornFireElemental) {
                         return true;
                     }
                 }
 
-                //or hero is in the ritual room and all 4 candles are with them
+                // or hero is in the ritual room and all 4 candles are with them
                 if (((RegularLevel) Dungeon.level).room(Dungeon.hero.pos) instanceof RitualSiteRoom) {
                     int candles = 0;
                     if (Dungeon.hero.belongings.getItem(CeremonialCandle.class) != null) {
@@ -431,7 +435,7 @@ public class Wandmaker extends NPC {
 
                 return false;
             } else {
-                //hero is in the rot garden room and the rot heart is alive
+                // hero is in the rot garden room and the rot heart is alive
                 if (((RegularLevel) Dungeon.level).room(Dungeon.hero.pos) instanceof RotGardenRoom) {
                     for (Mob m : Dungeon.level.mobs) {
                         if (m instanceof RotHeart) {
@@ -449,7 +453,10 @@ public class Wandmaker extends NPC {
             wand2 = null;
 
             Notes.remove(Notes.Landmark.WANDMAKER);
-            Statistics.questScores[1] = 2000;
+            // other quests award score when their boss is defeated
+            if (Quest.type == 1) {
+                Statistics.questScores[1] += 2000;
+            }
         }
     }
 }

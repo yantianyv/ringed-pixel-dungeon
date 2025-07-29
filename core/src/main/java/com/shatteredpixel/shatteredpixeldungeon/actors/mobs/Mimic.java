@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -252,10 +255,12 @@ public class Mimic extends Mob {
         return super.drRoll() + Random.NormalIntRange(0, 1 + level / 2);
     }
 
-    @Override
-    public void beckon(int cell) {
-        // Do nothing
-    }
+	@Override
+	public void beckon( int cell ) {
+		if (alignment != Alignment.NEUTRAL) {
+			super.beckon(cell);
+		}
+	}
 
     @Override
     public int attackSkill(Char target) {

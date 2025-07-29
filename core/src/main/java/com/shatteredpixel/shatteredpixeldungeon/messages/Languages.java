@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ public enum Languages {
     GERMAN("deutsch", "de", Status.X_UNFINISH, new String[]{"Dallukas", "KrystalCroft", "Wuzzy", "Zap0", "apxwn", "bernhardreiter", "davedude"}, new String[]{"2711chrissi", "Abracadabra", "Anaklysmos", "Ceeee", "DarkPixel", "David.transifex", "EmilKevinManuel", "ErichME", "Faquarl", "LenzB", "MacMoff", "Micksha", "Niseko", "Ordoviz", "Sarius", "Shtynow", "SirEddi", "Sorpl3x", "SurmanPP", "SwissQ", "ThunfischGott", "Timo_S", "Topicranger", "azrdev", "carrageen", "dome.scheidler", "galactictrans", "gekko303", "jeinzi", "johannes.schobel", "karoshi42", "koryphea", "luciocarreras", "mklr", "niemand", "oragothen", "spixi", "tanjay", "unbekannterTyp", "wunst"}),
     FRENCH("français", "fr", Status.X_UNFINISH, new String[]{"Emether", "TheKappaDuWeb", "Weende_Bellet", "Xalofar", "canc42", "kultissim", "minikrob", "Lucasgstar"}, new String[]{"3raven", "Alsydis", "Anonyme48", "Axce", "Az_zahr", "Bastien72", "Basttee", "Coco_EC", "Dekadisk", "Draal", "Eragem", "Karnot", "L.E.V.", "Lama", "Le_Valla", "Leandre", "Louson", "Martin.Bellet", "Neopolitan", "NoGi", "Nyrnx", "Opidox", "Pandaman516", "Petit_Chat", "RomTheMareep", "RunningColours", "STPayoube", "Soeiz", "SpeagleZNT", "Teddywestside", "Tronche2Cake", "VRad", "Ygdrazil", "_nim_", "adamch", "adeb", "antoine9298", "clexanis", "eloiseflo", "fricht", "go11um", "hydrasho", "jan.", "jazzzz", "levilbatard", "linterpreteur", "luffah", "maeltur70", "marmous", "mcbaba29000", "mluzarreta", "panopano", "solthaar", "speagle", "tkf_", "typhr80", "vavavoum", "whereisfelix", "willi3725", "zM_"}),
     JAPANESE("日本語", "ja", Status.X_UNFINISH, new String[]{"daingewuvzeevisiddfddd", "oz51199"}, new String[]{"Gosamaru", "NickZhrbin", "Otogiri", "Siraore_Rou", "amama", "grassedge", "kiyofumimanabe", "librada", "mocklike", "tomofumikitano"}),
+    CHI_TRAD("繁體中文","zh-hant", Status.__UNREVIEW, new String[]{"JZR", "p2635"}, new String[]{"Fishbone", "Ken4Ro", "Lstron", "Relrin167", "Sotis425", "Yichm", "Zoe096423", "arnolam", "jackymaxj", "redbrow", "shiba", "唐延諭"}),
     POLISH("polski", "pl", Status.X_UNFINISH, new String[]{"Daniel Witański", "Deksippos", "MrKukurykpl", "chronon", "kuadziw", "szymex73"}, new String[]{"Akmetari", "AntiTime", "Boguc", "Chasseur", "Ciechu", "Darden", "DarkKnightComes", "DogeseleQ", "GRan0000", "Hammil", "I256I", "KarixDaii", "KrnąbrnyOlaf", "Lufix", "MJedi", "MrCommander", "Odiihinia", "Ostsee0912", "Peperos", "RolsoN", "Scharnvirk", "Serpens13", "Tangens", "VasteelXolotl", "Voyteq", "Wiiiiiii", "bobas10", "bogumilg", "bvader95", "dusakus", "elchudy", "jajkoswinka", "michaub", "mikolka9144", "ozziezombie", "szczoteczka22", "taki1", "transportowiec96"}),
     VIETNAMESE("tiếng việt", "vi", Status.X_UNFINISH, new String[]{"Chuseko", "The_Hood", "nguyenanhkhoapythus"}, new String[]{"BlueSheepAlgodoo", "Phuc2401", "SpaceMetropolis", "Teh_boi", "Threyja", "Toluu", "bruhwut", "buicongminh_t63", "deadlevel13", "duongfg250", "h4ndy_c4ndy", "hniV", "khangxyz3g", "ngolamaz3", "nkhhu", "vdgiapp", "vtvinh24"}),
     TURKISH("türkçe", "tr", Status.X_UNFINISH, new String[]{"LokiofMillenium", "Mustafa.10", "T3kin5iZ", "emrebnk", "gorkem_yılmaz"}, new String[]{"AGORAAA", "AchernarPrime", "AcuriousPotato", "BurningDaylight", "Helgon", "Koga", "Mehmet_Emin_21", "MuratEfeYilmaz", "OzanAlkan", "TR_Muhittin", "Talha_0_0", "TheMBDsvs", "Yllcare", "YORGANSIZMTAV", "ahmetbakicakir", "akkaya.mustafa", "alikeremozfidan", "alpekin98", "denizakalin", "eraysall402", "erdemozdemir98", "hasantahsin160", "immortalsamuraicn", "kayikyaki", "kempilbey", "melezorus34", "mitux", "mustafadoslu", "ryuga", "yasirckr85", "yukete"}),
@@ -98,9 +99,13 @@ public enum Languages {
         }
     }
 
-    public static Languages matchLocale(Locale locale) {
-        return matchCode(locale.getLanguage());
-    }
+	public static Languages matchLocale(Locale locale){
+		//special case for chinese traditional, which matches more specifically than other languages
+		if (locale.getLanguage().equals("zh") && locale.toString().contains("Hant")){
+			return Languages.CHI_TRAD;
+		}
+		return matchCode(locale.getLanguage());
+	}
 
     public static Languages matchCode(String code) {
         for (Languages lang : Languages.values()) {

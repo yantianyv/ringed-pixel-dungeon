@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,10 +70,12 @@ import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ParchmentScrap;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfOblivion;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
@@ -184,31 +186,16 @@ public class Armor extends EquipableItem {
 
         super.execute(hero, action);
 
-        if (action.equals(AC_DETACH) && seal != null) {
-            BrokenSeal.WarriorShield sealBuff = hero.buff(BrokenSeal.WarriorShield.class);
-            if (sealBuff != null) {
-                sealBuff.setArmor(null);
-            }
-
-            BrokenSeal detaching = seal;
-            seal = null;
-
-            if (detaching.level() > 0) {
-                degrade();
-            }
-            if (detaching.canTransferGlyph()) {
-                inscribe(null);
-            } else {
-                detaching.setGlyph(null);
-            }
-            GLog.i(Messages.get(Armor.class, "detach_seal"));
-            hero.sprite.operate(hero.pos);
-            if (!detaching.collect()) {
-                Dungeon.level.drop(detaching, hero.pos);
-            }
-            updateQuickslot();
-        }
-    }
+		if (action.equals(AC_DETACH) && seal != null){
+			BrokenSeal detaching = detachSeal();
+			GLog.i( Messages.get(Armor.class, "detach_seal") );
+			hero.sprite.operate(hero.pos);
+			if (!detaching.collect()){
+				Dungeon.level.drop(detaching, hero.pos);
+			}
+			updateQuickslot();
+		}
+	}
 
     @Override
     public boolean collect(Bag container) {
@@ -240,10 +227,8 @@ public class Armor extends EquipableItem {
         return !isIdentified() && usesLeftToID <= 0;
     }
 
-    @Override
-    public boolean doEquip(Hero hero) {
-
-        detach(hero.belongings.backpack);
+	@Override
+	public boolean doEquip( Hero hero ) {
 
         // 15/25% chance
         if (hero.heroClass != HeroClass.CLERIC && hero.hasTalent(Talent.HOLY_INTUITION)
@@ -254,29 +239,63 @@ public class Armor extends EquipableItem {
             return false;
         }
 
-        if (hero.belongings.armor == null || hero.belongings.armor.doUnequip(hero, true, false)) {
+		detach(hero.belongings.backpack);
 
-            hero.belongings.armor = this;
+		Armor oldArmor = hero.belongings.armor;
+		if (hero.belongings.armor == null || hero.belongings.armor.doUnequip( hero, true, false )) {
+			
+			hero.belongings.armor = this;
+			
+			cursedKnown = true;
+			if (cursed) {
+				equipCursed( hero );
+				GLog.n( Messages.get(Armor.class, "equip_cursed") );
+			}
+			
+			((HeroSprite)hero.sprite).updateArmor();
+			activate(hero);
+			Talent.onItemEquipped(hero, this);
+			hero.spend( timeToEquip( hero ) );
 
-            cursedKnown = true;
-            if (cursed) {
-                equipCursed(hero);
-                GLog.n(Messages.get(Armor.class, "equip_cursed"));
-            }
+			if (Dungeon.hero.heroClass == HeroClass.WARRIOR && checkSeal() == null){
+				BrokenSeal seal = oldArmor != null ? oldArmor.checkSeal() : null;
+				if (seal != null && (!cursed || (seal.getGlyph() != null && seal.getGlyph().curse()))){
 
-            ((HeroSprite) hero.sprite).updateArmor();
-            activate(hero);
-            Talent.onItemEquipped(hero, this);
-            hero.spendAndNext(timeToEquip(hero));
-            return true;
+					GameScene.show(new WndOptions(new ItemSprite(ItemSpriteSheet.SEAL),
+							Messages.titleCase(seal.title()),
+							Messages.get(Armor.class, "seal_transfer"),
+							Messages.get(Armor.class, "seal_transfer_yes"),
+							Messages.get(Armor.class, "seal_transfer_no")){
+						@Override
+						protected void onSelect(int index) {
+							super.onSelect(index);
+							if (index == 0){
+								seal.affixToArmor(Armor.this, oldArmor);
+								updateQuickslot();
+							}
+							super.hide();
+						}
 
-        } else {
-
-            collect(hero.belongings.backpack);
-            return false;
-
-        }
-    }
+						@Override
+						public void hide() {
+							//do nothing, must press button
+						}
+					});
+				} else {
+					hero.next();
+				}
+			} else {
+				hero.next();
+			}
+			return true;
+			
+		} else {
+			
+			collect( hero.belongings.backpack );
+			return false;
+			
+		}
+	}
 
     @Override
     public void activate(Char ch) {
@@ -285,21 +304,46 @@ public class Armor extends EquipableItem {
         }
     }
 
-    public void affixSeal(BrokenSeal seal) {
-        this.seal = seal;
-        if (seal.level() > 0) {
-            //doesn't trigger upgrading logic such as affecting curses/glyphs
-            int newLevel = trueLevel() + 1;
-            level(newLevel);
-            Badges.validateItemLevelAquired(this);
-        }
-        if (seal.getGlyph() != null) {
-            inscribe(seal.getGlyph());
-        }
-        if (isEquipped(Dungeon.hero)) {
-            Buff.affect(Dungeon.hero, BrokenSeal.WarriorShield.class).setArmor(this);
-        }
-    }
+	public void affixSeal(BrokenSeal seal){
+		this.seal = seal;
+		if (seal.level() > 0){
+			//doesn't trigger upgrading logic such as affecting curses/glyphs
+			int newLevel = trueLevel()+1;
+			level(newLevel);
+			Badges.validateItemLevelAquired(this);
+		}
+		if (seal.getGlyph() != null){
+			inscribe(seal.getGlyph());
+		}
+		if (isEquipped(Dungeon.hero)){
+			Buff.affect(Dungeon.hero, BrokenSeal.WarriorShield.class).setArmor(this);
+		}
+	}
+
+	public BrokenSeal detachSeal(){
+		if (seal != null){
+
+			if (isEquipped(Dungeon.hero)) {
+				BrokenSeal.WarriorShield sealBuff = Dungeon.hero.buff(BrokenSeal.WarriorShield.class);
+				if (sealBuff != null) sealBuff.setArmor(null);
+			}
+
+			BrokenSeal detaching = seal;
+			seal = null;
+
+			if (detaching.level() > 0){
+				degrade();
+			}
+			if (detaching.canTransferGlyph()){
+				inscribe(null);
+			} else {
+				detaching.setGlyph(null);
+			}
+			return detaching;
+		} else {
+			return null;
+		}
+	}
 
     public BrokenSeal checkSeal() {
         return seal;
@@ -716,25 +760,26 @@ public class Armor extends EquipableItem {
         return inscribe(gl);
     }
 
-    public boolean hasGlyph(Class<? extends Glyph> type, Char owner) {
-        if (glyph == null) {
-            return false;
-        } else if (owner.buff(MagicImmune.class) != null) {
-            return false;
-        } else if (!glyph.curse()
-                && owner instanceof Hero
-                && isEquipped((Hero) owner)
-                && owner.buff(HolyWard.HolyArmBuff.class) != null
-                && ((Hero) owner).subClass != HeroSubClass.PALADIN) {
-            return false;
-        } else if (owner.buff(BodyForm.BodyFormBuff.class) != null
-                && owner.buff(BodyForm.BodyFormBuff.class).glyph() != null
-                && owner.buff(BodyForm.BodyFormBuff.class).glyph().getClass().equals(type)) {
-            return true;
-        } else {
-            return glyph.getClass() == type;
-        }
-    }
+	public boolean hasGlyph(Class<?extends Glyph> type, Char owner) {
+		if (owner.buff(MagicImmune.class) != null) {
+			return false;
+		} else if (glyph != null
+				&& !glyph.curse()
+				&& owner instanceof Hero
+				&& isEquipped((Hero) owner)
+				&& owner.buff(HolyWard.HolyArmBuff.class) != null
+				&& ((Hero) owner).subClass != HeroSubClass.PALADIN){
+			return false;
+		} else if (owner.buff(BodyForm.BodyFormBuff.class) != null
+				&& owner.buff(BodyForm.BodyFormBuff.class).glyph() != null
+				&& owner.buff(BodyForm.BodyFormBuff.class).glyph().getClass().equals(type)){
+			return true;
+		} else if (glyph != null) {
+			return glyph.getClass() == type;
+		} else {
+			return false;
+		}
+	}
 
     //these are not used to process specific glyph effects, so magic immune doesn't affect them
     public boolean hasGoodGlyph() {

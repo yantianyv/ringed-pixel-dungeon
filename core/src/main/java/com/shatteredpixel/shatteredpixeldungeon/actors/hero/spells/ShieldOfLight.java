@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +82,7 @@ public class ShieldOfLight extends TargetedClericSpell {
 		hero.sprite.operate(hero.pos);
 
 		//1 turn less as the casting is instant
-		Buff.prolong( hero, ShieldOfLightTracker.class, 3f).object = ch.id();
+		Buff.prolong( hero, ShieldOfLightTracker.class, 4f).object = ch.id();
 
 		hero.busy();
 		hero.sprite.operate(hero.pos);
@@ -106,7 +109,7 @@ public class ShieldOfLight extends TargetedClericSpell {
 
 		public int object = 0;
 
-		private static final float DURATION = 4;
+		private static final float DURATION = 5;
 
 		{
 			type = buffType.POSITIVE;

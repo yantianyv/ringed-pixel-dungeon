@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,12 +109,13 @@ public class RotHeart extends Mob {
         Bestiary.skipCountingEncounters = false;
     }
 
-    @Override
-    public void die(Object cause) {
-        super.die(cause);
-        Dungeon.level.drop(new Rotberry.Seed(), pos).sprite.drop();
-        Statistics.questScores[1] = 2000;
-    }
+	@Override
+	public void die(Object cause) {
+		super.die(cause);
+		Dungeon.level.drop( new Rotberry.Seed(), pos ).sprite.drop();
+		//assign score here as player may choose to keep the rotberry seed
+		Statistics.questScores[1] += 2000;
+	}
 
     @Override
     public boolean reset() {

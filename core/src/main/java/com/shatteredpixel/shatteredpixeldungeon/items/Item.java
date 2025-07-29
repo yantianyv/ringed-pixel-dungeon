@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,22 +93,24 @@ public class Item implements Bundlable {
     // this is largely set by the resurrection window, items can override this to always be kept
     public boolean keptThoughLostInvent = false;
 
-    // whether an item can be included in heroes remains
-    public boolean bones = false;
+	// whether an item can be included in heroes remains
+	public boolean bones = false;
 
-    public static final Comparator<Item> itemComparator = new Comparator<Item>() {
-        @Override
-        public int compare(Item lhs, Item rhs) {
-            return Generator.Category.order(lhs) - Generator.Category.order(rhs);
-        }
-    };
-
-    public ArrayList<String> actions(Hero hero) {
-        ArrayList<String> actions = new ArrayList<>();
-        actions.add(AC_DROP);
-        actions.add(AC_THROW);
-        return actions;
-    }
+	public int customNoteID = -1;
+	
+	public static final Comparator<Item> itemComparator = new Comparator<Item>() {
+		@Override
+		public int compare( Item lhs, Item rhs ) {
+			return Generator.Category.order( lhs ) - Generator.Category.order( rhs );
+		}
+	};
+	
+	public ArrayList<String> actions( Hero hero ) {
+		ArrayList<String> actions = new ArrayList<>();
+		actions.add( AC_DROP );
+		actions.add( AC_THROW );
+		return actions;
+	}
 
     public String actionName(String action, Hero hero) {
         return Messages.get(this, "ac_" + action);
@@ -527,18 +529,19 @@ public class Item implements Bundlable {
 
     public String info() {
 
-        if (Dungeon.hero != null) {
-            Notes.CustomRecord note;
-            if (this instanceof EquipableItem) {
-                note = Notes.findCustomRecord(((EquipableItem) this).customNoteID);
-            } else {
-                note = Notes.findCustomRecord(getClass());
-            }
-            if (note != null) {
-                //we swap underscore(0x5F) with low macron(0x2CD) here to avoid highlighting in the item window
-                return Messages.get(this, "custom_note", note.title().replace('_', 'ˍ')) + "\n\n" + desc();
-            }
-        }
+		if (Dungeon.hero != null) {
+			Notes.CustomRecord note = Notes.findCustomRecord(customNoteID);
+			if (note != null) {
+				//we swap underscore(0x5F) with low macron(0x2CD) here to avoid highlighting in the item window
+				return Messages.get(this, "custom_note", note.title().replace('_', 'ˍ')) + "\n\n" + desc();
+			} else {
+				note = Notes.findCustomRecord(getClass());
+				if (note != null) {
+					//we swap underscore(0x5F) with low macron(0x2CD) here to avoid highlighting in the item window
+					return Messages.get(this, "custom_note_type", note.title().replace('_', 'ˍ')) + "\n\n" + desc();
+				}
+			}
+		}
 
         return desc();
     }
@@ -585,45 +588,47 @@ public class Item implements Bundlable {
         return quantity != 1 ? Integer.toString(quantity) : null;
     }
 
-    public static void updateQuickslot() {
-        GameScene.updateItemDisplays = true;
-    }
-
-    private static final String QUANTITY = "quantity";
-    private static final String LEVEL = "level";
-    private static final String LEVEL_KNOWN = "levelKnown";
-    private static final String CURSED = "cursed";
-    private static final String CURSED_KNOWN = "cursedKnown";
-    private static final String QUICKSLOT = "quickslotpos";
-    private static final String KEPT_LOST = "kept_lost";
-
-    @Override
-    public void storeInBundle(Bundle bundle) {
-        bundle.put(QUANTITY, quantity);
-        bundle.put(LEVEL, level);
-        bundle.put(LEVEL_KNOWN, levelKnown);
-        bundle.put(CURSED, cursed);
-        bundle.put(CURSED_KNOWN, cursedKnown);
-        if (Dungeon.quickslot.contains(this)) {
-            bundle.put(QUICKSLOT, Dungeon.quickslot.getSlot(this));
-        }
-        bundle.put(KEPT_LOST, keptThoughLostInvent);
-    }
-
-    @Override
-    public void restoreFromBundle(Bundle bundle) {
-        quantity = bundle.getInt(QUANTITY);
-        levelKnown = bundle.getBoolean(LEVEL_KNOWN);
-        cursedKnown = bundle.getBoolean(CURSED_KNOWN);
-
-        int level = bundle.getInt(LEVEL);
-        if (level > 0) {
-            upgrade(level);
-        } else if (level < 0) {
-            degrade(-level);
-        }
-
-        cursed = bundle.getBoolean(CURSED);
+	public static void updateQuickslot() {
+		GameScene.updateItemDisplays = true;
+	}
+	
+	private static final String QUANTITY		= "quantity";
+	private static final String LEVEL			= "level";
+	private static final String LEVEL_KNOWN		= "levelKnown";
+	private static final String CURSED			= "cursed";
+	private static final String CURSED_KNOWN	= "cursedKnown";
+	private static final String QUICKSLOT		= "quickslotpos";
+	private static final String KEPT_LOST       = "kept_lost";
+	private static final String CUSTOM_NOTE_ID = "custom_note_id";
+	
+	@Override
+	public void storeInBundle( Bundle bundle ) {
+		bundle.put( QUANTITY, quantity );
+		bundle.put( LEVEL, level );
+		bundle.put( LEVEL_KNOWN, levelKnown );
+		bundle.put( CURSED, cursed );
+		bundle.put( CURSED_KNOWN, cursedKnown );
+		if (Dungeon.quickslot.contains(this)) {
+			bundle.put( QUICKSLOT, Dungeon.quickslot.getSlot(this) );
+		}
+		bundle.put( KEPT_LOST, keptThoughLostInvent );
+		if (customNoteID != -1)     bundle.put(CUSTOM_NOTE_ID, customNoteID);
+	}
+	
+	@Override
+	public void restoreFromBundle( Bundle bundle ) {
+		quantity	= bundle.getInt( QUANTITY );
+		levelKnown	= bundle.getBoolean( LEVEL_KNOWN );
+		cursedKnown	= bundle.getBoolean( CURSED_KNOWN );
+		
+		int level = bundle.getInt( LEVEL );
+		if (level > 0) {
+			upgrade( level );
+		} else if (level < 0) {
+			degrade( -level );
+		}
+		
+		cursed	= bundle.getBoolean( CURSED );
 
         //only want to populate slot on first load.
         if (Dungeon.hero == null) {
@@ -632,8 +637,9 @@ public class Item implements Bundlable {
             }
         }
 
-        keptThoughLostInvent = bundle.getBoolean(KEPT_LOST);
-    }
+		keptThoughLostInvent = bundle.getBoolean( KEPT_LOST );
+		if (bundle.contains(CUSTOM_NOTE_ID))    customNoteID = bundle.getInt(CUSTOM_NOTE_ID);
+	}
 
     public int targetingPos(Hero user, int dst) {
         return throwPos(user, dst);

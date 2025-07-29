@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,10 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.Trinket;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
@@ -500,67 +502,73 @@ public class WndRanking extends WndTabbed {
 
             super();
 
-            this.item = item;
-
-            slot.item(item);
-            if (item.cursed && item.cursedKnown) {
-                bg.ra = +0.2f;
-                bg.ga = -0.1f;
-            } else if (!item.isIdentified()) {
-                bg.ra = 0.1f;
-                bg.ba = 0.1f;
-            }
-        }
-
-        @Override
-        protected void createChildren() {
-
-            bg = new ColorBlock(28, HEIGHT, 0x9953564D);
-            add(bg);
-
-            slot = new ItemSlot();
-            add(slot);
-
-            name = PixelScene.renderTextBlock(7);
-            add(name);
-
-            super.createChildren();
-        }
-
-        @Override
-        protected void layout() {
-            bg.x = x;
-            bg.y = y;
-
-            slot.setRect(x, y, 28, HEIGHT);
-            PixelScene.align(slot);
-
-            name.maxWidth((int) (width - slot.width() - 2));
-            name.text(Messages.titleCase(item.name()));
-            name.setPos(
-                    slot.right() + 2,
-                    y + (height - name.height()) / 2
-            );
-            PixelScene.align(name);
-
-            super.layout();
-        }
-
-        @Override
-        protected void onPointerDown() {
-            bg.brightness(1.5f);
-            Sample.INSTANCE.play(Assets.Sounds.CLICK, 0.7f, 0.7f, 1.2f);
-        }
-
-        protected void onPointerUp() {
-            bg.brightness(1.0f);
-        }
-
-        @Override
-        protected void onClick() {
-            Game.scene().add(new WndInfoItem(item));
-        }
-    }
+			this.item = item;
+			
+			slot.item( item );
+			if (item.cursed && item.cursedKnown) {
+				bg.ra = +0.3f;
+				bg.ga = -0.15f;
+				bg.ba = -0.15f;
+			} else if (!item.isIdentified()) {
+				if ((item instanceof EquipableItem || item instanceof Wand) && item.cursedKnown){
+					bg.ba = +0.3f;
+					bg.ra = -0.1f;
+				} else {
+					bg.ra = +0.35f;
+					bg.ba = +0.35f;
+				}
+			}
+		}
+		
+		@Override
+		protected void createChildren() {
+			
+			bg = new ColorBlock( 28, HEIGHT, 0x9953564D );
+			add( bg );
+			
+			slot = new ItemSlot();
+			add( slot );
+			
+			name = PixelScene.renderTextBlock( 7 );
+			add( name );
+			
+			super.createChildren();
+		}
+		
+		@Override
+		protected void layout() {
+			bg.x = x;
+			bg.y = y;
+			
+			slot.setRect( x, y, 28, HEIGHT );
+			PixelScene.align(slot);
+			
+			name.maxWidth((int)(width - slot.width() - 2));
+			name.text(Messages.titleCase(item.name()));
+			name.setPos(
+					slot.right()+2,
+					y + (height - name.height()) / 2
+			);
+			PixelScene.align(name);
+			
+			super.layout();
+		}
+		
+		@Override
+		protected void onPointerDown() {
+			bg.brightness( 1.5f );
+			Sample.INSTANCE.play( Assets.Sounds.CLICK, 0.7f, 0.7f, 1.2f );
+		}
+		
+		protected void onPointerUp() {
+			bg.brightness( 1.0f );
+		}
+		
+		@Override
+		protected void onClick() {
+			Game.scene().add( new WndInfoItem( item ) );
+		}
+	}
 
     private class QuickSlotButton extends ItemSlot {
 

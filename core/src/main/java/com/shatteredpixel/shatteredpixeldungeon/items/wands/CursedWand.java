@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -719,28 +719,28 @@ public class CursedWand {
             }
         }
 
-        @Override
-        public boolean effect(Item origin, Char user, Ballistica bolt, boolean positiveOnly) {
-            if (valid(origin, user, bolt, positiveOnly)) {
-                Char ch = Actor.findChar(bolt.collisionPos);
-                Sheep sheep = new Sheep();
-                sheep.lifespan = 10;
-                sheep.pos = ch.pos;
-                ch.destroy();
-                ch.sprite.killAndErase();
-                Dungeon.level.mobs.remove(ch);
-                TargetHealthIndicator.instance.target(null);
-                GameScene.add(sheep);
-                CellEmitter.get(sheep.pos).burst(Speck.factory(Speck.WOOL), 4);
-                Sample.INSTANCE.play(Assets.Sounds.PUFF);
-                Sample.INSTANCE.play(Assets.Sounds.SHEEP);
-                Dungeon.level.occupyCell(sheep);
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
+		@Override
+		public boolean effect(Item origin, Char user, Ballistica bolt, boolean positiveOnly) {
+			if (valid(origin, user, bolt, positiveOnly)){
+				Char ch = Actor.findChar( bolt.collisionPos );
+				Sheep sheep = new Sheep();
+				sheep.initialize(10);
+				sheep.pos = ch.pos;
+				ch.destroy();
+				ch.sprite.killAndErase();
+				Dungeon.level.mobs.remove(ch);
+				TargetHealthIndicator.instance.target(null);
+				GameScene.add(sheep);
+				CellEmitter.get(sheep.pos).burst(Speck.factory(Speck.WOOL), 4);
+				Sample.INSTANCE.play(Assets.Sounds.PUFF);
+				Sample.INSTANCE.play(Assets.Sounds.SHEEP);
+				Dungeon.level.occupyCell(sheep);
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
 
     public static class CurseEquipment extends CursedEffect {
 

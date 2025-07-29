@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -536,6 +536,7 @@ public class ItemSpriteSheet {
     public static final int BLOOD_VIAL = TRINKETS + 12;
     public static final int OBLIVION_SHARD = TRINKETS + 13;
     public static final int CHAOTIC_CENSER = TRINKETS + 14;
+	public static final int FERRET_TUFT     = TRINKETS+15;
 
     static {
         assignItemRect(RAT_SKULL, 16, 11);
@@ -553,6 +554,7 @@ public class ItemSpriteSheet {
         assignItemRect(BLOOD_VIAL, 6, 15);
         assignItemRect(OBLIVION_SHARD, 7, 14);
         assignItemRect(CHAOTIC_CENSER, 13, 15);
+		assignItemRect(FERRET_TUFT,     16, 15);
     }
 
     private static final int SCROLLS = xy(1, 19);  //16 slots

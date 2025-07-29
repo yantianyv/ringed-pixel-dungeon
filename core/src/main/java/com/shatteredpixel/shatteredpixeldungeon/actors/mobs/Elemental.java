@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -377,14 +380,17 @@ public abstract class Elemental extends Mob {
                             GameScene.add(Blob.seed(targetingPos + i, 8, Fire.class));
                         }
 
-                        Char target = Actor.findChar(targetingPos + i);
-                        if (target != null && target != this) {
-                            Buff.affect(target, Burning.class).reignite(target);
-                        }
-                    }
-                }
-                Sample.INSTANCE.play(Assets.Sounds.BURNING);
-            }
+						Char target = Actor.findChar(targetingPos + i);
+						if (target != null && target != this) {
+							Buff.affect(target, Burning.class).reignite(target);
+							if (target == Dungeon.hero){
+								Statistics.questScores[1] -= 200;
+							}
+						}
+					}
+				}
+				Sample.INSTANCE.play(Assets.Sounds.BURNING);
+			}
 
             targetingPos = -1;
             rangedCooldown = Random.NormalIntRange(3, 5);
@@ -416,27 +422,28 @@ public abstract class Elemental extends Mob {
             }
         }
 
-        @Override
-        public void die(Object cause) {
-            super.die(cause);
-            if (alignment == Alignment.ENEMY) {
-                Dungeon.level.drop(new Embers(), pos).sprite.drop();
-                Statistics.questScores[1] = 2000;
-                Game.runOnRenderThread(new Callback() {
-                    @Override
-                    public void call() {
-                        Music.INSTANCE.fadeOut(1f, new Callback() {
-                            @Override
-                            public void call() {
-                                if (Dungeon.level != null) {
-                                    Dungeon.level.playLevelMusic();
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-        }
+		@Override
+		public void die(Object cause) {
+			super.die(cause);
+			if (alignment == Alignment.ENEMY) {
+				Dungeon.level.drop( new Embers(), pos ).sprite.drop();
+				//assign score here as player may choose to keep the embers
+				Statistics.questScores[1] += 2000;
+				Game.runOnRenderThread(new Callback() {
+					@Override
+					public void call() {
+						Music.INSTANCE.fadeOut(1f, new Callback() {
+							@Override
+							public void call() {
+								if (Dungeon.level != null) {
+									Dungeon.level.playLevelMusic();
+								}
+							}
+						});
+					}
+				});
+			}
+		}
 
         @Override
         public boolean reset() {

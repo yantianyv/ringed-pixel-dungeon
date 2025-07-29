@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -148,69 +148,70 @@ public class ScrollOfTransmutation extends InventoryScroll {
 
     }
 
-    public static Item changeItem(Item item) {
-        if (item instanceof MagesStaff) {
-            return changeStaff((MagesStaff) item);
-        } else if (item instanceof TippedDart) {
-            return changeTippedDart((TippedDart) item);
-        } else if (item instanceof MeleeWeapon || item instanceof MissileWeapon) {
-            return changeWeapon((Weapon) item);
-        } else if (item instanceof Scroll) {
-            return changeScroll((Scroll) item);
-        } else if (item instanceof Potion) {
-            return changePotion((Potion) item);
-        } else if (item instanceof Ring) {
-            return changeRing((Ring) item);
-        } else if (item instanceof Wand) {
-            return changeWand((Wand) item);
-        } else if (item instanceof Plant.Seed) {
-            return changeSeed((Plant.Seed) item);
-        } else if (item instanceof Runestone) {
-            return changeStone((Runestone) item);
-        } else if (item instanceof Artifact) {
-            Artifact a = changeArtifact((Artifact) item);
-            if (a == null) {
-                //if no artifacts are left, generate a random ring with shared ID/curse state
-                //artifact and ring levels are not exactly equivalent, give the ring up to +2
-                Item result = Generator.randomUsingDefaults(Generator.Category.RING);
-                result.levelKnown = item.levelKnown;
-                result.cursed = item.cursed;
-                result.cursedKnown = item.cursedKnown;
-                if (item.visiblyUpgraded() == 10) {
-                    result.level(2);
-                } else if (item.visiblyUpgraded() >= 5) {
-                    result.level(1);
-                } else {
-                    result.level(0);
-                }
-                return result;
-            } else {
-                return a;
-            }
-        } else if (item instanceof Trinket) {
-            return changeTrinket((Trinket) item);
-        } else {
-            return null;
-        }
-    }
-
-    private static MagesStaff changeStaff(MagesStaff staff) {
-        Class<? extends Wand> wandClass = staff.wandClass();
-
-        if (wandClass == null) {
-            return null;
-        } else {
-            Wand n;
-            do {
-                n = (Wand) Generator.randomUsingDefaults(Generator.Category.WAND);
-            } while (Challenges.isItemBlocked(n) || n.getClass() == wandClass);
-            n.level(0);
-            n.identify();
-            staff.imbueWand(n, null);
-        }
-
-        return staff;
-    }
+	public static Item changeItem( Item item ){
+		if (item instanceof MagesStaff) {
+			return changeStaff((MagesStaff) item);
+		}else if (item instanceof TippedDart){
+			return changeTippedDart( (TippedDart)item );
+		} else if (item instanceof MeleeWeapon || item instanceof MissileWeapon) {
+			return changeWeapon( (Weapon)item );
+		} else if (item instanceof Scroll) {
+			return changeScroll( (Scroll)item );
+		} else if (item instanceof Potion) {
+			return changePotion( (Potion)item );
+		} else if (item instanceof Ring) {
+			return changeRing( (Ring)item );
+		} else if (item instanceof Wand) {
+			return changeWand( (Wand)item );
+		} else if (item instanceof Plant.Seed) {
+			return changeSeed((Plant.Seed) item);
+		} else if (item instanceof Runestone) {
+			return changeStone((Runestone) item);
+		} else if (item instanceof Artifact) {
+			Artifact a = changeArtifact( (Artifact)item );
+			if (a == null){
+				//if no artifacts are left, generate a random ring with shared ID/curse state
+				//artifact and ring levels are not exactly equivalent, give the ring up to +2
+				Item result = Generator.randomUsingDefaults(Generator.Category.RING);
+				result.levelKnown = item.levelKnown;
+				result.cursed = item.cursed;
+				result.cursedKnown = item.cursedKnown;
+				if (item.visiblyUpgraded() == 10){
+					result.level(2);
+				} else if (item.visiblyUpgraded() >= 5){
+					result.level(1);
+				} else {
+					result.level(0);
+				}
+				return result;
+			} else {
+				return a;
+			}
+		} else if (item instanceof Trinket) {
+			return changeTrinket( (Trinket)item );
+		} else {
+			return null;
+		}
+	}
+	
+	private static MagesStaff changeStaff( MagesStaff staff ){
+		Class<?extends Wand> wandClass = staff.wandClass();
+		
+		if (wandClass == null){
+			return null;
+		} else {
+			Wand n;
+			do {
+				n = (Wand) Generator.randomUsingDefaults(Generator.Category.WAND);
+			} while (Challenges.isItemBlocked(n) || n.getClass() == wandClass);
+			n.cursed = false;
+			n.level(0);
+			n.identify();
+			staff.imbueWand(n, null);
+		}
+		
+		return staff;
+	}
 
     private static TippedDart changeTippedDart(TippedDart dart) {
         TippedDart n;

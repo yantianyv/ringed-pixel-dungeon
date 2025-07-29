@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -236,13 +239,14 @@ public class Blacksmith extends NPC {
         private static boolean bossBeaten;
         private static boolean completed;
 
-        //reward tracking. Stores remaining favor, the pickaxe, and how many of each reward has been chosen
-        public static int favor;
-        public static Item pickaxe;
-        public static int reforges;
-        public static int hardens;
-        public static int upgrades;
-        public static int smiths;
+		//reward tracking. Stores remaining favor, the pickaxe, and how many of each reward has been chosen
+		public static int favor;
+		public static Item pickaxe;
+		public static boolean freePickaxe;
+		public static int reforges;
+		public static int hardens;
+		public static int upgrades;
+		public static int smiths;
 
         //pre-generate these so they are consistent between seeds
         public static ArrayList<Item> smithRewards;
@@ -258,12 +262,13 @@ public class Blacksmith extends NPC {
             bossBeaten = false;
             completed = false;
 
-            favor = 0;
-            pickaxe = new Pickaxe().identify();
-            reforges = 0;
-            hardens = 0;
-            upgrades = 0;
-            smiths = 0;
+			favor       = 0;
+			pickaxe     = new Pickaxe().identify();
+			freePickaxe = false;
+			reforges    = 0;
+			hardens     = 0;
+			upgrades    = 0;
+			smiths      = 0;
 
             smithRewards = null;
             smithEnchant = null;
@@ -281,38 +286,38 @@ public class Blacksmith extends NPC {
         private static final String BOSS_BEATEN = "boss_beaten";
         private static final String COMPLETED = "completed";
 
-        private static final String FAVOR = "favor";
-        private static final String PICKAXE = "pickaxe";
-        private static final String REFORGES = "reforges";
-        private static final String HARDENS = "hardens";
-        private static final String UPGRADES = "upgrades";
-        private static final String SMITHS = "smiths";
-        private static final String SMITH_REWARDS = "smith_rewards";
-        private static final String ENCHANT = "enchant";
-        private static final String GLYPH = "glyph";
-
-        public static void storeInBundle(Bundle bundle) {
-
-            Bundle node = new Bundle();
-
-            node.put(SPAWNED, spawned);
-
-            if (spawned) {
-                node.put(TYPE, type);
+		private static final String FAVOR	    = "favor";
+		private static final String PICKAXE	    = "pickaxe";
+		private static final String FREE_PICKAXE= "free_pickaxe";
+		private static final String REFORGES	= "reforges";
+		private static final String HARDENS	    = "hardens";
+		private static final String UPGRADES	= "upgrades";
+		private static final String SMITHS	    = "smiths";
+		private static final String SMITH_REWARDS = "smith_rewards";
+		private static final String ENCHANT		= "enchant";
+		private static final String GLYPH		= "glyph";
+		
+		public static void storeInBundle( Bundle bundle ) {
+			
+			Bundle node = new Bundle();
+			
+			node.put( SPAWNED, spawned );
+			
+			if (spawned) {
+				node.put( TYPE, type );
 
                 node.put(GIVEN, given);
                 node.put(STARTED, started);
                 node.put(BOSS_BEATEN, bossBeaten);
                 node.put(COMPLETED, completed);
 
-                node.put(FAVOR, favor);
-                if (pickaxe != null) {
-                    node.put(PICKAXE, pickaxe);
-                }
-                node.put(REFORGES, reforges);
-                node.put(HARDENS, hardens);
-                node.put(UPGRADES, upgrades);
-                node.put(SMITHS, smiths);
+				node.put( FAVOR, favor );
+				if (pickaxe != null) node.put( PICKAXE, pickaxe );
+				node.put( FREE_PICKAXE, freePickaxe );
+				node.put( REFORGES, reforges );
+				node.put( HARDENS, hardens );
+				node.put( UPGRADES, upgrades );
+				node.put( SMITHS, smiths );
 
                 if (smithRewards != null) {
                     node.put(SMITH_REWARDS, smithRewards);
@@ -338,24 +343,36 @@ public class Blacksmith extends NPC {
                 bossBeaten = node.getBoolean(BOSS_BEATEN);
                 completed = node.getBoolean(COMPLETED);
 
-                favor = node.getInt(FAVOR);
-                if (node.contains(PICKAXE)) {
-                    pickaxe = (Item) node.get(PICKAXE);
-                } else {
-                    pickaxe = null;
-                }
-                reforges = node.getInt(REFORGES);
-                hardens = node.getInt(HARDENS);
-                upgrades = node.getInt(UPGRADES);
-                smiths = node.getInt(SMITHS);
+				favor = node.getInt( FAVOR );
+				if (node.contains(PICKAXE)) {
+					pickaxe = (Item) node.get(PICKAXE);
+				} else {
+					pickaxe = null;
+				}
+				if (node.contains(FREE_PICKAXE)){
+					freePickaxe = node.getBoolean(FREE_PICKAXE);
+				} else {
+					//some for pre-3.1 saves, some from incorrect values from v3.1-BETA-1.0
+					if (favor >= 2500){
+						freePickaxe = true;
+					} else {
+						freePickaxe = false;
+					}
+				}
+				reforges = node.getInt( REFORGES );
+				hardens = node.getInt( HARDENS );
+				upgrades = node.getInt( UPGRADES );
+				smiths = node.getInt( SMITHS );
 
-                if (node.contains(SMITH_REWARDS)) {
-                    smithRewards = new ArrayList<>((Collection<Item>) ((Collection<?>) node.getCollection(SMITH_REWARDS)));
-                    if (node.contains(ENCHANT)) {
-                        smithEnchant = (Weapon.Enchantment) node.get(ENCHANT);
-                        smithGlyph = (Armor.Glyph) node.get(GLYPH);
-                    }
-                }
+				if (node.contains( SMITH_REWARDS )){
+					smithRewards = new ArrayList<>((Collection<Item>) ((Collection<?>) node.getCollection( SMITH_REWARDS )));
+					if (node.contains(ENCHANT)) {
+						smithEnchant = (Weapon.Enchantment) node.get(ENCHANT);
+						smithGlyph   = (Armor.Glyph) node.get(GLYPH);
+					}
+				} else {
+					smithRewards = null;
+				}
 
             } else {
                 reset();
@@ -503,14 +520,18 @@ public class Blacksmith extends NPC {
                 favor += 1000;
             }
 
-            Statistics.questScores[2] = favor;
-        }
+			Statistics.questScores[2] += favor;
 
-        public static boolean rewardsAvailable() {
-            return favor > 0
-                    || (Quest.smithRewards != null && Quest.smiths > 0)
-                    || (pickaxe != null && Statistics.questScores[2] >= 2500);
-        }
+			if (favor >= 2500){
+				freePickaxe = true;
+			}
+		}
+
+		public static boolean rewardsAvailable(){
+			return favor > 0
+					|| (Quest.smithRewards != null && Quest.smiths > 0)
+					|| (pickaxe != null && freePickaxe);
+		}
 
     }
 }

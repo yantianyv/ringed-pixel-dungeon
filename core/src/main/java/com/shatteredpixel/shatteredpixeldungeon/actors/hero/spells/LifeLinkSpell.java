@@ -4,6 +4,9 @@
  *
  * Shattered Pixel Dungeon
  * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +69,7 @@ public class LifeLinkSpell extends ClericSpell {
 	@Override
 	public void onCast(HolyTome tome, Hero hero) {
 
-		int duration = 4 + 2*hero.pointsInTalent(Talent.LIFE_LINK);
+		int duration = Math.round(6.67f + 3.33f*Dungeon.hero.pointsInTalent(Talent.LIFE_LINK));
 
 		Char ally = PowerOfMany.getPoweredAlly();
 
@@ -110,7 +113,7 @@ public class LifeLinkSpell extends ClericSpell {
 
 		@Override
 		public float iconFadePercent() {
-			int duration = 4 + 2*Dungeon.hero.pointsInTalent(Talent.LIFE_LINK);
+			int duration = Math.round(6.67f + 3.33f*Dungeon.hero.pointsInTalent(Talent.LIFE_LINK));
 			return Math.max(0, (duration - visualcooldown()) / duration);
 		}
 	}

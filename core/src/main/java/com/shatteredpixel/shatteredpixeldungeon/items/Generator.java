@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,6 +116,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ChaoticCenser;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.DimensionalSundial;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ExoticCrystals;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.EyeOfNewt;
+import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.FerretTuft;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.MimicTooth;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.MossyClump;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ParchmentScrap;
@@ -561,27 +562,28 @@ public class Generator {
             ARTIFACT.defaultProbs = new float[]{1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1};
             ARTIFACT.probs = ARTIFACT.defaultProbs.clone();
 
-            //Trinkets are unique like artifacts, but unlike them you can only have one at once
-            //So we don't need the same enforcement of uniqueness
-            TRINKET.classes = new Class<?>[]{
-                RatSkull.class,
-                ParchmentScrap.class,
-                PetrifiedSeed.class,
-                ExoticCrystals.class,
-                MossyClump.class,
-                DimensionalSundial.class,
-                ThirteenLeafClover.class,
-                TrapMechanism.class,
-                MimicTooth.class,
-                WondrousResin.class,
-                EyeOfNewt.class,
-                SaltCube.class,
-                VialOfBlood.class,
-                ShardOfHunger.class,
-                ChaoticCenser.class
-            };
-            TRINKET.defaultProbs = new float[]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-            TRINKET.probs = TRINKET.defaultProbs.clone();
+			//Trinkets are unique like artifacts, but unlike them you can only have one at once
+			//So we don't need the same enforcement of uniqueness
+			TRINKET.classes = new Class<?>[]{
+					RatSkull.class,
+					ParchmentScrap.class,
+					PetrifiedSeed.class,
+					ExoticCrystals.class,
+					MossyClump.class,
+					DimensionalSundial.class,
+					ThirteenLeafClover.class,
+					TrapMechanism.class,
+					MimicTooth.class,
+					WondrousResin.class,
+					EyeOfNewt.class,
+					SaltCube.class,
+					VialOfBlood.class,
+					ShardOfOblivion.class,
+					ChaoticCenser.class,
+					FerretTuft.class
+			};
+			TRINKET.defaultProbs = new float[]{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+			TRINKET.probs = TRINKET.defaultProbs.clone();
 
             for (Category cat : Category.values()) {
                 if (cat.defaultProbs2 != null) {

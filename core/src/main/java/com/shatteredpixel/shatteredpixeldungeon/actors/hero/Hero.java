@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -229,7 +232,8 @@ public class Hero extends Char {
     public HeroAction curAction = null;
     public HeroAction lastAction = null;
 
-    private Char enemy;
+	//reference to the enemy the hero is currently in the process of attacking
+    private Char attackTarget;
 
     public boolean resting = false;
 
@@ -489,7 +493,7 @@ public class Hero extends Char {
 
     public boolean shoot(Char enemy, MissileWeapon wep) {
 
-        this.enemy = enemy;
+        attackTarget = enemy;
         boolean wasEnemy = enemy.alignment == Alignment.ENEMY
                 || (enemy instanceof Mimic && enemy.alignment == Alignment.NEUTRAL);
 
@@ -1446,49 +1450,53 @@ public class Hero extends Char {
 
     private boolean actAttack(HeroAction.Attack action) {
 
-        enemy = action.target;
+		attackTarget = action.target;
 
-        if (isCharmedBy(enemy)) {
+        if (isCharmedBy(attackTarget)) {
             GLog.w(Messages.get(Charm.class, "cant_attack"));
             ready();
             return false;
         }
         // 当隐形的怪物被攻击时，先破隐
-        if (canAttack(enemy) && enemy.buff(Invisibility.class) != null) {
-            enemy.buff(Invisibility.class).detach();
+        if (canAttack(attackTarget) && attackTarget.buff(Invisibility.class) != null) {
+            attackTarget.buff(Invisibility.class).detach();
         }
 
-        if (enemy.isAlive() && canAttack(enemy) && enemy.invisible == 0) {
+		if (attackTarget.isAlive() && canAttack(attackTarget) && attackTarget.invisible == 0) {
 
-            if (heroClass != HeroClass.DUELIST
-                    && hasTalent(Talent.AGGRESSIVE_BARRIER)
-                    && buff(Talent.AggressiveBarrierCooldown.class) == null
-                    && (HP / (float) HT) < 0.20f * (1 + pointsInTalent(Talent.AGGRESSIVE_BARRIER))) {
-                Buff.affect(this, Barrier.class).setShield(3);
-                sprite.showStatusWithIcon(CharSprite.POSITIVE, "3", FloatingText.SHIELDING);
-                Buff.affect(this, Talent.AggressiveBarrierCooldown.class, 50f);
+			if (heroClass != HeroClass.DUELIST
+					&& hasTalent(Talent.AGGRESSIVE_BARRIER)
+					&& buff(Talent.AggressiveBarrierCooldown.class) == null
+					&& (HP / (float)HT) <= 0.5f){
+				int shieldAmt = 1 + 2*pointsInTalent(Talent.AGGRESSIVE_BARRIER);
+				Buff.affect(this, Barrier.class).setShield(shieldAmt);
+				sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldAmt), FloatingText.SHIELDING);
+				Buff.affect(this, Talent.AggressiveBarrierCooldown.class, 50f);
 
             }
-            sprite.attack(enemy.pos);
+			//attack target cleared on onAttackComplete
+            sprite.attack(attackTarget.pos);
 
             return false;
 
         } else {
 
-            if (fieldOfView[enemy.pos] && getCloser(enemy.pos)) {
+            if (fieldOfView[attackTarget.pos] && getCloser(attackTarget.pos)) {
 
+				attackTarget = null;
                 return true;
 
             } else {
                 ready();
+				attackTarget = null;
                 return false;
             }
 
         }
     }
 
-    public Char enemy() {
-        return enemy;
+    public Char attackTarget() {
+        return attackTarget;
     }
 
     public void rest(boolean fullRest) {
@@ -2204,7 +2212,7 @@ public class Hero extends Char {
             if (buff(HallowedGround.HallowedFurrowTracker.class
             ) != null) {
                 buff(HallowedGround.HallowedFurrowTracker.class
-                ).countDown(percent * 5f);
+                ).countDown(percent * 100f);
                 if (buff(HallowedGround.HallowedFurrowTracker.class
                 ).count() <= 0) {
                     buff(HallowedGround.HallowedFurrowTracker.class
@@ -2526,26 +2534,24 @@ public class Hero extends Char {
     @Override
     public void onAttackComplete() {
 
-        if (enemy == null) {
+        if (attackTarget == null) {
             curAction = null;
             super.onAttackComplete();
             return;
         }
 
-        AttackIndicator.target(enemy);
-        boolean wasEnemy = enemy.alignment == Alignment.ENEMY
-                || (enemy instanceof Mimic && enemy.alignment == Alignment.NEUTRAL);
+        AttackIndicator.target(attackTarget);
+        boolean wasEnemy = attackTarget.alignment == Alignment.ENEMY
+                || (attackTarget instanceof Mimic && attackTarget.alignment == Alignment.NEUTRAL);
 
-        boolean hit = attack(enemy);
+		boolean hit = attack(attackTarget);
+		
+		Invisibility.dispel();
+		spend( attackDelay() );
 
-        Invisibility.dispel();
-        spend(attackDelay());
-
-        if (hit && subClass == HeroSubClass.GLADIATOR && wasEnemy) {
-            Buff.affect(this, Combo.class
-            ).hit(enemy);
-
-        }
+		if (hit && subClass == HeroSubClass.GLADIATOR && wasEnemy){
+			Buff.affect( this, Combo.class ).hit(attackTarget);
+		}
 
         if (hit && heroClass == HeroClass.DUELIST && wasEnemy) {
             Buff.affect(this, Sai.ComboStrikeTracker.class
@@ -2555,21 +2561,22 @@ public class Hero extends Char {
         // "可怖的戒指" 逻辑
         if (buff(Yogring.class) != null) {
             float threshold = YogRing.killThreshold(this);
-            if (threshold > 0 && ((float) enemy.HP / (float) enemy.HT) < threshold) {
-                if (Random.Float(1) < YogRing.corruptionChance(this) && !enemy.isImmune(Corruption.class)) {
-                    Corruption.corruptionHeal(enemy);
-                    AllyBuff.affectAndLoot((Mob) enemy, this, Corruption.class);
+            if (threshold > 0 && ((float) attackTarget.HP / (float) attackTarget.HT) < threshold) {
+                if (Random.Float(1) < YogRing.corruptionChance(this) && !attackTarget.isImmune(Corruption.class)) {
+                    Corruption.corruptionHeal(attackTarget);
+                    AllyBuff.affectAndLoot((Mob) attackTarget, this, Corruption.class);
 
                 } else {
                     // GLog.p(YogRing.corruptionChance(this) + "");
-                    enemy.damage(enemy.HP, this);
+                    attackTarget.damage(attackTarget.HP, this);
                     // 添加伏击的视觉效果
-                    Wound.hit(enemy);
+                    Wound.hit(attackTarget);
 
                 }
             }
         }
         curAction = null;
+		attackTarget = null;
 
         super.onAttackComplete();
     }

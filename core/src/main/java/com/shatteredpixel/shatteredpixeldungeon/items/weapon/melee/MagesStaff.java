@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -253,20 +253,25 @@ public class MagesStaff extends MeleeWeapon {
         //syncs the level of the two items.
         int targetLevel = Math.max(this.trueLevel(), wand.trueLevel());
 
-        //if the staff's level is being overridden by the wand, preserve 1 upgrade
-        if (wand.trueLevel() >= this.trueLevel() && this.trueLevel() > 0) {
-            targetLevel++;
-        }
+		//if the staff's level is being overridden by the wand, preserve 1 upgrade
+		if (wand.trueLevel() >= this.trueLevel() && this.trueLevel() > 0) targetLevel++;
+		
+		level(targetLevel);
+		this.wand = wand;
+		wand.levelKnown = wand.curChargeKnown = true;
+		updateWand(false);
+		wand.curCharges = Math.min(wand.maxCharges, wand.curCharges+oldStaffcharges);
+		if (owner != null){
+			applyWandChargeBuff(owner);
+ 		} else if (Dungeon.hero.belongings.contains(this)){
+			applyWandChargeBuff(Dungeon.hero);
+		}
 
-        level(targetLevel);
-        this.wand = wand;
-        updateWand(false);
-        wand.curCharges = Math.min(wand.maxCharges, wand.curCharges + oldStaffcharges);
-        if (owner != null) {
-            applyWandChargeBuff(owner);
-        } else if (Dungeon.hero.belongings.contains(this)) {
-            applyWandChargeBuff(Dungeon.hero);
-        }
+		if (wand.cursed && (!this.cursed || !this.hasCurseEnchant())){
+			equipCursed(Dungeon.hero);
+			this.cursed = this.cursedKnown = true;
+			enchant(Enchantment.randomCurse());
+		}
 
         //This is necessary to reset any particles.
         //FIXME this is gross, should implement a better way to fully reset quickslot visuals
@@ -431,17 +436,9 @@ public class MagesStaff extends MeleeWeapon {
             return item instanceof Wand;
         }
 
-        @Override
-        public void onSelect(final Item item) {
-            if (item != null) {
-
-                if (!item.isIdentified()) {
-                    GLog.w(Messages.get(MagesStaff.class, "id_first"));
-                    return;
-                } else if (item.cursed) {
-                    GLog.w(Messages.get(MagesStaff.class, "cursed"));
-                    return;
-                }
+		@Override
+		public void onSelect( final Item item ) {
+			if (item != null) {
 
                 if (wand == null) {
                     applyWand((Wand) item);
@@ -458,13 +455,23 @@ public class MagesStaff extends MeleeWeapon {
                         newLevel = trueLevel();
                     }
 
-                    String bodyText = Messages.get(MagesStaff.class, "imbue_desc", newLevel);
-                    if (Dungeon.hero.hasTalent(Talent.WAND_PRESERVATION)
-                            && Dungeon.hero.buff(Talent.WandPreservationCounter.class) == null) {
-                        bodyText += "\n\n" + Messages.get(MagesStaff.class, "imbue_talent");
-                    } else {
-                        bodyText += "\n\n" + Messages.get(MagesStaff.class, "imbue_lost");
-                    }
+					String bodyText = Messages.get(MagesStaff.class, "imbue_desc");
+					if (item.isIdentified()){
+						bodyText += "\n\n" + Messages.get(MagesStaff.class, "imbue_level", newLevel);
+					} else {
+						bodyText += "\n\n" + Messages.get(MagesStaff.class, "imbue_unknown", trueLevel());
+					}
+
+					if (!item.cursedKnown || item.cursed){
+						bodyText += "\n\n" + Messages.get(MagesStaff.class, "imbue_cursed");
+					}
+
+					if (Dungeon.hero.hasTalent(Talent.WAND_PRESERVATION)
+						&& Dungeon.hero.buff(Talent.WandPreservationCounter.class) == null){
+						bodyText += "\n\n" + Messages.get(MagesStaff.class, "imbue_talent");
+					} else {
+						bodyText += "\n\n" + Messages.get(MagesStaff.class, "imbue_lost");
+					}
 
                     GameScene.show(
                             new WndOptions(new ItemSprite(item),

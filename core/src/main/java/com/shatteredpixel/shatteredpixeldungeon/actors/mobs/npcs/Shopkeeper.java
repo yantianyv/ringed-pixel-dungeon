@@ -3,7 +3,10 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2024 Evan Debenham
+ * Copyright (C) 2014-2025 Evan Debenham
+* 
+ * Ringed Pixel Dungeon
+ * Copyright (C) 2025-2025 yantianyv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +44,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ShopkeeperSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.CurrencyIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
@@ -263,6 +267,7 @@ public class Shopkeeper extends NPC {
                     }
                     i++;
                 }
+				CurrencyIndicator.showGold = true;
                 GameScene.show(new WndOptions(sprite(), Messages.titleCase(name()), description(), options) {
                     @Override
                     protected void onSelect(int index) {
@@ -303,6 +308,12 @@ public class Shopkeeper extends NPC {
                         }
                         return null;
                     }
+
+					@Override
+					public void hide() {
+						super.hide();
+						CurrencyIndicator.showGold = false;
+					}
                 });
             }
         });
