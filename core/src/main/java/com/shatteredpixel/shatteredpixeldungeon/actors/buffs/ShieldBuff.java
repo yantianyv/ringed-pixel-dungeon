@@ -115,7 +115,9 @@ public abstract class ShieldBuff extends Buff {
 			return damage;
 		}
 
+		//获取目标的所有盾牌增益
 		ArrayList<ShieldBuff> buffs = new ArrayList<>(target.buffs(ShieldBuff.class));
+		//如果目标有盾牌增益
 		if (!buffs.isEmpty()){
 			//sort in descending order based on shield use priority
 			Collections.sort(buffs, new Comparator<ShieldBuff>() {
@@ -127,11 +129,6 @@ public abstract class ShieldBuff extends Buff {
 			for (ShieldBuff buff : buffs){
 				if (buff.shielding() <= 0) continue;
 				damage = buff.absorbDamage(damage);
-				if (buff.shielding() <= 0){
-					if (target instanceof Hero && ((Hero) target).hasTalent(Talent.PROVOKED_ANGER)){
-						Buff.affect(target, Talent.ProvokedAngerTracker.class, 5f);
-					}
-				}
 				if (damage == 0) break;
 			}
 		}

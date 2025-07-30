@@ -30,9 +30,7 @@ android {
 
     buildTypes {
         debug {
-            // applicationIdSuffix ".debug"
             applicationIdSuffix ".debug"
-            // versionNameSuffix '-debug'
             versionNameSuffix "-debug_${new Date().format('MMddHHmm')}"
             dependencies {
                 debugImplementation project(':services:updates:debugUpdates')
