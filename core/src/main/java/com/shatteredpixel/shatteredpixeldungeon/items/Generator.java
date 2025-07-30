@@ -579,7 +579,7 @@ public class Generator {
 					EyeOfNewt.class,
 					SaltCube.class,
 					VialOfBlood.class,
-					ShardOfOblivion.class,
+					ShardOfHunger.class,
 					ChaoticCenser.class,
 					FerretTuft.class
 			};
