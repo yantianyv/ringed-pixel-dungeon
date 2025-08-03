@@ -29,9 +29,9 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.SupporterScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 
 public class WndSupportPrompt extends Window {
 
@@ -72,38 +72,36 @@ public class WndSupportPrompt extends Window {
                 WndSupportPrompt.super.hide();
             }
         };
-        link.setRect(0, text.bottom() + 4, width, 18);
+        link.setRect(0, text.bottom() + 4, width, 22);
         add(link);
 
-        RedButton link_ad = new RedButton(Messages.get(SupporterScene.class, "supporter_link")) {
+        RedButton link_ringed = new RedButton(Messages.get(SupporterScene.class, "ringed_link")) {
             @Override
             protected void onClick() {
                 super.onClick();
-                String link = "https://www.123684.com/s/xyGhTd-j0GJH";
-                //tracking codes, so that the website knows where this pageview came from
-                link += "?utm_source=shatteredpd";
-                link += "&utm_medium=supporter_prompt";
-                link += "&utm_campaign=ingame_link";
-                ShatteredPixelDungeon.platform.openURI(link);
+                String link_ringed = "https://qm.qq.com/q/MO8PYNvUyc";
+                ShatteredPixelDungeon.platform.openURI(link_ringed);
                 SPDSettings.supportNagged(true);
                 WndSupportPrompt.super.hide();
             }
         };
-        link.setRect(0, text.bottom() + 4, width, 18);
-        add(link);
+        link_ringed.setRect(0, link.bottom() + 2, width, 22);
+        add(link_ringed);
 
-        RedButton close = new RedButton(Messages.get(this, "close")) {
+        RedButton link_ringed_ad = new RedButton(Messages.get(SupporterScene.class, "ringed_link_ad")) {
             @Override
             protected void onClick() {
                 super.onClick();
+                String link_ringed_ad = "https://www.123684.com/s/xyGhTd-j0GJH";
+                ShatteredPixelDungeon.platform.openURI(link_ringed_ad);
                 SPDSettings.supportNagged(true);
                 WndSupportPrompt.super.hide();
             }
         };
-        close.setRect(0, link.bottom() + 2, width, 18);
-        add(close);
+        link_ringed_ad.setRect(0, link_ringed.bottom() + 2, width, 22);
+        add(link_ringed_ad);
 
-        resize(width, (int) close.bottom());
+        resize(width, (int) link_ringed_ad.bottom());
 
     }
 
