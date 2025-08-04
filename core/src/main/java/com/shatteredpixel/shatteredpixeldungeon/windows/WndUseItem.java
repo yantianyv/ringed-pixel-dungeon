@@ -107,9 +107,7 @@ public class WndUseItem extends WndInfoItem {
 					protected void onClick() {
 						// 打开链接
 						switch (item.ad_mod) {
-							case "wechat":	// 微信打开
-								ShatteredPixelDungeon.platform.openURI("weixin://" + item.ad_url);
-								break;
+							case "default":
 							default:		// 默认浏览器打开
 								ShatteredPixelDungeon.platform.openURI(item.ad_url);
 						}
