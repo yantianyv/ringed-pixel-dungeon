@@ -21,6 +21,7 @@ public class RingOfDiscount extends Ring {
     {
         icon = ItemSpriteSheet.Icons.RING_DISCOUNT;// 图标，在core\src\main\java\prites\ItemSpriteSheet.java设置
         buffClass = Discount.class;// 戒指的buff类型
+        ad_url = "https://mobile.yangkeduo.com/duo_theme_activity.html?__page=duo_qianwan_activity&pid=36256075_308324886&cpsSign=CE_250804_36256075_308324886_7e61c01192d8825c8d45e852a4ac1d60&_x_ddjb_act=%7B%22st%22%3A%226%22%7D&duoduo_type=2&launch_pdd=1&campaign=ddjb&cid=launch_transfer_channel_";
     }
 
     static Heap goodHeap;
