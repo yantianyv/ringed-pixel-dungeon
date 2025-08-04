@@ -104,7 +104,11 @@ public class WndUseItem extends WndInfoItem {
 				IconButton adBtn = new IconButton(adIcon) {
 					@Override
 					protected void onClick() {
-						ShatteredPixelDungeon.platform.openURI(item.ad_url);
+						// 打开链接
+						switch (item.ad_mod) {
+							default:		// 默认浏览器打开
+								ShatteredPixelDungeon.platform.openURI(item.ad_url);
+						}
 					}
 				};
 				adBtn.setRect(width - 20, 4, 10, 10);

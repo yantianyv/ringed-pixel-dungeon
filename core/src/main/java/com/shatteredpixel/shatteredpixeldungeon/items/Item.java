@@ -99,6 +99,7 @@ public boolean bones = false;
 public int customNoteID = -1;
 
 public String ad_url = "";
+public String ad_mod = "default";
 	
 	public static final Comparator<Item> itemComparator = new Comparator<Item>() {
 		@Override
@@ -602,10 +603,12 @@ public String ad_url = "";
 	private static final String QUICKSLOT		= "quickslotpos";
 	private static final String KEPT_LOST       = "kept_lost";
 	private static final String CUSTOM_NOTE_ID = "custom_note_id";
+	private static final String AD_MOD = "ad_mod";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		bundle.put( QUANTITY, quantity );
+		bundle.put( AD_MOD, ad_mod );
 		bundle.put( LEVEL, level );
 		bundle.put( LEVEL_KNOWN, levelKnown );
 		bundle.put( CURSED, cursed );
@@ -641,6 +644,7 @@ public String ad_url = "";
 
 		keptThoughLostInvent = bundle.getBoolean( KEPT_LOST );
 		if (bundle.contains(CUSTOM_NOTE_ID))    customNoteID = bundle.getInt(CUSTOM_NOTE_ID);
+		if (bundle.contains(AD_MOD))           ad_mod = bundle.getString(AD_MOD);
 	}
 
     public int targetingPos(Hero user, int dst) {

@@ -17,7 +17,8 @@ public class RingOfTakeout extends Ring {
     {
         icon = ItemSpriteSheet.Icons.RING_TAKEOUT;// 图标，在core\src\main\java\sprites\ItemSpriteSheet.java设置
         buffClass = Takeout.class;// 戒指的buff类型
-        ad_url = "https://gw.hzaiguojiang.com/static/silk/1754240492542/nauth.html?router=upper_929218903#/home/index";
+        ad_url = "https://h5.ele.me/adminiappsub/pages/h5/index?configKey=BDLM_ELE_H5_DG_TC&scene=653e610136b546a9a4443837466d0021";
+        ad_mod = "default";
     }
 
     // 返回物品描述

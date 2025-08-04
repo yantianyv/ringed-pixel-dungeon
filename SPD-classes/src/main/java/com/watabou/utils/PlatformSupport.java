@@ -60,6 +60,10 @@ public abstract class PlatformSupport {
 		return Gdx.net.openURI( uri );
 	}
 
+	public void copyToClipboard( String text ){
+		Gdx.app.getClipboard().setContents(text);
+	}
+
 	public void setOnscreenKeyboardVisible(boolean value){
 		Gdx.input.setOnscreenKeyboardVisible(value);
 	}
