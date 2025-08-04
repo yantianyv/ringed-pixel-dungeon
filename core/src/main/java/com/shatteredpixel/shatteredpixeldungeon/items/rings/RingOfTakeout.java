@@ -17,7 +17,7 @@ public class RingOfTakeout extends Ring {
     {
         icon = ItemSpriteSheet.Icons.RING_TAKEOUT;// 图标，在core\src\main\java\sprites\ItemSpriteSheet.java设置
         buffClass = Takeout.class;// 戒指的buff类型
-        ad_url = "https://h5.ele.me/adminiappsub/pages/h5/index?configKey=BDLM_ELE_H5_DG_TC&scene=653e610136b546a9a4443837466d0021";
+        ad_url = "eleme://miniapp?bc_fl_src=locallife_wtzt_0-0-ADGROUPID-__REQID__-2&url=https%3A%2F%2Fm.duanqu.com%3F_ariver_appid%3D2021004131606232%26page%3Dpages%252Ftaoke-guide%252Findex%253Fscene%253D653e610136b546a9a4443837466d0021%2526o2i_1st_clk%253D__CLICK_ID__";
         ad_mod = "default";
     }
 
@@ -105,15 +105,15 @@ public class RingOfTakeout extends Ring {
 
         @Override
         public boolean act() {
-            // 触发拼好饭之戒
+            // 触发膨胀神券之戒
             if (Math.random() < RingOfTakeout.takeoutChance(target) * efficiency() * (1f - takeout_cooldown) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
                 efficiency(0.95f * efficiency);
                 takeout_cooldown = 1f;
-                // 拼好饭戒指的进餐逻辑
+                // 膨胀神券戒指的进餐逻辑
                 if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 3) {
-                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(25f + 1.5f * RingOfTakeout.eatEffectSatiety(target));
+                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(15 + 1.5f * RingOfTakeout.eatEffectSatiety(target));
                 } else {
-                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(20f + 1f * RingOfTakeout.eatEffectSatiety(target));
+                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(10 + 1f * RingOfTakeout.eatEffectSatiety(target));
 
                 }
                 Talent.onFoodEaten(hero, RingOfTakeout.eatEffectSatiety(target), null);

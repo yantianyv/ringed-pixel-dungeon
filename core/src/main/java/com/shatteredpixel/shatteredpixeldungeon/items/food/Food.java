@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
@@ -131,9 +132,11 @@ public class Food extends Item {
 
         if (hero.buff(RingOfTakeout.Takeout.class) != null) {
             if (RingOfTakeout.takeoutChance(hero) < 0) {
-                // 诅咒的拼好饭戒指会造成中毒效果
-                Buff.affect(hero, Poison.class).set((-RingOfTakeout.takeoutChance(hero)) * foodVal + 1);
-                GLog.n(Messages.get(Hunger.class, "takeoutpoison"));
+                // 诅咒的膨胀神券戒指会造成stun效果
+                Buff.affect(hero, Paralysis.class, -RingOfTakeout.takeoutChance(hero) * foodVal + 1);
+                GLog.n(Messages.get(Hunger.class, "takeoutparalysis"));
+            } else {
+                foodVal *= 1+(RingOfTakeout.takeoutChance(hero)/2);
             }
         }
 

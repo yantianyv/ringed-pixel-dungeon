@@ -34,13 +34,16 @@ import com.watabou.utils.Random;
 
 public class Paralysis extends FlavourBuff {
 
+	// 晕眩效果的持续时间
 	public static final float DURATION	= 10f;
 
+	// 设置buff类型为负面效果，并且被宣布
 	{
 		type = buffType.NEGATIVE;
 		announced = true;
 	}
 	
+	// 将buff附加到目标上
 	@Override
 	public boolean attachTo( Char target ) {
 		if (super.attachTo( target )) {
@@ -51,6 +54,7 @@ public class Paralysis extends FlavourBuff {
 		}
 	}
 	
+	// 处理伤害
 	public void processDamage( int damage ){
 		if (target == null) return;
 		ParalysisResist resist = target.buff(ParalysisResist.class);
@@ -66,6 +70,7 @@ public class Paralysis extends FlavourBuff {
 		}
 	}
 	
+	// 从目标上移除buff
 	@Override
 	public void detach() {
 		super.detach();
@@ -73,30 +78,37 @@ public class Paralysis extends FlavourBuff {
 			target.paralysed--;
 	}
 	
+	// 返回buff的图标
 	@Override
 	public int icon() {
 		return BuffIndicator.PARALYSIS;
 	}
 
+	// 返回buff的图标透明度
 	@Override
 	public float iconFadePercent() {
 		return Math.max(0, (DURATION - visualcooldown()) / DURATION);
 	}
 
+	// 添加或移除buff的视觉效果
 	@Override
 	public void fx(boolean on) {
 		if (on)                         target.sprite.add(CharSprite.State.PARALYSED);
 		else if (target.paralysed <= 1) target.sprite.remove(CharSprite.State.PARALYSED);
 	}
 
+	// 晕眩抵抗buff
 	public static class ParalysisResist extends Buff {
 		
+		// 设置buff类型为正面效果
 		{
 			type = buffType.POSITIVE;
 		}
 		
+		// 记录伤害值
 		private int damage;
 		
+		// 每个回合减少伤害值，并检查是否需要移除buff
 		@Override
 		public boolean act() {
 			if (target.buff(Paralysis.class) == null) {
