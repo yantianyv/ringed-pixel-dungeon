@@ -1145,11 +1145,11 @@ public enum Talent {
 			hero.buff(ProvokedAngerTracker.class).detach();
 		}
 
-		if (hero.hasTalent(Talent.LINGERING_MAGIC)
-				&& hero.buff(LingeringMagicTracker.class) != null){
-			dmg += Random.IntRange(hero.pointsInTalent(Talent.LINGERING_MAGIC) , 2);
-			hero.buff(LingeringMagicTracker.class).detach();
-		}
+        if (hero.hasTalent(Talent.LINGERING_MAGIC)
+                && hero.buff(LingeringMagicTracker.class) != null) {
+            dmg *= ElementBuff.apply(ElementBuff.randomElement(), Dungeon.hero, enemy,
+                    hero.pointsInTalent(Talent.LINGERING_MAGIC) + 1);
+        }
 
         if (hero.hasTalent(Talent.SUCKER_PUNCH)
                 && enemy instanceof Mob && ((Mob) enemy).surprisedBy(hero)

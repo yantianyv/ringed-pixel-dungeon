@@ -79,6 +79,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Regeneration;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.TimeStasis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.WandEmpower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Challenge;
@@ -1651,9 +1652,15 @@ public class Hero extends Char {
             interrupt();
         }
 
-        //如果伤害来自元素增益，并且玩家拥有纳希塔戒指，则减少伤害
-        if (src instanceof ElementBuff && buff(RingOfNahida.Nahida.class) != null) {
-            dmg /= RingOfNahida.elementalMastery(Dungeon.hero);
+        // 计算元素反应的伤害
+        if (src instanceof ElementBuff) {
+            // 纳西妲之戒的减伤
+            if (buff(RingOfNahida.Nahida.class) != null) {
+                dmg /= RingOfNahida.elementalMastery(Dungeon.hero);
+            }
+            if (buff(WandEmpower.class) != null) {
+                dmg /= 0.1;
+            }
         }
 
         //如果玩家拥有昏睡状态，则解除昏睡状态，并显示提示信息
