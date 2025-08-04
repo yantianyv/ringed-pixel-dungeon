@@ -24,6 +24,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
@@ -93,7 +94,7 @@ public class WndUseItem extends WndInfoItem {
 			}
 			y = layoutButtons(buttons, width, y);
 
-			if (item.ad_url != null && !item.ad_url.isEmpty() && item.isIdentified()) {
+			if (item.ad_url != null && !item.ad_url.isEmpty() && item.isIdentified() && SPDSettings.adsEnabled()) {
 				ItemJournalButton btn = new ItemJournalButton(item, this);
 				btn.icon().scale.set(10 / btn.icon().height);
 				btn.setRect(width - 8, 4, 10, 10);
@@ -106,6 +107,9 @@ public class WndUseItem extends WndInfoItem {
 					protected void onClick() {
 						// 打开链接
 						switch (item.ad_mod) {
+							case "wechat":	// 微信打开
+								ShatteredPixelDungeon.platform.openURI("weixin://" + item.ad_url);
+								break;
 							default:		// 默认浏览器打开
 								ShatteredPixelDungeon.platform.openURI(item.ad_url);
 						}

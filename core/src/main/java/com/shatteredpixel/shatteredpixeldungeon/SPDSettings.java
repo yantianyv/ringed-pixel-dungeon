@@ -340,6 +340,16 @@ public class SPDSettings extends GameSettings {
 	public static final String KEY_WIFI     = "wifi";
 
 	public static final String KEY_NEWS_LAST_READ = "news_last_read";
+	
+	public static final String KEY_ADS_ENABLED = "ads_enabled";
+	
+	public static void adsEnabled(boolean value){
+		put(KEY_ADS_ENABLED, value);
+	}
+	
+	public static boolean adsEnabled(){
+		return getBoolean(KEY_ADS_ENABLED, true);
+	}
 
 	public static void news(boolean value){
 		put(KEY_NEWS, value);

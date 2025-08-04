@@ -114,7 +114,6 @@ public class RingOfTakeout extends Ring {
                     Buff.affect(Dungeon.hero, Hunger.class).satisfy(15 + 1.5f * RingOfTakeout.eatEffectSatiety(target));
                 } else {
                     Buff.affect(Dungeon.hero, Hunger.class).satisfy(10 + 1f * RingOfTakeout.eatEffectSatiety(target));
-
                 }
                 Talent.onFoodEaten(hero, RingOfTakeout.eatEffectSatiety(target), null);
                 spend(TICK);
