@@ -94,9 +94,11 @@ public class Item implements Bundlable {
     public boolean keptThoughLostInvent = false;
 
 	// whether an item can be included in heroes remains
-	public boolean bones = false;
+public boolean bones = false;
 
-	public int customNoteID = -1;
+public int customNoteID = -1;
+
+public String ad_url = "";
 	
 	public static final Comparator<Item> itemComparator = new Comparator<Item>() {
 		@Override

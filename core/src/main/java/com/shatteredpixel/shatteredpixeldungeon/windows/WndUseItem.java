@@ -25,10 +25,14 @@
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.ui.InventoryPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ItemJournalButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
 import java.util.ArrayList;
@@ -42,25 +46,33 @@ public class WndUseItem extends WndInfoItem {
 	public Window owner;
 	public Item item;
 
-	public WndUseItem( final Window owner, final Item item ) {
-		
+	public WndUseItem(final Window owner, final Item item) {
+
+		// 调用父类构造函数
 		super(item);
 
+		// 保存传入的owner和item
 		this.owner = owner;
 		this.item = item;
 
+		// 初始化y的值
 		float y = height;
-		
+
+		// 如果英雄存活并且拥有该物品
 		if (Dungeon.hero.isAlive() && Dungeon.hero.belongings.contains(item)) {
+			// 增加y的值
 			y += GAP;
+			// 创建一个按钮列表
 			ArrayList<RedButton> buttons = new ArrayList<>();
+			// 遍历物品的动作
 			for (final String action : item.actions(Dungeon.hero)) {
 
 				RedButton btn = new RedButton(item.actionName(action, Dungeon.hero), 8) {
 					@Override
 					protected void onClick() {
 						hide();
-						if (owner != null && owner.parent != null) owner.hide();
+						if (owner != null && owner.parent != null)
+							owner.hide();
 						if (Dungeon.hero.isAlive() && Dungeon.hero.belongings.contains(item)) {
 							item.execute(Dungeon.hero, action);
 						}
@@ -81,29 +93,59 @@ public class WndUseItem extends WndInfoItem {
 			}
 			y = layoutButtons(buttons, width, y);
 
-			ItemJournalButton btn = new ItemJournalButton(item, this);
-			btn.setRect(width - 16, 0, 16, 16);
-			add(btn);
+			if (item.ad_url != null && !item.ad_url.isEmpty() && item.isIdentified()) {
+				ItemJournalButton btn = new ItemJournalButton(item, this);
+				btn.icon().scale.set(10 / btn.icon().height);
+				btn.setRect(width - 8, 4, 10, 10);
+				add(btn);
+
+				ItemSprite adIcon = new ItemSprite(ItemSpriteSheet.GOLD);
+				adIcon.scale.set(8/adIcon.height);
+				IconButton adBtn = new IconButton(adIcon) {
+					@Override
+					protected void onClick() {
+						ShatteredPixelDungeon.platform.openURI(item.ad_url);
+					}
+				};
+				adBtn.setRect(width - 20, 4, 10, 10);
+				add(adBtn);
+			} else {
+				ItemJournalButton btn = new ItemJournalButton(item, this);
+				btn.setRect(width - 16, 0, 16, 16);
+				add(btn);
+			}
 		}
 
-		resize( width, (int)(y) );
+		resize(width, (int) (y));
 	}
 
 	private static float layoutButtons(ArrayList<RedButton> buttons, float width, float y){
+		//创建一个当前行的按钮列表
 		ArrayList<RedButton> curRow = new ArrayList<>();
+		//当前行的宽度
 		float widthLeftThisRow = width;
 		
+		//当按钮列表不为空时，循环
 		while( !buttons.isEmpty() ){
+			//获取按钮列表中的第一个按钮
 			RedButton btn = buttons.get(0);
 			
+			//当前行的宽度减去按钮的宽度
 			widthLeftThisRow -= btn.width();
+			//如果当前行按钮列表为空
 			if (curRow.isEmpty()) {
+				//将按钮添加到当前行按钮列表中
 				curRow.add(btn);
+				//从按钮列表中移除该按钮
 				buttons.remove(btn);
 			} else {
+				//当前行的宽度减去1
 				widthLeftThisRow -= 1;
+				//如果当前行的宽度大于等于0
 				if (widthLeftThisRow >= 0) {
+					//将按钮添加到当前行按钮列表中
 					curRow.add(btn);
+					//从按钮列表中移除该按钮
 					buttons.remove(btn);
 				}
 			}

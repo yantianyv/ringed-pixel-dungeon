@@ -30,12 +30,16 @@ import com.watabou.utils.PointF;
 
 public class Visual extends Gizmo {
 
+	//位置
 	public float x;
 	public float y;
+	//宽高
 	public float width;
 	public float height;
 	
+	//缩放
 	public PointF scale;
+	//原点
 	public PointF origin;
 	
 	protected float[] matrix;
