@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -540,7 +541,7 @@ public String ad_mod = "default";
 			Notes.CustomRecord note = Notes.findCustomRecord(customNoteID);
 			if (note != null) {
 				//we swap underscore(0x5F) with low macron(0x2CD) here to avoid highlighting in the item window
-				return Messages.get(this, "custom_note", note.title().replace('_', 'ˍ')) + "\n\n" + desc();
+				return Messages.get(this, "custom_note", note.title().replace('_', 'ˍ')) + "\n\n" + desc() ;
 			} else {
 				note = Notes.findCustomRecord(getClass());
 				if (note != null) {
@@ -554,6 +555,9 @@ public String ad_mod = "default";
     }
 
     public String desc() {
+        if (this.isIdentified()&& this.ad_url != null && SPDSettings.adIntensity() > 1) {
+            return Messages.get(this, "desc")+"\n\n"+Messages.get(this, "ad_desc");
+        }
         return Messages.get(this, "desc");
     }
 

@@ -341,14 +341,14 @@ public class SPDSettings extends GameSettings {
 
 	public static final String KEY_NEWS_LAST_READ = "news_last_read";
 	
-	public static final String KEY_ADS_ENABLED = "ads_enabled";
+	public static final String KEY_AD_INTENSITY = "ad_intensity";
 	
-	public static void adsEnabled(boolean value){
-		put(KEY_ADS_ENABLED, value);
+	public static void adIntensity(int value) {
+		put(KEY_AD_INTENSITY, value);
 	}
 	
-	public static boolean adsEnabled(){
-		return getBoolean(KEY_ADS_ENABLED, true);
+	public static int adIntensity() {
+		return getInt(KEY_AD_INTENSITY, 2, 0, 2); // 0=关, 1=精简, 2=详细
 	}
 
 	public static void news(boolean value){

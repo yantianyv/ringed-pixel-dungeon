@@ -937,17 +937,19 @@ public class WndSettings extends WndTabbed {
                 pos = chkWifi.bottom();
             }
 
-            CheckBox chkAds = new CheckBox(Messages.get(this, "ads_enabled")) {
+            OptionSlider optAdIntensity = new OptionSlider(Messages.get(this, "ads_intensity"),
+                    Messages.get(this, "ads_off"), 
+                    Messages.get(this, "ads_full"),
+                    0, 2) {
                 @Override
-                protected void onClick() {
-                    super.onClick();
-                    SPDSettings.adsEnabled(checked());
+                protected void onChange() {
+                    SPDSettings.adIntensity(getSelectedValue());
                 }
             };
-            chkAds.checked(SPDSettings.adsEnabled());
-            add(chkAds);
-            chkAds.setRect(0, pos + GAP, width, BTN_HEIGHT);
-            pos = chkAds.bottom();
+            optAdIntensity.setSelectedValue(SPDSettings.adIntensity());
+            add(optAdIntensity);
+            optAdIntensity.setRect(0, pos + GAP, width, SLIDER_HEIGHT);
+            pos = optAdIntensity.bottom();
 
             height = pos;
 
