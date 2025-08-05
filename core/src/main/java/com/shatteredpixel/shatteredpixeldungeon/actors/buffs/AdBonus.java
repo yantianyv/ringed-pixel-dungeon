@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.utils.Bundle;
@@ -18,6 +19,9 @@ public class AdBonus extends Buff {
 
     @Override
     public int icon() {
+        if (type == AdType.COOLDOWN && SPDSettings.adIntensity() < 2) {
+            return BuffIndicator.NONE;
+        }
         return type == AdType.COOLDOWN ? BuffIndicator.TIME : BuffIndicator.BLESS;
     }
 
@@ -37,7 +41,7 @@ public class AdBonus extends Buff {
     @Override
     public float iconFadePercent() {
         if (type == AdType.COOLDOWN) {
-            return Math.max(0, cooldownTurns / 10000f);
+            return Math.max(0, cooldownTurns / 3000f);
         }
         return 0;
     }
@@ -55,14 +59,14 @@ public class AdBonus extends Buff {
     }
 
     public float visualcooldown() {
-        return type == AdType.COOLDOWN ? (10000 - cooldownTurns) : 0;
+        return type == AdType.COOLDOWN ? (3000 - cooldownTurns) : 0;
     }
 
     @Override
     public boolean act() {
         if (type == AdType.COOLDOWN) {
             cooldownTurns++;
-            if (cooldownTurns >= 10000) {
+            if (cooldownTurns >= 3000) {
                 detach();
             }
         }
