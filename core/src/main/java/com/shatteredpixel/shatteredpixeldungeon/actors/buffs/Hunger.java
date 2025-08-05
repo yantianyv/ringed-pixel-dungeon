@@ -136,12 +136,18 @@ public class Hunger extends Buff implements Hero.Doom {
         return true;
     }
 
+    // 满足方法，传入能量参数
     public void satisfy(float energy) {
+        // 调用影响饥饿方法，传入能量参数和布尔值false
         affectHunger(energy, false);
     }
 
     public void affectHunger(float energy) {
         affectHunger(energy, false);
+    }
+
+    public void setHunger(float level){
+        this.level = level;
     }
 
     public float full() {
@@ -152,24 +158,33 @@ public class Hunger extends Buff implements Hero.Doom {
         }
     }
 
+    // affectHunger函数用于影响目标的饥饿值
     public void affectHunger(float energy, boolean overrideLimits) {
 
+        // 如果energy小于0且目标有WellFed类buff，则将buff的left属性加上energy
         if (energy < 0 && target.buff(WellFed.class) != null) {
             target.buff(WellFed.class).left += energy;
             BuffIndicator.refreshHero();
             return;
         }
 
+        // 保存旧等级
         float oldLevel = level;
 
+        // 减少等级
         level -= energy;
+        // 如果等级小于-10e30f，则将其设为-10e30f
         level = level < -10e30f ? -10e30f : level;
 
+        // 获取最大饥饿值
         float maxfull = ShardOfHunger.extraHunger();
+        // 如果目标选择了Mukbanger子类，则跳过以下代码
         if (Dungeon.hero.subClass == HeroSubClass.MUKBANGER) {
             // pass
+        // 如果等级小于最大饥饿值且不覆盖限制，则将等级设为最大饥饿值
         } else if (level < -maxfull && !overrideLimits) {
             level = -ShardOfHunger.extraHunger();
+        // 如果等级大于STARVING，则计算超出部分并造成伤害
         } else if (level > STARVING) {
             float excess = level - STARVING;
             level = STARVING;
@@ -180,13 +195,16 @@ public class Hunger extends Buff implements Hero.Doom {
             }
         }
 
+        // 如果旧等级小于HUNGRY且当前等级大于等于HUNGRY，则显示警告信息
         if (oldLevel < HUNGRY && level >= HUNGRY) {
             GLog.w(Messages.get(this, "onhungry"));
+        // 如果旧等级小于STARVING且当前等级大于等于STARVING，则显示警告信息并造成伤害
         } else if (oldLevel < STARVING && level >= STARVING) {
             GLog.n(Messages.get(this, "onstarving"));
             target.damage(1, this);
         }
 
+        // 刷新Buff指示器
         BuffIndicator.refreshHero();
     }
 

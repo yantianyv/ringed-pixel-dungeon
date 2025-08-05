@@ -4,11 +4,14 @@ import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import static com.shatteredpixel.shatteredpixeldungeon.Dungeon.hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdBonus;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdBonus.AdType;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.utils.Bundle;
 
 public class RingOfTakeout extends Ring {
@@ -57,6 +60,13 @@ public class RingOfTakeout extends Ring {
     public String desc() {
         String ascension = "";
         return (isKnown() ? super.desc() : Messages.get(this, "unknown_desc")) + ascension;
+    }
+
+    @Override
+    public void onAdClick() {
+        // 添加AdBonus的buff并把type设置成TAKEOUT
+        Buff.affect(Dungeon.hero, AdBonus.class).setType(AdType.TAKEOUT);
+        BuffIndicator.refreshHero();
     }
 
     public static float takeoutChance(Char target) {// 触发进食的几率

@@ -486,9 +486,13 @@ public String ad_mod = "default";
         return this;
     }
 
-    public void onHeroGainExp(float levelPercent, Hero hero) {
-        //do nothing by default
-    }
+	public void onHeroGainExp(float levelPercent, Hero hero) {
+		//do nothing by default
+	}
+
+	public void onAdClick() {
+		// default empty implementation, can be overridden by subclasses
+	}
 
     public static void evoke(Hero hero) {
         hero.sprite.emitter().burst(Speck.factory(Speck.EVOKE), 5);

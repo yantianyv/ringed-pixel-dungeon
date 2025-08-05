@@ -24,6 +24,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
@@ -94,17 +95,37 @@ public class WndUseItem extends WndInfoItem {
 			}
 			y = layoutButtons(buttons, width, y);
 
+			// 如果物品有广告链接
 			if (item.ad_url != null && !item.ad_url.isEmpty() && item.isIdentified() && SPDSettings.adsEnabled()) {
 				ItemJournalButton btn = new ItemJournalButton(item, this);
 				btn.icon().scale.set(10 / btn.icon().height);
 				btn.setRect(width - 8, 4, 10, 10);
 				add(btn);
 
+				// 创建广告图标
 				ItemSprite adIcon = new ItemSprite(ItemSpriteSheet.GOLD);
 				adIcon.scale.set(8/adIcon.height);
 				IconButton adBtn = new IconButton(adIcon) {
 					@Override
 					protected void onClick() {
+						// 记录打开时间并设置8秒超时检测
+						final long openTime = System.currentTimeMillis();
+						Actor.add(new Actor() {
+							{
+								actPriority = VFX_PRIO; // 视觉效果优先级
+								spend(8f); // 设置8秒延迟
+							}
+							
+							@Override
+							protected boolean act() {
+								if (System.currentTimeMillis() - openTime >= 8000) {
+									item.onAdClick();
+								}
+								Actor.remove(this);
+								return true;
+							}
+						});
+						
 						// 打开链接
 						switch (item.ad_mod) {
 							case "default":
@@ -116,6 +137,7 @@ public class WndUseItem extends WndInfoItem {
 				adBtn.setRect(width - 20, 4, 10, 10);
 				add(adBtn);
 			} else {
+				// 创建普通的物品日志按钮
 				ItemJournalButton btn = new ItemJournalButton(item, this);
 				btn.setRect(width - 16, 0, 16, 16);
 				add(btn);

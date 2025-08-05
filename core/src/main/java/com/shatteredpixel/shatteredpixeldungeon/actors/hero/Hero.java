@@ -42,6 +42,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.SacrificialFire;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdBonus;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdrenalineSurge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AllyBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArtifactRecharge;
@@ -76,10 +77,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PhysicalEmpower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Regeneration;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ShieldBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.TimeStasis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.WandEmpower;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdBonus.AdType;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Challenge;
@@ -2365,6 +2368,16 @@ public class Hero extends Char {
 
         if (ankh != null) {
             interrupt();
+            // 饿了么广告复活
+            if (buff(AdBonus.class) != null && buff(AdBonus.class).getType() == AdType.TAKEOUT) {
+                this.HP = 1;
+                float hunger = Hunger.STARVING-this.buff(Hunger.class).hunger();
+                // 添加一个数值为(HT * hunger / Hunger.STARVING)的护盾
+                Buff.affect(this, ShieldBuff.class).setShield((int) (this.HT * hunger / Hunger.STARVING));
+                // 将饥饿值设置为Hunger.STARVING
+                this.buff(Hunger.class).setHunger(Hunger.STARVING);
+                return;
+            }
 
             if (ankh.isBlessed()) {
                 this.HP = HT / 4;
