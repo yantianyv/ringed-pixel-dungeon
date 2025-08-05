@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTakeout;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfHunger;
@@ -103,7 +104,10 @@ public class Hunger extends Buff implements Hero.Doom {
                 if (newLevel >= STARVING) {
 
                     GLog.n(Messages.get(this, "onstarving"));
-                    hero.damage(1, this);
+                    // 如果装备了膨胀神券之戒，则免去进入饥饿时的伤害
+                    if (hero.buff(RingOfTakeout.Takeout.class) == null) {
+                        hero.damage(1, this);
+                    }
 
                     hero.interrupt();
                     newLevel = STARVING;
