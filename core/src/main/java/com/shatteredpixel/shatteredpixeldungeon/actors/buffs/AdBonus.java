@@ -37,7 +37,7 @@ public class AdBonus extends Buff {
     @Override
     public float iconFadePercent() {
         if (type == AdType.COOLDOWN) {
-            return Math.max(0, cooldownTurns / 1000f);
+            return Math.max(0, cooldownTurns / 10000f);
         }
         return 0;
     }
@@ -55,16 +55,15 @@ public class AdBonus extends Buff {
     }
 
     public float visualcooldown() {
-        return type == AdType.COOLDOWN ? (1000 - cooldownTurns) : 0;
+        return type == AdType.COOLDOWN ? (10000 - cooldownTurns) : 0;
     }
 
     @Override
     public boolean act() {
         if (type == AdType.COOLDOWN) {
             cooldownTurns++;
-            if (cooldownTurns >= 1000) {
+            if (cooldownTurns >= 10000) {
                 detach();
-                return false;
             }
         }
         spend(TICK);
