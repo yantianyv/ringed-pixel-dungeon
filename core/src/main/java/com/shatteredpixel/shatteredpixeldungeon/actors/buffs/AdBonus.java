@@ -1,6 +1,5 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.utils.Bundle;
@@ -19,7 +18,7 @@ public class AdBonus extends Buff {
 
     @Override
     public int icon() {
-        return BuffIndicator.BLESS;
+        return type == AdType.COOLDOWN ? BuffIndicator.TIME : BuffIndicator.BLESS;
     }
 
     @Override
@@ -29,7 +28,34 @@ public class AdBonus extends Buff {
 
     @Override
     public String desc() {
-        return Messages.get(this, "desc_" + type.name().toLowerCase());
+        if (type == AdType.COOLDOWN) {
+            return Messages.get(this, "desc_cooldown", dispTurns(visualcooldown()));
+        }
+        return Messages.get(this, "desc_takeout");
+    }
+
+    @Override
+    public float iconFadePercent() {
+        if (type == AdType.COOLDOWN) {
+            return Math.max(0, cooldownTurns / 1000f);
+        }
+        return 0;
+    }
+
+    @Override
+    public String iconTextDisplay() {
+        if (type == AdType.COOLDOWN) {
+            return Integer.toString((int)visualcooldown());
+        }
+        return super.iconTextDisplay();
+    }
+
+    public String dispTurns() {
+        return dispTurns(visualcooldown());
+    }
+
+    public float visualcooldown() {
+        return type == AdType.COOLDOWN ? (1000 - cooldownTurns) : 0;
     }
 
     @Override
