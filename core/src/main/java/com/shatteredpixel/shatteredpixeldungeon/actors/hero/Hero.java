@@ -1002,14 +1002,21 @@ public class Hero extends Char {
         GameScene.ready();
     }
 
+    // 中断当前动作
     public void interrupt() {
+        // 如果当前线程正在运行，并且当前动作不为空
         if (isAlive() && curAction != null
+                // 并且当前动作是移动动作且目标位置不等于当前位置，或者当前动作是等级转换动作
                 && ((curAction instanceof HeroAction.Move && curAction.dst != pos)
                 || (curAction instanceof HeroAction.LvlTransition))) {
+            // 将当前动作保存到上一个动作
             lastAction = curAction;
         }
+        // 将当前动作置为空
         curAction = null;
+        // 重置按键保持
         GameScene.resetKeyHold();
+        // 将休息状态置为false
         resting = false;
     }
 
@@ -2366,19 +2373,35 @@ public class Hero extends Char {
             }
         }
 
-        if (ankh != null) {
+        // 饿了么广告复活
+        if (buff(AdBonus.class) != null && buff(AdBonus.class).getType() == AdType.TAKEOUT) {
             interrupt();
-            // 饿了么广告复活
-            if (buff(AdBonus.class) != null && buff(AdBonus.class).getType() == AdType.TAKEOUT) {
-                this.HP = 1;
-                float hunger = Hunger.STARVING-this.buff(Hunger.class).hunger();
+            this.HP = 2;
+            SpellSprite.show(this, SpellSprite.ANKH);
+            GameScene.flash(0x80FFFF40);
+            Sample.INSTANCE.play(Assets.Sounds.TELEPORT);
+            GLog.w(Messages.get(this, "revive_ele"));
+            // 只有当没有开启任何挑战，或者开启了任意作弊时才会生效
+            if (Challenges.activeChallenges() == 0 || Cheat.activeCheat() != 0) {
+                float hunger = Hunger.STARVING - this.buff(Hunger.class).hunger();
                 // 添加一个数值为(HT * hunger / Hunger.STARVING)的护盾
-                Buff.affect(this, ShieldBuff.class).setShield((int) (this.HT * hunger / Hunger.STARVING));
+                int shield = (int) (this.HT * hunger / Hunger.STARVING);
+                shield = shield < 0 ? 0 : shield;
+                Buff.affect(this, Barrier.class).setShield(shield);
                 // 将饥饿值设置为Hunger.STARVING
                 this.buff(Hunger.class).setHunger(Hunger.STARVING);
-                return;
             }
+            buff(AdBonus.class).detach();
+            for (Char ch : Actor.chars()) {
+                if (ch instanceof DriedRose.GhostHero) {
+                    ((DriedRose.GhostHero) ch).sayAnhk();
+                }
+            }
+            return;
+        }
 
+        if (ankh != null) {
+            interrupt();
             if (ankh.isBlessed()) {
                 this.HP = HT / 4;
 
@@ -2402,10 +2425,11 @@ public class Hero extends Char {
                 }
             } else {
 
-                //this is hacky, basically we want to declare that a wndResurrect exists before
-                //it actually gets created. This is important so that the game knows to not
-                //delete the run or submit it to rankings, because a WndResurrect is about to exist
-                //this is needed because the actual creation of the window is delayed here
+                // this is hacky, basically we want to declare that a wndResurrect exists before
+                // it actually gets created. This is important so that the game knows to not
+                // delete the run or submit it to rankings, because a WndResurrect is about to
+                // exist
+                // this is needed because the actual creation of the window is delayed here
                 WndResurrect.instance = new Object();
                 Ankh finalAnkh = ankh;
                 Game.runOnRenderThread(new Callback() {

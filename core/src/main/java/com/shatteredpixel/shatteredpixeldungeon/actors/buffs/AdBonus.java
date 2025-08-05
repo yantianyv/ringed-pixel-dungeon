@@ -8,11 +8,14 @@ import com.watabou.utils.Bundle;
 public class AdBonus extends Buff {
 
     public enum AdType {
-        DEFAULT,
+        COOLDOWN, 
         TAKEOUT
     }
 
-    private AdType type = AdType.DEFAULT;
+    public AdBonus() {} // Add default constructor
+    
+    private AdType type;
+    private int cooldownTurns = 0;
 
     @Override
     public int icon() {
@@ -31,12 +34,29 @@ public class AdBonus extends Buff {
 
     @Override
     public boolean act() {
-        // 不调用detach()实现不自然消失
+        if (type == AdType.COOLDOWN) {
+            cooldownTurns++;
+            if (cooldownTurns >= 1000) {
+                detach();
+                return false;
+            }
+        }
         spend(TICK);
         return true;
     }
 
+    @Override
+    public void detach() {
+        if (type != AdType.COOLDOWN) {
+            type = AdType.COOLDOWN;
+            cooldownTurns = 0;
+            return;
+        }
+        super.detach();
+    }
+
     public void setType(AdType type) {
+        if (this.type == AdType.COOLDOWN) return;
         this.type = type;
     }
 
@@ -45,17 +65,20 @@ public class AdBonus extends Buff {
     }
 
     private static final String TYPE = "type";
+    private static final String COOLDOWN_TURNS = "cooldown_turns";
 
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
         bundle.put(TYPE, type);
+        bundle.put(COOLDOWN_TURNS, cooldownTurns);
     }
 
     @Override
     public void restoreFromBundle(Bundle bundle) {
         super.restoreFromBundle(bundle);
         type = bundle.getEnum(TYPE, AdType.class);
+        cooldownTurns = bundle.getInt(COOLDOWN_TURNS);
     }
 
     public static AdBonus getExistBuff(com.shatteredpixel.shatteredpixeldungeon.actors.Char target) {

@@ -99,6 +99,7 @@ import com.watabou.utils.FileUtils;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 import com.watabou.utils.SparseArray;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdBonus;
 
 public class Dungeon {
 
@@ -1147,5 +1148,13 @@ public class Dungeon {
             return true;
         }
         return false;
+    }
+
+    public static int adLevel() {
+        int baseLevel = SPDSettings.adIntensity();
+        if (hero != null && hero.buff(AdBonus.class) != null) {
+            return 0;
+        }
+        return baseLevel;
     }
 }
