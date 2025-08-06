@@ -119,6 +119,10 @@ abstract public class Weapon extends KindOfWeapon {
 
     @Override
     public int proc(Char attacker, Char defender, int damage) {
+        // Check for critical hit
+        if (Random.Float() < criticalChance()) {
+            damage = criticalHit(damage);
+        }
 
         boolean becameAlly = false;
         boolean wasAlly = defender.alignment == Char.Alignment.ALLY;
@@ -487,6 +491,14 @@ abstract public class Weapon extends KindOfWeapon {
 
     public boolean hasCurseEnchant() {
         return enchantment != null && enchantment.curse();
+    }
+
+    protected float criticalChance() {
+        return 0f;
+    }
+
+    protected int criticalHit(int damage) {
+        return Math.round(damage * 1.5f);
     }
 
     private static ItemSprite.Glowing HOLY = new ItemSprite.Glowing(0xFFFF00);

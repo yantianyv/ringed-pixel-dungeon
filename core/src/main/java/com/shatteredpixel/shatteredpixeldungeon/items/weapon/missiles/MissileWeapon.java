@@ -356,9 +356,9 @@ abstract public class MissileWeapon extends Weapon {
             usages *= MagicalHolster.HOLSTER_DURABILITY_FACTOR;
         }
 
-        if (Dungeon.hero != null) {
-            usages *= RingOfMagicshooting.durabilityMultiplier(Dungeon.hero);
-        }
+        // if (Dungeon.hero != null) {
+        //     usages *= RingOfMagicshooting.durabilityMultiplier(Dungeon.hero);
+        // }
 
         //at 100 uses, items just last forever.
         if (usages >= 100f) {
@@ -517,6 +517,11 @@ abstract public class MissileWeapon extends Weapon {
     @Override
     public int value() {
         return 6 * tier * quantity * (level() + 1);
+    }
+
+    @Override
+    protected float criticalChance() {
+        return RingOfMagicshooting.missileCriticalChance(curUser); // 暴击率取决于百步穿杨之戒
     }
 
     private static final String SPAWNED = "spawned";

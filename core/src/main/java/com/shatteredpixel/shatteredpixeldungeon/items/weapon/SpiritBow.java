@@ -102,29 +102,40 @@ public class SpiritBow extends Weapon {
     @Override
     public int proc(Char attacker, Char defender, int damage) {
 
+        // 如果攻击者有自然之力buff且没有狙击特殊状态
         if (attacker.buff(NaturesPower.naturesPowerTracker.class) != null && !sniperSpecial) {
 
+            // 创建一个Actor对象
             Actor.add(new Actor() {
                 {
+                    // 设置优先级
                     actPriority = VFX_PRIO;
                 }
 
                 @Override
                 protected boolean act() {
 
+                    // 有几率触发自然之力技能
                     if (Random.Int(12) < ((Hero) attacker).pointsInTalent(Talent.NATURES_WRATH)) {
+                        // 创建一个植物对象
                         Plant plant = (Plant) Reflection.newInstance(Random.element(harmfulPlants));
+                        // 设置植物的位置
                         plant.pos = defender.pos;
+                        // 激活植物
                         plant.activate(defender.isAlive() ? defender : null);
                     }
 
+                    // 如果被攻击者死亡
                     if (!defender.isAlive()) {
+                        // 获取攻击者的自然之力buff
                         NaturesPower.naturesPowerTracker tracker = attacker.buff(NaturesPower.naturesPowerTracker.class);
+                        // 如果buff存在，则延长buff持续时间
                         if (tracker != null) {
                             tracker.extend(((Hero) attacker).pointsInTalent(Talent.WILD_MOMENTUM));
                         }
                     }
 
+                    // 移除Actor对象
                     Actor.remove(this);
                     return true;
                 }
@@ -132,6 +143,7 @@ public class SpiritBow extends Weapon {
 
         }
 
+        // 调用父类的proc方法
         return super.proc(attacker, defender, damage);
     }
 
@@ -294,6 +306,11 @@ public class SpiritBow extends Weapon {
 
     public SpiritArrow knockArrow() {
         return new SpiritArrow();
+    }
+
+    @Override
+    protected float criticalChance() {
+        return RingOfMagicshooting.missileCriticalChance(curUser); // 暴击率取决于百步穿杨之戒
     }
 
     public class SpiritArrow extends MissileWeapon {

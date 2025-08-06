@@ -422,6 +422,11 @@ public class MeleeWeapon extends Weapon {
         return price;
     }
 
+    @Override
+    protected float criticalChance() {
+        return 0.05f; // 5% base critical chance for melee weapons
+    }
+
     public static class Charger extends Buff implements ActionIndicator.Action {
 
         public int charges = 2;

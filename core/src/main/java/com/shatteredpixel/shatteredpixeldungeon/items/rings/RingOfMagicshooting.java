@@ -34,16 +34,24 @@ public class RingOfMagicshooting extends Ring {
     }
 
     // 返回戒指的统计信息
+    // 返回装备或未装备的物品的统计数据
     public String statsInfo() {
+        // 如果物品被识别
         if (isIdentified()) {
+            // 获取物品的统计数据，包括单独的加成和百分比
             String info = Messages.get(this, "stats",
-                    soloBuffedBonus() / 2, Messages.decimalFormat("#.##", 100f * (Math.pow(1.15, soloBonus()) - 1f)));
+                    soloBuffedBonus() / 2, Messages.decimalFormat("#.##", 100f * (1-Math.pow(0.9, soloBonus()))));
+            // 如果物品被装备且单独的加成和组合的加成不同
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
+                // 获取组合的统计数据，包括组合的加成和百分比
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        combinedBuffedBonus(Dungeon.hero) / 2, Messages.decimalFormat("#.##", 100f * (Math.pow(1.15, combinedBonus(Dungeon.hero)) - 1f)));
+                        combinedBuffedBonus(Dungeon.hero) / 2, Messages.decimalFormat("#.##", 100f * (1-Math.pow(0.9, combinedBonus(Dungeon.hero)))));
             }
+            // 返回物品的统计数据
             return info;
+        // 如果物品未被识别
         } else {
+            // 返回典型的统计数据，包括百分比
             return Messages.get(this, "typical_stats", 1, Messages.decimalFormat("#.##", 20f));
         }
     }
@@ -63,7 +71,7 @@ public class RingOfMagicshooting extends Ring {
         if (cursed && cursedKnown) {
             level = Math.min(-1, level - 3);
         }
-        return Messages.decimalFormat("#.##", 100f * (Math.pow(1.15, level + 1) - 1f)) + "%";
+        return Messages.decimalFormat("#.##", 100f * 1 - Math.pow(0.9f, level +1)) + "%";
     }
     // ————————————————戒指效率————————————————
     private static float efficiency = 1.0f;
@@ -92,10 +100,15 @@ public class RingOfMagicshooting extends Ring {
         return getBuffedBonus(target, RingOfMagicshooting.Aim.class);
     }
 
-    // 获取目标角色的 Aim 增益的耐久度乘数
-    public static float durabilityMultiplier(Char target) {
-        return (float) (Math.pow(1.15f, getBonus(target, Aim.class)));
+    public static float missileCriticalChance(Char target) {
+        return (float) (1-Math.pow(0.9f, getBonus(target, Aim.class)));
+        
     }
+
+    // 获取目标角色的 Aim 增益的耐久度乘数
+    // public static float durabilityMultiplier(Char target) {
+    //     return (float) (Math.pow(1.15f, getBonus(target, Aim.class)));
+    // }
 
     public class Aim extends RingBuff {
     }
