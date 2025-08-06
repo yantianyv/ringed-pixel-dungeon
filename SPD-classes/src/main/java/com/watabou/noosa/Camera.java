@@ -317,8 +317,11 @@ public class Camera extends Gizmo {
 		
 	}
 	
+	// 使用synchronized关键字确保多线程安全
 	public synchronized void shake( float magnitude, float duration ) {
+		// 将shakeMagX和shakeMagY的值设置为magnitude
 		shakeMagX = shakeMagY = magnitude;
+		// 将shakeTime和shakeDuration的值设置为duration
 		shakeTime = shakeDuration = duration;
 	}
 }

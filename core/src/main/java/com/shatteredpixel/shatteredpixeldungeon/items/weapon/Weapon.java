@@ -20,6 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon;
 
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.watabou.noosa.Camera;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -121,7 +123,7 @@ abstract public class Weapon extends KindOfWeapon {
     public int proc(Char attacker, Char defender, int damage) {
         // Check for critical hit
         if (Random.Float() < criticalChance()) {
-            damage = criticalHit(damage);
+            damage = criticalHit(damage, defender);
         }
 
         boolean becameAlly = false;
@@ -497,7 +499,13 @@ abstract public class Weapon extends KindOfWeapon {
         return 0f;
     }
 
-    protected int criticalHit(int damage) {
+    protected int criticalHit(int damage, Char defender) {
+        // 添加暴击粒子效果(在目标怪物上)
+        if (defender != null && defender.sprite != null) {
+            defender.sprite.emitter().burst(Speck.factory(Speck.STAR), 6);
+        }
+        // 添加屏幕震动效果
+        Camera.main.shake(0.5f, 0.1f);
         return Math.round(damage * 1.5f);
     }
 
