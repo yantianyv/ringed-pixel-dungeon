@@ -97,11 +97,6 @@ public class RingOfMagicshooting extends Ring {
         return (float) (Math.pow(1.15f, getBonus(target, Aim.class)));
     }
 
-    // 获取目标角色的 Aim 增益的魔力加成乘数
-    public static float enchantPowerMultiplier(Char target) {
-        return (float) Math.pow(1.15f, getBuffedBonus(target, Aim.class));
-    }
-
     public class Aim extends RingBuff {
     }
 }

@@ -66,6 +66,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Thorns;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfNahida;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ParchmentScrap;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfOblivion;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
@@ -832,7 +833,7 @@ public class Armor extends EquipableItem {
         }
 
         public static float genericProcChanceMultiplier(Char defender) {
-            float multi = RingOfMagicshooting.enchantPowerMultiplier(defender);
+            float multi = RingOfNahida.enchantPowerMultiplier(defender);
 
             if (Dungeon.hero.alignment == defender.alignment
                     && Dungeon.hero.buff(AuraOfProtection.AuraBuff.class) != null
