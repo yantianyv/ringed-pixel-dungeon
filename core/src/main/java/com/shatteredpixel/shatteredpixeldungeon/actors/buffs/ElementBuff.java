@@ -27,7 +27,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
@@ -443,7 +442,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
         hydro.quantity -= consume;
 
         // 计算冻结伤害
-        int dmg = (int) (ch.HP * ((consume) / (consume + 5)));
+        int dmg = (int) (ch.HP * (consume) / (consume + 10) / 2);
         if (Dungeon.level.locked || ch instanceof Hero) {
             dmg /= 5;
         }
