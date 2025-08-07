@@ -61,7 +61,6 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 abstract public class MissileWeapon extends Weapon {
@@ -302,32 +301,46 @@ abstract public class MissileWeapon extends Weapon {
 
 	@Override
 	public int proc(Char attacker, Char defender, int damage) {
+		//如果攻击者是英雄，并且英雄的技能点数大于等于3
 		if (attacker == Dungeon.hero && Random.Int(3) < Dungeon.hero.pointsInTalent(Talent.SHARED_ENCHANTMENT)){
+			//获取英雄的弓箭
 			SpiritBow bow = Dungeon.hero.belongings.getItem(SpiritBow.class);
+			//如果弓箭不为空，并且弓箭的附魔不为空，并且英雄没有魔法免疫状态
 			if (bow != null && bow.enchantment != null && Dungeon.hero.buff(MagicImmune.class) == null) {
+				//使用弓箭的附魔进行伤害计算
 				damage = bow.enchantment.proc(this, attacker, defender, damage);
 			}
 		}
 
+		//如果物品被诅咒，并且没有被发现，并且没有魔法免疫状态
 		if ((cursed || hasCurseEnchant()) && !cursedKnown){
+			//显示被诅咒的消息
 			GLog.n(Messages.get(this, "curse_discover"));
 		}
+		//设置已经被发现
 		cursedKnown = true;
+		//如果父类存在，那么父类的被诅咒状态也设置为被发现了
 		if (parent != null) parent.cursedKnown = true;
 
+		//如果攻击者是英雄，并且英雄的技能点数等于2，那么设置物品可以被立即识别
 		//instant ID with the right talent
 		if (attacker == Dungeon.hero && Dungeon.hero.pointsInTalent(Talent.SURVIVALISTS_INTUITION) == 2){
 			usesLeftToID = Math.min(usesLeftToID, 0);
 			availableUsesToID =  Math.max(usesLeftToID, 0);
 		}
 
+		//使用父类的proc方法进行伤害计算
 		int result = super.proc(attacker, defender, damage);
 
+		//处理识别进度
 		//handle ID progress over parent/child
 		if (parent != null && parent.usesLeftToID > usesLeftToID){
+			//计算父类和子类的识别进度差
 			float diff = parent.usesLeftToID - usesLeftToID;
+			//更新父类和子类的识别进度
 			parent.usesLeftToID -= diff;
 			parent.availableUsesToID -= diff;
+			//如果子类的识别进度小于等于0，那么设置父类的识别状态为已经识别
 			if (usesLeftToID <= 0) {
 				if (ShardOfOblivion.passiveIDDisabled()){
 					parent.setIDReady();
@@ -337,10 +350,12 @@ abstract public class MissileWeapon extends Weapon {
 			}
 		}
 
+		//如果物品没有被识别，并且被动识别被禁用，那么增加被动识别的持续时间
 		if (!isIdentified() && ShardOfOblivion.passiveIDDisabled()){
 			Buff.prolong(curUser, ShardOfOblivion.ThrownUseTracker.class, 50f);
 		}
 
+		//返回伤害计算结果
 		return result;
 	}
 
@@ -408,7 +423,9 @@ abstract public class MissileWeapon extends Weapon {
 	}
 	
 	protected void rangedHit( Char enemy, int cell ){
+		//减少耐久度
 		decrementDurability();
+		//如果耐久度大于0并且没有产生效果
 		if (durability > 0 && !spawnedForEffect){
 			//attempt to stick the missile weapon to the enemy, just drop it if we can't.
 			if (sticky && enemy != null && enemy.isActive() && enemy.alignment != Char.Alignment.ALLY){
@@ -436,8 +453,12 @@ abstract public class MissileWeapon extends Weapon {
 		durability = Math.min(durability, MAX_DURABILITY);
 	}
 
-	public void damage( float amount ){
-		durability -= amount;
+	public void damage(float amount) {
+		if (critical_tag) {
+			critical_tag = false;
+			return;
+		}
+		durability -= amount; //减少耐久度
 		durability = Math.max(durability, 1); //cannot break from doing this
 	}
 
@@ -482,27 +503,40 @@ abstract public class MissileWeapon extends Weapon {
 	}
 	
 	protected void decrementDurability(){
-		//if this weapon was thrown from a source stack, degrade that stack.
-		//unless a weapon is about to break, then break the one being thrown
+		if (critical_tag) {
+			critical_tag = false;
+			return;
+		}
 		if (parent != null){
+			//如果这个武器是从一个源堆中抛出的，那么就降低那个堆的耐久度。
+			//除非武器即将损坏，否则就损坏被抛出的武器
 			if (parent.durability <= parent.durabilityPerUse()){
+				//如果父堆的耐久度小于等于每次使用的耐久度，那么将父堆的耐久度设为最大值，
+				//将父堆的额外抛出次数设为false，将当前武器的耐久度设为0
 				durability = 0;
 				parent.durability = MAX_DURABILITY;
 				parent.extraThrownLeft = false;
+				//如果父堆的每次使用耐久度小于100，那么输出一条消息，表示武器已经损坏
 				if (parent.durabilityPerUse() < 100f) {
 					GLog.n(Messages.get(this, "has_broken"));
 				}
 			} else {
+				//如果父堆的耐久度大于每次使用的耐久度，那么将父堆的耐久度减去每次使用的耐久度
 				parent.durability -= parent.durabilityPerUse();
+				//如果父堆的耐久度大于0且小于等于每次使用的耐久度，那么输出一条消息，表示武器即将损坏
 				if (parent.durability > 0 && parent.durability <= parent.durabilityPerUse()){
 					GLog.w(Messages.get(this, "about_to_break"));
 				}
 			}
+			//将父堆设为null
 			parent = null;
 		} else {
+			//如果父堆为null，那么将当前武器的耐久度减去每次使用的耐久度
 			durability -= durabilityPerUse();
+			//如果当前武器的耐久度大于0且小于等于每次使用的耐久度，那么输出一条消息，表示武器即将损坏
 			if (durability > 0 && durability <= durabilityPerUse()){
 				GLog.w(Messages.get(this, "about_to_break"));
+			//如果当前武器的每次使用耐久度小于100且当前武器的耐久度小于等于0，那么输出一条消息，表示武器已经损坏
 			} else if (durabilityPerUse() < 100f && durability <= 0){
 				GLog.n(Messages.get(this, "has_broken"));
 			}
@@ -584,19 +618,28 @@ abstract public class MissileWeapon extends Weapon {
 	
 	@Override
 	public Item split(int amount) {
+		// 设置bundleRestoring为true，表示正在恢复bundle
 		bundleRestoring = true;
+		// 调用父类的split方法，将amount数量的物品拆分出来
 		Item split = super.split(amount);
+		// 设置bundleRestoring为false，表示恢复bundle结束
 		bundleRestoring = false;
 
 		//unless the thrown weapon will break, split off a max durability item and
 		//have it reduce the durability of the main stack. Cleaner to the player this way
+		// 如果抛射物不会损坏，则拆分出一个最大耐久度的物品，并减少主堆栈的耐久度。这样对玩家来说更干净
 		if (split != null){
+			// 将拆分出来的物品转换为MissileWeapon类型
 			MissileWeapon m = (MissileWeapon)split;
+			// 设置拆分出来的物品的耐久度为最大耐久度
 			m.durability = MAX_DURABILITY;
+			// 设置拆分出来的物品的父物品为当前物品
 			m.parent = this;
+			// 设置当前物品和拆分出来的物品的extraThrownLeft为true
 			extraThrownLeft = m.extraThrownLeft = true;
 		}
 		
+		// 返回拆分出来的物品
 		return split;
 	}
 	
@@ -710,6 +753,15 @@ abstract public class MissileWeapon extends Weapon {
 	@Override
 	protected float criticalChance() {
 		return RingOfMagicshooting.missileCriticalChance(curUser); // 暴击率取决于百步穿杨之戒
+	}
+
+	protected boolean critical_tag = false;
+
+	@Override
+	protected int criticalHit(int damage, Char defender) {
+		critical_tag = true;
+		return super.criticalHit(damage, defender);
+	
 	}
 
 	private static final String SET_ID = "set_id";

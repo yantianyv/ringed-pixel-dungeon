@@ -101,7 +101,7 @@ public class RingOfMagicshooting extends Ring {
     }
 
     public static float missileCriticalChance(Char target) {
-        return (float) (1-Math.pow(0.9f, getBonus(target, Aim.class)));
+        return (float) (1-Math.pow(0.95f, getBonus(target, Aim.class)));
         
     }
 
