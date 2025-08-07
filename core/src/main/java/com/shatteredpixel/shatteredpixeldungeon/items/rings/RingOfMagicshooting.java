@@ -40,12 +40,12 @@ public class RingOfMagicshooting extends Ring {
         if (isIdentified()) {
             // 获取物品的统计数据，包括单独的加成和百分比
             String info = Messages.get(this, "stats",
-                    soloBuffedBonus() / 2, Messages.decimalFormat("#.##", 100f * (1-Math.pow(0.9, soloBonus()))));
+                    soloBuffedBonus() / 2, Messages.decimalFormat("#.##", 100f * (1-Math.pow(0.95, soloBonus()))));
             // 如果物品被装备且单独的加成和组合的加成不同
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 // 获取组合的统计数据，包括组合的加成和百分比
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        combinedBuffedBonus(Dungeon.hero) / 2, Messages.decimalFormat("#.##", 100f * (1-Math.pow(0.9, combinedBonus(Dungeon.hero)))));
+                        combinedBuffedBonus(Dungeon.hero) / 2, Messages.decimalFormat("#.##", 100f * (1-Math.pow(0.95, combinedBonus(Dungeon.hero)))));
             }
             // 返回物品的统计数据
             return info;
@@ -71,7 +71,7 @@ public class RingOfMagicshooting extends Ring {
         if (cursed && cursedKnown) {
             level = Math.min(-1, level - 3);
         }
-        return Messages.decimalFormat("#.##", 100f * 1 - Math.pow(0.9f, level +1)) + "%";
+        return Messages.decimalFormat("#.##", 100f * 1 - Math.pow(0.95f, level +1)) + "%";
     }
     // ————————————————戒指效率————————————————
     private static float efficiency = 1.0f;
