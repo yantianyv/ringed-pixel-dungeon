@@ -133,7 +133,8 @@ public class WandOfFireblast extends DamageWand {
         }
         // 如果target在视野中则点燃这个格子
         if (Dungeon.level.heroFOV[target]) {
-            GameScene.add(Blob.seed(target, 1 + (int) Math.sqrt(level()), Fire.class));
+            // 点燃强度为消耗充能数+等级的平方根
+            GameScene.add(Blob.seed(target, chargesPerCast(), Fire.class));
         }
     }
 
