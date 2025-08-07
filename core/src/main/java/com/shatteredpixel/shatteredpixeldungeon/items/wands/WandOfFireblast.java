@@ -58,16 +58,16 @@ public class WandOfFireblast extends DamageWand {
     {
         image = ItemSpriteSheet.WAND_FIREBOLT;
 
-        //only used for targeting, actual projectile logic is Ballistica.STOP_SOLID | Ballistica.IGNORE_SOFT_SOLID
+        // 仅用于瞄准，实际抛射逻辑是 Ballistica.STOP_SOLID | Ballistica.IGNORE_SOFT_SOLID
         collisionProperties = Ballistica.WONT_STOP;
     }
 
-    //1/2/3 base damage with 1/2/3 scaling based on charges used
+    // 1/2/3 基础伤害，根据使用的充能数进行 1/2/3 的缩放
     public int min(int lvl) {
         return (1 + lvl) * chargesPerCast();
     }
 
-    //2/8/18 base damage with 2/4/6 scaling based on charges used
+    // 2/8/18 基础伤害，根据使用的充能数进行 2/4/6 的缩放
     public int max(int lvl) {
         switch (chargesPerCast()) {
             case 1:
@@ -81,69 +81,47 @@ public class WandOfFireblast extends DamageWand {
     }
 
     ConeAOE cone;
-
+    int target;
     @Override
     public void onZap(Ballistica bolt) {
 
+        // 创建一个列表，用于存储受影响的角色
         ArrayList<Char> affectedChars = new ArrayList<>();
-        ArrayList<Integer> adjacentCells = new ArrayList<>();
+        // 遍历锥形区域中的每一个单元格
         for (int cell : cone.cells) {
 
-            //ignore caster cell
+            // 忽略施法者所在的单元格
             if (cell == bolt.sourcePos) {
                 continue;
             }
 
-            //knock doors open
+            // 打开门
             if (Dungeon.level.map[cell] == Terrain.DOOR) {
                 Level.set(cell, Terrain.OPEN_DOOR);
                 GameScene.updateMap(cell);
             }
 
-            //only ignite cells directly near caster if they are flammable 
-            if (Dungeon.level.adjacent(bolt.sourcePos, cell)
-                    && !(Dungeon.level.flamable[cell] || Dungeon.level.solid[cell])) {
-                adjacentCells.add(cell);
-                //do burn any heaps located here though
-                if (Dungeon.level.heaps.get(cell) != null) {
-                    Dungeon.level.heaps.get(cell).burn();
-                }
-            } else {
-                // GameScene.add(Blob.seed(cell, 1 + chargesPerCast(), Fire.class));
-            }
-
+            // 如果该单元格上有角色，将其添加到受影响角色列表中
             Char ch = Actor.findChar(cell);
             if (ch != null) {
                 affectedChars.add(ch);
             }
         }
 
-        //if wand was shot right at a wall
-        if (cone.cells.isEmpty()) {
-            adjacentCells.add(bolt.sourcePos);
-        }
-
-        //ignite cells that share a side with an adjacent cell, are flammable, and are closer to the collision pos
-        //This prevents short-range casts not igniting barricades or bookshelves
-        for (int cell : adjacentCells) {
-            for (int i : PathFinder.NEIGHBOURS8) {
-                if (Dungeon.level.trueDistance(cell + i, bolt.collisionPos) < Dungeon.level.trueDistance(cell, bolt.collisionPos)
-                        && Dungeon.level.flamable[cell + i]
-                        && Fire.volumeAt(cell + i, Fire.class) == 0) {
-                    GameScene.add(Blob.seed(cell + i, 1 + chargesPerCast(), Fire.class));
-                }
-            }
-        }
-
+        // 遍历受影响的角色列表
         for (Char ch : affectedChars) {
+            // 处理角色受到的魔法效果
             wandProc(ch, chargesPerCast());
+            // 计算角色的伤害值
             int dmg = (int) (damageRoll() * ElementBuff.apply(Element.PYRO, ch, ch, 1f + 0.5f * level()));
+            // 对角色造成伤害
             ch.damage(dmg, this);
+            // 如果角色存活，根据法杖的充能数施加不同的效果
             if (ch.isAlive()) {
                 // Buff.affect(ch, Burning.class).reignite(ch);
                 switch (chargesPerCast()) {
                     case 1:
-                        break; //no effects
+                        break; // 无效果
                     case 2:
                         Buff.affect(ch, Cripple.class, 4f);
                         break;
@@ -153,16 +131,22 @@ public class WandOfFireblast extends DamageWand {
                 }
             }
         }
+        // 如果target在视野中则点燃这个格子
+        if (Dungeon.level.heroFOV[target]) {
+            GameScene.add(Blob.seed(target, 1 + (int) Math.sqrt(level()), Fire.class));
+        }
     }
 
     @Override
     public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
-        //acts like blazing enchantment
+        // 行为类似于炽热附魔
         new FireBlastOnHit().proc(staff, attacker, defender, damage);
     }
 
+    // 定义一个名为FireBlastOnHit的内部类，继承自Blazing类
     public static class FireBlastOnHit extends Blazing {
 
+        // 重写procChanceMultiplier方法，返回Wand类的procChanceMultiplier方法的返回值
         @Override
         protected float procChanceMultiplier(Char attacker) {
             return Wand.procChanceMultiplier(attacker);
@@ -171,9 +155,9 @@ public class WandOfFireblast extends DamageWand {
 
     @Override
     public void fx(Ballistica bolt, Callback callback) {
-        //need to perform flame spread logic here so we can determine what cells to put flames in.
+        // 需要在这里执行火焰扩散逻辑，以确定在哪些单元格中放置火焰。
 
-        // 5/7/9 distance
+        // 5/7/9 距离
         int maxDist = 3 + 2 * chargesPerCast();
 
         cone = new ConeAOE(bolt,
@@ -181,7 +165,9 @@ public class WandOfFireblast extends DamageWand {
                 30 + 20 * chargesPerCast(),
                 Ballistica.STOP_TARGET | Ballistica.STOP_SOLID | Ballistica.IGNORE_SOFT_SOLID);
 
-        //cast to cells at the tip, rather than all cells, better performance.
+        target = bolt.target;
+
+        // 仅对尖端单元格进行施法，而不是所有单元格，以获得更好的性能。
         Ballistica longestRay = null;
         for (Ballistica ray : cone.outerRays) {
             if (longestRay == null || ray.dist > longestRay.dist) {
@@ -195,7 +181,7 @@ public class WandOfFireblast extends DamageWand {
             );
         }
 
-        //final zap at half distance of the longest ray, for timing of the actual wand effect
+        // 在最长射线的半距离处进行最终施法，以确定实际法杖效果的时间
         MagicMissile.boltFromChar(curUser.sprite.parent,
                 MagicMissile.FIRE_CONE,
                 curUser.sprite,
@@ -211,7 +197,7 @@ public class WandOfFireblast extends DamageWand {
                 || (charger != null && charger.target != null && charger.target.buff(WildMagic.WildMagicTracker.class) != null)) {
             return 1;
         }
-        //consumes 30% of current charges, rounded up, with a min of 1 and a max of 3.
+        // 消耗当前充能的 30%，向上取整，最少为 1，最多为 3。
         return (int) GameMath.gate(1, (int) Math.ceil(curCharges * 0.3f), 3);
     }
 
@@ -250,3 +236,5 @@ public class WandOfFireblast extends DamageWand {
     }
 
 }
+
+
