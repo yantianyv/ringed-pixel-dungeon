@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
@@ -135,6 +136,11 @@ public class WandOfFireblast extends DamageWand {
         if (Dungeon.level.heroFOV[target]) {
             // 点燃强度为消耗充能数+等级的平方根
             GameScene.add(Blob.seed(target, chargesPerCast(), Fire.class));
+            // 如果这一格有怪物，那就给怪物也挂上燃烧buff
+            Char ch = Actor.findChar(target);
+            if (ch != null) {
+                Buff.affect(ch, Burning.class).reignite(ch);
+            }
         }
     }
 
