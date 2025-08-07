@@ -275,7 +275,6 @@ public class ShopRoom extends SpecialRoom {
         itemsToSpawn.add(new OriginGem().quantity(2));
         itemsToSpawn.add(new OriginGem().quantity(1));
         itemsToSpawn.add(TippedDart.randomTipped(2));
-        itemsToSpawn.add(TippedDart.randomTipped(2));
         itemsToSpawn.add(new Alchemize().quantity(Random.IntRange(2, 3)));
 
         Bag bag = null;
