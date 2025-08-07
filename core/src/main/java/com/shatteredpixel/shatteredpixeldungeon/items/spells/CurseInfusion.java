@@ -44,7 +44,6 @@ import com.watabou.noosa.audio.Sample;
 import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing.Yogring;
 
 public class CurseInfusion extends InventorySpell {
 
@@ -56,7 +55,7 @@ public class CurseInfusion extends InventorySpell {
 
 	@Override
 	protected boolean usableOnItem(Item item) {
-		return ((item instanceof EquipableItem && item.isUpgradable()) || item instanceof Wand || item instanceof SpiritBow);
+		return ((item instanceof EquipableItem && item.isUpgradable()) || item instanceof Wand || item instanceof SpiritBow || item instanceof YogRing);
 	}
 
     @Override
