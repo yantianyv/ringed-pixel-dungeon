@@ -555,7 +555,7 @@ public String ad_mod = "default";
     }
 
     public String desc() {
-        if (this.isIdentified()&& this.ad_url != null && Dungeon.adLevel() > 1) {
+        if (this.isIdentified()&& !this.ad_url.isEmpty() && Dungeon.adLevel() > 1) {
             return Messages.get(this, "desc")+"\n\n"+Messages.get(this, "ad_desc");
         }
         return Messages.get(this, "desc");

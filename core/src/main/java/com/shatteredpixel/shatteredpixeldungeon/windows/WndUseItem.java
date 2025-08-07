@@ -96,7 +96,7 @@ public class WndUseItem extends WndInfoItem {
 			y = layoutButtons(buttons, width, y);
 
 			// 如果物品有广告链接
-			if (item.ad_url != null && !item.ad_url.isEmpty() && item.isIdentified() && Dungeon.adLevel() > 0) {
+			if (!item.ad_url.isEmpty() && item.isIdentified() && Dungeon.adLevel() > 0) {
 				ItemJournalButton btn = new ItemJournalButton(item, this);
 				btn.icon().scale.set(10 / btn.icon().height);
 				btn.setRect(width - 8, 4, 10, 10);
