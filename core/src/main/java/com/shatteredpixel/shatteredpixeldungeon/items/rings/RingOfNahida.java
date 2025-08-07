@@ -2,13 +2,11 @@ package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagicshooting.Aim;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class RingOfNahida extends Ring {
 
-    //这是一个戒指模板文件
     {
         icon = ItemSpriteSheet.Icons.RING_NAHIDA;// 图标，在core\src\main\java\sprites\ItemSpriteSheet.java设置
         buffClass = Nahida.class;// 戒指的buff类型
@@ -45,7 +43,7 @@ public class RingOfNahida extends Ring {
 
     // 附魔加强
     public static float enchantPowerMultiplier(Char target) {
-        return (float) Math.pow(1.10f, getBuffedBonus(target, Aim.class));
+        return (float) Math.pow(1.10f, getBuffedBonus(target, Nahida.class));
     }
     // ————————————————戒指效率————————————————
     private static float efficiency = 1.0f;
