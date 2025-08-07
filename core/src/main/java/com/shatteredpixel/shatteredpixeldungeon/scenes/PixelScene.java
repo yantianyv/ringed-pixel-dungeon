@@ -160,7 +160,7 @@ public class PixelScene extends Scene {
 			renderedTextPageSize = 1024;
 		}
 		//asian languages have many more unique characters, so increase texture size to anticipate that
-		if (Messages.lang() == Languages.CHINESE || Messages.lang() == Languages.CHI_TRAD ||
+		if (Messages.lang() == Languages.CHI_SMPL || Messages.lang() == Languages.CHI_TRAD ||
 				Messages.lang() == Languages.KOREAN || Messages.lang() == Languages.JAPANESE){
 			renderedTextPageSize *= 2;
 		}

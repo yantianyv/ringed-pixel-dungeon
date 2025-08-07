@@ -548,6 +548,9 @@ public class Hero extends Char {
             new RingOfAgility().refresh();
         }
         if (wep instanceof MissileWeapon) {
+            if (buff(Momentum.class) != null && buff(Momentum.class).freerunning()) {
+                accuracy *= 1f + pointsInTalent(Talent.PROJECTILE_MOMENTUM) / 2f;
+            }
             if (Dungeon.level.adjacent(pos, target.pos)) {
                 accuracy *= (0.5f + 0.2f * pointsInTalent(Talent.POINT_BLANK));
             } else {
@@ -586,11 +589,7 @@ public class Hero extends Char {
 					buff.uses--;
 				}
 			}
-		} else {
-			if (buff(Momentum.class) != null && buff(Momentum.class).freerunning()){
-				accuracy *= 1f + pointsInTalent(Talent.PROJECTILE_MOMENTUM)/2f;
-			}
-		}
+		} 
 
         if (buff(Scimitar.SwordDance.class) != null) {
             accuracy *= 1.50f;

@@ -1144,8 +1144,8 @@ public class WndSettings extends WndTabbed {
 
             txtLangInfo = PixelScene.renderTextBlock(6);
             String info = "_" + Messages.titleCase(currLang.nativeName()) + "_ - ";
-            if (currLang == Languages.CHINESE) {
-                info += "中文是戒指地牢MOD的原始语言。破碎地牢原有部分由破碎地牢翻译组提供，MOD内容部分由戒指地牢作者撰写。";
+            if (currLang == Languages.CHI_SMPL) {
+                info += "简体中文是戒指地牢MOD的原始语言。破碎地牢原有部分由破碎地牢翻译组提供，MOD内容部分由戒指地牢作者撰写。";
             } else if (currLang.status() == Languages.Status.O_COMPLETE) {
                 info += Messages.get(this, "completed");
             } else if (currLang.status() == Languages.Status.__UNREVIEW) {

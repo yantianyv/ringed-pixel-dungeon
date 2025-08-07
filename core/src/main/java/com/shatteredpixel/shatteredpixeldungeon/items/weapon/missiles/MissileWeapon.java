@@ -25,6 +25,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles;
 
 import java.util.ArrayList;
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;

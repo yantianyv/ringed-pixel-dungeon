@@ -44,8 +44,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.PrismaticImage;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.FerretTuft;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Quarterstaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Scimitar;
@@ -75,8 +74,8 @@ public class FloatingText extends RenderedTextBlock {
     public static final int ICON_WIDTH = 7;
 	public static final int ICON_HEIGHT = 8;
     public static TextureFilm iconFilm = new TextureFilm(Assets.Effects.TEXT_ICONS, ICON_WIDTH, ICON_HEIGHT);
-    public static TextureFilm ringedIconFilm = new TextureFilm(Assets.Effects.TEXT_ICONS_RINGED, ICON_SIZE, ICON_SIZE);
-
+    public static TextureFilm ringedIconFilm = new TextureFilm(Assets.Effects.TEXT_ICONS_RINGED, ICON_WIDTH, ICON_HEIGHT);
+	
     public static int NO_ICON = -1;
 
     //combat damage icons
@@ -333,6 +332,7 @@ public class FloatingText extends RenderedTextBlock {
 	// It does work though... mostly.
 
 	public static int getHitReasonIcon(Char attacker, float accRoll, Char defender, float defRoll){
+		//定义一个HashMap，用于存储攻击和防御的原因
 		HashMap<Integer, Float> hitReasons = new HashMap<>();
 
 		//go through some garunteed hit interactions first
@@ -383,7 +383,7 @@ public class FloatingText extends RenderedTextBlock {
 			blessBoost *= 1.01f + 0.02f*Dungeon.hero.pointsInTalent(Talent.BLESS);
 		}
 		if (blessBoost > 1f) hitReasons.put(HIT_BLS, blessBoost);
-		if (RingOfAccuracy.accuracyMultiplier(attacker) > 1)    hitReasons.put(HIT_ACC, RingOfAccuracy.accuracyMultiplier(attacker));
+		if (RingOfAgility.agilityChance(attacker) > 0)    hitReasons.put(HIT_ACC, RingOfAgility.agilityChance(attacker));
 		if (attacker.buff(Scimitar.SwordDance.class) != null)   hitReasons.put(HIT_DANCE, 1.5f);
 		if (!(wep instanceof MissileWeapon)) {
 			if (attacker.buff(Talent.PreciseAssaultTracker.class) != null){
@@ -402,7 +402,7 @@ public class FloatingText extends RenderedTextBlock {
 		//evasion reductions (always < 1)
 		if (defender.buff(Hex.class) != null)                   hitReasons.put(HIT_HEX, 0.8f);
 		if (defender.buff(Daze.class) != null)                  hitReasons.put(HIT_DAZE, 0.5f);
-		if (RingOfEvasion.evasionMultiplier(defender) < 1)      hitReasons.put(HIT_EVA, RingOfEvasion.evasionMultiplier(defender));
+		if (RingOfAgility.agilityChance(defender) < 0)      hitReasons.put(HIT_EVA, RingOfAgility.agilityChance(defender));
 		if (arm != null && arm.evasionFactor(defender, 100) < 100) {
 			//we express armor's normally flat evasion boost as a %, yes this is very awkward
 			Armor.testingNoArmDefSkill = true;
@@ -475,7 +475,7 @@ public class FloatingText extends RenderedTextBlock {
 		}
 		if (blessBoost > 1f)                                    missReasons.put(MISS_BLS, blessBoost);
 		if (FerretTuft.evasionMultiplier() > 1)                 missReasons.put(MISS_TUFT, FerretTuft.evasionMultiplier());
-		if (RingOfEvasion.evasionMultiplier(defender) > 1)      missReasons.put(MISS_EVA, RingOfEvasion.evasionMultiplier(defender));
+		if (RingOfAgility.agilityChance(defender) > 0)      missReasons.put(MISS_EVA, RingOfAgility.agilityChance(defender));
 		if (defender.buff(Quarterstaff.DefensiveStance.class) != null)  missReasons.put(MISS_DEF, 3f);
 		if (arm != null && arm.evasionFactor(defender, 100) > 100) {
 			//we express armor's normally flat evasion boost as a %, yes this is very awkward
@@ -497,7 +497,7 @@ public class FloatingText extends RenderedTextBlock {
 		}
 		if (attacker.buff(Hex.class) != null)                   missReasons.put(MISS_HEX, 0.8f);
 		if (attacker.buff(Daze.class) != null)                  missReasons.put(MISS_DAZE, 0.5f);
-		if (RingOfAccuracy.accuracyMultiplier(attacker) < 1)    missReasons.put(MISS_ACC, RingOfAccuracy.accuracyMultiplier(attacker));
+		if (RingOfAgility.agilityChance(attacker) < 0)    missReasons.put(MISS_ACC, RingOfAgility.agilityChance(attacker));
 
 		//sort from largest modifier to smallest one
 		ArrayList<Integer> sortedReasons = new ArrayList<>(missReasons.keySet());
