@@ -100,7 +100,7 @@ public class WandOfFrost extends DamageWand {
             }
 
             wandProc(ch, chargesPerCast());
-            damage *= ElementBuff.apply(Element.CRYO, ch, ch, 1f + 0.5f * level());
+            damage *= ElementBuff.apply(Element.CRYO, ch, ch, 2f + 1f * level());
             ch.damage(damage, this);
             Sample.INSTANCE.play(Assets.Sounds.HIT_MAGIC, 1, 1.1f * Random.Float(0.87f, 1.15f));
 
