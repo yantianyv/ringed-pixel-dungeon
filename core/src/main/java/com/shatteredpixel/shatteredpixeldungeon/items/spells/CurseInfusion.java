@@ -37,8 +37,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.noosa.audio.Sample;
@@ -46,6 +44,7 @@ import com.watabou.noosa.audio.Sample;
 import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing.Yogring;
 
 public class CurseInfusion extends InventorySpell {
 
@@ -55,10 +54,10 @@ public class CurseInfusion extends InventorySpell {
         talentChance = 1 / (float) Recipe.OUT_QUANTITY;
     }
 
-    @Override
-    protected boolean usableOnItem(Item item) {
-        return ((item instanceof EquipableItem && !(item instanceof MissileWeapon)) || item instanceof Wand);
-    }
+	@Override
+	protected boolean usableOnItem(Item item) {
+		return ((item instanceof EquipableItem && item.isUpgradable()) || item instanceof Wand || item instanceof SpiritBow);
+	}
 
     @Override
     protected void onItemSelected(Item item) {
@@ -66,13 +65,14 @@ public class CurseInfusion extends InventorySpell {
         CellEmitter.get(curUser.pos).burst(ShadowParticle.UP, 5);
         Sample.INSTANCE.play(Assets.Sounds.CURSED);
 
-        item.curse(true);
+        item.cursed = true;
         if (item instanceof YogRing) {
             // pass
-        } else if (item instanceof MeleeWeapon || item instanceof SpiritBow) {
+        }
+        else if (item instanceof Weapon) {
             Weapon w = (Weapon) item;
             if (w.enchantment != null) {
-                //if we are freshly applying curse infusion, don't replace an existing curse
+                // if we are freshly applying curse infusion, don't replace an existing curse
                 if (w.hasGoodEnchant() || w.curseInfusionBonus) {
                     w.enchant(Weapon.Enchantment.randomCurse(w.enchantment.getClass()));
                 }
@@ -86,7 +86,7 @@ public class CurseInfusion extends InventorySpell {
         } else if (item instanceof Armor) {
             Armor a = (Armor) item;
             if (a.glyph != null) {
-                //if we are freshly applying curse infusion, don't replace an existing curse
+                // if we are freshly applying curse infusion, don't replace an existing curse
                 if (a.hasGoodGlyph() || a.curseInfusionBonus) {
                     a.inscribe(Armor.Glyph.randomCurse(a.glyph.getClass()));
                 }

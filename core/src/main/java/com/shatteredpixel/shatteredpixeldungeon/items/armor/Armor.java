@@ -35,10 +35,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.AuraOfProtection;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.BodyForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyWard;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.LifeLinkSpell;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.PrismaticImage;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
@@ -402,65 +404,64 @@ public class Armor extends EquipableItem {
             return 0;
         }
 
-        int max = DRMax(lvl);
-        if (lvl >= max) {
-            return (lvl - max);
-        } else {
-            return lvl;
-        }
-    }
+		int max = DRMax(lvl);
+		if (lvl >= max){
+			return (lvl - max);
+		} else {
+			return lvl;
+		}
+	}
 
-    public float evasionFactor(Char owner, float evasion) {
-
-        if (hasGlyph(Stone.class, owner) && !Stone.testingEvasion()) {
-            return 0;
-        }
-
-        if (owner instanceof Hero) {
-            int aEnc = STRReq() - ((Hero) owner).STR();
-            if (aEnc > 0) {
-                evasion /= Math.pow(1.5, aEnc);
-            }
-
-            Momentum momentum = owner.buff(Momentum.class);
-            if (momentum != null) {
-                evasion += momentum.evasionBonus(((Hero) owner).lvl, Math.max(0, -aEnc));
-            }
-        }
-
-        return evasion + augment.evasionFactor(buffedLvl());
-    }
-
-    public float speedFactor(Char owner, float speed) {
-
-        if (owner instanceof Hero) {
-            int aEnc = STRReq() - ((Hero) owner).STR();
-            if (aEnc > 0) {
-                speed /= Math.pow(1.2, aEnc);
-            }
-        }
-
-        return speed;
-
-    }
-
-    @Override
-    public int level() {
-        int level = super.level();
-        //TODO warrior's seal upgrade should probably be considered here too
-        // instead of being part of true level
-        if (curseInfusionBonus) {
-            level += 1 + level / 6;
-        }
-        return level;
-    }
-
-    @Override
-    public Item upgrade() {
-        return upgrade(false);
-    }
-
-    public Item upgrade(boolean inscribe) {
+	//This exists so we can test what a char's base evasion would be without armor affecting it
+	//more ugly static vars yaaay~
+	public static boolean testingNoArmDefSkill = false;
+	
+	public float evasionFactor( Char owner, float evasion ){
+		if (testingNoArmDefSkill) return evasion;
+		
+		if (hasGlyph(Stone.class, owner) && !Stone.testingEvasion()){
+			return 0;
+		}
+		
+		if (owner instanceof Hero){
+			int aEnc = STRReq() - ((Hero) owner).STR();
+			if (aEnc > 0) evasion /= Math.pow(1.5, aEnc);
+			
+			Momentum momentum = owner.buff(Momentum.class);
+			if (momentum != null){
+				evasion += momentum.evasionBonus(((Hero) owner).lvl, Math.max(0, -aEnc));
+			}
+		}
+		
+		return evasion + augment.evasionFactor(buffedLvl());
+	}
+	
+	public float speedFactor( Char owner, float speed ){
+		
+		if (owner instanceof Hero) {
+			int aEnc = STRReq() - ((Hero) owner).STR();
+			if (aEnc > 0) speed /= Math.pow(1.2, aEnc);
+		}
+		
+		return speed;
+		
+	}
+	
+	@Override
+	public int level() {
+		int level = super.level();
+		//TODO warrior's seal upgrade should probably be considered here too
+		// instead of being part of true level
+		if (curseInfusionBonus) level += 1 + level/6;
+		return level;
+	}
+	
+	@Override
+	public Item upgrade() {
+		return upgrade( false );
+	}
+	
+	public Item upgrade( boolean inscribe ) {
 
         if (inscribe) {
             if (glyph == null) {
@@ -505,14 +506,16 @@ public class Armor extends EquipableItem {
 
     public int proc(Char attacker, Char defender, int damage) {
 
-        if (defender.buff(MagicImmune.class) == null) {
-            Glyph trinityGlyph = null;
-            if (Dungeon.hero.buff(BodyForm.BodyFormBuff.class) != null) {
-                trinityGlyph = Dungeon.hero.buff(BodyForm.BodyFormBuff.class).glyph();
-                if (glyph != null && trinityGlyph != null && trinityGlyph.getClass() == glyph.getClass()) {
-                    trinityGlyph = null;
-                }
-            }
+		if (defender.buff(MagicImmune.class) == null) {
+			Glyph trinityGlyph = null;
+			//only when it's the hero or a char that uses the hero's armor
+			if (Dungeon.hero.buff(BodyForm.BodyFormBuff.class) != null
+					&& (defender == Dungeon.hero || defender instanceof PrismaticImage || defender instanceof ShadowClone.ShadowAlly)){
+				trinityGlyph = Dungeon.hero.buff(BodyForm.BodyFormBuff.class).glyph();
+				if (glyph != null && trinityGlyph != null && trinityGlyph.getClass() == glyph.getClass()){
+					trinityGlyph = null;
+				}
+			}
 
             if (defender instanceof Hero && isEquipped((Hero) defender)
                     && defender.buff(HolyWard.HolyArmBuff.class) != null) {

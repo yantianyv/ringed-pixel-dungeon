@@ -1026,9 +1026,9 @@ public class GameScene extends PixelScene {
     private void showBanner(Banner banner) {
         banner.camera = uiCamera;
 
-        float offset = Camera.main.centerOffset.y;
-        banner.x = align(uiCamera, (uiCamera.width - banner.width) / 2);
-        banner.y = align(uiCamera, (uiCamera.height - banner.height) / 2 - banner.height / 2 - 16 - offset);
+		float offset = Camera.main.centerOffset.y;
+		banner.x = align( uiCamera, (uiCamera.width - banner.width) / 2 );
+		banner.y = align( uiCamera, (uiCamera.height - banner.height) / 2 - 32 - offset );
 
         addToFront(banner);
     }
@@ -1449,22 +1449,22 @@ public class GameScene extends PixelScene {
                 ShatteredPixelDungeon.switchScene(HeroSelectScene.class);
             }
 
-            @Override
-            public void update() {
-                alpha(gameOver.am);
-                super.update();
-            }
-        };
-        restart.icon(Icons.get(Icons.ENTER));
-        restart.alpha(0);
-        restart.camera = uiCamera;
-        float offset = Camera.main.centerOffset.y;
-        restart.setSize(Math.max(80, restart.reqWidth()), 20);
-        restart.setPos(
-                align(uiCamera, (restart.camera.width - restart.width()) / 2),
-                align(uiCamera, (restart.camera.height - restart.height()) / 2 + restart.height() / 2 + 16 - offset)
-        );
-        scene.add(restart);
+			@Override
+			public void update() {
+				alpha((float)Math.pow(gameOver.am, 2));
+				super.update();
+			}
+		};
+		restart.icon(Icons.get(Icons.ENTER));
+		restart.alpha(0);
+		restart.camera = uiCamera;
+		float offset = Camera.main.centerOffset.y;
+		restart.setSize(Math.max(80, restart.reqWidth()), 20);
+		restart.setPos(
+				align(uiCamera, (restart.camera.width - restart.width()) / 2),
+				align(uiCamera, (restart.camera.height - restart.height()) / 2 + 8 - offset)
+		);
+		scene.add(restart);
 
         StyledButton menu = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(WndKeyBindings.class, "menu"), 9) {
             @Override
@@ -1472,60 +1472,60 @@ public class GameScene extends PixelScene {
                 GameScene.show(new WndGame());
             }
 
-            @Override
-            public void update() {
-                alpha(gameOver.am);
-                super.update();
-            }
-        };
-        menu.icon(Icons.get(Icons.PREFS));
-        menu.alpha(0);
-        menu.camera = uiCamera;
-        menu.setSize(Math.max(80, menu.reqWidth()), 20);
-        menu.setPos(
-                align(uiCamera, (menu.camera.width - menu.width()) / 2),
-                restart.bottom() + 2
-        );
-        scene.add(menu);
-    }
-
-    public static void bossSlain() {
-        if (Dungeon.hero.isAlive()) {
-            Banner bossSlain = new Banner(BannerSprites.get(BannerSprites.Type.BOSS_SLAIN));
-            bossSlain.show(0xFFFFFF, 0.3f, 5f);
-            scene.showBanner(bossSlain);
-
-            Sample.INSTANCE.play(Assets.Sounds.BOSS);
-        }
-    }
-
-    public static void handleCell(int cell) {
-        cellSelector.select(cell, PointerEvent.LEFT);
-    }
-
-    public static void selectCell(CellSelector.Listener listener) {
-        if (cellSelector.listener != null && cellSelector.listener != defaultCellListener) {
-            cellSelector.listener.onSelect(null);
-        }
-        cellSelector.listener = listener;
-        cellSelector.enabled = Dungeon.hero.ready;
-        if (scene != null) {
-            scene.prompt(listener.prompt());
-        }
-    }
-
-    public static boolean cancelCellSelector() {
-        if (cellSelector.listener != null && cellSelector.listener != defaultCellListener) {
-            cellSelector.resetKeyHold();
-            cellSelector.cancel();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public static WndBag selectItem(WndBag.ItemSelector listener) {
-        cancel();
+			@Override
+			public void update() {
+				alpha((float)Math.pow(gameOver.am, 2));
+				super.update();
+			}
+		};
+		menu.icon(Icons.get(Icons.PREFS));
+		menu.alpha(0);
+		menu.camera = uiCamera;
+		menu.setSize(Math.max(80, menu.reqWidth()), 20);
+		menu.setPos(
+				align(uiCamera, (menu.camera.width - menu.width()) / 2),
+				restart.bottom() + 2
+		);
+		scene.add(menu);
+	}
+	
+	public static void bossSlain() {
+		if (Dungeon.hero.isAlive()) {
+			Banner bossSlain = new Banner( BannerSprites.get( BannerSprites.Type.BOSS_SLAIN ) );
+			bossSlain.show( 0xFFFFFF, 0.3f, 5f );
+			scene.showBanner( bossSlain );
+			
+			Sample.INSTANCE.play( Assets.Sounds.BOSS );
+		}
+	}
+	
+	public static void handleCell( int cell ) {
+		cellSelector.select( cell, PointerEvent.LEFT );
+	}
+	
+	public static void selectCell( CellSelector.Listener listener ) {
+		if (cellSelector.listener != null && cellSelector.listener != defaultCellListener){
+			cellSelector.listener.onSelect(null);
+		}
+		cellSelector.listener = listener;
+		cellSelector.enabled = Dungeon.hero.ready;
+		if (scene != null) {
+			scene.prompt(listener.prompt());
+		}
+	}
+	
+	public static boolean cancelCellSelector() {
+		if (cellSelector.listener != null && cellSelector.listener != defaultCellListener) {
+			cellSelector.resetKeyHold();
+			cellSelector.cancel();
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static WndBag selectItem( WndBag.ItemSelector listener ) {
+		cancel();
 
         if (scene != null) {
             //TODO can the inventory pane work in these cases? bad to fallback to mobile window

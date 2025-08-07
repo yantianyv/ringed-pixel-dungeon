@@ -55,9 +55,9 @@ public class GnollTrickster extends Gnoll {
         WANDERING = new Wandering();
         state = WANDERING;
 
-        //at half quantity, see createLoot()
-        loot = Generator.Category.MISSILE;
-        lootChance = 1f;
+		//at quantity of 1 and no upgrades
+		loot = Generator.Category.MISSILE;
+		lootChance = 1f;
 
         properties.add(Property.MINIBOSS);
     }
@@ -115,27 +115,33 @@ public class GnollTrickster extends Gnoll {
         }
     }
 
-    @Override
-    public void aggro(Char ch) {
-        //cannot be aggroed to something it can't see
-        //skip this check if FOV isn't initialized
-        if (ch == null || fieldOfView == null
-                || fieldOfView.length != Dungeon.level.length() || fieldOfView[ch.pos]) {
-            super.aggro(ch);
-        }
-    }
-
-    @Override
-    public Item createLoot() {
-        MissileWeapon drop = (MissileWeapon) super.createLoot();
-        //half quantity, rounded up
-        drop.quantity((drop.quantity() + 1) / 2);
-        return drop;
-    }
-
-    @Override
-    public void die(Object cause) {
-        super.die(cause);
+	@Override
+	public void aggro(Char ch) {
+		//cannot be aggroed to something it can't see
+		//skip this check if FOV isn't initialized
+		if (ch == null || fieldOfView == null
+				|| fieldOfView.length != Dungeon.level.length() || fieldOfView[ch.pos]) {
+			super.aggro(ch);
+		}
+	}
+	
+	@Override
+	public Item createLoot() {
+		MissileWeapon drop = (MissileWeapon)super.createLoot();
+		drop.level(0);
+		if (drop.hasCurseEnchant()){
+			drop.enchant(null);
+		}
+		drop.cursed = false;
+		drop.identify(false);
+		//half quantity, rounded up
+		drop.quantity((drop.quantity()+1)/2);
+		return drop;
+	}
+	
+	@Override
+	public void die( Object cause ) {
+		super.die( cause );
 
         Ghost.Quest.process();
     }

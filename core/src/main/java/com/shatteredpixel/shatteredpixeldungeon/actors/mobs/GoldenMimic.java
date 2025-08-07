@@ -90,24 +90,24 @@ public class GoldenMimic extends Mimic {
         super.setLevel(Math.round(level * 1.33f));
     }
 
-    @Override
-    protected void generatePrize(boolean useDecks) {
-        super.generatePrize(useDecks);
-        //all existing prize items are guaranteed uncursed, and have a 50% chance to be +1 if they were +0
-        for (Item i : items) {
-            if (i instanceof EquipableItem || i instanceof Wand) {
-                i.curse(false);
-                i.cursedKnown = true;
-                if (i instanceof Weapon && ((Weapon) i).hasCurseEnchant()) {
-                    ((Weapon) i).enchant(null);
-                }
-                if (i instanceof Armor && ((Armor) i).hasCurseGlyph()) {
-                    ((Armor) i).inscribe(null);
-                }
-                if (!(i instanceof MissileWeapon || i instanceof Artifact) && i.level() == 0 && Random.Int(2) == 0) {
-                    i.upgrade();
-                }
-            }
-        }
-    }
+	@Override
+	protected void generatePrize( boolean useDecks ) {
+		super.generatePrize( useDecks );
+		//all existing prize items are guaranteed uncursed, and have a 50% chance to be +1 if they were +0
+		for (Item i : items){
+			if (i instanceof EquipableItem || i instanceof Wand){
+				i.cursed = false;
+				i.cursedKnown = true;
+				if (i instanceof Weapon && ((Weapon) i).hasCurseEnchant()){
+					((Weapon) i).enchant(null);
+				}
+				if (i instanceof Armor && ((Armor) i).hasCurseGlyph()){
+					((Armor) i).inscribe(null);
+				}
+				if (!(i instanceof Artifact) && i.level() == 0 && Random.Int(2) == 0){
+					i.upgrade();
+				}
+			}
+		}
+	}
 }

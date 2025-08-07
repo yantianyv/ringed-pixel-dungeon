@@ -174,7 +174,7 @@ public abstract class Recipe {
     // Static members
     //*******
     private static Recipe[] variableRecipes = new Recipe[]{
-        new LiquidMetal.Recipe()
+        //none for now
     };
 
     private static Recipe[] oneIngredientRecipes = new Recipe[]{
@@ -183,6 +183,7 @@ public abstract class Recipe {
         new ExoticScroll.ScrollToExotic(),
         new ArcaneResin.Recipe(),
         new OriginGem.Recipe(),
+		new LiquidMetal.Recipe(),
         new BlizzardBrew.Recipe(),
         new InfernalBrew.Recipe(),
         new AquaBrew.Recipe(),
@@ -259,18 +260,18 @@ public abstract class Recipe {
 
         return result;
     }
-
-    public static boolean usableInRecipe(Item item) {
+	
+    // 判断是否可用于炼金
+	public static boolean usableInRecipe(Item item){
+        // only upgradeable thrown weapons and wands allowed among equipment items
         if (item instanceof EquipableItem) {
-            //only thrown weapons and wands allowed among equipment items
-            return item.isIdentified() && !item.cursed && (item instanceof MissileWeapon || item instanceof Ring);
-        } else if (item instanceof Wand || item instanceof Ring) {
-            return item.isIdentified() && !item.cursed;
-        } else if (item != null) {
-            //other items can be unidentified, but not cursed
-            return !item.cursed;
-        } else {
-            return false;
-        }
-    }
+            return item.cursedKnown && !item.cursed &&
+                    item instanceof MissileWeapon && item.isUpgradable();
+        } else if (item instanceof Wand) {
+            return item.cursedKnown && !item.cursed;
+		} else {
+			//other items can be unidentified, but not cursed
+			return !item.cursed;
+		}
+	}
 }

@@ -273,12 +273,12 @@ public class Imp extends NPC {
             reward = null;
             completed = true;
 
-            Statistics.questScores[3] = 4000;
-            Notes.remove(Notes.Landmark.IMP);
-        }
-
-        public static boolean isCompleted() {
-            return completed;
-        }
-    }
+			Statistics.questScores[3] = 4000;
+			Notes.remove( Notes.Landmark.IMP );
+		}
+		
+		public static boolean isCompleted() {
+			return spawned && completed;
+		}
+	}
 }

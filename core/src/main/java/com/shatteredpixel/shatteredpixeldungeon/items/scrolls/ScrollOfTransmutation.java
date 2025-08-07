@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Transmuting;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
@@ -87,66 +88,70 @@ public class ScrollOfTransmutation extends InventoryScroll {
         } else if (item instanceof Artifact) {
             return !item.unique;
 
-            //all rings, wands, trinkets, seeds, and runestones
-        } else {
-            return item instanceof Ring || item instanceof Wand || item instanceof Trinket
-                    || item instanceof Plant.Seed || item instanceof Runestone;
-        }
-    }
-
-    @Override
-    protected void onItemSelected(Item item) {
-
-        Item result = changeItem(item);
-
-        if (result == null) {
-            //This shouldn't ever trigger
-            GLog.n(Messages.get(this, "nothing"));
-            curItem.collect(curUser.belongings.backpack);
-        } else {
-            if (result != item) {
-                int slot = Dungeon.quickslot.getSlot(item);
-                if (item.isEquipped(Dungeon.hero)) {
-                    item.curse(false); //to allow it to be unequipped
-                    if (item instanceof Artifact && result instanceof Ring) {
-                        //if we turned an equipped artifact into a ring, ring goes into inventory
-                        ((EquipableItem) item).doUnequip(Dungeon.hero, false);
-                        if (!result.collect()) {
-                            Dungeon.level.drop(result, curUser.pos).sprite.drop();
-                        }
-                    } else if (item instanceof KindOfWeapon && Dungeon.hero.belongings.secondWep() == item) {
-                        ((EquipableItem) item).doUnequip(Dungeon.hero, false);
-                        ((KindOfWeapon) result).equipSecondary(Dungeon.hero);
-                    } else {
-                        ((EquipableItem) item).doUnequip(Dungeon.hero, false);
-                        ((EquipableItem) result).doEquip(Dungeon.hero);
-                    }
-                    Dungeon.hero.spend(-Dungeon.hero.cooldown()); //cancel equip/unequip time
-                } else {
-                    item.detach(Dungeon.hero.belongings.backpack);
-                    if (!result.collect()) {
-                        Dungeon.level.drop(result, curUser.pos).sprite.drop();
-                    } else if (result.stackable && Dungeon.hero.belongings.getSimilar(result) != null) {
-                        result = Dungeon.hero.belongings.getSimilar(result);
-                    }
-                }
-                if (slot != -1
-                        && result.defaultAction() != null
-                        && !Dungeon.quickslot.isNonePlaceholder(slot)
-                        && Dungeon.hero.belongings.contains(result)) {
-                    Dungeon.quickslot.setSlot(slot, result);
-                }
-            }
-            if (result.isIdentified()) {
-                Catalog.setSeen(result.getClass());
-                Statistics.itemTypesDiscovered.add(result.getClass());
-            }
-            Transmuting.show(curUser, item, result);
-            curUser.sprite.emitter().start(Speck.factory(Speck.CHANGE), 0.2f, 10);
-            GLog.p(Messages.get(this, "morph"));
-        }
-
-    }
+		//all rings, wands, trinkets, seeds, and runestones
+		} else {
+			return item instanceof Ring || item instanceof Wand || item instanceof Trinket
+					|| item instanceof Plant.Seed || item instanceof Runestone;
+		}
+	}
+	
+	@Override
+	protected void onItemSelected(Item item) {
+		
+		Item result = changeItem(item);
+		
+		if (result == null){
+			//This shouldn't ever trigger
+			GLog.n( Messages.get(this, "nothing") );
+			curItem.collect( curUser.belongings.backpack );
+		} else {
+			if (result != item) {
+				int slot = Dungeon.quickslot.getSlot(item);
+				if (item.isEquipped(Dungeon.hero)) {
+					item.cursed = false; //to allow it to be unequipped
+					if (item instanceof Artifact && result instanceof Ring){
+						//if we turned an equipped artifact into a ring, ring goes into inventory
+						((EquipableItem) item).doUnequip(Dungeon.hero, false);
+						if (!result.collect()){
+							Dungeon.level.drop(result, curUser.pos).sprite.drop();
+						}
+					} else if (item instanceof KindOfWeapon && Dungeon.hero.belongings.secondWep() == item){
+						((EquipableItem) item).doUnequip(Dungeon.hero, false);
+						((KindOfWeapon) result).equipSecondary(Dungeon.hero);
+					} else {
+						((EquipableItem) item).doUnequip(Dungeon.hero, false);
+						((EquipableItem) result).doEquip(Dungeon.hero);
+					}
+					Dungeon.hero.spend(-Dungeon.hero.cooldown()); //cancel equip/unequip time
+				} else {
+					if (item instanceof MissileWeapon){
+						item.detachAll(Dungeon.hero.belongings.backpack);
+					} else {
+						item.detach(Dungeon.hero.belongings.backpack);
+					}
+					if (!result.collect()) {
+						Dungeon.level.drop(result, curUser.pos).sprite.drop();
+					} else if (result.stackable && Dungeon.hero.belongings.getSimilar(result) != null){
+						result = Dungeon.hero.belongings.getSimilar(result);
+					}
+				}
+				if (slot != -1
+						&& result.defaultAction() != null
+						&& !Dungeon.quickslot.isNonePlaceholder(slot)
+						&& Dungeon.hero.belongings.contains(result)){
+					Dungeon.quickslot.setSlot(slot, result);
+				}
+			}
+			if (result.isIdentified()){
+				Catalog.setSeen(result.getClass());
+				Statistics.itemTypesDiscovered.add(result.getClass());
+			}
+			Transmuting.show(curUser, item, result);
+			curUser.sprite.emitter().start(Speck.factory(Speck.CHANGE), 0.2f, 10);
+			GLog.p( Messages.get(this, "morph") );
+		}
+		
+	}
 
 	public static Item changeItem( Item item ){
 		if (item instanceof MagesStaff) {
@@ -236,7 +241,7 @@ public class ScrollOfTransmutation extends InventoryScroll {
         } while (Challenges.isItemBlocked(n) || n.getClass() == w.getClass());
 
         n.level(0);
-        n.quantity(1);
+        n.quantity(w.quantity());
         int level = w.trueLevel();
         if (level > 0) {
             n.upgrade(level);
@@ -252,6 +257,13 @@ public class ScrollOfTransmutation extends InventoryScroll {
         n.cursed = w.cursed;
         n.augment = w.augment;
         n.enchantHardened = w.enchantHardened;
+
+		//technically a new set, ensure old one is destroyed (except for darts)
+		if (w instanceof MissileWeapon && w.isUpgradable()){
+			Buff.affect(Dungeon.hero, MissileWeapon.UpgradedSetTracker.class).levelThresholds.put(((MissileWeapon) w).setID, Integer.MAX_VALUE);
+			//also extra missile weapon properties
+			((MissileWeapon) n).damage(100 - ((MissileWeapon)w).durabilityLeft());
+		}
 
         return n;
 

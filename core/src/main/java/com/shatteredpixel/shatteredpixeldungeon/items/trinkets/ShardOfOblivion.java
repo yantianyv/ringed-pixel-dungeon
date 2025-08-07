@@ -161,6 +161,31 @@ public class ShardOfOblivion extends Trinket {
             return Math.max(0, (DURATION - visualcooldown()) / DURATION);
         }
 
+	}
+
+	public static class ThrownUseTracker extends FlavourBuff{
+
+		{
+			type = buffType.POSITIVE;
+		}
+
+		public static float DURATION = 50f;
+
+		@Override
+		public int icon() {
+			return BuffIndicator.THROWN_WEP;
+		}
+
+		@Override
+		public void tintIcon(Image icon) {
+			icon.hardlight(0, 0.6f, 1);
+		}
+
+		@Override
+		public float iconFadePercent() {
+			return Math.max(0, (DURATION - visualcooldown()) / DURATION);
+		}
+
     }
 
     public static float lootChanceMultiplier() {
@@ -204,6 +229,9 @@ public class ShardOfOblivion extends Trinket {
         if (Dungeon.hero.buff(WandUseTracker.class) != null) {
             wornUnIDed++;
         }
+		if (Dungeon.hero.buff(ThrownUseTracker.class) != null){
+			wornUnIDed++;
+		}
 
         wornUnIDed = Math.min(wornUnIDed, level + 1);
         return 1f + .2f * wornUnIDed;

@@ -220,7 +220,7 @@ public enum HeroClass {
         }
         // 投武
         ThrowingStone stones = new ThrowingStone();
-        stones.quantity(3).collect();
+        stones.identify().collect();
         // 戒指
         (hero.belongings.ring1 = new RingOfTakeout()).identify().level(1);
         hero.belongings.ring1.activate(hero);
@@ -259,19 +259,17 @@ public enum HeroClass {
         hero.belongings.artifact.activate(hero);
         // 投武
         ThrowingKnife knives = new ThrowingKnife();
-        knives.quantity(3).collect();
+        knives.identify().collect();
         // 戒指
         (hero.belongings.ring1 = new RingOfTimetraveler()).identify().level(1);
         hero.belongings.ring1.activate(hero);
 
-        // 装进包里
-        Dungeon.quickslot.setSlot(0, cloak);
-        Dungeon.quickslot.setSlot(1, knives);
-        // 鉴定
-        new ScrollOfMagicMapping().identify();
-        new PotionOfInvisibility().identify();
+		Dungeon.quickslot.setSlot(0, cloak);
+		Dungeon.quickslot.setSlot(1, knives);
 
-    }
+		new ScrollOfMagicMapping().identify();
+		new PotionOfInvisibility().identify();
+	}
 
     private static void initHuntress(Hero hero) {   // 女猎
         // 武器
@@ -296,7 +294,7 @@ public enum HeroClass {
         hero.belongings.weapon.activate(hero);
         // 投武
         ThrowingSpike spikes = new ThrowingSpike();
-        spikes.quantity(2).collect();
+        spikes.quantity(2).identify().collect(); //set quantity is 3, but Duelist starts with 2
         // 戒指
         (hero.belongings.ring1 = new RingOfKungfu()).identify().level(1);
         hero.belongings.ring1.activate(hero);

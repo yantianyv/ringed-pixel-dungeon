@@ -195,19 +195,19 @@ public class AscensionChallenge extends Buff {
             return;
         }
 
-        float oldStacks = chal.stacks;
-        if (enemy instanceof Ghoul || enemy instanceof RipperDemon) {
-            chal.stacks -= 0.5f;
-        } else {
-            chal.stacks -= 1;
-        }
-		chal.stacksLowered = true;
-        // 刷新时光行者之戒的效果
-        // RingOfTimetraveler.refresh();
-        chal.stacks = Math.max(0, chal.stacks);
-        if (chal.stacks < 8f && (int) (chal.stacks / 2) != (int) (oldStacks / 2f)) {
-            GLog.p(Messages.get(AscensionChallenge.class, "weaken"));
-        }
+		float oldStacks = chal.stacks;
+		if (enemy instanceof Ghoul || enemy instanceof RipperDemon){
+			chal.stacks -= 0.5f;
+		} else {
+			chal.stacks -= 1;
+		}
+		chal.stacks = Math.max(0, chal.stacks);
+		if (!chal.stacksLowered) {
+			chal.stacksLowered = true;
+			GLog.p(Messages.get(AscensionChallenge.class, "weaken"));
+		} else if (chal.stacks < 8f && (int)(chal.stacks/2) != (int)(oldStacks/2f)){
+			GLog.p(Messages.get(AscensionChallenge.class, "weaken"));
+		}
 
         //if the hero is at the max level, grant them 10 effective xp per stack cleared
         // for the purposes of on-xp gain effects

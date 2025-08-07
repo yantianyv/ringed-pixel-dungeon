@@ -27,6 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Regeneration;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -170,40 +171,43 @@ public class UnstableSpellbook extends Artifact {
             final ExploitHandler handler = Buff.affect(hero, ExploitHandler.class);
             handler.scroll = scroll;
 
-            GameScene.show(new WndOptions(new ItemSprite(this),
-                    Messages.get(this, "prompt"),
-                    Messages.get(this, "read_empowered"),
-                    scroll.trueName(),
-                    Messages.get(ExoticScroll.regToExo.get(scroll.getClass()), "name")) {
-                @Override
-                protected void onSelect(int index) {
-                    handler.detach();
-                    if (index == 1) {
-                        Scroll scroll = Reflection.newInstance(ExoticScroll.regToExo.get(fScroll.getClass()));
-                        curItem = scroll;
-                        charge--;
-                        scroll.anonymize();
-                        checkForArtifactProc(curUser, scroll);
-                        scroll.doRead();
-                        Talent.onArtifactUsed(Dungeon.hero);
-                    } else {
-                        checkForArtifactProc(curUser, fScroll);
-                        fScroll.doRead();
-                        Talent.onArtifactUsed(Dungeon.hero);
-                    }
-                    updateQuickslot();
-                }
+			GameScene.show(new WndOptions(new ItemSprite(this),
+					Messages.get(this, "prompt"),
+					Messages.get(this, "read_empowered"),
+					scroll.trueName(),
+					Messages.get(ExoticScroll.regToExo.get(scroll.getClass()), "name")){
+				@Override
+				protected void onSelect(int index) {
+					handler.detach();
+					if (index == 1){
+						Scroll scroll = Reflection.newInstance(ExoticScroll.regToExo.get(fScroll.getClass()));
+						curItem = scroll;
+						charge--;
+						scroll.anonymize();
+						checkForArtifactProc(curUser, scroll);
+						scroll.doRead();
+						Invisibility.dispel();
+						Talent.onArtifactUsed(Dungeon.hero);
+					} else {
+						checkForArtifactProc(curUser, fScroll);
+						fScroll.doRead();
+						Invisibility.dispel();
+						Talent.onArtifactUsed(Dungeon.hero);
+					}
+					updateQuickslot();
+				}
 
-                @Override
-                public void onBackPressed() {
-                    //do nothing
-                }
-            });
-        } else {
-            checkForArtifactProc(curUser, scroll);
-            scroll.doRead();
-            Talent.onArtifactUsed(Dungeon.hero);
-        }
+				@Override
+				public void onBackPressed() {
+					//do nothing
+				}
+			});
+		} else {
+			checkForArtifactProc(curUser, scroll);
+			scroll.doRead();
+			Invisibility.dispel();
+			Talent.onArtifactUsed(Dungeon.hero);
+		}
 
         updateQuickslot();
     }
@@ -234,21 +238,22 @@ public class UnstableSpellbook extends Artifact {
 
         public Scroll scroll;
 
-        @Override
-        public boolean act() {
-            curUser = Dungeon.hero;
-            curItem = scroll;
-            scroll.anonymize();
-            Game.runOnRenderThread(new Callback() {
-                @Override
-                public void call() {
-                    scroll.doRead();
-                    Item.updateQuickslot();
-                }
-            });
-            detach();
-            return true;
-        }
+		@Override
+		public boolean act() {
+			curUser = Dungeon.hero;
+			curItem = scroll;
+			scroll.anonymize();
+			Game.runOnRenderThread(new Callback() {
+				@Override
+				public void call() {
+					scroll.doRead();
+					Invisibility.dispel();
+					Item.updateQuickslot();
+				}
+			});
+			detach();
+			return true;
+		}
 
         @Override
         public void storeInBundle(Bundle bundle) {

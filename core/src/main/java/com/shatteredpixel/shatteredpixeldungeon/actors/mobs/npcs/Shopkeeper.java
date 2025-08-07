@@ -38,6 +38,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -268,24 +269,27 @@ public class Shopkeeper extends NPC {
                     i++;
                 }
 				CurrencyIndicator.showGold = true;
-                GameScene.show(new WndOptions(sprite(), Messages.titleCase(name()), description(), options) {
-                    @Override
-                    protected void onSelect(int index) {
-                        super.onSelect(index);
-                        if (index == 0) {
-                            sell();
-                        } else if (index == 1) {
-                            GameScene.show(new WndTitledMessage(sprite(), Messages.titleCase(name()), chatText()));
-                        } else if (index > 1) {
-                            GLog.i(Messages.get(Shopkeeper.this, "buyback"));
-                            Item returned = buybackItems.remove(index - 2);
-                            Dungeon.gold -= returned.value();
-                            Statistics.goldCollected -= returned.value();
-                            if (!returned.doPickUp(Dungeon.hero)) {
-                                Dungeon.level.drop(returned, Dungeon.hero.pos);
-                            }
-                        }
-                    }
+				GameScene.show(new WndOptions(sprite(), Messages.titleCase(name()), description(), options){
+					@Override
+					protected void onSelect(int index) {
+						super.onSelect(index);
+						if (index == 0){
+							sell();
+						} else if (index == 1){
+							GameScene.show(new WndTitledMessage(sprite(), Messages.titleCase(name()), chatText()));
+						} else if (index > 1){
+							GLog.i(Messages.get(Shopkeeper.this, "buyback"));
+							Item returned = buybackItems.remove(index-2);
+							Dungeon.gold -= returned.value();
+							Statistics.goldCollected -= returned.value();
+							if (returned instanceof MissileWeapon && returned.isUpgradable()){
+								Buff.affect(Dungeon.hero, MissileWeapon.UpgradedSetTracker.class).levelThresholds.put(((MissileWeapon) returned).setID, returned.level());
+							}
+							if (!returned.doPickUp(Dungeon.hero)){
+								Dungeon.level.drop(returned, Dungeon.hero.pos);
+							}
+						}
+					}
 
                     @Override
                     protected boolean enabled(int index) {

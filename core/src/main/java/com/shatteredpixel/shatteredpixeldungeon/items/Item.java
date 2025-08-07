@@ -675,72 +675,67 @@ public String ad_mod = "default";
 
         throwSound();
 
-        Char enemy = Actor.findChar(cell);
-        QuickSlotButton.target(enemy);
+		Char enemy = Actor.findChar( cell );
+		QuickSlotButton.target(enemy);
+		
+		final float delay = castDelay(user, cell);
 
-        final float delay = castDelay(user, dst);
-
-        if (enemy != null) {
-            ((MissileSprite) user.sprite.parent.recycle(MissileSprite.class)).
-                    reset(user.sprite,
-                            enemy.sprite,
-                            this,
-                            new Callback() {
-                        @Override
-                        public void call() {
-                            curUser = user;
-                            Item i = Item.this.detach(user.belongings.backpack);
-                            if (i != null) {
-                                i.onThrow(cell);
-                            }
-                            if (curUser.hasTalent(Talent.IMPROVISED_PROJECTILES)
-                                    && !(Item.this instanceof MissileWeapon)
-                                    && curUser.buff(Talent.ImprovisedProjectileCooldown.class) == null) {
-                                if (enemy != null && enemy.alignment != curUser.alignment) {
-                                    Sample.INSTANCE.play(Assets.Sounds.HIT);
-                                    Buff.affect(enemy, Blindness.class, 1f + curUser.pointsInTalent(Talent.IMPROVISED_PROJECTILES));
-                                    Buff.affect(curUser, Talent.ImprovisedProjectileCooldown.class, 50f);
-                                }
-                            }
-                            if (user.buff(Talent.LethalMomentumTracker.class) != null) {
-                                user.buff(Talent.LethalMomentumTracker.class).detach();
-                                user.next();
-                            } else {
-                                user.spendAndNext(delay);
-                            }
-                        }
-                    });
-        } else {
-            ((MissileSprite) user.sprite.parent.recycle(MissileSprite.class)).
-                    reset(user.sprite,
-                            cell,
-                            this,
-                            new Callback() {
-                        @Override
-                        public void call() {
-                            curUser = user;
-                            Item i = Item.this.detach(user.belongings.backpack);
-                            user.spend(delay);
-                            if (i != null) {
-                                i.onThrow(cell);
-                            }
-                            user.next();
-                        }
-                    });
-        }
-    }
-
-    public float castDelay(Char user, int dst) {
-        return TIME_TO_THROW;
-    }
-
-    protected static Hero curUser = null;
-    protected static Item curItem = null;
-
-    public void setCurrent(Hero hero) {
-        curUser = hero;
-        curItem = this;
-    }
+		if (enemy != null) {
+			((MissileSprite) user.sprite.parent.recycle(MissileSprite.class)).
+					reset(user.sprite,
+							enemy.sprite,
+							this,
+							new Callback() {
+						@Override
+						public void call() {
+							curUser = user;
+							Item i = Item.this.detach(user.belongings.backpack);
+							if (i != null) i.onThrow(cell);
+							if (curUser.hasTalent(Talent.IMPROVISED_PROJECTILES)
+									&& !(Item.this instanceof MissileWeapon)
+									&& curUser.buff(Talent.ImprovisedProjectileCooldown.class) == null){
+								if (enemy != null && enemy.alignment != curUser.alignment){
+									Sample.INSTANCE.play(Assets.Sounds.HIT);
+									Buff.affect(enemy, Blindness.class, 1f + curUser.pointsInTalent(Talent.IMPROVISED_PROJECTILES));
+									Buff.affect(curUser, Talent.ImprovisedProjectileCooldown.class, 50f);
+								}
+							}
+							if (user.buff(Talent.LethalMomentumTracker.class) != null){
+								user.buff(Talent.LethalMomentumTracker.class).detach();
+								user.next();
+							} else {
+								user.spendAndNext(delay);
+							}
+						}
+					});
+		} else {
+			((MissileSprite) user.sprite.parent.recycle(MissileSprite.class)).
+					reset(user.sprite,
+							cell,
+							this,
+							new Callback() {
+						@Override
+						public void call() {
+							curUser = user;
+							Item i = Item.this.detach(user.belongings.backpack);
+							user.spend(delay);
+							if (i != null) i.onThrow(cell);
+							user.next();
+						}
+					});
+		}
+	}
+	
+	public float castDelay( Char user, int cell ){
+		return TIME_TO_THROW;
+	}
+	
+	protected static Hero curUser = null;
+	protected static Item curItem = null;
+	public void setCurrent( Hero hero ){
+		curUser = hero;
+		curItem = this;
+	}
 
     protected static CellSelector.Listener thrower = new CellSelector.Listener() {
         @Override

@@ -61,45 +61,49 @@ public class Statue extends Mob {
         defenseSkill = 4 + Dungeon.depth;
     }
 
-    public void createWeapon(boolean useDecks) {
-        if (useDecks) {
-            weapon = (MeleeWeapon) Generator.random(Generator.Category.WEAPON);
-        } else {
-            weapon = (MeleeWeapon) Generator.randomUsingDefaults(Generator.Category.WEAPON);
-        }
-        levelGenStatue = useDecks;
-        weapon.curse(false);
-        weapon.enchant(Enchantment.random());
-    }
+	public void createWeapon( boolean useDecks ){
+		if (useDecks) {
+			weapon = (MeleeWeapon) Generator.random(Generator.Category.WEAPON);
+		} else {
+			weapon = (MeleeWeapon) Generator.randomUsingDefaults(Generator.Category.WEAPON);
+		}
+		levelGenStatue = useDecks;
+		weapon.cursed = false;
+		weapon.enchant( Enchantment.random() );
+	}
 
-    private static final String WEAPON = "weapon";
-
-    @Override
-    public void storeInBundle(Bundle bundle) {
-        super.storeInBundle(bundle);
-        bundle.put(WEAPON, weapon);
-    }
-
-    @Override
-    public void restoreFromBundle(Bundle bundle) {
-        super.restoreFromBundle(bundle);
-        weapon = (Weapon) bundle.get(WEAPON);
-    }
-
-    @Override
-    public int damageRoll() {
-        return weapon.damageRoll(this);
-    }
-
-    @Override
-    public int attackSkill(Char target) {
-        return (int) ((9 + Dungeon.depth) * weapon.accuracyFactor(this, target));
-    }
-
-    @Override
-    public float attackDelay() {
-        return super.attackDelay() * weapon.delayFactor(this);
-    }
+	public Weapon weapon(){
+		return weapon;
+	}
+	
+	private static final String WEAPON	= "weapon";
+	
+	@Override
+	public void storeInBundle( Bundle bundle ) {
+		super.storeInBundle( bundle );
+		bundle.put( WEAPON, weapon );
+	}
+	
+	@Override
+	public void restoreFromBundle( Bundle bundle ) {
+		super.restoreFromBundle( bundle );
+		weapon = (Weapon)bundle.get( WEAPON );
+	}
+	
+	@Override
+	public int damageRoll() {
+		return weapon.damageRoll(this);
+	}
+	
+	@Override
+	public int attackSkill( Char target ) {
+		return (int)((9 + Dungeon.depth) * weapon.accuracyFactor( this, target ));
+	}
+	
+	@Override
+	public float attackDelay() {
+		return super.attackDelay()*weapon.delayFactor( this );
+	}
 
     @Override
     protected boolean canAttack(Char enemy) {

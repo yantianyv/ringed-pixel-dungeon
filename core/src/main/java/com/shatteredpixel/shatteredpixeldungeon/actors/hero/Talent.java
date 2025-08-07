@@ -963,30 +963,33 @@ public enum Talent {
         }
     }
 
-    public static float itemIDSpeedFactor(Hero hero, Item item) {
-        // 1.75x/2.5x speed with Huntress talent
-        float factor = 1f + 0.75f * hero.pointsInTalent(SURVIVALISTS_INTUITION);
+	public static float itemIDSpeedFactor( Hero hero, Item item ){
+		float factor = 1f;
 
-        // Affected by both Warrior(1.75x/2.5x) and Duelist(2.5x/inst.) talents
-        if (item instanceof MeleeWeapon) {
-            factor *= 1f + 1.5f * hero.pointsInTalent(ADVENTURERS_INTUITION); //instant at +2 (see onItemEquipped)
-            factor *= 1f + 0.75f * hero.pointsInTalent(VETERANS_INTUITION);
-        }
-        // Affected by both Warrior(2.5x/inst.) and Duelist(1.75x/2.5x) talents
-        if (item instanceof Armor) {
-            factor *= 1f + 0.75f * hero.pointsInTalent(ADVENTURERS_INTUITION);
-            factor *= 1f + hero.pointsInTalent(VETERANS_INTUITION); //instant at +2 (see onItemEquipped)
-        }
-        // 3x/instant for Mage (see Wand.wandUsed())
-        if (item instanceof Wand) {
-            factor *= 1f + 2.0f * hero.pointsInTalent(SCHOLARS_INTUITION);
-        }
-        // 2x/instant for Rogue (see onItemEqupped), also id's type on equip/on pickup
-        if (item instanceof Ring) {
-            factor *= 1f + hero.pointsInTalent(THIEFS_INTUITION);
-        }
-        return factor;
-    }
+		// Affected by both Warrior(1.75x/2.5x) and Duelist(2.5x/inst.) talents
+		if (item instanceof MeleeWeapon){
+			factor *= 1f + 1.5f*hero.pointsInTalent(ADVENTURERS_INTUITION); //instant at +2 (see onItemEquipped)
+			factor *= 1f + 0.75f*hero.pointsInTalent(VETERANS_INTUITION);
+		}
+		// Affected by both Warrior(2.5x/inst.) and Duelist(1.75x/2.5x) talents
+		if (item instanceof Armor){
+			factor *= 1f + 0.75f*hero.pointsInTalent(ADVENTURERS_INTUITION);
+			factor *= 1f + hero.pointsInTalent(VETERANS_INTUITION); //instant at +2 (see onItemEquipped)
+		}
+		// 3x/instant for Mage (see Wand.wandUsed())
+		if (item instanceof Wand){
+			factor *= 1f + 2.0f*hero.pointsInTalent(SCHOLARS_INTUITION);
+		}
+		// 3x/instant speed with Huntress talent (see MissileWeapon.proc)
+		if (item instanceof MissileWeapon){
+			factor *= 1f + 2.0f*hero.pointsInTalent(SURVIVALISTS_INTUITION);
+		}
+		// 2x/instant for Rogue (see onItemEqupped), also id's type on equip/on pickup
+		if (item instanceof Ring){
+			factor *= 1f + hero.pointsInTalent(THIEFS_INTUITION);
+		}
+		return factor;
+	}
 
 	public static void onPotionUsed( Hero hero, int cell, float factor ){
 		if (hero.hasTalent(LIQUID_WILLPOWER)){
@@ -1493,20 +1496,15 @@ public enum Talent {
         bundle.put("replacements", replacementsBundle);
     }
 
-    private static final HashSet<String> removedTalents = new HashSet<>();
+	private static final HashSet<String> removedTalents = new HashSet<>();
+	static{
+		//nothing atm
+	}
 
-    static {
-        //v2.4.0
-        removedTalents.add("TEST_SUBJECT");
-        removedTalents.add("TESTED_HYPOTHESIS");
-    }
-
-    private static final HashMap<String, String> renamedTalents = new HashMap<>();
-
-    static {
-        //v2.4.0
-        renamedTalents.put("SECONDARY_CHARGE", "VARIED_CHARGE");
-    }
+	private static final HashMap<String, String> renamedTalents = new HashMap<>();
+	static{
+		//nothing atm
+	}
 
     public static void restoreTalentsFromBundle(Bundle bundle, Hero hero) {
         if (bundle.contains("replacements")) {

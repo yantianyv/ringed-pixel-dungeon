@@ -31,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.StandardRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.BurningTrap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -99,13 +100,22 @@ public class BlacksmithRoom extends StandardRoom {
                 LevelTransition.Type.BRANCH_ENTRANCE));
         Painter.set(level, entrancePos, Terrain.EXIT);
 
-        for (Point p : getPoints()) {
-            int cell = level.pointToCell(p);
-            if (level.map[cell] == Terrain.TRAP) {
-                level.setTrap(new BurningTrap().reveal(), cell);
-            }
-        }
-    }
+		for(Point p : getPoints()) {
+			int cell = level.pointToCell(p);
+			if (level.map[cell] == Terrain.TRAP){
+				level.setTrap(new BurningTrap().reveal(), cell);
+			}
+		}
+	}
+
+	@Override
+	public boolean canConnect(Room r) {
+		if (r.isExit()){
+			//prevents confusion where smith exit and floor exit are very close to each other.
+			return false;
+		}
+		return super.canConnect(r);
+	}
 
     @Override
     public boolean canPlaceCharacter(Point p, Level l) {

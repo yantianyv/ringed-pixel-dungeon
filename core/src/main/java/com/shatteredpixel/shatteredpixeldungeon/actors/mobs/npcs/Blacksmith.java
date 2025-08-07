@@ -395,30 +395,21 @@ public class Blacksmith extends NPC {
             return rooms;
         }
 
-        public static void generateRewards(boolean useDecks) {
-            //生成smithRewards列表，用于存储smith的奖励
-            smithRewards = new ArrayList<>();
-            //向smithRewards列表中添加两件随机生成的3级装备和一枚随机戒指
-            smithRewards.add(Generator.randomArmor(3));
-            smithRewards.add(Generator.randomArmor(3));
-            smithRewards.add(new IronRing());
-            //创建一个列表，用于存储需要撤销的物品
-            ArrayList<Item> toUndo = new ArrayList<>();
-            //如果smithRewards列表中的前两件物品类型相同，则进行循环
-            while (smithRewards.get(0).getClass() == smithRewards.get(1).getClass()) {
-                //如果useDecks为true，则将smithRewards列表中的第二件物品添加到toUndo列表中
-                if (useDecks) {
-                    toUndo.add(smithRewards.get(1));
-                }
-                //从smithRewards列表中移除第二件物品
-                smithRewards.remove(1);
-                //向smithRewards列表中添加一个新的随机生成的3级装备
-                smithRewards.add(1, Generator.randomArmor(3));
-            }
-            //遍历toUndo列表，撤销其中的物品
-            for (Item i : toUndo) {
-                Generator.undoDrop(i);
-            }
+		public static void generateRewards( boolean useDecks ){
+			smithRewards = new ArrayList<>();
+			smithRewards.add(Generator.randomWeapon(3, useDecks));
+			smithRewards.add(Generator.randomWeapon(3, useDecks));
+			ArrayList<Item> toUndo = new ArrayList<>();
+			while (smithRewards.get(0).getClass() == smithRewards.get(1).getClass()) {
+				if (useDecks)   toUndo.add(smithRewards.get(1));
+				smithRewards.remove(1);
+				smithRewards.add(Generator.randomWeapon(3, useDecks));
+			}
+			for (Item i : toUndo){
+				Generator.undoDrop(i);
+			}
+			smithRewards.add(Generator.randomMissile(3, useDecks));
+			smithRewards.add(Generator.randomArmor(3));
 
             //30%:+0, 45%:+1, 20%:+2, 5%:+3
             //生成奖励等级

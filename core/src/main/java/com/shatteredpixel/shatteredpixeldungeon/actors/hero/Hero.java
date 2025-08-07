@@ -516,8 +516,23 @@ public class Hero extends Char {
             Buff.affect(this, Sai.ComboStrikeTracker.class).addHit();
         }
 
+        attackTarget = null;
         return hit;
     }
+
+	@Override
+	public boolean attack(Char enemy, float dmgMulti, float dmgBonus, float accMulti) {
+		boolean result = super.attack(enemy, dmgMulti, dmgBonus, accMulti);
+		if (!(belongings.attackingWeapon() instanceof MissileWeapon)){
+			if (buff(Talent.PreciseAssaultTracker.class) != null){
+				buff(Talent.PreciseAssaultTracker.class).detach();
+			} else if (buff(Talent.LiquidAgilACCTracker.class) != null
+						&& buff(Talent.LiquidAgilACCTracker.class).uses <= 0){
+				buff(Talent.LiquidAgilACCTracker.class).detach();
+			}
+		}
+		return result;
+	}
 
     @Override
     public int attackSkill(Char target) {
@@ -550,45 +565,41 @@ public class Hero extends Char {
                     accuracy *= 1f + 0.1f * pointsInTalent(Talent.PRECISE_ASSAULT);
                 }
 
-                if (wep instanceof Flail && buff(Flail.SpinAbilityTracker.class) != null) {
-                    //do nothing, this is not a regular attack so don't consume talent fx
-                } else if (wep instanceof Crossbow && buff(Crossbow.ChargedShot.class) != null) {
-                    //do nothing, this is not a regular attack so don't consume talent fx
-                } else if (buff(Talent.PreciseAssaultTracker.class) != null) {
-                    // 2x/5x/inf. ACC for duelist if she just used a weapon ability
-                    switch (pointsInTalent(Talent.PRECISE_ASSAULT)) {
-                        default:
-                        case 1:
-                            accuracy *= 2;
-                            break;
-                        case 2:
-                            accuracy *= 5;
-                            break;
-                        case 3:
-                            accuracy *= Float.POSITIVE_INFINITY;
-                            break;
-                    }
-                    buff(Talent.PreciseAssaultTracker.class).detach();
-                } else if (buff(Talent.LiquidAgilACCTracker.class) != null) {
-                    // 3x/inf. ACC, depending on talent level
-                    accuracy *= pointsInTalent(Talent.LIQUID_AGILITY) == 2 ? Float.POSITIVE_INFINITY : 3f;
-                    Talent.LiquidAgilACCTracker buff = buff(Talent.LiquidAgilACCTracker.class);
-                    buff.uses--;
-                    if (buff.uses <= 0) {
-                        buff.detach();
-                    }
-                }
-            }
-        }
+				if (wep instanceof Flail && buff(Flail.SpinAbilityTracker.class) != null){
+					//do nothing, this is not a regular attack so don't consume talent fx
+				} else if (wep instanceof Crossbow && buff(Crossbow.ChargedShot.class) != null){
+					//do nothing, this is not a regular attack so don't consume talent fx
+				} else if (buff(Talent.PreciseAssaultTracker.class) != null) {
+					// 2x/5x/inf. ACC for duelist if she just used a weapon ability
+					switch (pointsInTalent(Talent.PRECISE_ASSAULT)){
+						default: case 1:
+							accuracy *= 2; break;
+						case 2:
+							accuracy *= 5; break;
+						case 3:
+							accuracy *= Float.POSITIVE_INFINITY; break;
+					}
+				} else if (buff(Talent.LiquidAgilACCTracker.class) != null){
+					// 3x/inf. ACC, depending on talent level
+					accuracy *= pointsInTalent(Talent.LIQUID_AGILITY) == 2 ? Float.POSITIVE_INFINITY : 3f;
+					Talent.LiquidAgilACCTracker buff = buff(Talent.LiquidAgilACCTracker.class);
+					buff.uses--;
+				}
+			}
+		} else {
+			if (buff(Momentum.class) != null && buff(Momentum.class).freerunning()){
+				accuracy *= 1f + pointsInTalent(Talent.PROJECTILE_MOMENTUM)/2f;
+			}
+		}
 
         if (buff(Scimitar.SwordDance.class) != null) {
             accuracy *= 1.50f;
         }
 
         if (!RingOfKungfu.fightingUnarmed(this)) {
-            return (int) (attackSkill * accuracy * wep.accuracyFactor(this, target));
+            return Math.max(1, Math.round (attackSkill * accuracy * wep.accuracyFactor(this, target)));
         } else {
-            return (int) (attackSkill * accuracy);
+            return Math.max(1, Math.round (attackSkill * accuracy));
         }
     }
 
@@ -637,8 +648,8 @@ public class Hero extends Char {
             evasion = belongings.armor().evasionFactor(this, evasion);
         }
 
-        return Math.round(evasion);
-    }
+		return Math.max(1, Math.round(evasion));
+	}
 
     @Override
     public String defenseVerb() {
@@ -863,11 +874,10 @@ public class Hero extends Char {
         super.spend(time);
     }
 
-    @Override
-    public void spendConstant(float time) {
-        justMoved = false;
-        super.spendConstant(time);
-    }
+	@Override
+	public void spendConstant(float time) {
+		super.spendConstant(time);
+	}
 
     public void spendAndNextConstant(float time) {
         busy();
@@ -1149,22 +1159,23 @@ public class Hero extends Char {
                 if (item.doPickUp(this)) {
                     heap.pickUp();
 
-                    if (item instanceof Dewdrop
-                            || item instanceof TimekeepersHourglass.sandBag
-                            || item instanceof DriedRose.Petal
-                            || item instanceof Key
-                            || item instanceof Guidebook) {
-                        //Do Nothing
-                    } else if (item instanceof DarkGold) {
-                        DarkGold existing = belongings.getItem(DarkGold.class);
-                        if (existing != null) {
-                            if (existing.quantity() >= 40) {
-                                GLog.p(Messages.get(DarkGold.class, "you_now_have", existing.quantity()));
-                            } else {
-                                GLog.i(Messages.get(DarkGold.class, "you_now_have", existing.quantity()));
-                            }
-                        }
-                    } else {
+					if (item instanceof Dewdrop
+							|| item instanceof TimekeepersHourglass.sandBag
+							|| item instanceof DriedRose.Petal
+							|| item instanceof Key
+							|| item instanceof Guidebook
+							|| (item instanceof MissileWeapon && !MissileWeapon.UpgradedSetTracker.pickupValid(this, (MissileWeapon) item))) {
+						//Do Nothing
+					} else if (item instanceof DarkGold) {
+						DarkGold existing = belongings.getItem(DarkGold.class);
+						if (existing != null){
+							if (existing.quantity() >= 40) {
+								GLog.p(Messages.get(DarkGold.class, "you_now_have", existing.quantity()));
+							} else {
+								GLog.i(Messages.get(DarkGold.class, "you_now_have", existing.quantity()));
+							}
+						}
+					} else {
 
                         //TODO make all unique items important? or just POS / SOU?
                         boolean important = item.unique && item.isIdentified()
@@ -1539,79 +1550,78 @@ public class Hero extends Char {
 
         damage = Talent.onAttackProc(this, enemy, damage);
 
-        if (wep != null) {
-            damage = wep.proc(this, enemy, damage);
-        } else {
-            boolean wasEnemy = enemy.alignment == Alignment.ENEMY;
-            if (buff(BodyForm.BodyFormBuff.class) != null
-                    && buff(BodyForm.BodyFormBuff.class).enchant() != null) {
-                damage = buff(BodyForm.BodyFormBuff.class).enchant().proc(new WornShortsword(), this, enemy, damage);
-            }
-            if (!wasEnemy || enemy.alignment == Alignment.ENEMY) {
-                if (buff(HolyWeapon.HolyWepBuff.class) != null) {
-                    int dmg = subClass == HeroSubClass.PALADIN ? 6 : 2;
-                    enemy.damage(Math.round(dmg * Weapon.Enchantment.genericProcChanceMultiplier(this)), HolyWeapon.INSTANCE);
-                }
-                if (buff(Smite.SmiteTracker.class) != null) {
-                    enemy.damage(Smite.bonusDmg(this, enemy), Smite.INSTANCE);
-                }
-            }
-        }
-
-        switch (subClass) {
-            case SNIPER:
-                if (wep instanceof MissileWeapon && !(wep instanceof SpiritBow.SpiritArrow) && enemy != this) {
-                    Actor.add(new Actor() {
-
-                        {
-                            actPriority = VFX_PRIO;
-                        }
-
-                        @Override
-                        protected boolean act() {
-                            if (enemy.isAlive()) {
-                                if (hasTalent(Talent.SHARED_UPGRADES)) {
-                                    int bonusTurns = wep.buffedLvl();
-                                    // bonus dmg is 2.5% x talent lvl x weapon level x weapon tier
-                                    float bonusDmg = wep.buffedLvl() * ((MissileWeapon) wep).tier * pointsInTalent(Talent.SHARED_UPGRADES) * 0.025f;
-                                    Buff.prolong(Hero.this, SnipersMark.class, SnipersMark.DURATION + bonusTurns).set(enemy.id(), bonusDmg);
-                                } else {
-                                    Buff.prolong(Hero.this, SnipersMark.class, SnipersMark.DURATION).set(enemy.id(), 0);
-                                }
-                            }
-                            Actor.remove(this);
-                            return true;
-                        }
-                    });
-                }
-                break;
-            default:
-        }
-
-        return damage;
-    }
-
-    @Override
-    public int defenseProc(Char enemy, int damage) {
-        int raw_damage = damage;
-
-        if (damage > 0 && subClass == HeroSubClass.BERSERKER) {
-            Berserk berserk = Buff.affect(this, Berserk.class);
-            berserk.damage(damage);
-        }
-
-        if (belongings.armor() != null) {
-            damage = belongings.armor().proc(enemy, this, damage);
-        } else {
-            if (buff(BodyForm.BodyFormBuff.class) != null
-                    && buff(BodyForm.BodyFormBuff.class).glyph() != null) {
-                damage = buff(BodyForm.BodyFormBuff.class).glyph().proc(new ClothArmor(), enemy, this, damage);
-            }
-            if (buff(HolyWard.HolyArmBuff.class) != null) {
-                int blocking = subClass == HeroSubClass.PALADIN ? 3 : 1;
-                damage -= Math.round(blocking * Armor.Glyph.genericProcChanceMultiplier(enemy));
-            }
-        }
+		if (wep != null) {
+			damage = wep.proc( this, enemy, damage );
+		} else {
+			boolean wasEnemy = enemy.alignment == Alignment.ENEMY;
+			if (buff(BodyForm.BodyFormBuff.class) != null
+					&& buff(BodyForm.BodyFormBuff.class).enchant() != null){
+				damage = buff(BodyForm.BodyFormBuff.class).enchant().proc(new WornShortsword(), this, enemy, damage);
+			}
+			if (!wasEnemy || enemy.alignment == Alignment.ENEMY) {
+				if (buff(HolyWeapon.HolyWepBuff.class) != null) {
+					int dmg = subClass == HeroSubClass.PALADIN ? 6 : 2;
+					enemy.damage(Math.round(dmg * Weapon.Enchantment.genericProcChanceMultiplier(this)), HolyWeapon.INSTANCE);
+				}
+				if (buff(Smite.SmiteTracker.class) != null) {
+					enemy.damage(Smite.bonusDmg(this, enemy), Smite.INSTANCE);
+				}
+			}
+		}
+		
+		switch (subClass) {
+		case SNIPER:
+			if (wep instanceof MissileWeapon && !(wep instanceof SpiritBow.SpiritArrow) && enemy != this) {
+				Actor.add(new Actor() {
+					
+					{
+						actPriority = VFX_PRIO;
+					}
+					
+					@Override
+					protected boolean act() {
+						if (enemy.isAlive()) {
+							if (hasTalent(Talent.SHARED_UPGRADES)){
+								int levelBonus = Math.min( 2*pointsInTalent(Talent.SHARED_UPGRADES), wep.buffedLvl() );
+								// bonus dmg is 16.67% x weapon level, max of 2/4/6
+								float bonusDmg = levelBonus/6f;
+								Buff.prolong(Hero.this, SnipersMark.class, SnipersMark.DURATION + levelBonus).set(enemy.id(), bonusDmg);
+							} else {
+								Buff.prolong(Hero.this, SnipersMark.class, SnipersMark.DURATION).set(enemy.id(), 0);
+							}
+						}
+						Actor.remove(this);
+						return true;
+					}
+				});
+			}
+			break;
+		default:
+		}
+		
+		return damage;
+	}
+	
+	@Override
+	public int defenseProc( Char enemy, int damage ) {
+		int raw_damage = damage;
+		if (damage > 0 && subClass == HeroSubClass.BERSERKER){
+			Berserk berserk = Buff.affect(this, Berserk.class);
+			berserk.damage(damage);
+		}
+		
+		if (belongings.armor() != null) {
+			damage = belongings.armor().proc( enemy, this, damage );
+		} else {
+			if (buff(BodyForm.BodyFormBuff.class) != null
+				&& buff(BodyForm.BodyFormBuff.class).glyph() != null){
+				damage = buff(BodyForm.BodyFormBuff.class).glyph().proc(new ClothArmor(), enemy, this, damage);
+			}
+			if (buff(HolyWard.HolyArmBuff.class) != null){
+				int blocking = subClass == HeroSubClass.PALADIN ? 3 : 1;
+				damage -= Math.round(blocking * Armor.Glyph.genericProcChanceMultiplier(enemy));
+			}
+		}
 
         WandOfLivingEarth.RockArmor rockArmor = buff(WandOfLivingEarth.RockArmor.class);
         if (rockArmor != null) {
@@ -2323,13 +2333,10 @@ public class Hero extends Char {
     @Override
     public boolean add(Buff buff) {
 
-        if (buff(TimekeepersHourglass.timeStasis.class
-        ) != null
-                || buff(TimeStasis.class
-                ) != null) {
-
-            return false;
-        }
+		if (buff.type == Buff.buffType.NEGATIVE &&
+				(buff(TimekeepersHourglass.timeStasis.class) != null || buff(TimeStasis.class) != null)) {
+			return false;
+		}
 
         boolean added = super.add(buff);
 

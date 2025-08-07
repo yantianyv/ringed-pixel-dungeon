@@ -104,22 +104,22 @@ public class EbonyMimic extends Mimic {
         //add one extra random loot item, on top of the one granted by mimic tooth
         items.add(Generator.randomUsingDefaults());
 
-        //all existing prize items are guaranteed uncursed, and are always at least +1
-        for (Item i : items) {
-            if (i instanceof EquipableItem || i instanceof Wand) {
-                i.curse(false);
-                i.cursedKnown = true;
-                if (i instanceof Weapon && ((Weapon) i).hasCurseEnchant()) {
-                    ((Weapon) i).enchant(null);
-                }
-                if (i instanceof Armor && ((Armor) i).hasCurseGlyph()) {
-                    ((Armor) i).inscribe(null);
-                }
-                if (!(i instanceof MissileWeapon || i instanceof Artifact) && i.level() == 0) {
-                    i.upgrade();
-                }
-            }
-        }
-    }
+		//all existing prize items are guaranteed uncursed, and are always at least +1
+		for (Item i : items){
+			if (i instanceof EquipableItem || i instanceof Wand){
+				i.cursed = false;
+				i.cursedKnown = true;
+				if (i instanceof Weapon && ((Weapon) i).hasCurseEnchant()){
+					((Weapon) i).enchant(null);
+				}
+				if (i instanceof Armor && ((Armor) i).hasCurseGlyph()){
+					((Armor) i).inscribe(null);
+				}
+				if (!(i instanceof Artifact) && i.level() == 0){
+					i.upgrade();
+				}
+			}
+		}
+	}
 
 }

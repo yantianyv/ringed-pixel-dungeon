@@ -36,9 +36,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.ElementalStrike;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.BodyForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Smite;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.MirrorImage;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
@@ -71,6 +73,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampir
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RunicBlade;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Scimitar;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
@@ -103,40 +106,43 @@ abstract public class Weapon extends KindOfWeapon {
             return Math.round(dmg * damageFactor);
         }
 
-        public float delayFactor(float dly) {
-            return dly * delayFactor;
-        }
-    }
+		public float delayFactor(float dly){
+			return dly * delayFactor;
+		}
+	}
+	
+	public Augment augment = Augment.NONE;
 
-    public Augment augment = Augment.NONE;
-
-    private static final int USES_TO_ID = 20;
-    private float usesLeftToID = USES_TO_ID;
-    private float availableUsesToID = USES_TO_ID / 2f;
-
-    public Enchantment enchantment;
-    public boolean enchantHardened = false;
-    public boolean curseInfusionBonus = false;
-    public boolean masteryPotionBonus = false;
-
-    @Override
+	protected int usesToID(){
+		return 20;
+	}
+	protected float usesLeftToID = usesToID();
+	protected float availableUsesToID = usesToID()/2f;
+	
+	public Enchantment enchantment;
+	public boolean enchantHardened = false;
+	public boolean curseInfusionBonus = false;
+	public boolean masteryPotionBonus = false;
+	
+	@Override
     public int proc(Char attacker, Char defender, int damage) {
         // Check for critical hit
         if (Random.Float() < criticalChance()) {
             damage = criticalHit(damage, defender);
         }
 
-        boolean becameAlly = false;
-        boolean wasAlly = defender.alignment == Char.Alignment.ALLY;
-        if (attacker.buff(MagicImmune.class) == null) {
-            Enchantment trinityEnchant = null;
-            if (Dungeon.hero.buff(BodyForm.BodyFormBuff.class) != null && this instanceof MeleeWeapon) {
-                trinityEnchant = Dungeon.hero.buff(BodyForm.BodyFormBuff.class).enchant();
-                if (enchantment != null && trinityEnchant != null
-                        && trinityEnchant.getClass() == enchantment.getClass()) {
-                    trinityEnchant = null;
-                }
-            }
+		boolean becameAlly = false;
+		boolean wasAlly = defender.alignment == Char.Alignment.ALLY;
+		if (attacker.buff(MagicImmune.class) == null) {
+			Enchantment trinityEnchant = null;
+			//only when it's the hero or a char that uses the hero's weapon
+			if (Dungeon.hero.buff(BodyForm.BodyFormBuff.class) != null && this instanceof MeleeWeapon
+					&& (attacker == Dungeon.hero || attacker instanceof MirrorImage || attacker instanceof ShadowClone.ShadowAlly)){
+				trinityEnchant = Dungeon.hero.buff(BodyForm.BodyFormBuff.class).enchant();
+				if (enchantment != null && trinityEnchant != null && trinityEnchant.getClass() == enchantment.getClass()){
+					trinityEnchant = null;
+				}
+			}
 
             if (attacker instanceof Hero && isEquipped((Hero) attacker)
                     && attacker.buff(HolyWeapon.HolyWepBuff.class) != null) {
@@ -169,48 +175,57 @@ abstract public class Weapon extends KindOfWeapon {
                 }
             }
 
-            if (attacker instanceof Hero && isEquipped((Hero) attacker)
-                    && attacker.buff(Smite.SmiteTracker.class) != null && !becameAlly) {
-                defender.damage(Smite.bonusDmg((Hero) attacker, defender), Smite.INSTANCE);
-            }
-        }
+			if (attacker instanceof Hero && isEquipped((Hero) attacker) &&
+					attacker.buff(Smite.SmiteTracker.class) != null && !becameAlly){
+				defender.damage(Smite.bonusDmg((Hero) attacker, defender), Smite.INSTANCE);
+			}
+		}
 
-        if (!levelKnown && attacker == Dungeon.hero) {
-            float uses = Math.min(availableUsesToID, Talent.itemIDSpeedFactor(Dungeon.hero, this));
-            availableUsesToID -= uses;
-            usesLeftToID -= uses;
-            if (usesLeftToID <= 0) {
-                if (ShardOfOblivion.passiveIDDisabled()) {
-                    if (usesLeftToID > -1) {
-                        GLog.p(Messages.get(ShardOfOblivion.class, "identify_ready"), name());
-                    }
-                    setIDReady();
-                } else {
-                    identify();
-                    GLog.p(Messages.get(Weapon.class, "identify"));
-                    Badges.validateItemLevelAquired(this);
-                }
-            }
-        }
+		//do not progress toward ID in the specific case of a missile weapon with no parent using
+		// up it's last shot, as in this case there's nothing left to ID anyway
+		if (this instanceof MissileWeapon
+				&& ((MissileWeapon) this).durabilityLeft() <= ((MissileWeapon) this).durabilityPerUse()
+				&& ((MissileWeapon) this).parent == null){
+			return damage;
+		}
+		
+		if (!levelKnown && attacker == Dungeon.hero) {
+			float uses = Math.min( availableUsesToID, Talent.itemIDSpeedFactor(Dungeon.hero, this) );
+			availableUsesToID -= uses;
+			usesLeftToID -= uses;
+			if (usesLeftToID <= 0) {
+				if (ShardOfOblivion.passiveIDDisabled()){
+					if (usesLeftToID > -1){
+						GLog.p(Messages.get(ShardOfOblivion.class, "identify_ready"), name());
+					}
+					setIDReady();
+				} else {
+					identify();
+					GLog.p(Messages.get(Weapon.class, "identify"));
+					Badges.validateItemLevelAquired(this);
+				}
+			}
+		}
 
-        return damage;
-    }
-
-    public void onHeroGainExp(float levelPercent, Hero hero) {
-        levelPercent *= Talent.itemIDSpeedFactor(hero, this);
-        if (!levelKnown && isEquipped(hero) && availableUsesToID <= USES_TO_ID / 2f) {
-            // gains enough uses to ID over 0.5 levels
-            availableUsesToID = Math.min(USES_TO_ID / 2f, availableUsesToID + levelPercent * USES_TO_ID);
-        }
-    }
-
-    private static final String USES_LEFT_TO_ID = "uses_left_to_id";
-    private static final String AVAILABLE_USES = "available_uses";
-    private static final String ENCHANTMENT = "enchantment";
-    private static final String ENCHANT_HARDENED = "enchant_hardened";
-    private static final String CURSE_INFUSION_BONUS = "curse_infusion_bonus";
-    private static final String MASTERY_POTION_BONUS = "mastery_potion_bonus";
-    private static final String AUGMENT = "augment";
+		return damage;
+	}
+	
+	public void onHeroGainExp( float levelPercent, Hero hero ){
+		levelPercent *= Talent.itemIDSpeedFactor(hero, this);
+		if (!levelKnown && (isEquipped(hero) || this instanceof MissileWeapon)
+				&& availableUsesToID <= usesToID()/2f) {
+			//gains enough uses to ID over 0.5 levels
+			availableUsesToID = Math.min(usesToID()/2f, availableUsesToID + levelPercent * usesToID());
+		}
+	}
+	
+	private static final String USES_LEFT_TO_ID = "uses_left_to_id";
+	private static final String AVAILABLE_USES  = "available_uses";
+	private static final String ENCHANTMENT	    = "enchantment";
+	private static final String ENCHANT_HARDENED = "enchant_hardened";
+	private static final String CURSE_INFUSION_BONUS = "curse_infusion_bonus";
+	private static final String MASTERY_POTION_BONUS = "mastery_potion_bonus";
+	private static final String AUGMENT	        = "augment";
 
     @Override
     public void storeInBundle(Bundle bundle) {
@@ -234,15 +249,15 @@ abstract public class Weapon extends KindOfWeapon {
         curseInfusionBonus = bundle.getBoolean(CURSE_INFUSION_BONUS);
         masteryPotionBonus = bundle.getBoolean(MASTERY_POTION_BONUS);
 
-        augment = bundle.getEnum(AUGMENT, Augment.class);
-    }
-
-    @Override
-    public void reset() {
-        super.reset();
-        usesLeftToID = USES_TO_ID;
-        availableUsesToID = USES_TO_ID / 2f;
-    }
+		augment = bundle.getEnum(AUGMENT, Augment.class);
+	}
+	
+	@Override
+	public void reset() {
+		super.reset();
+		usesLeftToID = usesToID();
+		availableUsesToID = usesToID()/2f;
+	}
 
     @Override
     public boolean collect(Bag container) {

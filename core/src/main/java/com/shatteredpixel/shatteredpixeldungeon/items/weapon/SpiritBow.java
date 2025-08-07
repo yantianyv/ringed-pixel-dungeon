@@ -318,8 +318,15 @@ public class SpiritBow extends Weapon {
         {
             image = ItemSpriteSheet.SPIRIT_ARROW;
 
-            hitSound = Assets.Sounds.HIT_ARROW;
-        }
+			hitSound = Assets.Sounds.HIT_ARROW;
+
+			setID = 0;
+		}
+
+		@Override
+		public int defaultQuantity() {
+			return 1;
+		}
 
         @Override
         public Emitter emitter() {
@@ -392,26 +399,24 @@ public class SpiritBow extends Weapon {
         int flurryCount = -1;
         Actor flurryActor = null;
 
-        @Override
-        public void cast(final Hero user, final int dst) {
-            final int cell = throwPos(user, dst);
-            SpiritBow.this.targetPos = cell;
-            if (sniperSpecial && SpiritBow.this.augment == Augment.SPEED) {
-                if (flurryCount == -1) {
-                    flurryCount = 3;
-                }
-
-                final Char enemy = Actor.findChar(cell);
-
-                if (enemy == null) {
-                    if (user.buff(Talent.LethalMomentumTracker.class) != null) {
-                        user.buff(Talent.LethalMomentumTracker.class).detach();
-                        user.next();
-                    } else {
-                        user.spendAndNext(castDelay(user, dst));
-                    }
-                    sniperSpecial = false;
-                    flurryCount = -1;
+		@Override
+		public void cast(final Hero user, final int dst) {
+			final int cell = throwPos( user, dst );
+			SpiritBow.this.targetPos = cell;
+			if (sniperSpecial && SpiritBow.this.augment == Augment.SPEED){
+				if (flurryCount == -1) flurryCount = 3;
+				
+				final Char enemy = Actor.findChar( cell );
+				
+				if (enemy == null){
+					if (user.buff(Talent.LethalMomentumTracker.class) != null){
+						user.buff(Talent.LethalMomentumTracker.class).detach();
+						user.next();
+					} else {
+						user.spendAndNext(castDelay(user, cell));
+					}
+					sniperSpecial = false;
+					flurryCount = -1;
 
                     if (flurryActor != null) {
                         flurryActor.next();
@@ -447,29 +452,27 @@ public class SpiritBow extends Weapon {
                                             actPriority = VFX_PRIO - 1;
                                         }
 
-                                        @Override
-                                        protected boolean act() {
-                                            flurryActor = this;
-                                            int target = QuickSlotButton.autoAim(enemy, SpiritArrow.this);
-                                            if (target == -1) {
-                                                target = cell;
-                                            }
-                                            cast(user, target);
-                                            Actor.remove(this);
-                                            return false;
-                                        }
-                                    });
-                                    curUser.next();
-                                } else {
-                                    if (user.buff(Talent.LethalMomentumTracker.class) != null) {
-                                        user.buff(Talent.LethalMomentumTracker.class).detach();
-                                        user.next();
-                                    } else {
-                                        user.spendAndNext(castDelay(user, dst));
-                                    }
-                                    sniperSpecial = false;
-                                    flurryCount = -1;
-                                }
+												@Override
+												protected boolean act() {
+													flurryActor = this;
+													int target = QuickSlotButton.autoAim(enemy, SpiritArrow.this);
+													if (target == -1) target = cell;
+													cast(user, target);
+													Actor.remove(this);
+													return false;
+												}
+											});
+											curUser.next();
+										} else {
+											if (user.buff(Talent.LethalMomentumTracker.class) != null){
+												user.buff(Talent.LethalMomentumTracker.class).detach();
+												user.next();
+											} else {
+												user.spendAndNext(castDelay(user, cell));
+											}
+											sniperSpecial = false;
+											flurryCount = -1;
+										}
 
                                 if (flurryActor != null) {
                                     flurryActor.next();
