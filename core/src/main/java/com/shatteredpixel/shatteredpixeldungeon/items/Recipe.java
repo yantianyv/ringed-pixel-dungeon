@@ -25,6 +25,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items;
 
 import java.util.ArrayList;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Blandfruit;
@@ -261,16 +262,26 @@ public abstract class Recipe {
         return result;
     }
 	
-    // 判断是否可用于炼金
+	// 判断物品是否可以在配方中使用
 	public static boolean usableInRecipe(Item item){
-        // only upgradeable thrown weapons and wands allowed among equipment items
+        // 如果物品是可装备的
         if (item instanceof EquipableItem) {
-            return item.cursedKnown && !item.cursed &&
-                    item instanceof MissileWeapon && item.isUpgradable();
+            // 如果物品被诅咒且玩家知道被诅咒，或者物品不是箭或投掷武器，或者物品不可升级，则返回false
+            if (item instanceof MissileWeapon) {
+                return item.cursedKnown && !item.cursed && item.isUpgradable();
+            }else if(item instanceof Ring){
+                // 如果物品被诅咒，或者物品已被装备，则返回false
+                return item.isIdentified() && !item.cursed && !item.isEquipped(Dungeon.hero);
+            } else {
+                return false;
+            }
+        // 如果物品是魔杖
         } else if (item instanceof Wand) {
+            // 如果物品被诅咒且玩家知道被诅咒，则返回false
             return item.cursedKnown && !item.cursed;
+		// 否则
 		} else {
-			//other items can be unidentified, but not cursed
+			// 如果物品被诅咒，则返回false
 			return !item.cursed;
 		}
 	}
