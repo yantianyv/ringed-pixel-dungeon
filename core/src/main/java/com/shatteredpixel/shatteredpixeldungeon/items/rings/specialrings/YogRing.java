@@ -71,7 +71,8 @@ public class YogRing extends SpecialRing {
 
     @Override
     public Item curse(boolean x) {
-        if (x == false || this.cursed) {
+        // 如何是从诅咒到解除，且还没有降到-12级，则降级
+        if (x == false && this.cursed && this.level() > -12) {
             level(level() - 1);
         }
         return super.curse(x);
@@ -90,7 +91,7 @@ public class YogRing extends SpecialRing {
     }
 
     public static float killThreshold(Char target) {
-        return (float) (1 - (pow(0.95, getBuffedBonus(target, Yogring.class)))) / 3;
+        return (float) (1 - (pow(0.96, getBuffedBonus(target, Yogring.class)))) / 2;
     }
 
     // 腐化概率：仅在戒指被诅咒时生效
@@ -107,22 +108,21 @@ public class YogRing extends SpecialRing {
         @Override
         public boolean act() {
             float threshold = killThreshold(Dungeon.hero);
+            // 确保戒指有效
             if (threshold > 0) {
                 // 遍历场上的所有敌人
                 for (Char ch : Dungeon.level.mobs) {
-                    if (ch.alignment == Alignment.ENEMY && (float) (ch.HP / ch.HT) < threshold) {
+                    if (ch.alignment == Alignment.ENEMY && (float) ch.HP / ch.HT < threshold) {
                         if (Random.Float(1) < YogRing.corruptionChance(Dungeon.hero)
                                 && !ch.isImmune(Corruption.class)) {
                             Corruption.corruptionHeal(ch);
                             AllyBuff.affectAndLoot((Mob) ch, Dungeon.hero, Corruption.class);
                         } else {
                             // GLog.p(YogRing.corruptionChance(this) + "");
-                            ch.damage(ch.HT, this);
+                            ch.damage(ch.HP, this);
                             // 添加伏击的视觉效果
                             Wound.hit(ch);
                         }
-                        spend(5f * TICK);
-                        return true;
                     }
                 }
             }
