@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings;
 
 import static java.lang.Math.pow;
 
+import java.util.ArrayList;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char.Alignment;
@@ -110,8 +111,8 @@ public class YogRing extends SpecialRing {
             float threshold = killThreshold(Dungeon.hero);
             // 确保戒指有效
             if (threshold > 0) {
-                // 遍历场上的所有敌人
-                for (Char ch : Dungeon.level.mobs ) {
+                // 遍历场上的所有敌人（使用副本避免并发修改）
+                for (Char ch : new ArrayList<>(Dungeon.level.mobs)) {
                     if (ch.alignment == Alignment.ENEMY && (float) ch.HP / ch.HT < threshold && ch.isAlive() && ch.HP >0) {
                         if (Random.Float(1) < YogRing.corruptionChance(Dungeon.hero)
                                 && !ch.isImmune(Corruption.class)) {
