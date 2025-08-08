@@ -3,6 +3,9 @@ package com.shatteredpixel.shatteredpixeldungeon.android;
 import android.os.Build;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.watabou.noosa.Game;
 
 import java.io.PrintWriter;
@@ -26,14 +29,17 @@ public class CrashLogger {
         report.append("横屏模式: ").append(SPDSettings.landscape()).append("\n\n");
         
         // 玩家装备信息
-        if (Dungeon.hero != null) {
-            report.append("=== 玩家装备 ===\n");
-            Belongings belongings = Dungeon.hero.belongings;
-            for(Item item : belongings) {
-                report.append(item.name()).append("\n");
+            if (Dungeon.hero != null) {
+                report.append("=== 玩家装备 ===\n");
+                Belongings belongings = Dungeon.hero.belongings;
+                for(Item item : belongings) {
+                    if (item != null) {
+                        report.append("- ").append(item.getClass().getSimpleName())
+                             .append(": ").append(item.name()).append("\n");
+                    }
+                }
+                report.append("\n");
             }
-            report.append("\n");
-        }
         
         // 异常信息
         report.append("=== 异常详情 ===\n");
