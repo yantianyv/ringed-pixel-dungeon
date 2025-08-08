@@ -34,8 +34,24 @@ public class CrashLogger {
                 Belongings belongings = Dungeon.hero.belongings;
                 for(Item item : belongings) {
                     if (item != null) {
-                        report.append("- ").append(item.getClass().getSimpleName())
-                             .append(": ").append(item.name()).append("\n");
+                        // 正确调用isEquipped方法
+                        boolean equipped = item.isEquipped(Dungeon.hero);
+                        
+                        report.append(equipped ? "> " : "- ")
+                             .append(item.getClass().getSimpleName())
+                             .append(": ").append(item.name());
+                        
+                        // 添加等级
+                        if (item.level() > 0) {
+                            report.append("+").append(item.level());
+                        }
+                        
+                        // 添加诅咒标记
+                        if (item.cursed) {
+                            report.append("*");
+                        }
+                        
+                        report.append("\n");
                     }
                 }
                 report.append("\n");
