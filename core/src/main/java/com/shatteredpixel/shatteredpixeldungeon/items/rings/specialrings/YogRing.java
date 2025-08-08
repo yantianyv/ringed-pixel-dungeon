@@ -28,13 +28,13 @@ public class YogRing extends SpecialRing {
         // 依据是否鉴定返回不同信息
         if (isIdentified()) {
             // 基本统计信息，其中soloBuffedBonus()是当前戒指等级
-            float soloBonus = (float) (1 - (pow(0.9, soloBuffedBonus()))) / 3;
+            float soloBonus = (float) (1 - (pow(0.9, soloBuffedBonus()))) / 2;
             String info = Messages.get(this, "stats",
                     Messages.decimalFormat("#.##", soloBonus * 100f));
 
             // 组合统计信息，其中combinedBuffedBonus(Dungeon.hero)是所有已装备同类戒指的等级之和
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
-                float combinedBonus = (float) (1 - (pow(0.9, combinedBuffedBonus(Dungeon.hero)))) / 3;
+                float combinedBonus = (float) (1 - (pow(0.9, combinedBuffedBonus(Dungeon.hero)))) / 2;
                 info += "\n\n" + Messages.get(this, "combined_stats",
                         Messages.decimalFormat("#.##", combinedBonus * 100f));
             }
@@ -91,7 +91,7 @@ public class YogRing extends SpecialRing {
     }
 
     public static float killThreshold(Char target) {
-        return (float) (1 - (pow(0.96, getBuffedBonus(target, Yogring.class)))) / 2;
+        return (float) (1 - (pow(0.9, getBuffedBonus(target, Yogring.class)))) / 2;
     }
 
     // 腐化概率：仅在戒指被诅咒时生效
@@ -100,7 +100,7 @@ public class YogRing extends SpecialRing {
         if (ring == null || !ring.cursed) {
             return 0; // 无戒指或未诅咒时返回0
         }
-        return (float) (1 - (pow(0.95, getBuffedBonus(target, Yogring.class)))) / 2;
+        return (float) (1 - (pow(0.9, getBuffedBonus(target, Yogring.class)))) / 2;
     }
 
     // 定义RingBuff类
