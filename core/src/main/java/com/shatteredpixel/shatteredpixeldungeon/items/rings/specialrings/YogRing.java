@@ -111,8 +111,8 @@ public class YogRing extends SpecialRing {
             // 确保戒指有效
             if (threshold > 0) {
                 // 遍历场上的所有敌人
-                for (Char ch : Dungeon.level.mobs) {
-                    if (ch.alignment == Alignment.ENEMY && (float) ch.HP / ch.HT < threshold) {
+                for (Char ch : Dungeon.level.mobs ) {
+                    if (ch.alignment == Alignment.ENEMY && (float) ch.HP / ch.HT < threshold && ch.isAlive()) {
                         if (Random.Float(1) < YogRing.corruptionChance(Dungeon.hero)
                                 && !ch.isImmune(Corruption.class)) {
                             Corruption.corruptionHeal(ch);

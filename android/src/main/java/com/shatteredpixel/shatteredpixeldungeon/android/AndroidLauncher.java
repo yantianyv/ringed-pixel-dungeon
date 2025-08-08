@@ -61,10 +61,22 @@ public class AndroidLauncher extends AndroidApplication {
 	
 	private static AndroidPlatformSupport support;
 	
+	private void setupCrashHandler() {
+		Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+			String crashLog = CrashLogger.generateCrashReport(throwable);
+			Intent crashIntent = new Intent(this, CrashReportActivity.class);
+			crashIntent.putExtra("crash_log", crashLog);
+			startActivity(crashIntent);
+			android.os.Process.killProcess(android.os.Process.myPid());
+		});
+	}
+	
 	@SuppressLint("SetTextI18n")
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		setupCrashHandler();
 
 		try {
 			GdxNativesLoader.load();

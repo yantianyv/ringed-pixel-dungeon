@@ -46,6 +46,12 @@
 		<activity
 			android:name=".AndroidMissingNativesHandler">
 		</activity>
+		<activity
+			android:name=".CrashReportActivity"
+			android:theme="@android:style/Theme.Dialog"
+			android:screenOrientation="nosensor"
+			android:excludeFromRecents="true">
+		</activity>
 	</application>
 
 </manifest>
