@@ -4,11 +4,17 @@ import static java.lang.Math.pow;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char.Alignment;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AllyBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Wound;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.watabou.utils.Random;
 
 public class YogRing extends SpecialRing {
 
@@ -98,5 +104,30 @@ public class YogRing extends SpecialRing {
 
     // 定义RingBuff类
     public class Yogring extends RingBuff {
+        @Override
+        public boolean act() {
+            float threshold = killThreshold(Dungeon.hero);
+            if (threshold > 0) {
+                // 遍历场上的所有敌人
+                for (Char ch : Dungeon.level.mobs) {
+                    if (ch.alignment == Alignment.ENEMY && (float) (ch.HP / ch.HT) < threshold) {
+                        if (Random.Float(1) < YogRing.corruptionChance(Dungeon.hero)
+                                && !ch.isImmune(Corruption.class)) {
+                            Corruption.corruptionHeal(ch);
+                            AllyBuff.affectAndLoot((Mob) ch, Dungeon.hero, Corruption.class);
+                        } else {
+                            // GLog.p(YogRing.corruptionChance(this) + "");
+                            ch.damage(ch.HT, this);
+                            // 添加伏击的视觉效果
+                            Wound.hit(ch);
+                        }
+                        spend(5f * TICK);
+                        return true;
+                    }
+                }
+            }
+            spend(0.1f*TICK);
+            return true;
+        }
     }
 }

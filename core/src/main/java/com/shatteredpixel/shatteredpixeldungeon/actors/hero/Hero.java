@@ -2608,23 +2608,6 @@ public class Hero extends Char {
             ).addHit();
         }
 
-        // "可怖的戒指" 逻辑
-        if (buff(Yogring.class) != null) {
-            float threshold = YogRing.killThreshold(this);
-            if (threshold > 0 && ((float) attackTarget.HP / (float) attackTarget.HT) < threshold) {
-                if (Random.Float(1) < YogRing.corruptionChance(this) && !attackTarget.isImmune(Corruption.class)) {
-                    Corruption.corruptionHeal(attackTarget);
-                    AllyBuff.affectAndLoot((Mob) attackTarget, this, Corruption.class);
-
-                } else {
-                    // GLog.p(YogRing.corruptionChance(this) + "");
-                    attackTarget.damage(attackTarget.HP, this);
-                    // 添加伏击的视觉效果
-                    Wound.hit(attackTarget);
-
-                }
-            }
-        }
         curAction = null;
 		attackTarget = null;
 
