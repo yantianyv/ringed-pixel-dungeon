@@ -29,20 +29,8 @@ public class CrashLogger {
         if (Dungeon.hero != null) {
             report.append("=== 玩家装备 ===\n");
             Belongings belongings = Dungeon.hero.belongings;
-            if (belongings.weapon != null) {
-                report.append("武器: ").append(belongings.weapon.name()).append("\n");
-            }
-            if (belongings.armor != null) {
-                report.append("护甲: ").append(belongings.armor.name()).append("\n");
-            }
-            if (belongings.artifact != null) {
-                report.append("神器: ").append(belongings.artifact.name()).append("\n");
-            }
-            if (belongings.misc != null) {
-                report.append("饰品: ").append(belongings.misc.name()).append("\n");
-            }
-            if (belongings.ring != null) {
-                report.append("戒指: ").append(belongings.ring.name()).append("\n");
+            for(Item item : belongings) {
+                report.append(item.name()).append("\n");
             }
             report.append("\n");
         }
