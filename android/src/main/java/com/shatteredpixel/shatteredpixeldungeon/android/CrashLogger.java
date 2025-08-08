@@ -25,6 +25,28 @@ public class CrashLogger {
         report.append("版本号: ").append(Game.versionCode).append("\n");
         report.append("横屏模式: ").append(SPDSettings.landscape()).append("\n\n");
         
+        // 玩家装备信息
+        if (Dungeon.hero != null) {
+            report.append("=== 玩家装备 ===\n");
+            Belongings belongings = Dungeon.hero.belongings;
+            if (belongings.weapon != null) {
+                report.append("武器: ").append(belongings.weapon.name()).append("\n");
+            }
+            if (belongings.armor != null) {
+                report.append("护甲: ").append(belongings.armor.name()).append("\n");
+            }
+            if (belongings.artifact != null) {
+                report.append("神器: ").append(belongings.artifact.name()).append("\n");
+            }
+            if (belongings.misc != null) {
+                report.append("饰品: ").append(belongings.misc.name()).append("\n");
+            }
+            if (belongings.ring != null) {
+                report.append("戒指: ").append(belongings.ring.name()).append("\n");
+            }
+            report.append("\n");
+        }
+        
         // 异常信息
         report.append("=== 异常详情 ===\n");
         report.append("异常类型: ").append(throwable.getClass().getName()).append("\n");
