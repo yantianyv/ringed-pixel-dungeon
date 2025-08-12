@@ -18,11 +18,11 @@ public class RingOfNahida extends Ring {
         if (isIdentified()) {
             // 基本统计信息，其中soloBuffedBonus()是当前戒指等级
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100 * (Math.pow(1.10, soloBuffedBonus()))));
+                    Messages.decimalFormat("#.##", 100 * (Math.pow(1+0.1*efficiency, soloBuffedBonus()))));
             //组合统计信息，其中combinedBuffedBonus(Dungeon.hero)是所有已装备同类戒指的等级之和
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100 * (Math.pow(1.10, combinedBuffedBonus(Dungeon.hero)))));
+                        Messages.decimalFormat("#.##", 100 * (Math.pow(1+0.1*efficiency, combinedBuffedBonus(Dungeon.hero)))));
             }
             return info;
         } else {// 鉴定前的通用信息
@@ -38,12 +38,12 @@ public class RingOfNahida extends Ring {
 
     // 元素精通
     public static float elementalMastery(Char target) {
-        return (float) Math.pow(1.10f, getBuffedBonus(target, Nahida.class)) * efficiency;
+        return (float) Math.pow(1+0.1f * efficiency, getBuffedBonus(target, Nahida.class)) ;
     }
 
     // 附魔加强
     public static float enchantPowerMultiplier(Char target) {
-        return (float) Math.pow(1.10f, getBuffedBonus(target, Nahida.class));
+        return (float) Math.pow(1 + 0.1f * efficiency, getBuffedBonus(target, Nahida.class));
     }
     // ————————————————戒指效率————————————————
     private static float efficiency = 1.0f;

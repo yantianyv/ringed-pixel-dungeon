@@ -37,9 +37,9 @@ public class RingOfTimetraveler extends Ring {
     public String statsInfo() {
         if (isIdentified()) {
             float solo_rate = (float) Math
-                    .abs(Math.pow(0.9f, soloBuffedBonus()) > 0.01f ? Math.pow(0.9f, soloBuffedBonus()) : 0.01f);
+                    .abs(Math.pow(0.9f, soloBuffedBonus() * efficiency()) > 0.01f ? Math.pow(0.9f, soloBuffedBonus() * efficiency()) : 0.01f);
             float combined_rate = (float) Math.abs(
-                    Math.pow(0.9f, combinedBonus(Dungeon.hero)) > 0.01f ? Math.pow(0.9f, combinedBonus(Dungeon.hero))
+                    Math.pow(0.9f, combinedBonus(Dungeon.hero) * efficiency()) > 0.01f ? Math.pow(0.9f, combinedBonus(Dungeon.hero) * efficiency())
                             : 0.01f);
             String info = Messages.get(this,
                     "stats",
