@@ -108,14 +108,24 @@ public class SpectralNecromancerSprite extends MobSprite {
 		}
 	}
 
+/**
+ * 完成召唤仪式的方法
+ * 该方法用于处理召唤结束后的状态清理和效果播放
+ */
 	public void finishSummoning(){
-		if (summoningParticles.visible) {
+    // 检查召唤粒子效果是否存在且可见
+		if (summoningParticles != null &&summoningParticles.visible) {
+        // 播放诅咒音效
 			Sample.INSTANCE.play(Assets.Sounds.CURSED);
+        // 产生5个诅咒阴影粒子效果
 			summoningParticles.burst(ShadowParticle.CURSE, 5);
 		} else {
+        // 如果粒子效果不可见，则关闭粒子效果
 			summoningParticles.on = false;
 		}
+    // 清空粒子效果引用
 		summoningParticles = null;
+    // 将角色切换到空闲状态
 		idle();
 	}
 
