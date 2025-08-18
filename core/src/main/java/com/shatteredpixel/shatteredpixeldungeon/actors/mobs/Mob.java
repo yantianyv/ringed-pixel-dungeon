@@ -744,12 +744,19 @@ public abstract class Mob extends Char {
     }
 
     public void beFound() {
+        // 添加sprite为null的检查，防止空指针异常
+        if (sprite == null) {
+            return;
+        }
+        
         if (Random.Int(10) == 0) {
             int inv_ban = Dungeon.isChallenged(Challenges.INVISIBLE_WAR) ? 3 : 10;
             invisibility_cooldown = invisibility_cooldown > inv_ban ? invisibility_cooldown : inv_ban;
             if (buff(Invisibility.class) != null) {
                 invisibility(0);
-                sprite.emitter().start(ShadowParticle.UP, 0.5f, 3);
+                if (sprite != null) {  // 额外添加null检查
+                    sprite.emitter().start(ShadowParticle.UP, 0.5f, 3);
+                }
 
             }
         }
