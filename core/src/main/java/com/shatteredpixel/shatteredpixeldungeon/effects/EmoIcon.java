@@ -23,8 +23,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.effects;
 
-import static com.badlogic.gdx.graphics.Color.alpha;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;

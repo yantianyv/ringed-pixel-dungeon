@@ -42,6 +42,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -184,7 +185,7 @@ public class Challenge extends ArmorAbility {
 		Sample.INSTANCE.play(Assets.Sounds.DESCEND);
 
 		armor.charge -= chargeUse( hero );
-		armor.updateQuickslot();
+		Item.updateQuickslot();
 		Invisibility.dispel();
 		hero.sprite.zap(target);
 

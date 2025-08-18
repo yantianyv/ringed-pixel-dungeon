@@ -86,7 +86,6 @@ public class MnemonicPrayer extends TargetedClericSpell {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	protected void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
 
 		if (target == null){

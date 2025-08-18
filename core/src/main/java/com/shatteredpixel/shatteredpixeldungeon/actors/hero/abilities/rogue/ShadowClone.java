@@ -37,6 +37,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbili
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.DirectableAlly;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SmokeParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CityLevel;
@@ -107,7 +108,7 @@ public class ShadowClone extends ArmorAbility {
 
 			if (!spawnPoints.isEmpty()){
 				armor.charge -= chargeUse(hero);
-				armor.updateQuickslot();
+				Item.updateQuickslot();
 
 				ally = new ShadowAlly(hero.lvl);
 				ally.pos = Random.element(spawnPoints);

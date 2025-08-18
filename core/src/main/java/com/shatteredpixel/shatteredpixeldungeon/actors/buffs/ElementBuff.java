@@ -236,6 +236,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
                             case DENDRO:
                                 dmg_multi *= Activate(thisBuff, other, ch);
                                 break;
+                            default:
+                                break;
                         }
                         break;
                     case DENDRO:
@@ -248,6 +250,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
                                 break;
                             case ELECTRO:
                                 dmg_multi *= Activate(other, thisBuff, ch);
+                                break;
+                            default:
                                 break;
                         }
                         break;
@@ -268,6 +272,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
                             case GEO:
                                 dmg_multi *= Crystalize(other, thisBuff, ch);
                                 break;
+                            default:
+                                break;
                         }
                         break;
                     case PYRO:
@@ -287,6 +293,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
                             case GEO:
                                 dmg_multi *= Crystalize(other, thisBuff, ch);
                                 break;
+                            default:
+                                break;
                         }
                         break;
                     case CRYO:
@@ -302,6 +310,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
                                 break;
                             case GEO:
                                 dmg_multi *= Crystalize(other, thisBuff, ch);
+                                break;
+                            default:
                                 break;
                         }
                         break;
@@ -534,6 +544,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
                         case ELECTRO:
                         case CRYO:
                             target.damage(Math.round(3 * strength), new ElementBuff());
+                            break;
+                        default:
                             break;
                     }
                 }

@@ -30,7 +30,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.SlimeSprite;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.SlimeWithRingSprite;
 import com.watabou.utils.Random;
 
 public class Slime extends Mob {

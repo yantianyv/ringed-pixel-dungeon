@@ -25,7 +25,6 @@ package com.shatteredpixel.shatteredpixeldungeon.items.food;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import static com.shatteredpixel.shatteredpixeldungeon.Dungeon.level;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArtifactRecharge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -99,6 +98,8 @@ public class Pasty extends Food {
             case NEW_YEARS:
                 Sample.INSTANCE.play(Assets.Sounds.DRINK);
                 return;
+            default:
+                break;
         }
         super.eatSFX();
     }

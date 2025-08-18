@@ -37,6 +37,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
@@ -66,7 +67,7 @@ public class Endure extends ArmorAbility {
 		hero.sprite.operate(hero.pos);
 
 		armor.charge -= chargeUse(hero);
-		armor.updateQuickslot();
+		Item.updateQuickslot();
 		Invisibility.dispel();
 		hero.spendAndNext(3f);
 	}

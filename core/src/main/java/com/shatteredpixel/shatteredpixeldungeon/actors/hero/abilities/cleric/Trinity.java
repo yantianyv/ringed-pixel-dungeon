@@ -142,7 +142,7 @@ public class Trinity extends ArmorAbility {
 								Dungeon.hero.sprite.operate(Dungeon.hero.pos);
 								Dungeon.hero.spendAndNext(1f);
 								armor.charge -= trinityChargeUsePerEffect(bodyForm.getClass());
-								armor.updateQuickslot();
+								Item.updateQuickslot();
 								Invisibility.dispel();
 								hide();
 							}
@@ -176,7 +176,7 @@ public class Trinity extends ArmorAbility {
 								Dungeon.hero.sprite.operate(Dungeon.hero.pos);
 								Dungeon.hero.spendAndNext(1f);
 								armor.charge -= trinityChargeUsePerEffect(bodyForm.getClass());
-								armor.updateQuickslot();
+								Item.updateQuickslot();
 								Invisibility.dispel();
 								hide();
 							}
@@ -260,7 +260,7 @@ public class Trinity extends ArmorAbility {
 						Enchanting.show(Dungeon.hero, (Item) spiritForm);
 						Dungeon.hero.sprite.operate(Dungeon.hero.pos);
 						armor.charge -= trinityChargeUsePerEffect(spiritForm.getClass());
-						armor.updateQuickslot();
+						Item.updateQuickslot();
 						hide();
 					}
 				};

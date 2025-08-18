@@ -35,7 +35,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.Char.Alignment;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AllyBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
@@ -150,7 +149,7 @@ public abstract class Mob extends Char {
             //modify health for ascension challenge if applicable, only on first add
             float percent = HP / (float) HT;
             // 如果不是敌人就忽略
-            if (alignment != alignment.ENEMY) {
+            if (alignment != Alignment.ENEMY) {
                 HT = (int) Math.round(HT * AscensionChallenge.statModifier(this));
             }// 如果是BOSS就按正常血量设置
             else if (Dungeon.level.locked) {

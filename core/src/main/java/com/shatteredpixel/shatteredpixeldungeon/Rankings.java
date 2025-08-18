@@ -59,9 +59,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Challenge;
-import com.shatteredpixel.shatteredpixeldungeon.Cheat;
-
 public enum Rankings {
 
     INSTANCE;
@@ -101,7 +98,6 @@ public enum Rankings {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
         rec.date = format.format(new Date(Game.realTime));
 
-        @SuppressWarnings("unchecked")
         Class<?> causeClass = cause instanceof Class ? (Class<?>) cause : cause.getClass();
         rec.cause = causeClass;
         rec.win = win;
@@ -553,10 +549,6 @@ if (Statistics.wealth == true
 				} else {
 					desc = result;
 				}
-			}
-			
-			if (Cheat.isCheating()) {
-				desc += " " + Messages.get(Cheat.class, "cheated");
 			}
 			return desc;
 		}

@@ -35,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.DivineIntervention;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -58,7 +59,7 @@ public class AscendedForm extends ArmorAbility {
 		new Flare(6, 48).color(0xFFFF00, true).show(hero.sprite, 2f);
 
 		armor.charge -= chargeUse(hero);
-		armor.updateQuickslot();
+		Item.updateQuickslot();
 		Invisibility.dispel();
 		hero.spendAndNext(Actor.TICK);
 

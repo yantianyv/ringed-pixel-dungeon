@@ -52,7 +52,6 @@ import com.watabou.utils.Random;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.IronRing;
 
 public class Blacksmith extends NPC {
 
