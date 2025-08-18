@@ -49,9 +49,6 @@ import com.watabou.utils.GameMath;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
-
 public class BrokenSeal extends Item {
 
     public static final String AC_AFFIX = "AFFIX";
