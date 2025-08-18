@@ -41,6 +41,9 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.watabou.noosa.audio.Sample;
+
 public class Ghoul extends Mob {
 
     {
@@ -166,6 +169,9 @@ public class Ghoul extends Mob {
             HT = 10;
             num_of_escape -= 1;
             sprite.add(CharSprite.State.SHIELDED);
+            // 添加格挡音效
+            Sample.INSTANCE.play(Assets.Sounds.HIT_PARRY);
+            
         }
 
     }
