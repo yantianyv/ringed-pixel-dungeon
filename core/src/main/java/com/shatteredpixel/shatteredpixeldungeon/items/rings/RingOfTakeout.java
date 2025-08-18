@@ -71,7 +71,7 @@ public class RingOfTakeout extends Ring {
     }
 
     public static float takeoutChance(Char target) {// 触发进食的几率
-        return (float) (1 - Math.pow(0.995, getBuffedBonus(target, Takeout.class)));
+        return (float) (1 - Math.pow(0.995, getBuffedBonus(target, Takeout.class))) * efficiency;
     }
 
     protected static float takeout_cooldown = 0f;// 冷却
@@ -93,7 +93,7 @@ public class RingOfTakeout extends Ring {
 
     @Override
     public float efficiency() {
-        return efficiency; // 返回当前类别的共享效率
+        return efficiency>1?1:efficiency; // 返回当前类别的共享效率
     }
 
     @Override
@@ -116,7 +116,7 @@ public class RingOfTakeout extends Ring {
         @Override
         public boolean act() {
             // 触发膨胀神券之戒
-            if (Math.random() < RingOfTakeout.takeoutChance(target) * efficiency() * (1f - takeout_cooldown) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
+            if ((float)Math.random() < RingOfTakeout.takeoutChance(target) * (1f - takeout_cooldown) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
                 efficiency(0.95f * efficiency);
                 takeout_cooldown = 1f;
                 // 膨胀神券戒指的进餐逻辑

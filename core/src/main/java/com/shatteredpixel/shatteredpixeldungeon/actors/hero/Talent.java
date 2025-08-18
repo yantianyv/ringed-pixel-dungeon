@@ -914,8 +914,8 @@ public enum Talent {
                     b.delay(Math.max(10 - b.cooldown(), 0));
                 }
             }
-        }// 启蒙圣餐
-        if (hero.hasTalent(ENLIGHTENING_MEAL)){
+		}// 启蒙圣餐
+		if (hero.hasTalent(ENLIGHTENING_MEAL)){
 			if (hero.heroClass == HeroClass.CLERIC) {
 				HolyTome tome = hero.belongings.getItem(HolyTome.class);
 				if (tome != null) {
@@ -935,6 +935,9 @@ public enum Talent {
 			Buff.prolong( hero, Recharging.class, wandChargeTurns );
 			ScrollOfRecharging.charge( hero );
 			SpellSprite.show(hero, SpellSprite.CHARGE);
+		}
+		if (artifactChargeTurns > 0){
+			Buff.affect( hero, ArtifactRecharge.class ).set( (float)artifactChargeTurns );
         }// 营养均衡
         if (hero.hasTalent(BALANCED_MEAL)) {
             switch (hero.pointsInTalent(BALANCED_MEAL)) {
