@@ -51,7 +51,9 @@ public class BurningElement extends ElementBuff {
         
         // 检查移除条件
         if (quantity < 0.1f) {
-            fx(false);
+            if (target.buff(Burning.class) == null) {
+                fx(false); // 移除燃烧特效
+            }
             detach();
         }
         

@@ -97,8 +97,6 @@ public class Burning extends Buff implements Hero.Doom {
         if (target.buff(BurningElement.class) != null) {
             spend(TICK);
             return true;
-        } else {
-            fx(true);
         }
         if (acted && Dungeon.level.water[target.pos] && !target.flying) {
             detach();
