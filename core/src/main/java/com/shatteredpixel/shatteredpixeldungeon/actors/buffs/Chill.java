@@ -21,18 +21,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
+/**
+ * Chill类，继承自FlavourBuff，代表游戏中的一种负面效果"寒冷"
+ * 该效果会降低角色的移动速度
+ */
 public class Chill extends FlavourBuff {
 
+    // 寒冷效果的持续时间常量，单位为秒
     public static final float DURATION = 10f;
 
+    // 初始化块，设置buff类型为负面效果，并且会在游戏中 announced（显示）
     {
         type = buffType.NEGATIVE;
         announced = true;
@@ -40,41 +46,14 @@ public class Chill extends FlavourBuff {
 
     @Override
     public boolean attachTo(Char target) {
-        // 移除燃烧效果
         Buff.detach(target, Burning.class);
-
-        // 附加冰元素效果，初始量为持续时间比例
-        ElementBuff.apply(Element.CRYO, null, target, DURATION / 2f);
 
         return super.attachTo(target);
     }
 
-    @Override
-    public boolean act() {
-        // 每回合维持冰元素量
-        if (target.buff(ElementBuff.CryoElement.class) != null) {
-            target.buff(ElementBuff.CryoElement.class).quantity = Math.min(
-                    target.buff(ElementBuff.CryoElement.class).quantity + 0.5f,
-                    DURATION
-            );
-        }
-
-        return super.act();
-    }
-
-    // 减速效果基于冰元素量
+    // reduces speed by 10% for every turn remaining, capping at 50%
     public float speedFactor() {
-        float cryoAmount = target.buff(ElementBuff.CryoElement.class) != null
-                ? target.buff(ElementBuff.CryoElement.class).quantity : 0f;
-        // 基础减速10%，每点冰元素量额外减速8%，最大减速50%
-        return Math.max(0.5f, 1f - 0.1f - cryoAmount * 0.08f);
-    }
-
-    @Override
-    public void detach() {
-        // 移除时清除冰元素
-        ElementBuff.detach(target, Element.CRYO);
-        super.detach();
+        return Math.max(0.5f, 1 - cooldown() * 0.1f);
     }
 
     @Override
@@ -89,11 +68,10 @@ public class Chill extends FlavourBuff {
 
     @Override
     public void fx(boolean on) {
-        if (on) {
+        if (on)
             target.sprite.add(CharSprite.State.CHILLED);
-        } else {
+        else
             target.sprite.remove(CharSprite.State.CHILLED);
-        }
     }
 
     @Override

@@ -40,29 +40,47 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Image;
 import com.watabou.utils.Random;
 
+/**
+ * Frost类是一个负面的Debuff(减益效果)类，继承自FlavourBuff
+ * 它使目标角色被冻结，并可能冻结其物品栏中的特定物品
+ */
 public class Frost extends FlavourBuff {
 
+    // 持续时间常量，设置为10秒
     public static final float DURATION = 10f;
 
+    // 初始化块，设置buff类型为负面效果，并且会 announced(显示通知)
     {
         type = buffType.NEGATIVE;
         announced = true;
     }
 
+    // 冰霜伤害变量，用于记录冰霜造成的伤害
     public int frost_damage = 0;
 
+    /**
+     * 将此buff附加到目标角色上
+     * @param target 要附加此buff的角色
+     * @return 如果成功附加返回true，否则返回false
+     */
     @Override
     public boolean attachTo(Char target) {
+        // 如果目标有燃烧buff，则先移除它
         Buff.detach(target, Burning.class);
 
+        // 调用父类的attachTo方法
         if (super.attachTo(target)) {
 
+            // 增加目标的麻痹计数
             target.paralysed++;
+            // 移除目标的寒冷效果
             Buff.detach(target, Chill.class);
 
+            // 如果目标是英雄
             if (target instanceof Hero) {
 
                 Hero hero = (Hero) target;
+                // 创建一个可冻结物品的列表
                 ArrayList<Item> freezable = new ArrayList<>();
                 //does not reach inside of containers
                 if (!hero.belongings.lostInventory()) {
