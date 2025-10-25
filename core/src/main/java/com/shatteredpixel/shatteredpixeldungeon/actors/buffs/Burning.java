@@ -93,13 +93,20 @@ public class Burning extends Buff implements Hero.Doom {
 
     @Override
     public boolean act() {
-        ElementBuff.apply(Element.PYRO, target, target, 2f);
+        // 如果目标有元素燃烧buff就跳过燃烧结算
+        if (target.buff(BurningElement.class) != null) {
+            spend(TICK);
+            return true;
+        } else {
+            fx(true);
+        }
         if (acted && Dungeon.level.water[target.pos] && !target.flying) {
             detach();
         } else if (target.isAlive() && !target.isImmune(getClass())) {
 
             acted = true;
             int damage = Random.NormalIntRange(1, 3 + Dungeon.scalingDepth() / 4);
+            damage *= ElementBuff.apply(Element.PYRO, this , target, 1f);
             Buff.detach(target, Chill.class);
 
             if (target instanceof Hero

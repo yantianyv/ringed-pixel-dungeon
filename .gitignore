@@ -1,3 +1,5 @@
+desktop/.temp/
+
 # Build key storage
 *.jks
 

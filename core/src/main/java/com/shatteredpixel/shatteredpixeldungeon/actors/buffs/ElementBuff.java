@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.BurningElement;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
@@ -130,7 +131,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
      * @param defender 目标
      * @param quantity 附着量
      */
-    public static float apply(Element element, Char attacker, Char defender, float quantity) {
+    public static float apply(Element element, Object attacker, Char defender, float quantity) {
         Buff buff = null;
 
         // 根据元素类型创建对应的buff实例
@@ -651,9 +652,18 @@ public class ElementBuff extends Buff implements Hero.Doom {
         } else {
             consume = 0;
         }
-        pyro.quantity -= consume;
-        dendro.quantity -= consume;
-        Buff.affect(ch, Burning.class).reignite(ch, consume);
+        // 防止递归：清除草元素
+        dendro.detach();
+        
+        // 应用新的元素燃烧效果
+        BurningElement buff = ch.buff(BurningElement.class);
+        if (buff != null) {
+            buff.reignite(consume);
+        } else {
+            buff = new BurningElement();
+            buff.attachTo(ch);
+            buff.quantity = consume;
+        }
         return 1f;
     }
 
