@@ -459,13 +459,10 @@ public class ElementBuff extends Buff implements Hero.Doom {
         }
 
         if (consume > 1) {
-            if (ch instanceof Hero) {
-                Buff.affect(ch, Paralysis.class, consume / 2);
-                ch.damage(dmg, new ElementBuff());
-            } else {
-                Frost buff = Buff.affect(ch, Frost.class, consume);
-                buff.frost_damage = dmg;
-            }
+            // 统一使用元素冰冻效果
+            FrostElement buff = Buff.affect(ch, FrostElement.class);
+            buff.quantity = consume; // 设置初始回合数为消耗量
+            buff.shatterDamage = dmg;
         } else {
             ch.damage(dmg, new ElementBuff());
         }
