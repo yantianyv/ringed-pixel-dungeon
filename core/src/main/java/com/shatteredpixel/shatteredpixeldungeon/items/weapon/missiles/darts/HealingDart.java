@@ -26,7 +26,9 @@ package com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
@@ -41,7 +43,8 @@ public class HealingDart extends TippedDart {
 	public int proc(Char attacker, Char defender, int damage) {
 
 		//do nothing to the hero or enemies when processing charged shot
-		if (processingChargedShot && (defender == attacker || attacker.alignment != defender.alignment)){
+		if (defender == attacker || attacker.alignment != defender.alignment) {
+			ElementBuff.apply(Element.DENDRO, attacker, defender, 5);
 			return super.proc(attacker, defender, damage);
 		}
 		

@@ -134,6 +134,16 @@ public class ElementBuff extends Buff implements Hero.Doom {
     public static float apply(Element element, Object attacker, Char defender, float quantity) {
         Buff buff = null;
 
+        // 记录反应前激元素量
+        float prevCatalyze = 0;
+        CatalyzedDendroElement catalyzed = defender.buff(CatalyzedDendroElement.class);
+        if (catalyzed != null) prevCatalyze = catalyzed.quantity;
+        
+        // 伤害触发（基于反应前值）
+        if ((element == Element.DENDRO || element == Element.ELECTRO) && prevCatalyze > 0) {
+            defender.damage((int)prevCatalyze + Dungeon.depth / 5 + 1, new ElementBuff());
+        }
+
         // 根据元素类型创建对应的buff实例
         switch (element) {
             case ANEMO:
@@ -670,11 +680,23 @@ public class ElementBuff extends Buff implements Hero.Doom {
      * @return 消耗的元素量
      */
     static float Activate(ElementBuff electro, ElementBuff dendro, Char ch) {
+        // 跳过激元素参与的情况
+        if (dendro instanceof CatalyzedDendroElement) return 1f;
+        
         float consume = Math.min(electro.quantity, dendro.quantity);
         electro.quantity -= consume;
         dendro.quantity -= consume;
-        // TODO: 实现激化反应的具体效果
-        GLog.p("激化（未实现）");
+        
+        // 添加或增加激元素
+        CatalyzedDendroElement buff = ch.buff(CatalyzedDendroElement.class);
+        if (buff == null) {
+            buff = Buff.affect(ch, CatalyzedDendroElement.class);
+            buff.quantity = consume;
+        } else {
+            buff.quantity += consume;
+        }
+        
+        ch.sprite.showStatus(CharSprite.POSITIVE, "激化!");
         return 1f;
     }
 

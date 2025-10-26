@@ -23,6 +23,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 
+import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -33,7 +34,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Doom;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WildMagic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing;
@@ -424,49 +427,82 @@ public class WandOfRegrowth extends Wand {
 
     }
 
+/**
+ * 莲花类，继承自NPC类，代表游戏中的一种中立、不可移动的静态NPC
+ * 它具有种植能力，并能定期产生种子
+ */
     public static class Lotus extends NPC {
 
+    // 初始化代码块，设置莲花的属性
         {
+        // 设置对齐方式为中立
             alignment = Alignment.NEUTRAL;
+        // 添加不可移动和静态属性
             properties.add(Property.IMMOVABLE);
             properties.add(Property.STATIC);
 
+        // 设置精灵类为LotusSprite
             spriteClass = LotusSprite.class;
 
+        // 设置视野距离为1
             viewDistance = 1;
         }
 
+    // 莲花法杖的等级
         private int wandLvl = 0;
 
+    /**
+     * 设置莲花等级的方法
+     * @param lvl 要设置的等级
+     */
         private void setLevel(int lvl) {
             wandLvl = lvl;
-            HP = HT = 50 + 5 * lvl;
+            HP = HT = 50 + 5 * lvl; // 设置当前生命值和最大生命值
         }
 
+    /**
+     * 判断目标位置是否在莲花的范围内
+     * @param pos 要判断的目标位置
+     * @return 如果在范围内返回true，否则返回false
+     */
         public boolean inRange(int pos) {
             return Dungeon.level.trueDistance(this.pos, pos) <= wandLvl;
         }
 
+    /**
+     * 计算种子保存率
+     * @return 返回0到1之间的保存率，随等级提升而增加
+     */
         public float seedPreservation() {
             return Math.min(1f, 0.40f + 0.04f * wandLvl);
         }
 
+    /**
+     * 判断是否可以与角色交互
+     * @param c 尝试交互的角色
+     * @return 莲花不能交互，始终返回false
+     */
         @Override
         public boolean canInteract(Char c) {
             return false;
         }
 
+    /**
+     * 莲花的行动逻辑
+     * 每回合应用 dendro 元素状态，减少生命值，并在死亡时种植随机种子
+     * @return 总是返回true表示行动完成
+     */
         @Override
         protected boolean act() {
             super.act();
-            HP -= 2;
-            HT -= 1;
+            ElementBuff.apply(Element.DENDRO, this, this, 1); // 应用 dendro 元素状态
+            HP -= 2; // 减少当前生命值
+            HT -= 1; // 减少最大生命值
             if (HP <= 0) {
-                destroy();
-                sprite.die();
+                destroy(); // 销毁莲花
+                sprite.die(); // 播放死亡动画
                 // 在原地种植随机植物
                 Dungeon.level.plant((Plant.Seed) Generator.randomUsingDefaults(Generator.Category.SEED), this.pos);
-                
             }
 
             return true;
@@ -479,6 +515,9 @@ public class WandOfRegrowth extends Wand {
 
         @Override
         public boolean add(Buff buff) {
+            if (buff instanceof ElementBuff) {
+                return super.add(buff);
+            }
             return false;
         }
 
