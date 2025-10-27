@@ -104,13 +104,17 @@ public class RingOfTimetraveler extends Ring {
 
     public class TimeCompression extends RingBuff {
 
+        /**
+         * 重写act方法，用于执行特定行为
+         * @return 返回true表示行为执行成功
+         */
         @Override
         public boolean act() {
-            float target_efficiency = 1.05f - Dungeon.hero.HP / (float) Dungeon.hero.HT;
-            target_efficiency = target_efficiency > 1f ? 1f : target_efficiency;
-            efficiency = efficiency > target_efficiency ? target_efficiency
-                    : efficiency * 0.99f + target_efficiency * 0.01f;
+            efficiency += 0.01;
+            efficiency = efficiency > 1 ? 1 : efficiency;
+            // 消耗一个时间单位
             spend(TICK);
+            // 返回true表示行为执行成功
             return true;
         }
     }

@@ -265,6 +265,7 @@ public class Assets {
     public static class Sprites {
 
         public static final String ITEMS = "sprites/items.png";
+        public static final String ITEMS_RINGED = "sprites/items_ringed.png";
         public static final String ITEM_ICONS = "sprites/item_icons.png";
 
         public static final String WARRIOR = "sprites/warrior.png";

@@ -184,6 +184,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.HeavyBoome
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Javelin;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Kunai;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.NanBeiLvDou;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Shuriken;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingClub;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingHammer;
@@ -495,7 +496,8 @@ public class Generator {
             MIS_T2.classes = new Class<?>[]{
                 FishingSpear.class,
                 ThrowingClub.class,
-                Shuriken.class
+                Shuriken.class,
+                NanBeiLvDou.class
             };
             MIS_T2.defaultProbs = new float[]{3, 3, 3};
             MIS_T2.probs = MIS_T2.defaultProbs.clone();

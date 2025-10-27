@@ -124,6 +124,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.PotionOfCleansing;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfChallenge;
@@ -837,44 +838,63 @@ public abstract class Char extends Actor {
         return cachedShield;
     }
 
+    /**
+     * 处理角色受到伤害的方法
+     * @param dmg 伤害值
+     * @param src 伤害来源
+     */
     public void damage(int dmg, Object src) {
 
+        // 如果角色已死亡或伤害值为负，则直接返回
         if (!isAlive() || dmg < 0) {
             return;
         }
 
+        // 检查角色是否对伤害来源免疫
         if (isInvulnerable(src.getClass())) {
             sprite.showStatus(CharSprite.POSITIVE, Messages.get(this, "invulnerable"));
             return;
         }
 
-        if (!(src instanceof LifeLink || src instanceof Hunger) && buff(LifeLink.class) != null) {
-            HashSet<LifeLink> links = buffs(LifeLink.class);
-            for (LifeLink link : links.toArray(new LifeLink[0])) {
-                if (Actor.findById(link.object) == null) {
-                    links.remove(link);
-                    link.detach();
-                }
-            }
-            dmg = (int) Math.ceil(dmg / (float) (links.size() + 1));
-            for (LifeLink link : links) {
-                Char ch = (Char) Actor.findById(link.object);
-                if (ch != null) {
-                    ch.damage(dmg, link);
-                    if (!ch.isAlive()) {
-                        link.detach();
-						if (ch == Dungeon.hero){
-							Badges.validateDeathFromFriendlyMagic();
-							Dungeon.fail(src);
-							GLog.n( Messages.get(LifeLink.class, "ondeath") );
-						}
-                    }
-                }
-            }
-        }
+        // 处理生命链接相关伤害
+        // if (!(src instanceof LifeLink || src instanceof Hunger) && buff(LifeLink.class) != null) {
+        //     HashSet<LifeLink> links = buffs(LifeLink.class);
+        //     for (LifeLink link : links.toArray(new LifeLink[0])) {
+        //         if (Actor.findById(link.object) == null) {
+        //             links.remove(link);
+        //             link.detach();
+        //         }
+        //     }
+        //     dmg = (int) Math.ceil(dmg / (float) (links.size() + 1));
+        //     for (LifeLink link : links) {
+        //         Char ch = (Char) Actor.findById(link.object);
+        //         if (ch != null) {
+        //             ch.damage(dmg, link);
+        //             if (!ch.isAlive()) {
+        //                 link.detach();
+        //                 // 如果死亡的是英雄，处理相关逻辑
+		// 				if (ch == Dungeon.hero){
+		// 					Badges.validateDeathFromFriendlyMagic();
+		// 					Dungeon.fail(src);
+		// 					GLog.n( Messages.get(LifeLink.class, "ondeath") );
+		// 				}
+        //             }
+        //         }
+        //     }
+        // }
 
         //temporarily assign to a float to avoid rounding a bunch
         float damage = dmg;
+
+        if (src == Dungeon.hero) {
+            // 获取英雄实际佩戴的时光行者之戒
+            RingOfTimetraveler equippedRing = Dungeon.hero.belongings.getItem(RingOfTimetraveler.class);
+            if (equippedRing != null) {
+                // 基于当前效率值计算新效率（降低到90%）
+                float currentEfficiency = equippedRing.efficiency();
+                equippedRing.efficiency(currentEfficiency * 0.9f);
+            }
+        }
 
         //if dmg is from a character we already reduced it in Char.attack
         if (!(src instanceof Char)) {
@@ -884,6 +904,7 @@ public abstract class Char extends Actor {
                 damage *= 0.9f - 0.1f * Dungeon.hero.pointsInTalent(Talent.AURA_OF_PROTECTION);
             }
         }
+
 
         if (buff(PowerOfMany.PowerBuff.class) != null) {
             if (buff(LifeLinkSpell.LifeLinkSpellBuff.class) != null) {
