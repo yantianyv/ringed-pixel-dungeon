@@ -65,16 +65,25 @@ public class RingOfDefender extends Ring {
         }
     }
 
+    /**
+     * 获取装备的属性信息描述
+     * 根据装备是否已识别以及是否已装备来显示不同的属性信息
+     * @return 返回格式化的属性描述文本
+     */
     public String statsInfo() {
+        // 判断装备是否已识别
         if (isIdentified()) {
+            // 计算并格式化单个装备的属性加成百分比
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, soloBuffedBonus() * (1 - efficiency())))));
+                    Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, soloBuffedBonus() *  efficiency()))));
+            // 如果装备在英雄身上且单个加成不等于组合加成，则添加组合属性信息
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, combinedBuffedBonus(Dungeon.hero) * (1 - efficiency())))));
+                        Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, combinedBuffedBonus(Dungeon.hero) * efficiency()))));
             }
             return info;
         } else {
+            // 如果装备未识别，返回典型属性值（固定为15%）
             return Messages.get(this, "typical_stats", Messages.decimalFormat("#.##", 15f));
         }
     }
@@ -95,7 +104,7 @@ public class RingOfDefender extends Ring {
         //(HT - HP)/HT = heroes current % missing health.
         // float effect_rate = Math.max(((float) (t.HT - t.HP) / t.HT), getBuffedBonus(t, Defender.class) * 0.01f);
         // effect_rate = effect_rate < 1f ? effect_rate : 1f;
-        return (float) Math.pow(0.85, getBuffedBonus(t, Defender.class) * (1 - efficiency));
+        return (float) Math.pow(0.85, getBuffedBonus(t, Defender.class) * efficiency);
     }
 
     public static final HashSet<Class> RESISTS = new HashSet<>();
@@ -124,7 +133,7 @@ public class RingOfDefender extends Ring {
             if (c.isAssignableFrom(effect)) {
                 // float effect_rate = Math.max(((float) (target.HP) / target.HT), getBuffedBonus(target, Defender.class) * 0.01f);
                 // effect_rate = effect_rate < 1f ? effect_rate : 1f;
-                return (float) Math.pow(0.85, getBuffedBonus(target, Resistance.class) * (1 - efficiency));
+                return (float) Math.pow(0.85, getBuffedBonus(target, Resistance.class) * efficiency);
             }
         }
 
