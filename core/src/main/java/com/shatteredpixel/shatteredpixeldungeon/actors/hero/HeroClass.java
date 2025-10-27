@@ -437,7 +437,7 @@ public enum HeroClass {
         Item RingString = new RingString();
         RingString.collect();
         // 获得所有戒指
-        List rings = Generator.getItemList(Generator.Category.RING);
+        List<Item> rings = Generator.getItemList(Generator.Category.RING);
         for (int i = 0; i < rings.size(); i++) {
             Item ring = (Item) rings.get(i);
             if (ring instanceof Ring) {
@@ -448,7 +448,7 @@ public enum HeroClass {
             }
         }
         // 获得所有戒指的诅咒版
-        List cursedRings = Generator.getItemList(Generator.Category.RING);
+        List<Item> cursedRings = Generator.getItemList(Generator.Category.RING);
         for (int i = 0; i < cursedRings.size(); i++) {
             Item cursedRing = (Item) cursedRings.get(i);
             if (cursedRing instanceof Ring) {
@@ -459,7 +459,7 @@ public enum HeroClass {
             }
         }
         // 获得每种神器各一个
-        List artifacts = Generator.getItemList(Generator.Category.ARTIFACT);
+        List<Item> artifacts = Generator.getItemList(Generator.Category.ARTIFACT);
         for (int i = 0; i < artifacts.size(); i++) {
             Item artifact = (Item) artifacts.get(i);
             if (artifact instanceof Artifact) {
@@ -469,7 +469,7 @@ public enum HeroClass {
             }
         }
         //获得每种法杖
-        List wands = Generator.getItemList(Generator.Category.WAND);
+        List<Item> wands = Generator.getItemList(Generator.Category.WAND);
         for (int i = 0; i < wands.size(); i++) {
             Item wand = (Item) wands.get(i);
             if (wand instanceof Wand) {
@@ -510,7 +510,7 @@ public enum HeroClass {
             }
         }
         // 获得每种TRINKET
-        List trinkets = Generator.getItemList(Generator.Category.TRINKET);
+        List<Item> trinkets = Generator.getItemList(Generator.Category.TRINKET);
         for (int i = 0; i < trinkets.size(); i++) {
             Item trinket = (Item) trinkets.get(i);
             trinket.identify();
@@ -518,7 +518,7 @@ public enum HeroClass {
         }
         // 获得每种食物       
         for (int j = 0; j < 6666; j++) {
-            List foods = Generator.getItemList(Generator.Category.FOOD);
+            List<Item> foods = Generator.getItemList(Generator.Category.FOOD);
             for (int i = 0; i < foods.size(); i++) {
                 Item food = (Item) foods.get(i);
                 if (food instanceof Food) {
@@ -528,7 +528,7 @@ public enum HeroClass {
         }
         // 获得每种投掷武器
         for (int j = 0; j < 6666; j++) {
-            List missiles = Generator.getItemList(Generator.Category.MISSILE);
+            List<Item> missiles = Generator.getItemList(Generator.Category.MISSILE);
             for (int i = 0; i < missiles.size(); i++) {
                 Item missile = (Item) missiles.get(i);
                 if (missile instanceof MissileWeapon) {

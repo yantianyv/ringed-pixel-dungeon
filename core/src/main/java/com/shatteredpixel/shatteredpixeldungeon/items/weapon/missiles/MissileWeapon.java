@@ -267,33 +267,41 @@ abstract public class MissileWeapon extends Weapon {
 		}
 	}
 
+    /**
+     * 处理投掷动作的重写方法
+     * @param cell 目标格子位置
+     */
+    /**
+     * 处理投掷动作的重写方法
+     * @param cell 目标位置的坐标
+     */
     @Override
     protected void onThrow(int cell) {
-        Char enemy = Actor.findChar(cell);
-        if (enemy == null || enemy == curUser) {
-            parent = null;
+        Char enemy = Actor.findChar(cell); // 查找目标位置的角色
+        if (enemy == null || enemy == curUser) { // 如果没有敌人或者目标是当前使用者
+            parent = null; // 清除父对象引用
 
-            //metamorphed seer shot logic
-            if (curUser.hasTalent(Talent.SEER_SHOT)
-                    && curUser.heroClass != HeroClass.HUNTRESS
-                    && curUser.buff(Talent.SeerShotCooldown.class) == null) {
-                if (Actor.findChar(cell) == null) {
-                    RevealedArea a = Buff.affect(curUser, RevealedArea.class, 5 * curUser.pointsInTalent(Talent.SEER_SHOT));
-                    a.depth = Dungeon.depth;
-                    a.pos = cell;
-                    Buff.affect(curUser, Talent.SeerShotCooldown.class, 20f);
+            //metamorphed seer shot logic - 变形先知射击逻辑
+            if (curUser.hasTalent(Talent.SEER_SHOT)  // 检查当前使用者是否拥有先知射击天赋
+                    && curUser.heroClass != HeroClass.HUNTRESS  // 且当前使用者不是猎人职业
+                    && curUser.buff(Talent.SeerShotCooldown.class) == null) { // 且先知射击冷却已结束
+                if (Actor.findChar(cell) == null) { // 如果目标位置没有角色
+                    RevealedArea a = Buff.affect(curUser, RevealedArea.class, 5 * curUser.pointsInTalent(Talent.SEER_SHOT)); // 为当前使用者添加显示区域Buff
+                    a.depth = Dungeon.depth; // 设置Buff的深度为当前地下城深度
+                    a.pos = cell; // 设置Buff的位置为目标位置
+                    Buff.affect(curUser, Talent.SeerShotCooldown.class, 20f); // 为当前使用者添加先知射击冷却Buff
                 }
             }
 
-            if (!spawnedForEffect) {
-                super.onThrow(cell);
+            if (!spawnedForEffect) { // 如果不是为了特效而生成的
+                super.onThrow(cell); // 调用父类的投掷方法
             }
-        } else {
-            if (!curUser.shoot(enemy, this)) {
-                rangedMiss(cell);
-            } else {
+        } else { // 如果有敌人且不是当前使用者
+            if (!curUser.shoot(enemy, this)) { // 如果当前使用者无法射击敌人
+                rangedMiss(cell); // 执行射击未命中效果
+            } else { // 如果成功射击
 
-                rangedHit(enemy, cell);
+                rangedHit(enemy, cell); // 执行射击命中效果
 
             }
         }

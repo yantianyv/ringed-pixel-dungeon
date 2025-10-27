@@ -145,26 +145,36 @@ public class Emitter extends Group {
 		super.revive();
 	}
 
+/**
+ * 发射粒子或对象的方法
+ * 根据目标对象的状态决定发射位置
+ * @param index 粒子或对象的索引
+ */
 	protected void emit( int index ) {
+    // 检查是否有目标对象
 		if (target == null) {
+        // 如果没有目标对象，则在当前对象的区域内随机位置发射
 			factory.emit(
 				this,
 				index,
-				x + Random.Float( width ),
-				y + Random.Float( height ) );
+				x + Random.Float( width ),    // x坐标为当前对象的x位置加上随机偏移
+				y + Random.Float( height ) ); // y坐标为当前对象的y位置加上随机偏移
 		} else {
+        // 如果有目标对象，根据fillTarget标志决定发射位置
 			if (fillTarget) {
+            // 如果fillTarget为true，则在目标对象的区域内随机位置发射
 				factory.emit(
 						this,
 						index,
-						target.x + Random.Float( target.width ),
-						target.y + Random.Float( target.height ) );
+						target.x + Random.Float( target.width ),  // x坐标为目标对象的x位置加上随机偏移
+						target.y + Random.Float( target.height ) ); // y坐标为目标对象的y位置加上随机偏移
 			} else {
+            // 如果fillTarget为false，则在目标对象和当前对象的组合区域内随机位置发射
 				factory.emit(
 						this,
 						index,
-						target.x + x + Random.Float( width ),
-						target.y + y + Random.Float( height ) );
+						target.x + x + Random.Float( width ),    // x坐标为目标对象的x位置加上当前对象的x位置再加上随机偏移
+						target.y + y + Random.Float( height ) ); // y坐标为目标对象的y位置加上当前对象的y位置再加上随机偏移
 			}
 		}
 	}

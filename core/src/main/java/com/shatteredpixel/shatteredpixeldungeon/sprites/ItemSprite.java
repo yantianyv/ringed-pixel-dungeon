@@ -87,7 +87,7 @@ public class ItemSprite extends MovieClip {
 		view( heap );
 	}
 	
-	public ItemSprite( Item item ) {
+	public ItemSprite(Item item) {
 		super(Assets.Sprites.ITEMS);
 		view( item );
 	}

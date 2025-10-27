@@ -497,7 +497,6 @@ public class Generator {
                 FishingSpear.class,
                 ThrowingClub.class,
                 Shuriken.class,
-                NanBeiLvDou.class
             };
             MIS_T2.defaultProbs = new float[]{3, 3, 3};
             MIS_T2.probs = MIS_T2.defaultProbs.clone();
@@ -505,9 +504,10 @@ public class Generator {
             MIS_T3.classes = new Class<?>[]{
                 ThrowingSpear.class,
                 Kunai.class,
-                Bolas.class
+                Bolas.class,
+                NanBeiLvDou.class
             };
-            MIS_T3.defaultProbs = new float[]{3, 3, 3};
+            MIS_T3.defaultProbs = new float[]{3, 3, 3, 1};
             MIS_T3.probs = MIS_T3.defaultProbs.clone();
 
             MIS_T4.classes = new Class<?>[]{
