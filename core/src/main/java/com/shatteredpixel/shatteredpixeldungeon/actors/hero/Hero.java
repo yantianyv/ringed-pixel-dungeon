@@ -80,6 +80,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.TimeStasis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.WandEmpower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdBonus.AdType;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.LingeringMagicTracker;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Challenge;
@@ -1671,8 +1672,8 @@ public class Hero extends Char {
             if (buff(RingOfNahida.Nahida.class) != null) {
                 dmg /= RingOfNahida.elementalMastery(Dungeon.hero);
             }
-            if (buff(WandEmpower.class) != null) {
-                dmg /= 0.1;
+            if (buff(LingeringMagicTracker.class) != null) {
+                dmg /= 10;
             }
         }
 
