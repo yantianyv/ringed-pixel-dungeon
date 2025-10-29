@@ -71,19 +71,21 @@ public class Charm extends FlavourBuff {
 	public boolean ignoreNextHit = false;
 
 	public void recover(Object src) {
-		if (ignoreHeroAllies && src instanceof Char){
-			if (src != Dungeon.hero && ((Char) src).alignment == Char.Alignment.ALLY){
+		if (ignoreHeroAllies && src instanceof Char) {
+			if (src != Dungeon.hero && ((Char) src).alignment == Char.Alignment.ALLY) {
 				return;
 			}
 		}
 
-		if (ignoreNextHit){
+		if (ignoreNextHit) {
 			ignoreNextHit = false;
 			return;
 		}
 		spend(-5f);
-		if (cooldown() <= 0){
+		if (cooldown() <= 0) {
 			detach();
 		}
 	}
+	
+	
 }

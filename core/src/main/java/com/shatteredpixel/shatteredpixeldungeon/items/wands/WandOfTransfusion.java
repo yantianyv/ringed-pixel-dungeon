@@ -32,6 +32,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
@@ -83,59 +85,61 @@ public class WandOfTransfusion extends DamageWand {
 
 		Char ch = Actor.findChar(cell);
 
-		if (ch instanceof Mob){
-			
+		if (ch instanceof Mob) {
+
 			wandProc(ch, chargesPerCast());
-			
+
 			//this wand does different things depending on the target.
-			
+
 			//heals/shields an ally or a charmed enemy while damaging self
-			if (ch.alignment == Char.Alignment.ALLY || ch.buff(Charm.class) != null){
-				
+			if (ch.alignment == Char.Alignment.ALLY || ch.buff(Charm.class) != null) {
+
 				// 5% of max hp
-				int selfDmg = Math.round(curUser.HT*0.05f);
-				
-				int healing = selfDmg + 3*buffedLvl();
+				int selfDmg = Math.round(curUser.HT * 0.05f);
+
+				int healing = selfDmg + 3 * buffedLvl();
 				int shielding = (ch.HP + healing) - ch.HT;
-				if (shielding > 0){
+				if (shielding > 0) {
 					healing -= shielding;
 					Buff.affect(ch, Barrier.class).setShield(shielding);
 				} else {
 					shielding = 0;
 				}
-				
+
 				ch.HP += healing;
-				
+
 				ch.sprite.emitter().burst(Speck.factory(Speck.HEALING), 2 + buffedLvl() / 2);
 				if (healing > 0) {
 					ch.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healing), FloatingText.HEALING);
 				}
-				if (shielding > 0){
-					ch.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shielding), FloatingText.SHIELDING);
+				if (shielding > 0) {
+					ch.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shielding),
+							FloatingText.SHIELDING);
 				}
-				
+
 				if (!freeCharge) {
 					damageHero(selfDmg);
 				} else {
 					freeCharge = false;
 				}
 
-			//for enemies...
-			//(or for mimics which are hiding, special case)
+				//for enemies...
+				//(or for mimics which are hiding, special case)
 			} else if (ch.alignment == Char.Alignment.ENEMY || ch instanceof Mimic) {
 
 				//grant a self-shield, and...
 				Buff.affect(curUser, Barrier.class).setShield((5 + buffedLvl()));
-				curUser.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(5+buffedLvl()), FloatingText.SHIELDING);
-				
+				curUser.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(5 + buffedLvl()),
+						FloatingText.SHIELDING);
+
 				//charms living enemies
 				if (!ch.properties().contains(Char.Property.UNDEAD)) {
-					Charm charm = Buff.affect(ch, Charm.class, Charm.DURATION/2f);
+					Charm charm = Buff.affect(ch, Charm.class, Charm.DURATION / 2f);
 					charm.object = curUser.id();
 					charm.ignoreHeroAllies = true;
-					ch.sprite.centerEmitter().start( Speck.factory( Speck.HEART ), 0.2f, 3 );
-				
-				//harms the undead
+					ch.sprite.centerEmitter().start(Speck.factory(Speck.HEART), 0.2f, 3);
+
+					//harms the undead
 				} else {
 					ch.damage(damageRoll(), this);
 					ch.sprite.emitter().start(ShadowParticle.UP, 0.05f, 10 + buffedLvl());
@@ -143,7 +147,7 @@ public class WandOfTransfusion extends DamageWand {
 				}
 
 			}
-			
+			ElementBuff.apply(Element.HYDRO, this, ch, level());
 		}
 		
 	}
