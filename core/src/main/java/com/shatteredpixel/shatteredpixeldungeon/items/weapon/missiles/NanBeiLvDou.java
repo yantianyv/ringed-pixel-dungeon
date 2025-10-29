@@ -75,7 +75,7 @@ public class NanBeiLvDou extends MissileWeapon {
 
 	@Override
 	public int proc(Char attacker, Char defender, int damage) {
-		damage *= ElementBuff.apply(Element.DENDRO, attacker, defender, level());
+		damage *= ElementBuff.apply(Element.DENDRO, attacker, defender, 1f + 0.5f*level());
 		if (damage > 3) {
 			damage /= 3;
 		} else {

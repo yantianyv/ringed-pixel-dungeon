@@ -147,7 +147,7 @@ public class WandOfTransfusion extends DamageWand {
 				}
 
 			}
-			ElementBuff.apply(Element.HYDRO, this, ch, level());
+			ElementBuff.apply(Element.HYDRO, this, ch, 1+level());
 		}
 		
 	}

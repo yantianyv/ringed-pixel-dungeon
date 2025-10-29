@@ -179,7 +179,7 @@ public class Honeypot extends Item {
 
 		@Override
 		public int proc(Char attacker, Char defender, int damage) {
-			damage *= ElementBuff.apply(Element.HYDRO, attacker, defender, 3 * level());
+			damage *= ElementBuff.apply(Element.HYDRO, attacker, defender, 1f + 2f * level());
 			// 给目标施加slow
 			Buff.affect(defender, Slow.class,5);
 			return super.proc(attacker, defender, damage);
