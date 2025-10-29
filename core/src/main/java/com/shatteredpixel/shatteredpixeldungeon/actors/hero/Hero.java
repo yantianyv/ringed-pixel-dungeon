@@ -106,6 +106,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -138,6 +139,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.elixirs.ElixirOfMi
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.PotionOfDivineInspiration;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.DarkGold;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.OriginGem;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDiscount;
@@ -2266,6 +2268,19 @@ public class Hero extends Char {
                 updateHT(true);
                 attackSkill++;
                 defenseSkill++;
+
+                if (lvl % 5 == 0) {
+                    // 在英雄脚下生成一个随机戒指
+                    Item item = Generator.random(Generator.Category.RING);
+                    item.doPickUp(this);
+                    spend(- Item.TIME_TO_PICK_UP());
+                }else{
+                    // 在英雄脚下生成1~3个宝珠
+                    Item item = new OriginGem();
+                    item.quantity(Random.Int(1, 3));
+                    item.doPickUp(this);
+                    spend(-Item.TIME_TO_PICK_UP());
+                }
 
             } else {
                 Buff.prolong(this, Bless.class,
