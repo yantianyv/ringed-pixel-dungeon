@@ -1418,10 +1418,13 @@ public enum Talent {
             case WARLOCK:
                 Collections.addAll(tierTalents, SOUL_EATER, SOUL_SIPHON, NECROMANCERS_MINIONS);
                 break;
-            case ASSASSIN:
+            case ASSASSIN:// 刺客
                 Collections.addAll(tierTalents, ENHANCED_LETHALITY, ASSASSINS_REACH, BOUNTY_HUNTER);
                 break;
-            case FREERUNNER:
+            case FREERUNNER:// 疾跑客
+                Collections.addAll(tierTalents, EVASIVE_ARMOR, PROJECTILE_MOMENTUM, SPEEDY_STEALTH);
+                break;
+            case MAGICIAN:// 魔术师
                 Collections.addAll(tierTalents, EVASIVE_ARMOR, PROJECTILE_MOMENTUM, SPEEDY_STEALTH);
                 break;
             case SNIPER:
