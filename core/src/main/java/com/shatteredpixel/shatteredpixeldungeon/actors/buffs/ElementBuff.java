@@ -430,11 +430,11 @@ public class ElementBuff extends Buff implements Hero.Doom {
 
         PathFinder.buildDistanceMap(ch.pos, BArray.not(Dungeon.level.solid, null), 2);
         for (int i = 0; i < PathFinder.distance.length; i++) {
-            if (PathFinder.distance[i] < (1 + Math.sqrt(consume))) {
+            if (PathFinder.distance[i] < (2 + Math.sqrt(consume))) {
                 Char n = Actor.findChar(i);
-                if (n != null && n != ch) {
+                if (n != null ) {
                     n.damage((int) (1 + consume), new ElementBuff());
-                    if (consume >= 1) {
+                    if (consume >= 0.5 && n != ch) {
                         ElementBuff.apply(Element.ELECTRO, n, n, consume / 2);
                     }
                 }
