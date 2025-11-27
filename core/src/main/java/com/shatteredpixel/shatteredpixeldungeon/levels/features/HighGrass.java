@@ -82,7 +82,7 @@ public class HighGrass {
             }
 
             // 给踩草的角色添加草元素附着
-            if (ch != null) {
+            if (ch != null && ch.isAlive()) {
                 ElementBuff.apply(Element.DENDRO, ch, ch, 3f);
             }
 

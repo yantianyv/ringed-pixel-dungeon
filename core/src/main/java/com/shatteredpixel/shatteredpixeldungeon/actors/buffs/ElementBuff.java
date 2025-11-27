@@ -207,6 +207,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
      * @return 反应消耗的元素量
      */
     public float reaction(Char ch) {
+        if (!ch.isAlive()) return 0f;
         return reactWith(ch, this);
     }
 
@@ -218,6 +219,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
 
         // 遍历目标的所有buff
         for (Buff b : ch.buffs()) {
+            if (this.quantity <= 0) break;
+            if (!ch.isAlive()) return dmg_multi;
             if (b instanceof ElementBuff && b != thisBuff) {
                 ElementBuff other = (ElementBuff) b;
 
@@ -379,13 +382,12 @@ public class ElementBuff extends Buff implements Hero.Doom {
      */
     static float Overload(ElementBuff pyro, ElementBuff electro, Char ch) {
         float consume = Math.min(pyro.quantity, electro.quantity);
-        if (consume > 0) {
-            // 在怪物的图标上显示超载文本
-            CharSprite cs = ch.sprite;
-            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "overload"));
-        } else {
-            consume = 0;
-        }
+        if (consume <= 0) return 1f;
+
+        // 在怪物的图标上显示超载文本
+        CharSprite cs = ch.sprite;
+        cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "overload"));
+
         // 消耗元素
         pyro.quantity -= consume;
         electro.quantity -= consume;
@@ -417,13 +419,12 @@ public class ElementBuff extends Buff implements Hero.Doom {
      */
     static float Shock(ElementBuff electro, ElementBuff hydro, Char ch) {
         float consume = Math.min(electro.quantity, hydro.quantity);
-        if (consume > 0) {
-            // 在怪物的图标上显示感电文本
-            CharSprite cs = ch.sprite;
-            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "shock"));
-        } else {
-            consume = 0;
-        }
+        if (consume <= 0) return 1f;
+
+        // 在怪物的图标上显示感电文本
+        CharSprite cs = ch.sprite;
+        cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "shock"));
+
         electro.quantity -= consume;
         hydro.quantity -= consume;
 
@@ -431,7 +432,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
         for (int i = 0; i < PathFinder.distance.length; i++) {
             if (PathFinder.distance[i] < (1 + Math.sqrt(consume))) {
                 Char n = Actor.findChar(i);
-                if (n != null) {
+                if (n != null && n != ch) {
                     n.damage((int) (1 + consume), new ElementBuff());
                     if (consume >= 1) {
                         ElementBuff.apply(Element.ELECTRO, n, n, consume / 2);
@@ -452,13 +453,12 @@ public class ElementBuff extends Buff implements Hero.Doom {
      */
     static float Freeze(ElementBuff cryo, ElementBuff hydro, Char ch) {
         float consume = Math.min(cryo.quantity, hydro.quantity);
-        if (consume > 0) {
-            // 在怪物的图标上显示冻结文本
-            CharSprite cs = ch.sprite;
-            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "freeze"));
-        } else {
-            consume = 0;
-        }
+        if (consume <= 0) return 1f;
+
+        // 在怪物的图标上显示冻结文本
+        CharSprite cs = ch.sprite;
+        cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "freeze"));
+
         cryo.quantity -= consume;
         hydro.quantity -= consume;
 
@@ -486,13 +486,12 @@ public class ElementBuff extends Buff implements Hero.Doom {
      */
     static float Vaporize(ElementBuff pyro, ElementBuff hydro, Char ch) {
         float consume = Math.min(pyro.quantity, hydro.quantity);
-        if (consume > 0) {
-            // 在怪物的图标上显示蒸发文本
-            CharSprite cs = ch.sprite;
-            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "vaporize"));
-        } else {
-            consume = 0;
-        }
+        if (consume <= 0) return 1f;
+
+        // 在怪物的图标上显示蒸发文本
+        CharSprite cs = ch.sprite;
+        cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "vaporize"));
+
         pyro.quantity -= consume;
         hydro.quantity -= consume;
         return 1.5f + consume * 0.1f;
@@ -505,13 +504,12 @@ public class ElementBuff extends Buff implements Hero.Doom {
      */
     static float Melt(ElementBuff pyro, ElementBuff cryo, Char ch) {
         float consume = Math.min(pyro.quantity, cryo.quantity);
-        if (consume > 0) {
-            // 在怪物的图标上显示融化文本
-            CharSprite cs = ch.sprite;
-            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "melt"));
-        } else {
-            consume = 0;
-        }
+        if (consume <= 0) return 1f;
+
+        // 在怪物的图标上显示融化文本
+        CharSprite cs = ch.sprite;
+        cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "melt"));
+
         pyro.quantity -= consume;
         cryo.quantity -= consume;
         return 1.5f + consume * 0.1f;
@@ -524,13 +522,12 @@ public class ElementBuff extends Buff implements Hero.Doom {
      */
     static float Spread(ElementBuff anemo, ElementBuff other, Char ch) {
         float consume = Math.min(anemo.quantity, other.quantity);
-        if (consume > 0) {
-            // 在怪物的图标上显示扩散文本
-            CharSprite cs = ch.sprite;
-            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "spread"));
-        } else {
-            consume = 0;
-        }
+        if (consume <= 0) return 1f;
+
+        // 在怪物的图标上显示扩散文本
+        CharSprite cs = ch.sprite;
+        cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "spread"));
+
         anemo.quantity -= consume;
         other.quantity -= consume;
 
@@ -583,13 +580,12 @@ public class ElementBuff extends Buff implements Hero.Doom {
      */
     static float Crystalize(ElementBuff geo, ElementBuff other, Char ch) {
         float consume = Math.min(geo.quantity, other.quantity);
-        if (consume > 0) {
-            // 在怪物的图标上显示扩散文本
-            CharSprite cs = ch.sprite;
-            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "crystalize"));
-        } else {
-            consume = 0;
-        }
+        if (consume <= 0) return 1f;
+
+        // 在怪物的图标上显示扩散文本
+        CharSprite cs = ch.sprite;
+        cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "crystalize"));
+
         geo.quantity -= consume;
         other.quantity -= consume;
         // 给英雄添加护盾
@@ -609,13 +605,12 @@ public class ElementBuff extends Buff implements Hero.Doom {
      */
     static float Superconduct(ElementBuff electro, ElementBuff cryo, Char ch) {
         float consume = Math.min(electro.quantity, cryo.quantity);
-        if (consume > 0) {
-            // 在怪物的图标上显示超导文本
-            CharSprite cs = ch.sprite;
-            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "superconduct"));
-        } else {
-            consume = 0;
-        }
+        if (consume <= 0) return 1f;
+
+        // 在怪物的图标上显示超导文本
+        CharSprite cs = ch.sprite;
+        cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "superconduct"));
+
         electro.quantity -= consume;
         cryo.quantity -= consume;
 
@@ -652,13 +647,12 @@ public class ElementBuff extends Buff implements Hero.Doom {
      */
     static float Burn(ElementBuff pyro, ElementBuff dendro, Char ch) {
         float consume = Math.min(pyro.quantity, dendro.quantity);
-        if (consume > 0) {
-            // 在怪物的图标上显示燃烧文本
-            CharSprite cs = ch.sprite;
-            cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "burn"));
-        } else {
-            consume = 0;
-        }
+        if (consume <= 0) return 1f;
+
+        // 在怪物的图标上显示燃烧文本
+        CharSprite cs = ch.sprite;
+        cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "burn"));
+
         // 防止递归：清除草元素
         dendro.detach();
         
@@ -684,6 +678,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
         if (dendro instanceof CatalyzedDendroElement) return 1f;
         
         float consume = Math.min(electro.quantity, dendro.quantity);
+        if (consume <= 0) return 1f;
+
         electro.quantity -= consume;
         dendro.quantity -= consume;
         
@@ -707,6 +703,10 @@ public class ElementBuff extends Buff implements Hero.Doom {
      */
     static float Bloom(ElementBuff hydro, ElementBuff dendro, Char ch) {
         float consume = Math.min(hydro.quantity, dendro.quantity);
+        if (consume <= 0) return 1f;
+
+        hydro.quantity -= consume;
+        dendro.quantity -= consume;
 
         // 在周围8格寻找有效位置
         ArrayList<Integer> validPositions = new ArrayList<>();
@@ -754,9 +754,6 @@ public class ElementBuff extends Buff implements Hero.Doom {
         // 显示反应文本
         ch.sprite.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "bloom"));
 
-        // 消耗元素
-        hydro.quantity -= consume;
-        dendro.quantity -= consume;
         return 1f;
     }
 
