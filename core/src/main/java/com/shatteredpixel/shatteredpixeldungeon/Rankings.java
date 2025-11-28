@@ -260,6 +260,7 @@ if (Statistics.wealth == true
     public static final String BADGES = "badges";
     public static final String HANDLERS = "handlers";
     public static final String CHALLENGES = "challenges";
+    public static final String CHEAT = "cheat";
     public static final String GAME_VERSION = "game_version";
     public static final String SEED = "seed";
     public static final String CUSTOM_SEED = "custom_seed";
@@ -345,6 +346,7 @@ if (Statistics.wealth == true
 
         //save challenges
         rec.gameData.put(CHALLENGES, Dungeon.challenges);
+        rec.gameData.put(CHEAT, Dungeon.cheat);
 
         rec.gameData.put(GAME_VERSION, Dungeon.initialVersion);
 
@@ -383,6 +385,7 @@ if (Statistics.wealth == true
         Statistics.restoreFromBundle(data.getBundle(STATS));
 
         Dungeon.challenges = data.getInt(CHALLENGES);
+        Dungeon.cheat = data.getInt(CHEAT);
 
         Dungeon.initialVersion = data.getInt(GAME_VERSION);
 
