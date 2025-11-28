@@ -346,12 +346,20 @@ public class WndRanking extends WndTabbed {
 
     private class ItemsTab extends Group {
 
-        private float pos;
+        private float leftPos;
+        private float rightPos;
+        private static final float COLUMN_WIDTH = 56; // 每列宽度
+        private int itemCount;
 
         public ItemsTab() {
             super();
 
             Belongings stuff = Dungeon.hero.belongings;
+            leftPos = 0;
+            rightPos = 0;
+            itemCount = 0;
+            
+            // 按顺序添加所有装备，前5个在左列，后续在右列
             if (stuff.weapon != null) {
                 addItem(stuff.weapon);
             }
@@ -382,8 +390,8 @@ public class WndRanking extends WndTabbed {
             if (stuff.ring6 != null) {
                 addItem(stuff.ring6);
             }
-            pos = 0;
 
+            // 快捷栏在底部横向排列
             int slotsActive = 0;
             for (int i = 0; i < QuickSlot.SIZE; i++) {
                 if (Dungeon.quickslot.isNonePlaceholder(i)) {
@@ -397,6 +405,7 @@ public class WndRanking extends WndTabbed {
             }
 
             float slotWidth = Math.min(28, ((WIDTH - slotsActive + 1) / (float) slotsActive));
+            float quickSlotPos = 0;
 
             for (int i = -1; i < QuickSlot.SIZE; i++) {
                 Item item = null;
@@ -408,23 +417,32 @@ public class WndRanking extends WndTabbed {
                 if (item != null) {
                     QuickSlotButton slot = new QuickSlotButton(item);
 
-                    slot.setRect(pos, 120, slotWidth, 23);
+                    slot.setRect(quickSlotPos, 120, slotWidth, 23);
                     PixelScene.align(slot);
 
                     add(slot);
 
-                    pos += slotWidth + 1;
+                    quickSlotPos += slotWidth + 1;
 
                 }
             }
         }
 
         private void addItem(Item item) {
-            ItemButton slot = new ItemButton(item);
-            slot.setRect(0, pos, width, ItemButton.HEIGHT);
-            add(slot);
-
-            pos += slot.height() + 1;
+            itemCount++;
+            if (itemCount <= 5) {
+                // 前5个物品放左列
+                ItemButton slot = new ItemButton(item);
+                slot.setRect(0, leftPos, COLUMN_WIDTH, ItemButton.HEIGHT);
+                add(slot);
+                leftPos += slot.height() + 1;
+            } else {
+                // 第6个及之后的物品放右列
+                ItemButton slot = new ItemButton(item);
+                slot.setRect(WIDTH - COLUMN_WIDTH, rightPos, COLUMN_WIDTH, ItemButton.HEIGHT);
+                add(slot);
+                rightPos += slot.height() + 1;
+            }
         }
     }
 
