@@ -319,7 +319,7 @@ public abstract class Char extends Actor {
                 for (int i : PathFinder.NEIGHBOURS8) {
                     Char enemy = Actor.findChar(newPos + i);
                     if (enemy != null && enemy.alignment == Alignment.ENEMY) {
-                        int dmg = Dungeon.hero.damageRoll();
+                        int dmg = Dungeon.hero.lvl/2;
                         enemy.damage(dmg, Dungeon.hero);
                     }
                 }
@@ -327,7 +327,7 @@ public abstract class Char extends Actor {
                 for (int i : PathFinder.NEIGHBOURS8) {
                     Char enemy = Actor.findChar(oldPos + i);
                     if (enemy != null && enemy.alignment == Alignment.ENEMY) {
-                        int dmg = Dungeon.hero.damageRoll();
+                        int dmg = Dungeon.hero.lvl/2;
                         enemy.damage(dmg, this);
                     }
                 }

@@ -1755,9 +1755,9 @@ public class Hero extends Char {
             
             // 英雄随机瞬移走（复用瞬移卷轴的效果），镜像留在原地
             ScrollOfTeleportation.teleportChar(this);
-            
+
             // 设置冷却（完全复用复春步伐的冷却机制）
-            float cooldownTurns = 400f - 100f * pointsInTalent(Talent.GOLDEN_CICADA);
+            float cooldownTurns = 500f - 100f * pointsInTalent(Talent.GOLDEN_CICADA);
             Buff.affect(this, Talent.GoldenCicadaCooldown.class, cooldownTurns);
             
             GLog.p(Messages.get(Talent.class, "golden_cicada_trigger"));
