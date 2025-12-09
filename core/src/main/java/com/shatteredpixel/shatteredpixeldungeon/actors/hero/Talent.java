@@ -146,8 +146,10 @@ public enum Talent {
     // 疾行客 T3
     EVASIVE_ARMOR(78, 3), PROJECTILE_MOMENTUM(79, 3), SPEEDY_STEALTH(80, 3),
     // 魔术师 T3
-    // EVASIVE_ARMOR(1075, 3), PROJECTILE_MOMENTUM(1076, 3), SPEEDY_STEALTH(1077,
-    // 3),
+    GOLDEN_CICADA(1075, 3), 
+    THREE_IMMORTALS(1076, 3), 
+    FAKE_REALITY(1077,
+    3),
     //Smoke Bomb T4
     HASTY_RETREAT(81, 4), BODY_REPLACEMENT(82, 4), SHADOW_STEP(83, 4),
     //Death Mark T4
@@ -1425,7 +1427,7 @@ public enum Talent {
                 Collections.addAll(tierTalents, EVASIVE_ARMOR, PROJECTILE_MOMENTUM, SPEEDY_STEALTH);
                 break;
             case MAGICIAN:// 魔术师
-                Collections.addAll(tierTalents, EVASIVE_ARMOR, PROJECTILE_MOMENTUM, SPEEDY_STEALTH);
+                Collections.addAll(tierTalents, GOLDEN_CICADA, THREE_IMMORTALS, FAKE_REALITY);
                 break;
             case SNIPER:
                 Collections.addAll(tierTalents, FARSIGHT, SHARED_ENCHANTMENT, SHARED_UPGRADES);
@@ -1559,6 +1561,34 @@ public enum Talent {
                     }
                 }
             }
+        }
+    }
+
+    // 金蝉脱壳冷却追踪器
+    public static class GoldenCicadaCooldown extends FlavourBuff {
+        {
+            type = buffType.NEUTRAL;
+            announced = false;
+        }
+
+        @Override
+        public int icon() {
+            return BuffIndicator.TIME;
+        }
+
+        @Override
+        public void tintIcon(Image icon) {
+            icon.hardlight(0xFFD700);
+        }
+
+        @Override
+        public String desc() {
+            return Messages.get(this, "desc", dispTurns(visualcooldown()));
+        }
+
+        public float iconFadePercent() {
+            int cooldownTurns = 300 - 100 * Dungeon.hero.pointsInTalent(GOLDEN_CICADA);
+            return GameMath.gate(0, visualcooldown() / cooldownTurns, 1);
         }
     }
 

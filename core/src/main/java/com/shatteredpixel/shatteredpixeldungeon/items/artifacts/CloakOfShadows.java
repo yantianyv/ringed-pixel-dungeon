@@ -35,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Regeneration;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMirrorImage;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
@@ -341,6 +342,10 @@ public class CloakOfShadows extends Artifact {
                     GLog.w(Messages.get(this, "no_charge"));
                     ((Hero) target).interrupt();
                 } else {
+                    // 魔术师：消耗充能时召唤镜像
+                    if (((Hero) target).subClass == HeroSubClass.MAGICIAN) {
+                        ScrollOfMirrorImage.spawnImages((Hero) target, 1);
+                    }
                     //target hero level is 1 + 2*cloak level
                     int lvlDiffFromTarget = (int) ((int) ((Hero) target).lvl - (1 + level() * 1.5));
                     //plus an extra one for each level after 6

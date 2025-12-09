@@ -34,6 +34,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.BodyForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
@@ -45,7 +47,9 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MirrorSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.utils.BArray;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 public class MirrorImage extends NPC {
@@ -105,6 +109,35 @@ public class MirrorImage extends NPC {
         this.hero = hero;
         heroID = this.hero.id();
         Buff.affect(this, MirrorInvis.class, Short.MAX_VALUE);
+        
+        // 以假乱真：镜像继承生命值
+        if (hero.subClass == HeroSubClass.MAGICIAN && hero.hasTalent(Talent.FAKE_REALITY)) {
+            int points = hero.pointsInTalent(Talent.FAKE_REALITY);
+            float hpPercent = 0.1f * points; // 10%, 20%, 30%
+            HT = Math.max(1, (int)(hero.HT * hpPercent));
+            HP = HT;
+        }
+        
+        // 三仙归洞：给英雄添加镜像的灵视感知效果（完全复用奥术感知的实现）
+        if (hero.subClass == HeroSubClass.MAGICIAN && hero.hasTalent(Talent.THREE_IMMORTALS)) {
+            Buff.append(hero, TalismanOfForesight.CharAwareness.class, 5f).charID = this.id();
+        }
+    }
+
+    @Override
+    public boolean canInteract(Char c) {
+        // 三仙归洞：允许英雄在视野内与镜像交互（复用ALLy_WARP的逻辑）
+        if (c == Dungeon.hero 
+                && hero != null 
+                && hero.subClass == HeroSubClass.MAGICIAN 
+                && hero.hasTalent(Talent.THREE_IMMORTALS)
+                && Dungeon.level.heroFOV[pos]) {
+            // 检查路径是否可达（复用ALLy_WARP的路径检查逻辑）
+            PathFinder.buildDistanceMap(c.pos, BArray.or(Dungeon.level.passable, Dungeon.level.avoid, null));
+            return PathFinder.distance[pos] != Integer.MAX_VALUE;
+        }
+        // 否则使用默认的交互逻辑（相邻或ALLy_WARP）
+        return super.canInteract(c);
     }
 
     @Override

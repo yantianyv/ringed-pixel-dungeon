@@ -142,6 +142,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.OriginGem;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMirrorImage;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDiscount;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
@@ -1739,6 +1741,30 @@ public class Hero extends Char {
         if (src instanceof Hunger) {
             preHP -= shielding();
         }
+        
+        // 金蝉脱壳：在致命伤害前检查并免疫伤害
+        if (subClass == HeroSubClass.MAGICIAN 
+                && hasTalent(Talent.GOLDEN_CICADA)
+                && buff(Talent.GoldenCicadaCooldown.class) == null
+                && preHP - dmg <= 0) {
+            // 触发金蝉脱壳：免除这次伤害
+            // 不调用super.damage()，直接触发效果
+            
+            // 在原位置创建镜像（镜像的灵饰感知效果会在duplicate()中统一处理）
+            ScrollOfMirrorImage.spawnImages(this, pos, 1);
+            
+            // 英雄随机瞬移走（复用瞬移卷轴的效果），镜像留在原地
+            ScrollOfTeleportation.teleportChar(this);
+            
+            // 设置冷却（完全复用复春步伐的冷却机制）
+            float cooldownTurns = 400f - 100f * pointsInTalent(Talent.GOLDEN_CICADA);
+            Buff.affect(this, Talent.GoldenCicadaCooldown.class, cooldownTurns);
+            
+            GLog.p(Messages.get(Talent.class, "golden_cicada_trigger"));
+            // 伤害已被免疫，直接返回
+            return;
+        }
+        
         //计算实际受到的伤害
         super.damage(dmg, src);
         int postHP = HP + shielding();
@@ -2905,3 +2931,4 @@ public class Hero extends Char {
         public void onDeath();
     }
 }
+

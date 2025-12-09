@@ -588,12 +588,14 @@ public class ElementBuff extends Buff implements Hero.Doom {
 
         geo.quantity -= consume;
         other.quantity -= consume;
-        // 给英雄添加护盾
-        int amount = (int) (consume + Dungeon.hero.HT * consume / 50);
-        Barrier b = Buff.affect(Dungeon.hero, Barrier.class);
-        if (b.shielding() <= amount) {
-            b.setShield(amount);
-            b.delay(Math.max(10 - b.cooldown(), 0));
+        // 给英雄添加护盾（无论触发者是谁，都只给英雄套盾）
+        if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
+            int amount = (int) (consume + Dungeon.hero.HT * consume / 50);
+            Barrier b = Buff.affect(Dungeon.hero, Barrier.class);
+            if (b.shielding() <= amount) {
+                b.setShield(amount);
+                b.delay(Math.max(10 - b.cooldown(), 0));
+            }
         }
         return 1f;
     }

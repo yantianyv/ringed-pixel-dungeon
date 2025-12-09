@@ -678,6 +678,16 @@ public class PrisonBossLevel extends Level {
 		int tenguPos = tenguPoint.x-(tenguCell.left+1) + (tenguPoint.y-(tenguCell.top+1))*7;
 		int heroPos = heroPoint.x-(tenguCell.left+1) + (heroPoint.y-(tenguCell.top+1))*7;
 		
+		// 边界检查：确保位置在7x7网格的有效范围内（0-48）
+		if (tenguPos < 0 || tenguPos >= 49) {
+			// 如果tengu位置无效，使用tenguCell中心位置
+			tenguPos = (tenguCellCenter.x - (tenguCell.left+1)) + (tenguCellCenter.y - (tenguCell.top+1))*7;
+		}
+		if (heroPos < 0 || heroPos >= 49) {
+			// 如果hero位置无效，使用tenguCell中心位置
+			heroPos = (tenguCellCenter.x - (tenguCell.left+1)) + (tenguCellCenter.y - (tenguCell.top+1))*7;
+		}
+		
 		boolean[] trapsPatch;
 
 		//fill ramps up much faster during challenge, effectively 78%-90%
@@ -710,7 +720,8 @@ public class PrisonBossLevel extends Level {
 				int x = i % 7;
 				int y = i / 7;
 				int cell = x+tenguCell.left+1 + (y+tenguCell.top+1)*width();
-				if (Blob.volumeAt(cell, StormCloud.class) == 0
+				// 检查cell是否在地图有效范围内
+				if (cell >= 0 && cell < length() && Blob.volumeAt(cell, StormCloud.class) == 0
 						&& Blob.volumeAt(cell, Regrowth.class) <= 9
 						&& Dungeon.level.plants.get(cell) == null
 						&& Actor.findChar(cell) == null) {
