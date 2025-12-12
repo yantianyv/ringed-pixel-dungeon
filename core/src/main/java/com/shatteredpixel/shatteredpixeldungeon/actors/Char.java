@@ -68,7 +68,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LifeLink;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LostInventory;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicalSleep;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Momentum;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.RevealedArea;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
@@ -292,50 +291,58 @@ public abstract class Char extends Actor {
             return true;
         }
 
-        // 三仙归洞：与镜像换位时使用瞬移效果（复用ALLy_WARP的换位效果）
+        // 三仙归洞：与镜像换位，每个镜像只能换位一次
         if (c == Dungeon.hero 
                 && Dungeon.hero.subClass == HeroSubClass.MAGICIAN 
                 && Dungeon.hero.hasTalent(Talent.THREE_IMMORTALS)
                 && this instanceof MirrorImage
                 && Dungeon.level.heroFOV[oldPos]) {
-            PathFinder.buildDistanceMap(c.pos, BArray.or(Dungeon.level.passable, Dungeon.level.avoid, null));
-            if (PathFinder.distance[pos] == Integer.MAX_VALUE) {
+            MirrorImage mirror = (MirrorImage) this;
+            if (!mirror.swapped) {
+                PathFinder.buildDistanceMap(c.pos, BArray.or(Dungeon.level.passable, Dungeon.level.avoid, null));
+                if (PathFinder.distance[pos] == Integer.MAX_VALUE) {
+                    return true;
+                }
+                
+                // 先结束粒子效果
+                mirror.swapped = true;
+                Talent.SwapReady swapBuff = mirror.buff(Talent.SwapReady.class);
+                if (swapBuff != null) {
+                    swapBuff.detach();
+                }
+                
+                // 再进行换位
+                pos = newPos;
+                c.pos = oldPos;
+                ScrollOfTeleportation.appear(this, newPos);
+                ScrollOfTeleportation.appear(c, oldPos);
+                Dungeon.level.occupyCell(this);
+                Dungeon.level.occupyCell(c);
+                Dungeon.observe();
+                GameScene.updateFog();
+                
+                // +2/+3: 换位时，英雄和镜像对各自落点周围的敌人执行近战攻击（不消耗回合）
+                int points = Dungeon.hero.pointsInTalent(Talent.THREE_IMMORTALS);
+                if (points >= 3) {
+                    for (int i : PathFinder.NEIGHBOURS8) {
+                        Char enemy = Actor.findChar(oldPos + i);
+                        if (enemy != null && enemy.alignment == Alignment.ENEMY) {
+                            c.attack(enemy);
+                        }
+                    }
+                }
+                if (points >= 2) {
+                    for (int i : PathFinder.NEIGHBOURS8) {
+                        Char enemy = Actor.findChar(newPos + i);
+                        if (enemy != null && enemy.alignment == Alignment.ENEMY) {
+                            this.attack(enemy);
+                        }
+                    }
+                }
+                
+                Dungeon.hero.busy();
                 return true;
             }
-            pos = newPos;
-            c.pos = oldPos;
-            ScrollOfTeleportation.appear(this, newPos);
-            ScrollOfTeleportation.appear(c, oldPos);
-            Dungeon.level.occupyCell(this);
-            Dungeon.level.occupyCell(c);
-            Dungeon.observe();
-            GameScene.updateFog();
-            
-            // 三仙归洞的额外效果（造成伤害）
-            int points = Dungeon.hero.pointsInTalent(Talent.THREE_IMMORTALS);
-            if (points >= 2) {
-                // +2/+3: 英雄对英雄落点周围造成伤害，镜像对镜像落点周围造成伤害
-                // 英雄对英雄落点（newPos）周围造成伤害
-                for (int i : PathFinder.NEIGHBOURS8) {
-                    Char enemy = Actor.findChar(newPos + i);
-                    if (enemy != null && enemy.alignment == Alignment.ENEMY) {
-                        int dmg = Dungeon.hero.lvl/2;
-                        enemy.damage(dmg, Dungeon.hero);
-                    }
-                }
-                // 镜像对镜像落点（oldPos）周围造成伤害
-                for (int i : PathFinder.NEIGHBOURS8) {
-                    Char enemy = Actor.findChar(oldPos + i);
-                    if (enemy != null && enemy.alignment == Alignment.ENEMY) {
-                        int dmg = Dungeon.hero.lvl/2;
-                        enemy.damage(dmg, this);
-                    }
-                }
-            }
-            
-            c.spend(1 / c.speed());
-            Dungeon.hero.busy();
-            return true;
         }
 
         //can't swap places if one char has restricted movement

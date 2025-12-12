@@ -129,6 +129,9 @@ public class Multiplicity extends Armor.Glyph {
 						m.pos = Random.element(spawnPoints);
 						GameScene.add(m);
 						ScrollOfTeleportation.appear(m, m.pos);
+						if (m instanceof MirrorImage) {
+							((MirrorImage) m).updateSwapReady(); // 立即检查并显示粒子效果
+						}
 					}
 				}
 

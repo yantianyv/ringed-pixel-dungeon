@@ -342,9 +342,9 @@ public class CloakOfShadows extends Artifact {
                     GLog.w(Messages.get(this, "no_charge"));
                     ((Hero) target).interrupt();
                 } else {
-                    // 魔术师：消耗充能时召唤镜像
+                    // 魔术师：消耗充能时召唤镜像（随机位置）
                     if (((Hero) target).subClass == HeroSubClass.MAGICIAN) {
-                        ScrollOfMirrorImage.spawnImages((Hero) target, 1);
+                        ScrollOfMirrorImage.spawnImagesAtRandom((Hero) target, 1);
                     }
                     //target hero level is 1 + 2*cloak level
                     int lvlDiffFromTarget = (int) ((int) ((Hero) target).lvl - (1 + level() * 1.5));

@@ -75,10 +75,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PhysicalEmpower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Regeneration;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.TimeStasis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.WandEmpower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdBonus.AdType;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.LingeringMagicTracker;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
@@ -96,6 +96,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Monk;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.MirrorImage;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CheckedCell;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
@@ -142,7 +143,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.OriginGem;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMirrorImage;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDiscount;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
@@ -1742,26 +1742,51 @@ public class Hero extends Char {
             preHP -= shielding();
         }
         
-        // 金蝉脱壳：在致命伤害前检查并免疫伤害
+        // 金蝉脱壳：免疫致命伤害，在原位置留下镜像，英雄随机瞬移
         if (subClass == HeroSubClass.MAGICIAN 
                 && hasTalent(Talent.GOLDEN_CICADA)
                 && buff(Talent.GoldenCicadaCooldown.class) == null
                 && preHP - dmg <= 0) {
-            // 触发金蝉脱壳：免除这次伤害
-            // 不调用super.damage()，直接触发效果
+            int oldPos = pos;
             
-            // 在原位置创建镜像（镜像的灵饰感知效果会在duplicate()中统一处理）
-            ScrollOfMirrorImage.spawnImages(this, pos, 1);
+            // 随机瞬移（不消耗回合）
+            int count = 20;
+            int newPos = -1;
+            do {
+                newPos = Dungeon.level.randomRespawnCell(this);
+                if (count-- <= 0) {
+                    break;
+                }
+            } while (newPos == -1 || Dungeon.level.secret[newPos]);
             
-            // 英雄随机瞬移走（复用瞬移卷轴的效果），镜像留在原地
-            ScrollOfTeleportation.teleportChar(this);
-
-            // 设置冷却（完全复用复春步伐的冷却机制）
+            if (newPos != -1) {
+                ScrollOfTeleportation.appear(this, newPos);
+                Dungeon.level.occupyCell(this);
+                Buff.detach(this, Roots.class);
+                Dungeon.observe();
+                GameScene.updateFog();
+            }
+            
+            // 在英雄原位置生成镜像，不隐身，并立即攻击
+            if (Dungeon.level.passable[oldPos] && Actor.findChar(oldPos) == null) {
+                MirrorImage mob = new MirrorImage();
+                mob.duplicate(this, false);
+                GameScene.add(mob);
+                ScrollOfTeleportation.appear(mob, oldPos);
+                mob.updateSwapReady(); // 立即检查并显示粒子效果
+                
+                // 镜像立即攻击周围敌人（不消耗回合）
+                for (int i : PathFinder.NEIGHBOURS8) {
+                    Char enemy = Actor.findChar(oldPos + i);
+                    if (enemy != null && enemy.alignment == Alignment.ENEMY) {
+                        mob.attack(enemy);
+                    }
+                }
+            }
+            
             float cooldownTurns = 500f - 100f * pointsInTalent(Talent.GOLDEN_CICADA);
             Buff.affect(this, Talent.GoldenCicadaCooldown.class, cooldownTurns);
-            
             GLog.p(Messages.get(Talent.class, "golden_cicada_trigger"));
-            // 伤害已被免疫，直接返回
             return;
         }
         

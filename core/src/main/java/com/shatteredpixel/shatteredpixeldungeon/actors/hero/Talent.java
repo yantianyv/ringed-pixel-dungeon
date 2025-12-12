@@ -93,11 +93,13 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
+import com.watabou.noosa.particles.Emitter;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 
 public enum Talent {
 
@@ -1589,6 +1591,39 @@ public enum Talent {
         public float iconFadePercent() {
             int cooldownTurns = 300 - 100 * Dungeon.hero.pointsInTalent(GOLDEN_CICADA);
             return GameMath.gate(0, visualcooldown() / cooldownTurns, 1);
+        }
+    }
+
+    // 三仙归洞：可换位镜像的星星粒子效果
+    public static class SwapReady extends Buff {
+        {
+            type = buffType.POSITIVE;
+            announced = false;
+        }
+
+        @Override
+        public int icon() {
+            return BuffIndicator.NONE;
+        }
+
+        @Override
+        public boolean act() {
+            // 不自动移除，由外部控制
+            spend(TICK);
+            return true;
+        }
+
+        private Emitter particles;
+
+        @Override
+        public void fx(boolean on) {
+            if (on && (particles == null || particles.parent == null)) {
+                particles = target.sprite.emitter();
+                particles.pour(Speck.factory(Speck.LIGHT), 0.2f); // 持续发射粒子
+            } else if (!on && particles != null) {
+                particles.on = false;
+                particles = null;
+            }
         }
     }
 

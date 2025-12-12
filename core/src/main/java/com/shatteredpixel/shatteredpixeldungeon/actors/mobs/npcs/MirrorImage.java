@@ -70,6 +70,7 @@ public class MirrorImage extends NPC {
     private Hero hero;
     private int heroID;
     public int armTier;
+    public boolean swapped = false; // 是否已经换位过（三仙归洞）
 
     @Override
     protected boolean act() {
@@ -88,55 +89,93 @@ public class MirrorImage extends NPC {
             ((MirrorSprite) sprite).updateArmor(armTier);
         }
 
+        // 三仙归洞：可换位镜像显示粒子效果
+        if (hero.subClass == HeroSubClass.MAGICIAN && hero.hasTalent(Talent.THREE_IMMORTALS)) {
+            boolean canSwap = !swapped 
+                    && Dungeon.level.heroFOV[pos]
+                    && this.canInteract(hero);
+            
+            Talent.SwapReady swapBuff = buff(Talent.SwapReady.class);
+            if (canSwap && swapBuff == null) {
+                Buff.affect(this, Talent.SwapReady.class);
+            } else if (!canSwap && swapBuff != null) {
+                swapBuff.detach();
+            }
+        }
+
         return super.act();
     }
 
     private static final String HEROID = "hero_id";
+    private static final String SWAPPED = "swapped";
 
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
         bundle.put(HEROID, heroID);
+        bundle.put(SWAPPED, swapped);
     }
 
     @Override
     public void restoreFromBundle(Bundle bundle) {
         super.restoreFromBundle(bundle);
         heroID = bundle.getInt(HEROID);
+        swapped = bundle.getBoolean(SWAPPED);
     }
 
     public void duplicate(Hero hero) {
+        duplicate(hero, true);
+    }
+
+    public void duplicate(Hero hero, boolean invisible) {
         this.hero = hero;
         heroID = this.hero.id();
-        Buff.affect(this, MirrorInvis.class, Short.MAX_VALUE);
+        if (invisible) {
+            Buff.affect(this, MirrorInvis.class, Short.MAX_VALUE);
+        }
         
-        // 以假乱真：镜像继承生命值
+        // 以假乱真：镜像继承魔术师部分生命值
         if (hero.subClass == HeroSubClass.MAGICIAN && hero.hasTalent(Talent.FAKE_REALITY)) {
             int points = hero.pointsInTalent(Talent.FAKE_REALITY);
-            float hpPercent = 0.1f * points; // 10%, 20%, 30%
+            float hpPercent = 0.05f * points;
             HT = Math.max(1, (int)(hero.HT * hpPercent));
             HP = HT;
         }
         
-        // 三仙归洞：给英雄添加镜像的灵视感知效果（完全复用奥术感知的实现）
-        if (hero.subClass == HeroSubClass.MAGICIAN && hero.hasTalent(Talent.THREE_IMMORTALS)) {
+        // 三仙归洞+2：英雄获得镜像5回合视野
+        if (hero.subClass == HeroSubClass.MAGICIAN && hero.hasTalent(Talent.THREE_IMMORTALS) && hero.pointsInTalent(Talent.THREE_IMMORTALS) >= 2) {
             Buff.append(hero, TalismanOfForesight.CharAwareness.class, 5f).charID = this.id();
+        }
+    }
+    
+    // 检查并更新可换位状态（用于镜像生成后立即显示粒子效果）
+    public void updateSwapReady() {
+        if (hero != null && hero.subClass == HeroSubClass.MAGICIAN && hero.hasTalent(Talent.THREE_IMMORTALS)) {
+            boolean canSwap = !swapped 
+                    && Dungeon.level.heroFOV[pos]
+                    && this.canInteract(hero);
+            
+            Talent.SwapReady swapBuff = buff(Talent.SwapReady.class);
+            if (canSwap && swapBuff == null && sprite != null) {
+                Buff.affect(this, Talent.SwapReady.class);
+            } else if (!canSwap && swapBuff != null) {
+                swapBuff.detach();
+            }
         }
     }
 
     @Override
     public boolean canInteract(Char c) {
-        // 三仙归洞：允许英雄在视野内与镜像交互（复用ALLy_WARP的逻辑）
+        // 三仙归洞：允许英雄在视野内与未换位过的镜像交互
         if (c == Dungeon.hero 
                 && hero != null 
                 && hero.subClass == HeroSubClass.MAGICIAN 
                 && hero.hasTalent(Talent.THREE_IMMORTALS)
-                && Dungeon.level.heroFOV[pos]) {
-            // 检查路径是否可达（复用ALLy_WARP的路径检查逻辑）
+                && Dungeon.level.heroFOV[pos]
+                && !swapped) {
             PathFinder.buildDistanceMap(c.pos, BArray.or(Dungeon.level.passable, Dungeon.level.avoid, null));
             return PathFinder.distance[pos] != Integer.MAX_VALUE;
         }
-        // 否则使用默认的交互逻辑（相邻或ALLy_WARP）
         return super.canInteract(c);
     }
 
@@ -147,6 +186,11 @@ public class MirrorImage extends NPC {
             damage = hero.belongings.weapon().damageRoll(this);
         } else {
             damage = hero.damageRoll(); //handles ring of force
+        }
+        if (hero.subClass == HeroSubClass.MAGICIAN && hero.hasTalent(Talent.THREE_IMMORTALS)) {
+            damage = (int)(damage * 0.55 + 0.05 * hero.pointsInTalent(Talent.THREE_IMMORTALS));
+        } else {
+            damage = (int)(damage * 0.5);
         }
         return (damage + 1) / 2; //half hero damage, rounded up
     }
@@ -274,3 +318,5 @@ public class MirrorImage extends NPC {
         }
     }
 }
+
+
