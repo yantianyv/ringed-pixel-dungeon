@@ -173,7 +173,7 @@ public class Honeypot extends Item {
 			bones = false;
 
 			tier = 1;
-			baseUses = 8;
+			baseUses = 66;
 			sticky = false;
 		}
 
@@ -279,6 +279,11 @@ public class Honeypot extends Item {
 		@Override
 		public int value() {
 			return 5 * quantity;
+		}
+
+		@Override
+		public int defaultQuantity() {
+			return 1;
 		}
 	}
 }
