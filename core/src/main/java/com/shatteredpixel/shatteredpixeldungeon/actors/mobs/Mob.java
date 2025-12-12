@@ -352,6 +352,10 @@ public abstract class Mob extends Char {
     //FIXME this is sort of a band-aid correction for allies needing more intelligent behaviour
     protected boolean intelligentAlly = false;
 
+    public Char currentEnemy() {
+        return enemy;
+    }
+
     protected Char chooseEnemy() {
 
         Dread dread = buff(Dread.class);

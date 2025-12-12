@@ -26,15 +26,18 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ChallengeParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.WraithSprite;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.tweeners.AlphaTweener;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
@@ -61,7 +64,6 @@ public class Wraith extends Mob {
         properties.add(Property.INORGANIC);
 
         num_of_escape = 0;
-        Buff.affect(this, Invisibility.class, 10);
 
     }
 
@@ -90,10 +92,39 @@ public class Wraith extends Mob {
         return 10 + level;
     }
 
+    /**
+     * 进入隐身状态，持续2回合，并播放诅咒音效和粒子效果
+     */
+    private void becomeInvisible() {
+        Buff.affect(this, Invisibility.class, 2f);
+        
+        // 播放诅咒音效和粒子效果
+        if (sprite != null) {
+            boolean visible = Dungeon.level.heroFOV[pos];
+            if (visible) {
+                Sample.INSTANCE.play(Assets.Sounds.CURSED);
+            }
+            sprite.emitter().burst(ShadowParticle.CURSE, 5);
+        }
+    }
+
+    @Override
+    public String defenseVerb() {
+        // 被攻击但成功闪避时会调用此方法，用于提示“Miss”
+        becomeInvisible();
+        return super.defenseVerb();
+    }
+
     @Override
     public void onAttackComplete() {
-        Buff.affect(this, Invisibility.class, 10);
+        // 保持隐身：不调用 invisibility(0)
+        attack(enemy);
+        spend(attackDelay());
         super.onAttackComplete();
+        // 挑战：保留原逻辑
+        if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
+            invisibility(1);
+        }
     }
 
     public void adjustStats(int level) {
@@ -179,6 +210,9 @@ public class Wraith extends Mob {
             } else {
                 w.sprite.emitter().burst(ShadowParticle.CURSE, 5);
             }
+            
+            // 怨灵生成时进入隐身状态
+            w.becomeInvisible();
 
             return w;
         } else {

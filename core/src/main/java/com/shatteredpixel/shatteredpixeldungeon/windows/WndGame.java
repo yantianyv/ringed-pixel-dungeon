@@ -64,6 +64,17 @@ public class WndGame extends Window {
 		});
 		curBtn.icon(Icons.get(Icons.PREFS));
 
+		if (GameScene.isTurnStuck()) {
+			addButton(curBtn = new RedButton(Messages.get(this, "turn_debug")) {
+				@Override
+				protected void onClick() {
+					hide();
+					GameScene.dumpTurnState("menu");
+				}
+			});
+			curBtn.icon(Icons.get(Icons.INFO));
+		}
+
 		// Challenges window
 		if (Dungeon.challenges > 0) {
 			addButton( curBtn = new RedButton( Messages.get(this, "challenges") ) {

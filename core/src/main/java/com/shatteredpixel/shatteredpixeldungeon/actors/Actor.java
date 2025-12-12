@@ -158,6 +158,18 @@ public abstract class Actor implements Bundlable {
 	public static float now(){
 		return now;
 	}
+
+	public static Actor current(){
+		return current;
+	}
+
+	public float time(){
+		return time;
+	}
+
+	public int actPriority(){
+		return actPriority;
+	}
 	
 	public static synchronized void clear() {
 		

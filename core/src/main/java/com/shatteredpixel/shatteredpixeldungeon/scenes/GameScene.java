@@ -149,7 +149,9 @@ import com.watabou.utils.RectF;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 
 public class GameScene extends PixelScene {
@@ -730,6 +732,12 @@ public class GameScene extends PixelScene {
     public static boolean tagDisappeared = false;
     public static boolean updateTags = false;
 
+    private static final float TURN_STUCK_THRESHOLD = 3f;
+    private static float stuckTimer = 0f;
+    private static boolean turnStuck = false;
+    private static Actor lastStuckActor = null;
+    private static float lastStuckActorTime = Float.NaN;
+
     private static float waterOfs = 0;
 
     @Override
@@ -751,6 +759,8 @@ public class GameScene extends PixelScene {
         }
 
         super.update();
+
+        trackTurnStuck();
 
         if (notifyDelay > 0) {
             notifyDelay -= Game.elapsed;
@@ -1554,6 +1564,95 @@ public class GameScene extends PixelScene {
             return cancelCellSelector();
 
         }
+    }
+
+    private void trackTurnStuck() {
+        if (Actor.processing()) {
+            Actor cur = Actor.current();
+            if (cur != null) {
+                if (cur == lastStuckActor && cur.time() == lastStuckActorTime) {
+                    stuckTimer += Game.elapsed;
+                    if (!turnStuck && stuckTimer > TURN_STUCK_THRESHOLD) {
+                        turnStuck = true;
+                    }
+                } else {
+                    lastStuckActor = cur;
+                    lastStuckActorTime = cur.time();
+                    stuckTimer = 0f;
+                    turnStuck = false;
+                }
+            }
+        } else {
+            stuckTimer = 0f;
+            turnStuck = false;
+            lastStuckActor = null;
+            lastStuckActorTime = Float.NaN;
+        }
+    }
+
+    public static boolean isTurnStuck() {
+        return turnStuck;
+    }
+
+    public static void dumpTurnState(String source) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== TURN ANALYZER [").append(source).append("] ===\n");
+        sb.append("turnStuck=").append(turnStuck)
+                .append(" timer=").append(String.format("%.2f", stuckTimer)).append("\n");
+        sb.append("current=").append(describeActor(Actor.current())).append("\n");
+        sb.append("processing=").append(Actor.processing()).append("\n");
+
+        sb.append("hero=").append(describeActor(Dungeon.hero))
+                .append(" ready=").append(Dungeon.hero != null && Dungeon.hero.ready).append("\n");
+
+        List<Actor> list = new ArrayList<>(Actor.all());
+        Collections.sort(list, new Comparator<Actor>() {
+            @Override
+            public int compare(Actor a, Actor b) {
+                if (a.time() == b.time()) {
+                    return Integer.compare(b.actPriority(), a.actPriority());
+                }
+                return Float.compare(a.time(), b.time());
+            }
+        });
+        sb.append("queue(top 12):\n");
+        int limit = Math.min(12, list.size());
+        for (int i = 0; i < limit; i++) {
+            Actor a = list.get(i);
+            sb.append("  ").append(i).append(": ").append(describeActor(a))
+                    .append(" t=").append(String.format("%.2f", a.time())).append("\n");
+        }
+
+        if (Dungeon.level != null) {
+            sb.append("mobs:\n");
+            for (Mob m : Dungeon.level.mobs) {
+                sb.append("  ").append(describeActor(m))
+                        .append(" target=").append(m.currentEnemy() != null ? m.currentEnemy().getClass().getSimpleName() : "null")
+                        .append("\n");
+            }
+        }
+
+        GLog.n(sb.toString());
+    }
+
+    private static String describeActor(Actor a) {
+        if (a == null) return "null";
+        StringBuilder s = new StringBuilder();
+        s.append(a.getClass().getSimpleName()).append("#").append(a.id());
+        if (a instanceof Char) {
+            Char c = (Char) a;
+            s.append(" pos=").append(c.pos)
+                    .append(" HP=").append(c.HP).append("/").append(c.HT);
+            if (c instanceof Mob) {
+                s.append(" state=").append(((Mob) c).state);
+            }
+            if (c.sprite != null && c.sprite.isMoving) {
+                s.append(" moving");
+            }
+        } else {
+            s.append(" time=").append(String.format("%.2f", a.time()));
+        }
+        return s.toString();
     }
 
     public static void ready() {
