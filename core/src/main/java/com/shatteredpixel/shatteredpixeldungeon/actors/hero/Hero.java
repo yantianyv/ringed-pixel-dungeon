@@ -2357,13 +2357,25 @@ public class Hero extends Char {
 
                 if (lvl % 5 == 0) {
                     // 在英雄脚下生成一个随机戒指
+                    // 戒指至少为 lv/5 级，若不足则补满
                     Item item = Generator.random(Generator.Category.RING);
+                    int minLevel = lvl / 5;
+                    if (item.level() < minLevel) {
+                        item.level(minLevel);
+                    }
                     item.doPickUp(this);
                     spend(- Item.TIME_TO_PICK_UP());
                 }else{
-                    // 在英雄脚下生成1~3个宝珠
+                    // 在英雄脚下生成宝珠
+                    // 保底1个，然后进行 lv 次判定，每次有10%几率使宝珠数量+1
                     Item item = new OriginGem();
-                    item.quantity(Random.Int(1, 3));
+                    int quantity = 1; // 保底1个
+                    for (int i = 0; i < lvl; i++) {
+                        if (Random.Float() < 0.1f) {
+                            quantity++;
+                        }
+                    }
+                    item.quantity(quantity);
                     item.doPickUp(this);
                     spend(-Item.TIME_TO_PICK_UP());
                 }
