@@ -32,20 +32,12 @@ android {
         debug {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug_${new Date().format('MMddHHmm')}"
-            dependencies {
-                debugImplementation project(':services:updates:debugUpdates')
-                debugImplementation project(':services:news:debugNews')
-            }
         }
         release {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-            dependencies {
-                releaseImplementation project(':services:updates:githubUpdates')
-                releaseImplementation project(':services:news:shatteredNews')
-            }
         }
     }
 
@@ -70,6 +62,11 @@ dependencies {
     natives "com.badlogicgames.gdx:gdx-freetype-platform:1.11.0:natives-x86"
     natives "com.badlogicgames.gdx:gdx-freetype-platform:1.11.0:natives-x86_64"
     implementation "com.badlogicgames.gdx-controllers:gdx-controllers-android:$gdxControllersVersion"
+    
+    debugImplementation project(':services:updates:debugUpdates')
+    debugImplementation project(':services:news:debugNews')
+    releaseImplementation project(':services:updates:githubUpdates')
+    releaseImplementation project(':services:news:shatteredNews')
 }
 
 task copyAndroidNatives() {

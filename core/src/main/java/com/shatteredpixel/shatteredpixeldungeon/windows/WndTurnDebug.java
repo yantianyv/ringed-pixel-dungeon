@@ -73,10 +73,24 @@ public class WndTurnDebug extends Window {
 
 	private void copyToClipboard() {
 		if (DeviceCompat.isDesktop()) {
-			// Desktop平台使用系统剪贴板
-			java.awt.Toolkit.getDefaultToolkit()
-					.getSystemClipboard()
-					.setContents(new java.awt.datatransfer.StringSelection(debugText), null);
+			// Desktop平台使用系统剪贴板（使用反射避免Android构建时检测到AWT类）
+			try {
+				Class<?> toolkitClass = Class.forName("java.awt.Toolkit");
+				Object toolkit = toolkitClass.getMethod("getDefaultToolkit").invoke(null);
+				Object clipboard = toolkitClass.getMethod("getSystemClipboard").invoke(toolkit);
+				
+				Class<?> stringSelectionClass = Class.forName("java.awt.datatransfer.StringSelection");
+				Object stringSelection = stringSelectionClass.getConstructor(String.class).newInstance(debugText);
+				
+				Class<?> clipboardClass = Class.forName("java.awt.datatransfer.Clipboard");
+				clipboardClass.getMethod("setContents", 
+					Class.forName("java.awt.datatransfer.Transferable"),
+					Class.forName("java.awt.datatransfer.ClipboardOwner"))
+					.invoke(clipboard, stringSelection, null);
+			} catch (Exception e) {
+				// 如果反射失败，回退到Gdx剪贴板
+				Gdx.app.getClipboard().setContents(debugText);
+			}
 		} else {
 			// 移动平台使用Gdx剪贴板
 			Gdx.app.getClipboard().setContents(debugText);
