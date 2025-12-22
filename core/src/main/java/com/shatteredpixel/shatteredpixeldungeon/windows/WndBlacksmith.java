@@ -37,6 +37,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.IronRing;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
@@ -167,6 +168,40 @@ public class WndBlacksmith extends Window {
 		};
 		smith.enable(Blacksmith.Quest.favor >= 2000);
 		buttons.add(smith);
+
+		RedButton ironRing = new RedButton(Messages.get(this, "ironring", 1500), 6){
+			@Override
+			protected void onClick() {
+				GameScene.show(new WndOptions(
+						troll.sprite(),
+						Messages.titleCase( troll.name() ),
+						Messages.get(WndBlacksmith.class, "ironring_verify"),
+						Messages.get(WndBlacksmith.class, "ironring_yes"),
+						Messages.get(WndBlacksmith.class, "ironring_no")
+				){
+					@Override
+					protected void onSelect(int index) {
+						if (index == 0){
+							Item ring = new IronRing().identify();
+							if (ring.doPickUp( Dungeon.hero )) {
+								GLog.i( Messages.capitalize(Messages.get(Dungeon.hero, "you_now_have", ring.name())) );
+							} else {
+								Dungeon.level.drop( ring, Dungeon.hero.pos ).sprite.drop();
+							}
+							Blacksmith.Quest.favor -= 1500;
+							Blacksmith.Quest.ironRingClaimed = true;
+							WndBlacksmith.this.hide();
+
+							if (!Blacksmith.Quest.rewardsAvailable()){
+								Notes.remove( Notes.Landmark.TROLL );
+							}
+						}
+					}
+				});
+			}
+		};
+		ironRing.enable(Blacksmith.Quest.favor >= 1500 && !Blacksmith.Quest.ironRingClaimed);
+		buttons.add(ironRing);
 
 		RedButton cashOut = new RedButton(Messages.get(this, "cashout"), 6){
 			@Override

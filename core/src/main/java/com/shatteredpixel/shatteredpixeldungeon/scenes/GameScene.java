@@ -1594,7 +1594,7 @@ public class GameScene extends PixelScene {
         return turnStuck;
     }
 
-    public static void dumpTurnState(String source) {
+    public static String getTurnStateDump(String source) {
         StringBuilder sb = new StringBuilder();
         sb.append("=== TURN ANALYZER [").append(source).append("] ===\n");
         sb.append("turnStuck=").append(turnStuck)
@@ -1632,7 +1632,12 @@ public class GameScene extends PixelScene {
             }
         }
 
-        GLog.n(sb.toString());
+        return sb.toString();
+    }
+
+    public static void dumpTurnState(String source) {
+        String dump = getTurnStateDump(source);
+        GLog.n(dump);
     }
 
     private static String describeActor(Actor a) {

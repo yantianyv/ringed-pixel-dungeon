@@ -36,17 +36,34 @@ public class RingOfTimetraveler extends Ring {
     @Override
     public String statsInfo() {
         if (isIdentified()) {
+            // 使用与实际计算一致的公式
+            // 实际计算使用 getBuffedBonus()，它返回所有 buff 的 buffedLvl() 之和
+            // 对于单个戒指，就是 buffedLvl()
+            int actualBonus = buffedLvl();
             float solo_rate = (float) Math
-                    .abs(Math.pow(0.9f, soloBuffedBonus() * efficiency()) > 0.01f ? Math.pow(0.9f, soloBuffedBonus() * efficiency()) : 0.01f);
-            float combined_rate = (float) Math.abs(
-                    Math.pow(0.9f, combinedBonus(Dungeon.hero) * efficiency()) > 0.01f ? Math.pow(0.9f, combinedBonus(Dungeon.hero) * efficiency())
-                            : 0.01f);
+                    .abs(Math.pow(0.9f, actualBonus * efficiency()) > 0.01f ? Math.pow(0.9f, actualBonus * efficiency()) : 0.01f);
             String info = Messages.get(this,
                     "stats",
                     Messages.decimalFormat("#.##", 100f * solo_rate));
-            if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
-                info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100f * combined_rate));
+            
+            // 组合统计信息，当装备多个同类戒指时显示
+            if (isEquipped(Dungeon.hero)) {
+                // 计算实际装备的同类戒指数量
+                int ringCount = 0;
+                if (Dungeon.hero.belongings.ring1() != null && Dungeon.hero.belongings.ring1().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.ring2() != null && Dungeon.hero.belongings.ring2().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.ring3() != null && Dungeon.hero.belongings.ring3().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.ring4() != null && Dungeon.hero.belongings.ring4().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.ring5() != null && Dungeon.hero.belongings.ring5().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.ring6() != null && Dungeon.hero.belongings.ring6().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.misc() != null && Dungeon.hero.belongings.misc().getClass() == getClass()) ringCount++;
+                
+                // 如果有多个戒指，使用 timeMultiplier 直接计算实际效果
+                if (ringCount > 1) {
+                    float combined_rate = timeMultiplier(Dungeon.hero);
+                    info += "\n\n" + Messages.get(this, "combined_stats",
+                            Messages.decimalFormat("#.##", 100f * combined_rate));
+                }
             }
             return info;
         } else {

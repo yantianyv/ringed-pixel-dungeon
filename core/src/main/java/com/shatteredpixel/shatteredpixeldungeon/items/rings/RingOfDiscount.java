@@ -36,13 +36,33 @@ public class RingOfDiscount extends Ring {
 
         }
         if (isIdentified()) {
-            // 基本统计信息，其中soloBuffedBonus()是当前戒指等级
+            // 基本统计信息，使用与实际计算一致的公式
+            // 实际计算使用 getBuffedBonus()，它返回所有 buff 的 buffedLvl() 之和
+            // 对于单个戒指，就是 buffedLvl()
+            // 显示的是折扣后的价格比例（乘以10是为了显示百分比）
+            int actualBonus = buffedLvl();
+            float discountMulti = (float) Math.pow(0.99, actualBonus);
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 10 * Math.pow(0.99, soloBuffedBonus())));
-            //组合统计信息，其中combinedBuffedBonus(Dungeon.hero)是所有已装备同类戒指的等级之和
-            if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
-                info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 10 * Math.pow(0.99, combinedBuffedBonus(Dungeon.hero))));
+                    Messages.decimalFormat("#.##", discountMulti * 10));
+            
+            //组合统计信息，当装备多个同类戒指时显示
+            if (isEquipped(Dungeon.hero)) {
+                // 计算实际装备的同类戒指数量
+                int ringCount = 0;
+                if (Dungeon.hero.belongings.ring1() != null && Dungeon.hero.belongings.ring1().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.ring2() != null && Dungeon.hero.belongings.ring2().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.ring3() != null && Dungeon.hero.belongings.ring3().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.ring4() != null && Dungeon.hero.belongings.ring4().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.ring5() != null && Dungeon.hero.belongings.ring5().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.ring6() != null && Dungeon.hero.belongings.ring6().getClass() == getClass()) ringCount++;
+                if (Dungeon.hero.belongings.misc() != null && Dungeon.hero.belongings.misc().getClass() == getClass()) ringCount++;
+                
+                // 如果有多个戒指，使用 discountMultiplier 直接计算实际效果
+                if (ringCount > 1) {
+                    float combinedMulti = discountMultiplier(Dungeon.hero);
+                    info += "\n\n" + Messages.get(this, "combined_stats",
+                            Messages.decimalFormat("#.##", combinedMulti * 10));
+                }
             }
             return info;
         } else {// 鉴定前的通用信息

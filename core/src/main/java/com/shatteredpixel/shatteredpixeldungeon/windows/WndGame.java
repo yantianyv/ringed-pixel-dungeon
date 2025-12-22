@@ -69,7 +69,7 @@ public class WndGame extends Window {
 				@Override
 				protected void onClick() {
 					hide();
-					GameScene.dumpTurnState("menu");
+					GameScene.show(new WndTurnDebug());
 				}
 			});
 			curBtn.icon(Icons.get(Icons.INFO));

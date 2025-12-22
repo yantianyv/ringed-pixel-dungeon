@@ -117,11 +117,11 @@ public class Wraith extends Mob {
 
     @Override
     public void onAttackComplete() {
-        // 保持隐身：不调用 invisibility(0)
         attack(enemy);
         spend(attackDelay());
-        super.onAttackComplete();
-        // 挑战：保留原逻辑
+        // 保持隐身：不调用 invisibility(0)
+        next(); // 等价于 Char.onAttackComplete()
+        // 挑战：保留原逻辑（攻击完追加1回合隐身）
         if (Dungeon.isChallenged(Challenges.INVISIBLE_WAR)) {
             invisibility(1);
         }

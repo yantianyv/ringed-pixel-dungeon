@@ -1053,6 +1053,13 @@ public class Hero extends Char {
             canSelfTrample = false;
             return true;
 
+        } else if (collisionTarget != null) {
+            Char target = collisionTarget;
+            collisionTarget = null;
+            HeroAction.Attack attack = new HeroAction.Attack(target);
+            curAction = attack;
+            return actAttack(attack);
+
         } // 处理原地踩踏
         else if (pos == action.dst && canSelfTrample()) {
             canSelfTrample = false;
@@ -1945,7 +1952,12 @@ public class Hero extends Char {
     //history of hero actions
     public boolean justMoved = false;
 
+    // Movement may reveal invisible enemies; store pending collision target here.
+    private Char collisionTarget = null;
+
     private boolean getCloser(final int target) {
+        // clear stale collision state every move attempt
+        collisionTarget = null;
         // 禁止原地踏步
         if (target == pos) {
             return false;
@@ -1962,7 +1974,8 @@ public class Hero extends Char {
             // 清空路径 
             path = null;
             // 如果目标在视野内
-            if (Actor.findChar(target) == null) {
+            Char occupant = Actor.findChar(target);
+            if (occupant == null) {
                 // 如果 目标可走 则把目标设为下一步
                 if (Dungeon.level.passable[target] || Dungeon.level.avoid[target]) {
                     step = target;
@@ -1974,12 +1987,16 @@ public class Hero extends Char {
                         && Dungeon.level.traps.get(target).active) {
                     return false;
                 }
-                // 如果目标为生物，则尝试交互
-                if (Actor.findChar(target) != null) {
-                    Char ch = Actor.findChar(target);
-                    handle(ch.pos);
+            } else {
+                if (attemptCollisionAttack(occupant)) {
                     return false;
                 }
+                if (occupant.alignment == Alignment.ALLY) {
+                    interact(occupant);
+                    return false;
+                }
+                handle(occupant.pos);
+                return false;
             }
         } // 如果目标不相邻
         else {
@@ -1994,18 +2011,16 @@ public class Hero extends Char {
             } // 如果 撞向生物 则特殊处理
             else if (Actor.findChar(path.get(0)) != null) {
                 Char ch = Actor.findChar(path.get(0));
-                newPath = true;
-
-                // 对于隐形的敌人
-                if (ch.buff(Invisibility.class) != null || ch.alignment == Alignment.ENEMY) {
-                    Invisibility.dispel(ch);
-                    attack(ch);
-                    newPath = true;
-                } // 对于友军
-                else if (ch.alignment == Alignment.ALLY) {
+                if (attemptCollisionAttack(ch)) {
+                    path = null;
+                    return false;
+                } else if (ch.alignment == Alignment.ALLY) {
                     // 尝试与其交互
                     interact(ch);
-                    newPath = false;
+                    path = null;
+                    return false;
+                } else {
+                    newPath = true;
                 }
             } // 如果 撞向障碍 则重新寻路
             else if (!Dungeon.level.passable[path.get(0)]) {
@@ -2021,11 +2036,8 @@ public class Hero extends Char {
                 boolean[] passable = new boolean[len];
                 // 遍历获取可走路径表
                 for (int i = 0; i < len; i++) {
-                    // 获取隐形敌人
-                    Boolean ringpd_extra = Actor.findChar(i) != null ? findChar(i).buff(Invisibility.class) != null : false;
-
-                    // 合并本格信息
-                    passable[i] = (p[i] || ringpd_extra) && (v[i] || m[i]);
+                    // 合并本格信息：仅将隐身敌人视为可穿越，其他仍按正常阻挡
+                    passable[i] = (p[i] || canIgnoreEnemyForPath(i)) && (v[i] || m[i]);
                 }
                 // 调用寻路器寻路
                 PathFinder.Path newpath = Dungeon.findPath(this, target, passable, fieldOfView, true);
@@ -2065,18 +2077,18 @@ public class Hero extends Char {
                 canSelfTrample = false;
                 return false;
             }
-            // 如果下一步是敌人
+            // 如果下一步被角色占据
             if (findChar(step) instanceof Char) {
                 Char ch = findChar(step);
-                if (ch.buff(Invisibility.class) != null || ch.alignment == Alignment.ENEMY) {
-                    attack(ch);
-                } // 对于友军
-                else if (ch.alignment == Alignment.ALLY) {
-                    // 尝试与其交互
+                if (attemptCollisionAttack(ch)) {
+                    return false;
+                } else if (ch.alignment == Alignment.ALLY) {
                     interact(ch);
+                    return false;
+                } else {
+                    path = null;
+                    return false;
                 }
-
-                return false;
             }
             // 处理加速状态
             if (buff(GreaterHaste.class) != null) {
@@ -2101,6 +2113,29 @@ public class Hero extends Char {
             return false;
         }
 
+    }
+
+    private boolean canIgnoreEnemyForPath(int cell) {
+        Char ch = Actor.findChar(cell);
+        return ch != null && isInvisibleEnemy(ch);
+    }
+
+    private boolean attemptCollisionAttack(Char ch) {
+        if (!isInvisibleEnemy(ch) || !canAttack(ch)) {
+            return false;
+        }
+        collisionTarget = ch;
+        return true;
+    }
+
+    private boolean isInvisibleEnemy(Char ch) {
+        return ch != null && ch.isAlive()
+                && ch.alignment == Alignment.ENEMY
+                && (ch.buff(Invisibility.class) != null || ch.invisible > 0);
+    }
+
+    private boolean isEnemyAlive(Char ch) {
+        return ch != null && ch.isAlive() && ch.alignment == Alignment.ENEMY;
     }
 
     public boolean handle(int cell) {
@@ -2130,7 +2165,7 @@ public class Hero extends Char {
 
             curAction = new HeroAction.Alchemy(cell);
 
-        } else if (fieldOfView[cell] && ch instanceof Mob) {
+        } else if (fieldOfView[cell] && ch instanceof Mob && !isInvisibleEnemy(ch)) {
 
             if (((Mob) ch).heroShouldInteract()) {
                 curAction = new HeroAction.Interact(ch);
