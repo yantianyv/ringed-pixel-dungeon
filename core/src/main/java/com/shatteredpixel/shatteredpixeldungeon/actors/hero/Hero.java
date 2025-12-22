@@ -284,7 +284,7 @@ public class Hero extends Char {
         }
         // 计算风吸入天赋提供的额外生命上限
         if (hasTalent(Talent.FEAST_FRENZY) && pointsInTalent(Talent.FEAST_FRENZY) >= 2 && this.buff(Hunger.class).full() > 3000) {
-            HT += Math.round(HT + (this.buff(Hunger.class).full() - 3000) / 100);
+            HT += Math.round((this.buff(Hunger.class).full() - 3000) / 100);
         }
         // 计算因生命上限增加获得的额外生命
         if (boostHP) {

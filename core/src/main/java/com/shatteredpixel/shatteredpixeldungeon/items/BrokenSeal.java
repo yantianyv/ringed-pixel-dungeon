@@ -26,9 +26,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.HoldFast;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Regeneration;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ShieldBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
@@ -93,7 +95,17 @@ public class BrokenSeal extends Item {
 
 	public int maxShield( int armTier, int armLvl ){
 		// 5-15, based on equip tier and iron will
-		return 3 + 2*armTier + Dungeon.hero.pointsInTalent(Talent.IRON_WILL);
+		int baseShield = 3 + 2*armTier + Dungeon.hero.pointsInTalent(Talent.IRON_WILL);
+		// 暴风吸入+3：纹章护盾量上限增加饱食度以2为底的对数
+		if (Dungeon.hero.subClass == HeroSubClass.MUKBANGER 
+				&& Dungeon.hero.hasTalent(Talent.FEAST_FRENZY) 
+				&& Dungeon.hero.pointsInTalent(Talent.FEAST_FRENZY) >= 3) {
+			float full = Dungeon.hero.buff(Hunger.class).full();
+			if (full > 0) {
+				baseShield += (int)Math.floor(Math.log(full) / Math.log(2));
+			}
+		}
+		return baseShield;
 	}
 
     @Override
