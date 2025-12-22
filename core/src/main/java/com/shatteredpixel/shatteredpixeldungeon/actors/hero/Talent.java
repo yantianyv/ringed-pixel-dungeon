@@ -1589,7 +1589,7 @@ public enum Talent {
         }
 
         public float iconFadePercent() {
-            int cooldownTurns = 300 - 100 * Dungeon.hero.pointsInTalent(GOLDEN_CICADA);
+            int cooldownTurns = 500 - 100 * Dungeon.hero.pointsInTalent(GOLDEN_CICADA);
             return GameMath.gate(0, visualcooldown() / cooldownTurns, 1);
         }
     }

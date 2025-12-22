@@ -1766,35 +1766,37 @@ public class Hero extends Char {
                 }
             } while (newPos == -1 || Dungeon.level.secret[newPos]);
             
+            // 只有成功找到传送位置时才触发金蝉脱壳效果
             if (newPos != -1) {
                 ScrollOfTeleportation.appear(this, newPos);
                 Dungeon.level.occupyCell(this);
                 Buff.detach(this, Roots.class);
                 Dungeon.observe();
                 GameScene.updateFog();
-            }
-            
-            // 在英雄原位置生成镜像，不隐身，并立即攻击
-            if (Dungeon.level.passable[oldPos] && Actor.findChar(oldPos) == null) {
-                MirrorImage mob = new MirrorImage();
-                mob.duplicate(this, false);
-                GameScene.add(mob);
-                ScrollOfTeleportation.appear(mob, oldPos);
-                mob.updateSwapReady(); // 立即检查并显示粒子效果
                 
-                // 镜像立即攻击周围敌人（不消耗回合）
-                for (int i : PathFinder.NEIGHBOURS8) {
-                    Char enemy = Actor.findChar(oldPos + i);
-                    if (enemy != null && enemy.alignment == Alignment.ENEMY) {
-                        mob.attack(enemy);
+                // 在英雄原位置生成镜像，不隐身，并立即攻击
+                if (Dungeon.level.passable[oldPos] && Actor.findChar(oldPos) == null) {
+                    MirrorImage mob = new MirrorImage();
+                    mob.duplicate(this, false);
+                    GameScene.add(mob);
+                    ScrollOfTeleportation.appear(mob, oldPos);
+                    mob.updateSwapReady(); // 立即检查并显示粒子效果
+                    
+                    // 镜像立即攻击周围敌人（不消耗回合）
+                    for (int i : PathFinder.NEIGHBOURS8) {
+                        Char enemy = Actor.findChar(oldPos + i);
+                        if (enemy != null && enemy.alignment == Alignment.ENEMY) {
+                            mob.attack(enemy);
+                        }
                     }
                 }
+                
+                float cooldownTurns = 500f - 100f * pointsInTalent(Talent.GOLDEN_CICADA);
+                Buff.affect(this, Talent.GoldenCicadaCooldown.class, cooldownTurns);
+                GLog.p(Messages.get(Talent.class, "golden_cicada_trigger"));
+                return;
             }
-            
-            float cooldownTurns = 500f - 100f * pointsInTalent(Talent.GOLDEN_CICADA);
-            Buff.affect(this, Talent.GoldenCicadaCooldown.class, cooldownTurns);
-            GLog.p(Messages.get(Talent.class, "golden_cicada_trigger"));
-            return;
+            // 如果找不到传送位置，金蝉脱壳效果失败，继续正常伤害流程
         }
         
         //计算实际受到的伤害

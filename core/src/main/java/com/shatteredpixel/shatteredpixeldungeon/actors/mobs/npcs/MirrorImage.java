@@ -187,12 +187,14 @@ public class MirrorImage extends NPC {
         } else {
             damage = hero.damageRoll(); //handles ring of force
         }
-        if (hero.subClass == HeroSubClass.MAGICIAN && hero.hasTalent(Talent.THREE_IMMORTALS)) {
-            damage = (int)(damage * 0.55 + 0.05 * hero.pointsInTalent(Talent.THREE_IMMORTALS));
+        // 以假乱真：镜像继承魔术师部分伤害
+        if (hero.subClass == HeroSubClass.MAGICIAN && hero.hasTalent(Talent.FAKE_REALITY)) {
+            int points = hero.pointsInTalent(Talent.FAKE_REALITY);
+            damage = (int)(damage * (0.55f + 0.05f * points));
         } else {
-            damage = (int)(damage * 0.5);
+            damage = (int)(damage * 0.5f);
         }
-        return (damage + 1) / 2; //half hero damage, rounded up
+        return damage;
     }
 
     @Override
