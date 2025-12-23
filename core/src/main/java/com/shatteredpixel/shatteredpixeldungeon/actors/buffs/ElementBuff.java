@@ -730,6 +730,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
                 // 生成犁过的草地
                 Level.set(target_pos, Terrain.FURROWED_GRASS);
             }
+            // 刷新地图显示，修复长草图标异常问题
+            GameScene.updateMap(target_pos);
         } else {
             target_pos = ch.pos;
         }
