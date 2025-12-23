@@ -56,7 +56,7 @@ public class Swarm extends Mob {
         loot = PotionOfHealing.class;
         lootChance = 0.1667f;
 
-        num_of_escape = Integer.MAX_VALUE;
+        num_of_escape = 0;
     }
 
     private static final float SPLIT_DELAY = 1f;
@@ -123,12 +123,6 @@ public class Swarm extends Mob {
 
                 HP -= clone.HP;
                 HT -= clone.HT;
-                clone.num_of_escape = num_of_escape / 2;
-                if (num_of_escape % 2 == 0) {
-                    num_of_escape = num_of_escape / 2;
-                } else {
-                    num_of_escape = num_of_escape / 2 + 1;
-                }
             } else {
                 damage -= 1;
                 Buff.affect(this, Amok.class, 1f); // 给自身添加3回合的狂乱debuff
