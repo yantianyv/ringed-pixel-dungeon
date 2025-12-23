@@ -62,7 +62,8 @@ public class Ghoul extends Mob {
         loot = Gold.class;
         lootChance = 0.2f;
 
-        num_of_escape = 3;
+        num_of_escape = 0; // 禁用逃跑机制
+        num_of_revive = 3; // 复活次数，与逃跑机制分离
 
         properties.add(Property.UNDEAD);
     }
@@ -89,15 +90,18 @@ public class Ghoul extends Mob {
 
     private int timesDowned = 0;
     protected int partnerID = -1;
+    protected int num_of_revive = 3; // 复活次数，与逃跑机制分离
 
     private static final String PARTNER_ID = "partner_id";
     private static final String TIMES_DOWNED = "times_downed";
+    private static final String NUM_OF_REVIVE = "num_of_revive";
 
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
         bundle.put(PARTNER_ID, partnerID);
         bundle.put(TIMES_DOWNED, timesDowned);
+        bundle.put(NUM_OF_REVIVE, num_of_revive);
     }
 
     @Override
@@ -105,6 +109,12 @@ public class Ghoul extends Mob {
         super.restoreFromBundle(bundle);
         partnerID = bundle.getInt(PARTNER_ID);
         timesDowned = bundle.getInt(TIMES_DOWNED);
+        if (bundle.contains(NUM_OF_REVIVE)) {
+            num_of_revive = bundle.getInt(NUM_OF_REVIVE);
+        } else {
+            // 兼容v0.1.6之前的旧存档：如果不存在新变量，从num_of_escape恢复
+            num_of_revive = num_of_escape > 0 ? num_of_escape : 3;
+        }
     }
 
     @Override
@@ -161,13 +171,13 @@ public class Ghoul extends Mob {
         invisibility_cooldown = 200;
         if (Dungeon.level.pit[pos]) {
             super.die(cause);
-        } else if (num_of_escape <= 0) {
+        } else if (num_of_revive <= 0) {
             super.die(cause);
             sprite.remove(CharSprite.State.SHIELDED);
         } else {
-            HP = num_of_escape;
+            HP = num_of_revive;
             HT = 10;
-            num_of_escape -= 1;
+            num_of_revive -= 1;
             sprite.add(CharSprite.State.SHIELDED);
             // 添加格挡音效
             Sample.INSTANCE.play(Assets.Sounds.HIT_PARRY);
@@ -178,7 +188,7 @@ public class Ghoul extends Mob {
 
     @Override
     public void damage(int dmg, Object src) {
-        if (num_of_escape >= 3) {
+        if (num_of_revive >= 3) {
             super.damage(dmg, src);
             HT = Math.min(HP + 2, HT);
         } else {
@@ -218,7 +228,7 @@ public class Ghoul extends Mob {
     @Override
     protected void ringpd_extra(boolean enemyInFOV) {
         // 移除逃跑与自然回复的特性
-        if (num_of_escape >= 3) {
+        if (num_of_revive >= 3) {
             HT = Math.min(HP + 2, HT);
         }
     }
