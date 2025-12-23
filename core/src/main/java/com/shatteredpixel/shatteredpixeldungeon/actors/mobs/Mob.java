@@ -141,7 +141,7 @@ public abstract class Mob extends Char {
 
     protected boolean firstAdded = true;
 
-    protected int num_of_escape = 1;
+    protected int num_of_escape = 0;
     protected float invisibility_cooldown = 3;
 
     protected void onAdd() {
@@ -159,6 +159,16 @@ public abstract class Mob extends Char {
                 HT = (int) Math.round(HT * AscensionChallenge.statModifier(this) * (1 + 0.1 * Math.pow(Dungeon.depth, 0.5)));
             }
             HP = (int) Math.round(HT * percent);
+            
+            // 根据概率决定是否携带隐身逃跑机会（30% + 2*楼层）
+            // 只有默认值（0）的普通怪物才会被影响，特殊怪物已经明确设置了num_of_escape，不受影响
+            if (num_of_escape == 0 && alignment == Alignment.ENEMY) {
+                float escapeChance = 0.30f + 0.02f * Dungeon.depth;
+                if (Random.Float() < escapeChance) {
+                    num_of_escape = 1;
+                }
+            }
+            
             firstAdded = false;
         }
     }
