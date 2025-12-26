@@ -805,31 +805,38 @@ public class Hero extends Char {
     }
 
     public boolean canAttack(Char enemy) {
+        // 敌人为空、和自己在同一位置、或不在角色列表中，都不能攻击
         if (enemy == null || pos == enemy.pos || !Actor.chars().contains(enemy)) {
             return false;
         }
 
-        //can always attack adjacent enemies
+        // 可以始终攻击相邻格的敌人
         if (Dungeon.level.adjacent(pos, enemy.pos)) {
             return true;
         }
 
+        // 获取当前攻击武器
         KindOfWeapon wep = Dungeon.hero.belongings.attackingWeapon();
 
         if (wep != null) {
+            // 如果有武器，判断武器能否攻击到敌人位置
             return wep.canReach(this, enemy.pos);
         } else if (buff(AscendedForm.AscendBuff.class) != null) {
+            // 如果处于升华形态，可以攻击3格内的非实心且无人占据格
             boolean[] passable = BArray.not(Dungeon.level.solid, null);
             for (Char ch : Actor.chars()) {
                 if (ch != this) {
-                    passable[ch.pos] = false;
+                    passable[ch.pos] = false; // 其它角色所在的位置不可通过
                 }
             }
 
+            // 以敌人为中心计算3格内可通行距离
             PathFinder.buildDistanceMap(enemy.pos, passable, 3);
 
+            // 自己距离目标3格内可以攻击
             return PathFinder.distance[pos] <= 3;
         } else {
+            // 其他情况不能攻击
             return false;
         }
     }
@@ -2087,6 +2094,9 @@ public class Hero extends Char {
                 } else if (ch.alignment == Alignment.ALLY) {
                     interact(ch);
                     return false;
+                } else if (isInvisibleEnemy(ch)) {
+                    // 如果是隐形敌人但无法攻击，允许继续移动（路径规划时已将其视为可穿越）
+                    // 继续执行移动逻辑
                 } else {
                     path = null;
                     return false;
@@ -2167,7 +2177,7 @@ public class Hero extends Char {
 
             curAction = new HeroAction.Alchemy(cell);
 
-        } else if (fieldOfView[cell] && ch instanceof Mob && !isInvisibleEnemy(ch)) {
+        } else if (fieldOfView[cell] && ch instanceof Mob && (!isInvisibleEnemy(ch) || canAttack(ch))) {
 
             if (((Mob) ch).heroShouldInteract()) {
                 curAction = new HeroAction.Interact(ch);
