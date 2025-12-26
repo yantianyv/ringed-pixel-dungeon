@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Ch
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
+import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.GhoulSprite;
@@ -126,7 +127,8 @@ public class Ghoul extends Mob {
 
             int[] neighbours = {pos + 1, pos - 1, pos + Dungeon.level.width(), pos - Dungeon.level.width()};
             for (int n : neighbours) {
-                if (Dungeon.level.passable[n]
+                if (Dungeon.level.insideMap(n)
+                        && Dungeon.level.passable[n]
                         && Actor.findChar(n) == null
                         && (!Char.hasProp(this, Property.LARGE) || Dungeon.level.openSpace[n])) {
                     candidates.add(n);
@@ -169,13 +171,22 @@ public class Ghoul extends Mob {
     public void die(Object cause) {
         beFound();
         invisibility_cooldown = 200;
+        // 坠落死亡应该总是真正死亡，不应该触发复活机制
+        if (cause == Chasm.class) {
+            losePartner();
+            super.die(cause);
+            return;
+        }
         if (Dungeon.level.pit[pos]) {
+            losePartner();
             super.die(cause);
         } else if (num_of_revive <= 0) {
+            losePartner();
             super.die(cause);
             sprite.remove(CharSprite.State.SHIELDED);
         } else {
-            HP = num_of_revive;
+            // 确保复活时HP至少为1
+            HP = Math.max(1, num_of_revive);
             HT = 10;
             num_of_revive -= 1;
             sprite.add(CharSprite.State.SHIELDED);
@@ -185,9 +196,23 @@ public class Ghoul extends Mob {
         }
 
     }
+    
+    private void losePartner() {
+        if (partnerID != -1) {
+            Ghoul partner = (Ghoul) Actor.findById(partnerID);
+            if (partner != null) {
+                partner.partnerID = -1;
+            }
+            partnerID = -1;
+        }
+    }
 
     @Override
     public void damage(int dmg, Object src) {
+        // 如果已经死亡且没有复活次数，直接返回，避免无限递归
+        if (HP <= 0 && num_of_revive <= 0) {
+            return;
+        }
         if (num_of_revive >= 3) {
             super.damage(dmg, src);
             HT = Math.min(HP + 2, HT);
@@ -242,9 +267,11 @@ public class Ghoul extends Mob {
                 state = WANDERING;
                 target = partner.pos;
                 return true;
-            } else {
-                return super.act(enemyInFOV, justAlerted);
+            } else if (partner == null && partnerID != -1) {
+                // partner已死亡，清理partnerID以便重新创建
+                partnerID = -1;
             }
+            return super.act(enemyInFOV, justAlerted);
         }
     }
 
@@ -265,9 +292,11 @@ public class Ghoul extends Mob {
                     spend(TICK);
                     return true;
                 }
-            } else {
-                return super.continueWandering();
+            } else if (partner == null && partnerID != -1) {
+                // partner已死亡，清理partnerID以便重新创建
+                partnerID = -1;
             }
+            return super.continueWandering();
         }
     }
 
@@ -369,7 +398,10 @@ public class Ghoul extends Mob {
                 timeToNow();
             } else {
                 ghoul.beingLifeLinked = false;
-                ghoul.die(this);
+                // 只有在ghoul还存活时才调用die，避免重复死亡
+                if (ghoul.isAlive() && !ghoul.beingLifeLinked) {
+                    ghoul.die(this);
+                }
             }
         }
 
