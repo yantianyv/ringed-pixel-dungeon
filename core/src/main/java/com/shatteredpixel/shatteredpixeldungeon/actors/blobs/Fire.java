@@ -102,7 +102,11 @@ public class Fire extends Blob {
 	public static void burn( int pos ) {
 		Char ch = Actor.findChar( pos );
 		if (ch != null && !ch.isImmune(Fire.class)) {
-			Buff.affect( ch, Burning.class ).reignite( ch );
+			// 如果目标已经有元素燃烧效果，就不触发普通燃烧，避免循环
+			// 元素燃烧效果会自己处理伤害和衰减
+			if (ch.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.BurningElement.class) == null) {
+				Buff.affect( ch, Burning.class ).reignite( ch );
+			}
 		}
 		
 		Heap heap = Dungeon.level.heaps.get( pos );

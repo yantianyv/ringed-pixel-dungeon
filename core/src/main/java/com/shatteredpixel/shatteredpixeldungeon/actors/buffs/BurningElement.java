@@ -12,6 +12,7 @@ import com.watabou.utils.Random;
 public class BurningElement extends ElementBuff {
     
     private int timer = 0;
+    private int groundFireTimer = 0; // 用于限制点燃地面的频率
     
     {
         type = buffType.NEGATIVE;
@@ -32,21 +33,33 @@ public class BurningElement extends ElementBuff {
             return true;
         }
         
-        // 每0.1秒衰减0.1%
-        quantity *= 0.999f;
+        // 每0.1秒衰减1%（加快衰减速度）
+        quantity *= 0.99f;
         
         // 每秒执行伤害（约10次调用）
         if (timer++ >= 10) {
-            int dmg = Random.NormalIntRange(1, 3 + Dungeon.scalingDepth()/4);
-            if (target.isAlive()) {
-                target.damage(dmg, this);
+            // 检查目标是否免疫燃烧伤害（如御火刻印）
+            if (target.isImmune(Burning.class)) {
+                // 如果免疫，不造成伤害，移除燃烧特效，但继续衰减
+                fx(false);
+                timer = 0;
+            } else {
+                int dmg = Random.NormalIntRange(1, 3 + Dungeon.scalingDepth()/4);
+                if (target.isAlive()) {
+                    target.damage(dmg, this);
+                }
+                timer = 0;
             }
-            timer = 0;
         }
         
-        // 点燃地面
-        if (quantity > 0 && Dungeon.level.flamable[target.pos]) {
-            GameScene.add(Blob.seed(target.pos, (int)quantity, Fire.class));
+        // 限制点燃地面的频率：每秒只检查一次，且只在没有火焰时点燃
+        groundFireTimer++;
+        if (groundFireTimer >= 10 && quantity > 0 && Dungeon.level.flamable[target.pos]) {
+            // 检查该位置是否已经有火焰
+            if (Blob.volumeAt(target.pos, Fire.class) == 0) {
+                GameScene.add(Blob.seed(target.pos, Math.min((int)quantity, 4), Fire.class));
+            }
+            groundFireTimer = 0;
         }
         
         // 检查移除条件
@@ -55,6 +68,7 @@ public class BurningElement extends ElementBuff {
                 fx(false); // 移除燃烧特效
             }
             detach();
+            return true;
         }
         
         spend(0.1f);
