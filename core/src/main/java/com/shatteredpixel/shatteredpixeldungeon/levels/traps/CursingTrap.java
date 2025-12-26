@@ -37,6 +37,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.YogRing;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
@@ -91,6 +93,34 @@ public class CursingTrap extends Trap {
 				priorityCurse.add(armor);
 			else
 				canCurse.add(armor);
+		}
+
+		// 检查装备的 YogRing（优先被诅咒）
+		Ring ring1 = hero.belongings.ring1();
+		Ring ring2 = hero.belongings.ring2();
+		Ring ring3 = hero.belongings.ring3();
+		Ring ring4 = hero.belongings.ring4();
+		Ring ring5 = hero.belongings.ring5();
+		Ring ring6 = hero.belongings.ring6();
+		
+		// 只检查 YogRing，其他戒指不会被诅咒
+		if (ring1 != null && ring1 instanceof YogRing && !ring1.cursed) {
+			priorityCurse.add(ring1);
+		}
+		if (ring2 != null && ring2 instanceof YogRing && !ring2.cursed) {
+			priorityCurse.add(ring2);
+		}
+		if (ring3 != null && ring3 instanceof YogRing && !ring3.cursed) {
+			priorityCurse.add(ring3);
+		}
+		if (ring4 != null && ring4 instanceof YogRing && !ring4.cursed) {
+			priorityCurse.add(ring4);
+		}
+		if (ring5 != null && ring5 instanceof YogRing && !ring5.cursed) {
+			priorityCurse.add(ring5);
+		}
+		if (ring6 != null && ring6 instanceof YogRing && !ring6.cursed) {
+			priorityCurse.add(ring6);
 		}
 
 		Collections.shuffle(priorityCurse);
