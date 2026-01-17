@@ -53,10 +53,16 @@ public class WndChallenges extends Window {
 
 		this.editable = editable;
 
+		// 检测是否横屏模式
+		boolean isLandscape = PixelScene.landscape();
+
+		// 横屏模式下使用两列布局
+		int totalWidth = isLandscape ? WIDTH * 2 + GAP : WIDTH;
+
 		RenderedTextBlock title = PixelScene.renderTextBlock( Messages.get(this, "title"), 12 );
 		title.hardlight( TITLE_COLOR );
 		title.setPos(
-				(WIDTH - title.width()) / 2,
+				(totalWidth - title.width()) / 2,
 				(TTL_HEIGHT - title.height()) / 2
 		);
 		PixelScene.align(title);
@@ -64,23 +70,31 @@ public class WndChallenges extends Window {
 
 		boxes = new ArrayList<>();
 
-		float pos = TTL_HEIGHT;
+		float pos1 = TTL_HEIGHT; // 第一列的垂直位置
+		float pos2 = TTL_HEIGHT; // 第二列的垂直位置
+
 		for (int i=0; i < Challenges.NAME_IDS.length; i++) {
 
 			final String challenge = Challenges.NAME_IDS[i];
-			
+
 			CheckBox cb = new CheckBox( Messages.titleCase(Messages.get(Challenges.class, challenge)) );
 			cb.checked( (checked & Challenges.MASKS[i]) != 0 );
 			cb.active = editable;
 
-			if (i > 0) {
-				pos += GAP;
+			// 决定放在哪一列
+			boolean useFirstColumn = !isLandscape || i % 2 == 0;
+			float xPos = useFirstColumn ? 0 : WIDTH + GAP;
+			float currentPos = useFirstColumn ? pos1 : pos2;
+
+			if ((useFirstColumn && i > 0) || (!useFirstColumn && i > 1)) {
+				currentPos += GAP;
 			}
-			cb.setRect( 0, pos, WIDTH-16, BTN_HEIGHT );
+
+			cb.setRect( xPos, currentPos, WIDTH-16, BTN_HEIGHT );
 
 			add( cb );
 			boxes.add( cb );
-			
+
 			IconButton info = new IconButton(Icons.get(Icons.INFO)){
 				@Override
 				protected void onClick() {
@@ -90,13 +104,19 @@ public class WndChallenges extends Window {
 					);
 				}
 			};
-			info.setRect(cb.right(), pos, 16, BTN_HEIGHT);
+			info.setRect(cb.right(), currentPos, 16, BTN_HEIGHT);
 			add(info);
-			
-			pos = cb.bottom();
+
+			// 更新对应列的垂直位置
+			if (useFirstColumn) {
+				pos1 = cb.bottom();
+			} else {
+				pos2 = cb.bottom();
+			}
 		}
 
-		resize( WIDTH, (int)pos );
+		// 使用两列中较高的那个作为总高度
+		resize( totalWidth, (int)Math.max(pos1, pos2) );
 	}
 
 	@Override
