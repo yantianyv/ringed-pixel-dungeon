@@ -95,6 +95,8 @@ public class ChangeInfo extends Component {
 		float posY = this.y + 3;
 		if (major) posY += 2;
 		
+		// 设置标题的最大宽度以防止溢出
+		title.maxWidth((int) width());
 		title.setPos(
 				x + (width - title.width()) / 2f,
 				posY

@@ -51,6 +51,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.changelist.v0_9_X_Changes;
 import com.shatteredpixel.shatteredpixeldungeon.ui.changelist.v1_X_Changes;
 import com.shatteredpixel.shatteredpixeldungeon.ui.changelist.v2_X_Changes;
 import com.shatteredpixel.shatteredpixeldungeon.ui.changelist.v3_X_Changes;
+import com.shatteredpixel.shatteredpixeldungeon.ui.changelist.Ringed_Changes;
 import com.shatteredpixel.shatteredpixeldungeon.windows.IconTitle;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Image;
@@ -97,7 +98,21 @@ public class ChangesScene extends PixelScene {
 
 		NinePatch panel = Chrome.get(Chrome.Type.TOAST);
 
-		int pw = 135 + panel.marginLeft() + panel.marginRight() - 2;
+		// 计算tab栏总宽度用于面板布局
+		float panelTabWidth = 22;
+		float panelTabSpacing = 1;
+		String[] panelVersions = {"ringed", "3.X", "2.X", "1.X", "0.9", "0.8", "0.7", "0.6", "0.5"};
+		float panelAvailableWidth = w - 40;
+		float panelTotalTabWidth = panelVersions.length * panelTabWidth + (panelVersions.length - 1) * panelTabSpacing;
+		
+		if (panelTotalTabWidth > panelAvailableWidth) {
+			panelTabWidth = (panelAvailableWidth - (panelVersions.length - 1) * panelTabSpacing) / panelVersions.length;
+			if (panelTabWidth < 18) panelTabWidth = 18;
+			panelTotalTabWidth = panelVersions.length * panelTabWidth + (panelVersions.length - 1) * panelTabSpacing;
+		}
+		
+		// 使用tab栏宽度作为面板宽度
+		int pw = (int)panelTotalTabWidth + panel.marginLeft() + panel.marginRight() + 4;
 		int ph = h - 36;
 
 		if (h >= PixelScene.MIN_HEIGHT_FULL && w >= 300) {
@@ -142,7 +157,8 @@ public class ChangesScene extends PixelScene {
 		
 		final ArrayList<ChangeInfo> changeInfos = new ArrayList<>();
 
-		if (Messages.lang() != Languages.ENGLISH){
+		// 对于Ringed更新日志，不显示语言警告
+		if (Messages.lang() != Languages.ENGLISH && changesSelected != 8){
 			ChangeInfo langWarn = new ChangeInfo("", true, Messages.get(this, "lang_warn"));
 			langWarn.hardlight(CharSprite.WARNING);
 			changeInfos.add(langWarn);
@@ -177,6 +193,9 @@ public class ChangesScene extends PixelScene {
 				v0_2_X_Changes.addAllChanges(changeInfos);
 				v0_1_X_Changes.addAllChanges(changeInfos);
 				break;
+			case 8:
+				Ringed_Changes.addAllChanges(changeInfos);
+				break;
 		}
 
 		ScrollPane list = new ScrollPane( new Component() ){
@@ -197,29 +216,10 @@ public class ChangesScene extends PixelScene {
 		content.clear();
 
 		float posY = 0;
-		float nextPosY = 0;
-		boolean second = false;
 		for (ChangeInfo info : changeInfos){
-			if (info.major) {
-				posY = nextPosY;
-				second = false;
-				info.setRect(0, posY, panel.innerWidth(), 0);
-				content.add(info);
-				posY = nextPosY = info.bottom();
-			} else {
-				if (!second){
-					second = true;
-					info.setRect(0, posY, panel.innerWidth()/2f, 0);
-					content.add(info);
-					nextPosY = info.bottom();
-				} else {
-					second = false;
-					info.setRect(panel.innerWidth()/2f, posY, panel.innerWidth()/2f, 0);
-					content.add(info);
-					nextPosY = Math.max(info.bottom(), nextPosY);
-					posY = nextPosY;
-				}
-			}
+			info.setRect(0, posY, panel.innerWidth(), 0);
+			content.add(info);
+			posY = info.bottom();
 		}
 
 		content.setSize( panel.innerWidth(), (int)Math.ceil(posY) );
@@ -231,117 +231,49 @@ public class ChangesScene extends PixelScene {
 				panel.innerHeight() + 2);
 		list.scrollTo(0, 0);
 
-		StyledButton btn3_X = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "3.X", 8){
-			@Override
-			protected void onClick() {
-				super.onClick();
-				if (changesSelected != 0) {
-					changesSelected = 0;
-					ShatteredPixelDungeon.seamlessResetScene();
-				}
-			}
-		};
-		if (changesSelected != 0) btn3_X.textColor( 0xBBBBBB );
-		btn3_X.setRect(list.left()-4f, list.bottom(), 19, changesSelected == 0 ? 19 : 15);
-		addToBack(btn3_X);
-
-		StyledButton btn2_X = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "2.X", 8){
-			@Override
-			protected void onClick() {
-				super.onClick();
-				if (changesSelected != 1) {
-					changesSelected = 1;
-					ShatteredPixelDungeon.seamlessResetScene();
-				}
-			}
-		};
-		if (changesSelected != 1) btn2_X.textColor( 0xBBBBBB );
-		btn2_X.setRect(btn3_X.right()-2, list.bottom(), 19, changesSelected == 1 ? 19 : 15);
-		addToBack(btn2_X);
-
-		StyledButton btn1_X = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "1.X", 8){
-			@Override
-			protected void onClick() {
-				super.onClick();
-				if (changesSelected != 2) {
-					changesSelected = 2;
-					ShatteredPixelDungeon.seamlessResetScene();
-				}
-			}
-		};
-		if (changesSelected != 2) btn1_X.textColor( 0xBBBBBB );
-		btn1_X.setRect(btn2_X.right()-2, list.bottom(), 19, changesSelected == 2 ? 19 : 15);
-		addToBack(btn1_X);
-
-		StyledButton btn0_9 = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "0.9", 8){
-			@Override
-			protected void onClick() {
-				super.onClick();
-				if (changesSelected != 3) {
-					changesSelected = 3;
-					ShatteredPixelDungeon.seamlessResetScene();
-				}
-			}
-		};
-		if (changesSelected != 3) btn0_9.textColor( 0xBBBBBB );
-		btn0_9.setRect(btn1_X.right()-2, list.bottom(), 19, changesSelected == 3 ? 19 : 15);
-		addToBack(btn0_9);
-
-		StyledButton btn0_8 = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "0.8", 8){
-			@Override
-			protected void onClick() {
-				super.onClick();
-				if (changesSelected != 4) {
-					changesSelected = 4;
-					ShatteredPixelDungeon.seamlessResetScene();
-				}
-			}
-		};
-		if (changesSelected != 4) btn0_8.textColor( 0xBBBBBB );
-		btn0_8.setRect(btn0_9.right()-2, list.bottom(), 19, changesSelected == 4 ? 19 : 15);
-		addToBack(btn0_8);
+		// 优化tab栏布局 - 防止超出屏幕边界
+		float tabWidth = 22; // 减小按钮宽度
+		float tabHeight = 19;
+		float tabSpacing = 1; // 减小间距
+		float availableWidth = Camera.main.width - 40; // 留出左右边距
 		
-		StyledButton btn0_7 = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "0.7", 8){
-			@Override
-			protected void onClick() {
-				super.onClick();
-				if (changesSelected != 5) {
-					changesSelected = 5;
-					ShatteredPixelDungeon.seamlessResetScene();
-				}
-			}
-		};
-		if (changesSelected != 5) btn0_7.textColor( 0xBBBBBB );
-		btn0_7.setRect(btn0_8.right()-2, btn0_8.top(), 19, changesSelected == 5 ? 19 : 15);
-		addToBack(btn0_7);
+		// 计算实际需要的按钮数量和宽度
+		String[] versions = {"ringed", "3.X", "2.X", "1.X", "0.9", "0.8", "0.7", "0.6", "0.5"};
+		int[] indices = {8, 0, 1, 2, 3, 4, 5, 6, 7}; // Ringed是8，其他按顺序
 		
-		StyledButton btn0_6 = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "0.6", 8){
-			@Override
-			protected void onClick() {
-				super.onClick();
-				if (changesSelected != 6) {
-					changesSelected = 6;
-					ShatteredPixelDungeon.seamlessResetScene();
-				}
-			}
-		};
-		if (changesSelected != 6) btn0_6.textColor( 0xBBBBBB );
-		btn0_6.setRect(btn0_7.right()-2, btn0_8.top(), 19, changesSelected == 6 ? 19 : 15);
-		addToBack(btn0_6);
+		// 动态计算每个按钮的宽度
+		float totalTabWidth = versions.length * tabWidth + (versions.length - 1) * tabSpacing;
 		
-		StyledButton btnOld = new StyledButton(Chrome.Type.GREY_BUTTON_TR, "0.5-", 8){
-			@Override
-			protected void onClick() {
-				super.onClick();
-				if (changesSelected != 7) {
-					changesSelected = 7;
-					ShatteredPixelDungeon.seamlessResetScene();
+		// 如果总宽度超出可用宽度，进一步缩小
+		if (totalTabWidth > availableWidth) {
+			tabWidth = (availableWidth - (versions.length - 1) * tabSpacing) / versions.length;
+			if (tabWidth < 18) tabWidth = 18; // 最小宽度
+		}
+		
+		// 重新计算总宽度和起始位置
+		totalTabWidth = versions.length * tabWidth + (versions.length - 1) * tabSpacing;
+		float startX = (Camera.main.width - totalTabWidth) / 2f;
+		
+		// 创建所有按钮
+		for (int i = 0; i < versions.length; i++) {
+			final int idx = indices[i];
+			final String version = versions[i];
+			
+			StyledButton btn = new StyledButton(Chrome.Type.GREY_BUTTON_TR, version, 8){
+				@Override
+				protected void onClick() {
+					super.onClick();
+					if (changesSelected != idx) {
+						changesSelected = idx;
+						ShatteredPixelDungeon.seamlessResetScene();
+					}
 				}
-			}
-		};
-		if (changesSelected != 7) btnOld.textColor( 0xBBBBBB );
-		btnOld.setRect(btn0_6.right()-2, btn0_8.top(), 22, changesSelected == 7 ? 19 : 15);
-		addToBack(btnOld);
+			};
+			if (changesSelected != idx) btn.textColor( 0xBBBBBB );
+			float xPos = startX + i * (tabWidth + tabSpacing);
+			btn.setRect(xPos, list.bottom(), tabWidth, changesSelected == idx ? tabHeight : 15);
+			addToBack(btn);
+		}
 
 		Archs archs = new Archs();
 		archs.setSize( Camera.main.width, Camera.main.height );
