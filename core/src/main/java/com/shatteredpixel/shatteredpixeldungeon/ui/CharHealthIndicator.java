@@ -49,7 +49,11 @@ public class CharHealthIndicator extends HealthBar {
     public void update() {
         super.update();
 
-        if (target != null && target.isAlive() && target.isActive() && target.sprite.visible && target.buff(Invisibility.class) == null) {
+        // 友好怪物隐身时仍然显示血条
+        boolean isAlly = target != null && target.alignment == Char.Alignment.ALLY;
+        boolean shouldHide = target != null && target.buff(Invisibility.class) != null && !isAlly;
+
+        if (target != null && target.isAlive() && target.isActive() && target.sprite.visible && !shouldHide) {
             CharSprite sprite = target.sprite;
             width = sprite.width() * (4 / 6f);
             x = sprite.x + sprite.width() / 6f;
@@ -57,9 +61,6 @@ public class CharHealthIndicator extends HealthBar {
             level(target);
             visible = target.HP < target.HT || target.shielding() > 0;
         } else {
-            visible = false;
-        }
-        if (target.buff(Invisibility.class) != null) {
             visible = false;
         }
     }

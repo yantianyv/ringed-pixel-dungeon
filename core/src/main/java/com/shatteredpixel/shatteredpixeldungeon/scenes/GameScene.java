@@ -1719,7 +1719,8 @@ public class GameScene extends PixelScene {
 
         } else if (Dungeon.level.heroFOV[cell]) {
             Mob mob = (Mob) Actor.findChar(cell);
-            if (mob != null && mob.invisible == 0) {
+            // 友好怪物隐身时仍然可以查看详细信息
+            if (mob != null && (mob.invisible == 0 || mob.alignment == Char.Alignment.ALLY)) {
                 objects.add(mob);
             }
         }

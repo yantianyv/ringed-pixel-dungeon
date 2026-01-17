@@ -414,14 +414,17 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
                 if (invisible != null) {
                     invisible.killAndErase();
                 }
-                if (ch instanceof Hero) {
+                if (ch instanceof Hero || ch.alignment == Char.Alignment.ALLY) {
+                    // 英雄和友好怪物使用相同的半透明效果
                     invisible = new AlphaTweener(this, 0.2f, 0.4f);
 
                     alpha(0.2f);
                 } else if (parent != null) {
+                    // 敌对怪物完全透明
                     invisible = new AlphaTweener(this, 0.0f, 0.1f);
                     parent.add(invisible);
                 } else {
+                    // 备用方案：极低透明度
                     invisible = new AlphaTweener(this, 0.05f, 0.4f);
 
                     alpha(0.05f);

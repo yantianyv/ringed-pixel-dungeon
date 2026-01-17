@@ -43,9 +43,13 @@ public class TargetHealthIndicator extends HealthBar {
     public void update() {
         super.update();
 
+        // 友好怪物隐身时仍然可以选中并显示血条
+        boolean isAlly = target != null && target.alignment == Char.Alignment.ALLY;
+        boolean shouldHide = target != null && target.buff(Invisibility.class) != null && !isAlly;
+
         if (target != null && target.isAlive() && target.isActive()
                 && target.sprite != null && target.sprite.visible
-                && target.buff(Invisibility.class) == null) {
+                && !shouldHide) {
             CharSprite sprite = target.sprite;
             width = sprite.width();
             x = sprite.x;
@@ -58,7 +62,12 @@ public class TargetHealthIndicator extends HealthBar {
     }
 
     public void target(Char ch) {
-        if (ch != null && ch.isAlive() && ch.isActive() && ch.buff(Invisibility.class) == null) {
+        // 友好怪物隐身时仍然可以选中
+        boolean isAlly = ch != null && ch.alignment == Char.Alignment.ALLY;
+        boolean canTarget = ch != null && ch.isAlive() && ch.isActive() 
+                && (ch.buff(Invisibility.class) == null || isAlly);
+        
+        if (canTarget) {
             target = ch;
         } else {
             target = null;
