@@ -53,6 +53,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Berserk;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AliceThresholdBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
@@ -2356,6 +2357,14 @@ public class Hero extends Char {
             if (lvl < MAX_LEVEL || Dungeon.isCheated(Cheat.XP_DUNGEON)) {
                 lvl++;
                 levelUp = true;
+
+                // 斩杀线挑战：升级时偿还金币
+                if (Dungeon.isChallenged(Challenges.ALICE_THRESHOLD)) {
+                    AliceThresholdBuff debtBuff = buff(AliceThresholdBuff.class);
+                    if (debtBuff != null) {
+                        debtBuff.onLevelUp(lvl);
+                    }
+                }
 
                 if (buff(ElixirOfMight.HTBoost.class
                 ) != null) {

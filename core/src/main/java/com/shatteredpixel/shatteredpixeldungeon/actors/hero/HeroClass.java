@@ -107,6 +107,8 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant.Seed;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Sorrowmoss;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AliceThresholdBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.watabou.utils.DeviceCompat;
 
 public enum HeroClass {
@@ -187,6 +189,12 @@ public enum HeroClass {
                     break;
                 }
             }
+        }
+
+        // 斩杀线挑战：开局获得1000金币贷款
+        if (Dungeon.isChallenged(Challenges.ALICE_THRESHOLD)) {
+            Dungeon.gold += 1000;
+            Buff.affect(hero, AliceThresholdBuff.class);
         }
 
     }

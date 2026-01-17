@@ -72,6 +72,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Surprise;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Wound;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
+import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
@@ -1134,6 +1135,14 @@ public abstract class Mob extends Char {
         if (buff(SoulMark.class) != null
                 && Random.Int(10) < Dungeon.hero.pointsInTalent(Talent.SOUL_EATER)) {
             Talent.onFoodEaten(Dungeon.hero, 0, null);
+        }
+
+        // 斩杀线挑战：额外掉落相当于英雄等级的金币
+        if (Dungeon.isChallenged(Challenges.ALICE_THRESHOLD)) {
+            int extraGold = Dungeon.hero.lvl;
+            if (extraGold > 0) {
+                Dungeon.level.drop(new Gold(extraGold), pos).sprite.drop();
+            }
         }
 
     }

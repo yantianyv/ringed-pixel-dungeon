@@ -27,8 +27,11 @@ import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AliceThresholdBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
@@ -64,16 +67,31 @@ public class Gold extends Item {
         Catalog.setSeen(getClass());
         Statistics.itemTypesDiscovered.add(getClass());
 
-        Dungeon.gold += quantity;
-        Statistics.goldCollected += quantity;
+        // 斩杀线挑战：金币不足1000时按比例削减
+        int goldAmount = quantity;
+        if (Dungeon.isChallenged(Challenges.ALICE_THRESHOLD) && Dungeon.gold < 1000) {
+            float ratio = (float) Dungeon.gold / 1000f;
+            goldAmount = (int) Math.ceil(quantity * ratio);
+        }
+
+        Dungeon.gold += goldAmount;
+        Statistics.goldCollected += goldAmount;
         Badges.validateGoldCollected();
 
         GameScene.pickUp(this, pos);
-        hero.sprite.showStatusWithIcon(CharSprite.NEUTRAL, Integer.toString(quantity), FloatingText.GOLD);
+        hero.sprite.showStatusWithIcon(CharSprite.NEUTRAL, Integer.toString(goldAmount), FloatingText.GOLD);
         hero.spendAndNext(TIME_TO_PICK_UP);
 
         Sample.INSTANCE.play(Assets.Sounds.GOLD, 1, 1, Random.Float(0.9f, 1.1f));
         updateQuickslot();
+
+        // 斩杀线挑战：检查金币是否<=0
+        if (Dungeon.isChallenged(Challenges.ALICE_THRESHOLD)) {
+            AliceThresholdBuff debtBuff = hero.buff(AliceThresholdBuff.class);
+            if (debtBuff != null) {
+                debtBuff.checkDeath();
+            }
+        }
 
         return true;
     }

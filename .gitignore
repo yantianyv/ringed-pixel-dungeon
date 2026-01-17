@@ -23,3 +23,8 @@ local.properties
 #intellij project files
 *.iml
 *.idea
+
+# claude
+.agent
+.claude
+.vscode
