@@ -632,12 +632,9 @@ public class DwarfKing extends Mob {
         {
             properties.add(Property.BOSS_MINION);
             state = HUNTING;
-        }
-
-        @Override
-        protected boolean act() {
-            partnerID = -2; //no partners
-            return super.act();
+            canCreatePartner = false; // 被boss召唤的矮人不能创建partner
+            // 作为补偿，生命值提升1.5倍
+            HP = HT = 75; // 原本是50，现在是75
         }
     }
 

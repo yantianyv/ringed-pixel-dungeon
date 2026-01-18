@@ -91,11 +91,16 @@ public class Ghoul extends Mob {
 
     private int timesDowned = 0;
     protected int partnerID = -1;
+    protected int turnsWithoutPartner = 0; // 失去partner后的等待回合数
+    protected boolean canCreatePartner = true; // 是否可以创建partner，被召唤的矮人应该设为false
     protected int num_of_revive = 3; // 复活次数，与逃跑机制分离
 
     private static final String PARTNER_ID = "partner_id";
     private static final String TIMES_DOWNED = "times_downed";
     private static final String NUM_OF_REVIVE = "num_of_revive";
+    private static final String TURNS_WITHOUT_PARTNER = "turns_without_partner";
+    private static final String CAN_CREATE_PARTNER = "can_create_partner";
+    private static final int TURNS_TO_WAIT_FOR_NEW_PARTNER = 10; // 需要等待的回合数
 
     @Override
     public void storeInBundle(Bundle bundle) {
@@ -103,6 +108,8 @@ public class Ghoul extends Mob {
         bundle.put(PARTNER_ID, partnerID);
         bundle.put(TIMES_DOWNED, timesDowned);
         bundle.put(NUM_OF_REVIVE, num_of_revive);
+        bundle.put(TURNS_WITHOUT_PARTNER, turnsWithoutPartner);
+        bundle.put(CAN_CREATE_PARTNER, canCreatePartner);
     }
 
     @Override
@@ -116,11 +123,47 @@ public class Ghoul extends Mob {
             // 兼容v0.1.6之前的旧存档：如果不存在新变量，从num_of_escape恢复
             num_of_revive = num_of_escape > 0 ? num_of_escape : 3;
         }
+        if (bundle.contains(TURNS_WITHOUT_PARTNER)) {
+            turnsWithoutPartner = bundle.getInt(TURNS_WITHOUT_PARTNER);
+        } else {
+            turnsWithoutPartner = 0;
+        }
+        if (bundle.contains(CAN_CREATE_PARTNER)) {
+            canCreatePartner = bundle.getBoolean(CAN_CREATE_PARTNER);
+        } else {
+            canCreatePartner = true;
+        }
     }
 
     @Override
     protected boolean act() {
-        //create a child
+        // 如果不允许创建partner（例如被召唤的矮人），跳过所有partner逻辑
+        if (!canCreatePartner) {
+            return super.act();
+        }
+
+        // 检查partner是否还存在
+        if (partnerID != -1) {
+            Ghoul partner = (Ghoul) Actor.findById(partnerID);
+            if (partner == null) {
+                // partner已死亡，开始等待新partner
+                partnerID = -1;
+                turnsWithoutPartner = 0;
+                // 播放蜷缩动画
+                if (sprite instanceof GhoulSprite) {
+                    ((GhoulSprite) sprite).crumple();
+                }
+            }
+        }
+
+        // 如果正在等待新partner
+        if (partnerID == -1 && turnsWithoutPartner < TURNS_TO_WAIT_FOR_NEW_PARTNER) {
+            turnsWithoutPartner++;
+            spend(TICK);
+            return true;
+        }
+
+        // 等待完成或初次生成，创建新的partner
         if (partnerID == -1) {
 
             ArrayList<Integer> candidates = new ArrayList<>();
@@ -139,6 +182,7 @@ public class Ghoul extends Mob {
                 Ghoul child = new Ghoul();
                 child.partnerID = this.id();
                 this.partnerID = child.id();
+                this.turnsWithoutPartner = 0; // 重置计数器
                 if (state != SLEEPING) {
                     child.state = child.WANDERING;
                 }
@@ -151,6 +195,9 @@ public class Ghoul extends Mob {
                 if (sprite.visible) {
                     Actor.add(new Pushing(child, pos, child.pos));
                 }
+
+                // 恢复站立动画
+                sprite.idle();
 
                 //champion buff, mainly
                 for (Buff b : buffs()) {
@@ -267,10 +314,8 @@ public class Ghoul extends Mob {
                 state = WANDERING;
                 target = partner.pos;
                 return true;
-            } else if (partner == null && partnerID != -1) {
-                // partner已死亡，清理partnerID以便重新创建
-                partnerID = -1;
             }
+            // partner死亡后的处理已移至act()方法统一管理
             return super.act(enemyInFOV, justAlerted);
         }
     }
@@ -292,10 +337,8 @@ public class Ghoul extends Mob {
                     spend(TICK);
                     return true;
                 }
-            } else if (partner == null && partnerID != -1) {
-                // partner已死亡，清理partnerID以便重新创建
-                partnerID = -1;
             }
+            // partner死亡后的处理已移至act()方法统一管理
             return super.continueWandering();
         }
     }
