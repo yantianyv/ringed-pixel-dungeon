@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.SacrificialFire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Challenge;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
@@ -53,7 +54,7 @@ public class Ghoul extends Mob {
         HP = HT = 50;
         defenseSkill = 20;
 
-        EXP = 5;
+        EXP = 8; // 自然生成的矮人提供1.5倍经验（原本是5，现在是8）
         maxLvl = 20;
 
         SLEEPING = new Sleeping();
@@ -61,7 +62,7 @@ public class Ghoul extends Mob {
         state = SLEEPING;
 
         loot = Gold.class;
-        lootChance = 0.2f;
+        lootChance = 0.3f; // 自然生成的矮人提供1.5倍战利品几率（原本是0.2，现在是0.3）
 
         num_of_escape = 0; // 禁用逃跑机制
         num_of_revive = 3; // 复活次数，与逃跑机制分离
@@ -89,10 +90,21 @@ public class Ghoul extends Mob {
         return 0.5f;
     }
 
+    @Override
+    public float lootChance() {
+        // 被召唤的矮人不提供战利品
+        if (isSummoned) {
+            return 0;
+        }
+        // 自然生成的矮人提供1.5倍战利品几率
+        return super.lootChance();
+    }
+
     private int timesDowned = 0;
     protected int partnerID = -1;
     protected int turnsWithoutPartner = 0; // 失去partner后的等待回合数
     protected boolean canCreatePartner = true; // 是否可以创建partner，被召唤的矮人应该设为false
+    protected boolean isSummoned = false; // 是否是被召唤的（通过partner机制创建的）
     protected int num_of_revive = 3; // 复活次数，与逃跑机制分离
 
     private static final String PARTNER_ID = "partner_id";
@@ -100,6 +112,7 @@ public class Ghoul extends Mob {
     private static final String NUM_OF_REVIVE = "num_of_revive";
     private static final String TURNS_WITHOUT_PARTNER = "turns_without_partner";
     private static final String CAN_CREATE_PARTNER = "can_create_partner";
+    private static final String IS_SUMMONED = "is_summoned";
     private static final int TURNS_TO_WAIT_FOR_NEW_PARTNER = 10; // 需要等待的回合数
 
     @Override
@@ -110,6 +123,7 @@ public class Ghoul extends Mob {
         bundle.put(NUM_OF_REVIVE, num_of_revive);
         bundle.put(TURNS_WITHOUT_PARTNER, turnsWithoutPartner);
         bundle.put(CAN_CREATE_PARTNER, canCreatePartner);
+        bundle.put(IS_SUMMONED, isSummoned);
     }
 
     @Override
@@ -133,6 +147,11 @@ public class Ghoul extends Mob {
         } else {
             canCreatePartner = true;
         }
+        if (bundle.contains(IS_SUMMONED)) {
+            isSummoned = bundle.getBoolean(IS_SUMMONED);
+        } else {
+            isSummoned = false;
+        }
     }
 
     @Override
@@ -153,12 +172,49 @@ public class Ghoul extends Mob {
                 if (sprite instanceof GhoulSprite) {
                     ((GhoulSprite) sprite).crumple();
                 }
+
+                // 传送前先获得隐身buff
+                Buff.affect(this, Invisibility.class, 1.01f);
+
+                // partner死亡时传送一次到附近随机位置
+                ArrayList<Integer> teleportCandidates = new ArrayList<>();
+                int[] neighbours = {
+                    pos - Dungeon.level.width() - 1, pos - Dungeon.level.width(), pos - Dungeon.level.width() + 1,
+                    pos - 1, pos + 1,
+                    pos + Dungeon.level.width() - 1, pos + Dungeon.level.width(), pos + Dungeon.level.width() + 1,
+                    pos - Dungeon.level.width() * 2 - 2, pos - Dungeon.level.width() * 2 - 1, pos - Dungeon.level.width() * 2, pos - Dungeon.level.width() * 2 + 1, pos - Dungeon.level.width() * 2 + 2,
+                    pos - 2, pos + 2,
+                    pos + Dungeon.level.width() * 2 - 2, pos + Dungeon.level.width() * 2 - 1, pos + Dungeon.level.width() * 2, pos + Dungeon.level.width() * 2 + 1, pos + Dungeon.level.width() * 2 + 2,
+                    pos - Dungeon.level.width() * 3 - 3, pos - Dungeon.level.width() * 3 - 2, pos - Dungeon.level.width() * 3 - 1, pos - Dungeon.level.width() * 3, pos - Dungeon.level.width() * 3 + 1, pos - Dungeon.level.width() * 3 + 2, pos - Dungeon.level.width() * 3 + 3,
+                    pos - 3, pos + 3,
+                    pos + Dungeon.level.width() * 3 - 3, pos + Dungeon.level.width() * 3 - 2, pos + Dungeon.level.width() * 3 - 1, pos + Dungeon.level.width() * 3, pos + Dungeon.level.width() * 3 + 1, pos + Dungeon.level.width() * 3 + 2, pos + Dungeon.level.width() * 3 + 3
+                };
+
+                for (int n : neighbours) {
+                    if (Dungeon.level.insideMap(n)
+                            && Dungeon.level.passable[n]
+                            && Actor.findChar(n) == null
+                            && (!Char.hasProp(this, Property.LARGE) || Dungeon.level.openSpace[n])) {
+                        teleportCandidates.add(n);
+                    }
+                }
+
+                if (!teleportCandidates.isEmpty()) {
+                    int newPos = Random.element(teleportCandidates);
+                    if (newPos != pos) {
+                        Actor.add(new Pushing(this, pos, newPos));
+                        pos = newPos;
+                        Dungeon.level.occupyCell(this);
+                    }
+                }
             }
         }
 
         // 如果正在等待新partner
         if (partnerID == -1 && turnsWithoutPartner < TURNS_TO_WAIT_FOR_NEW_PARTNER) {
             turnsWithoutPartner++;
+            // 每回合获得1.01回合的隐身buff
+            Buff.affect(this, Invisibility.class, 1.01f);
             spend(TICK);
             return true;
         }
@@ -180,6 +236,7 @@ public class Ghoul extends Mob {
 
             if (!candidates.isEmpty()) {
                 Ghoul child = new Ghoul();
+                child.isSummoned = true; // 标记为被召唤的，不提供经验和战利品
                 child.partnerID = this.id();
                 this.partnerID = child.id();
                 this.turnsWithoutPartner = 0; // 重置计数器
@@ -198,6 +255,9 @@ public class Ghoul extends Mob {
 
                 // 恢复站立动画
                 sprite.idle();
+
+                // 移除等待期间获得的隐身buff
+                Invisibility.dispel(this);
 
                 //champion buff, mainly
                 for (Buff b : buffs()) {
@@ -218,6 +278,16 @@ public class Ghoul extends Mob {
     public void die(Object cause) {
         beFound();
         invisibility_cooldown = 200;
+
+        // 被召唤的矮人不提供经验值
+        if (isSummoned) {
+            int originalEXP = EXP;
+            EXP = 0;
+            super.die(cause);
+            EXP = originalEXP; // 恢复原始值（虽然已经死亡，但保持一致性）
+            return;
+        }
+
         // 坠落死亡应该总是真正死亡，不应该触发复活机制
         if (cause == Chasm.class) {
             losePartner();
@@ -239,7 +309,7 @@ public class Ghoul extends Mob {
             sprite.add(CharSprite.State.SHIELDED);
             // 添加格挡音效
             Sample.INSTANCE.play(Assets.Sounds.HIT_PARRY);
-            
+
         }
 
     }
