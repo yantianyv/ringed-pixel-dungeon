@@ -24,8 +24,10 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.utils.TextObfuscator;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.ui.Component;
@@ -102,22 +104,38 @@ public class CurrencyIndicator extends Component {
 		}
 
 		if (Dungeon.gold != lastGold) {
-			
+
 			lastGold = Dungeon.gold;
-			
-			gold.text( Integer.toString(lastGold) );
+
+			// 文盲挑战：金币显示为十六进制
+			String goldText;
+			if (Dungeon.isChallenged(Challenges.ILLITERACY)) {
+				goldText = TextObfuscator.convertToHexString(lastGold);
+			} else {
+				goldText = Integer.toString(lastGold);
+			}
+
+			gold.text( goldText );
 			gold.measure();
-			
+
 			gold.visible = true;
 			goldTime = TIME;
-			
+
 			layout();
 		}
 
 		if (Dungeon.energy != lastEnergy) {
 			lastEnergy = Dungeon.energy;
 
-			energy.text( Integer.toString(lastEnergy) );
+			// 文盲挑战：能量显示为十六进制
+			String energyText;
+			if (Dungeon.isChallenged(Challenges.ILLITERACY)) {
+				energyText = TextObfuscator.convertToHexString(lastEnergy);
+			} else {
+				energyText = Integer.toString(lastEnergy);
+			}
+
+			energy.text( energyText );
 			energy.measure();
 
 			energy.visible = true;

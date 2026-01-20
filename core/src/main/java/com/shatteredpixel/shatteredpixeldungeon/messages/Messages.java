@@ -33,8 +33,11 @@ import java.util.Locale;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
+import com.shatteredpixel.shatteredpixeldungeon.utils.TextObfuscator;
 
 public class Messages {
 
@@ -142,7 +145,7 @@ public class Messages {
         for (I18NBundle b : bundles) {
             result = b.get(key);
             if (!isMissing(result, key)) {
-                return result;
+                return applyIlliteracyChallenge(result);
             }
         }
 
@@ -150,7 +153,7 @@ public class Messages {
         for (I18NBundle b : bundlesZh) {
             result = b.get(key);
             if (!isMissing(result, key)) {
-                return result;
+                return applyIlliteracyChallenge(result);
             }
         }
 
@@ -158,11 +161,24 @@ public class Messages {
         for (I18NBundle b : bundlesEn) {
             result = b.get(key);
             if (!isMissing(result, key)) {
-                return result;
+                return applyIlliteracyChallenge(result);
             }
         }
 
         return null;
+    }
+
+    /**
+     * 应用文盲挑战处理
+     * 只在游戏进行中生效（主菜单、英雄选择等界面不受影响）
+     */
+    private static String applyIlliteracyChallenge(String text) {
+        // 检查是否启用了文盲挑战，并且是否在游戏进行中
+        // Dungeon.hero 只在实际游戏中存在，主菜单和英雄选择页面为 null
+        if (text != null && Dungeon.hero != null && Dungeon.isChallenged(Challenges.ILLITERACY)) {
+            return TextObfuscator.processText(text);
+        }
+        return text;
     }
 
     // 判断是否为未找到的字符串
@@ -172,7 +188,18 @@ public class Messages {
 
     public static String format(String format, Object... args) {
         try {
-            return String.format(locale(), format, args);
+            String result = String.format(locale(), format, args);
+
+            // 文盲挑战：只在游戏进行中将数值替换为十六进制
+            // 必须同时满足：hero存在 + 启用了文盲挑战 + 当前场景是GameScene
+            boolean isInGame = Dungeon.hero != null &&
+                com.watabou.noosa.Game.scene() instanceof com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+
+            if (isInGame && Dungeon.isChallenged(Challenges.ILLITERACY)) {
+                result = TextObfuscator.convertNumbersInText(result);
+            }
+
+            return result;
         } catch (IllegalFormatException e) {
             ShatteredPixelDungeon.reportException(new Exception("formatting error for the string: " + format, e));
             return format;
@@ -185,7 +212,18 @@ public class Messages {
         if (!formatters.containsKey(format)) {
             formatters.put(format, new DecimalFormat(format, DecimalFormatSymbols.getInstance(locale())));
         }
-        return formatters.get(format).format(number);
+        String result = formatters.get(format).format(number);
+
+        // 文盲挑战：只在游戏进行中返回十六进制
+        // 必须同时满足：hero存在 + 启用了文盲挑战 + 当前场景是GameScene
+        boolean isInGame = Dungeon.hero != null &&
+            com.watabou.noosa.Game.scene() instanceof com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+
+        if (isInGame && Dungeon.isChallenged(Challenges.ILLITERACY)) {
+            return TextObfuscator.convertNumbersInText(result);
+        }
+
+        return result;
     }
 
     public static String capitalize(String str) {

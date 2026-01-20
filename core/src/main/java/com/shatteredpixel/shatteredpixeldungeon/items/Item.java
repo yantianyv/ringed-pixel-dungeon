@@ -22,6 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
@@ -38,6 +39,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.TippedDart;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
+import com.shatteredpixel.shatteredpixeldungeon.utils.TextObfuscator;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
@@ -540,7 +542,8 @@ public String ad_mod = "default";
 
     public String info() {
 
-		if (Dungeon.hero != null) {
+		// 文盲挑战下禁用物品备注显示
+		if (Dungeon.hero != null && !Dungeon.isChallenged(Challenges.ILLITERACY)) {
 			Notes.CustomRecord note = Notes.findCustomRecord(customNoteID);
 			if (note != null) {
 				//we swap underscore(0x5F) with low macron(0x2CD) here to avoid highlighting in the item window
@@ -599,7 +602,14 @@ public String ad_mod = "default";
     }
 
     public String status() {
-        return quantity != 1 ? Integer.toString(quantity) : null;
+        if (quantity != 1) {
+            // 文盲挑战：显示十六进制数量
+            if (Dungeon.hero != null && Dungeon.isChallenged(Challenges.ILLITERACY)) {
+                return TextObfuscator.convertToHexString(quantity);
+            }
+            return Integer.toString(quantity);
+        }
+        return null;
     }
 
 	public static void updateQuickslot() {

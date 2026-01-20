@@ -23,11 +23,13 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDAction;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.utils.TextObfuscator;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
@@ -182,7 +184,15 @@ public class WndBag extends WndTabbed {
             PixelScene.align(gold);
             add(gold);
 
-            BitmapText amt = new BitmapText(Integer.toString(Dungeon.gold), PixelScene.pixelFont);
+            // 文盲挑战：金币显示为十六进制
+            String goldText;
+            if (Dungeon.isChallenged(Challenges.ILLITERACY)) {
+                goldText = TextObfuscator.convertToHexString(Dungeon.gold);
+            } else {
+                goldText = Integer.toString(Dungeon.gold);
+            }
+
+            BitmapText amt = new BitmapText(goldText, PixelScene.pixelFont);
             amt.hardlight(TITLE_COLOR);
             amt.measure();
             amt.x = width - gold.width() - amt.width() - 1;
@@ -199,7 +209,15 @@ public class WndBag extends WndTabbed {
             PixelScene.align(gold);
             add(gold);
 
-            BitmapText amt = new BitmapText(Integer.toString(Dungeon.gold), PixelScene.pixelFont);
+            // 文盲挑战：金币显示为十六进制
+            String goldText;
+            if (Dungeon.isChallenged(Challenges.ILLITERACY)) {
+                goldText = TextObfuscator.convertToHexString(Dungeon.gold);
+            } else {
+                goldText = Integer.toString(Dungeon.gold);
+            }
+
+            BitmapText amt = new BitmapText(goldText, PixelScene.pixelFont);
             amt.hardlight(TITLE_COLOR);
             amt.measure();
             amt.x = width - gold.width() - amt.width() - 2f;
@@ -215,7 +233,15 @@ public class WndBag extends WndTabbed {
             PixelScene.align(energy);
             add(energy);
 
-            amt = new BitmapText(Integer.toString(Dungeon.energy), PixelScene.pixelFont);
+            // 文盲挑战：能量显示为十六进制
+            String energyText;
+            if (Dungeon.isChallenged(Challenges.ILLITERACY)) {
+                energyText = TextObfuscator.convertToHexString(Dungeon.energy);
+            } else {
+                energyText = Integer.toString(Dungeon.energy);
+            }
+
+            amt = new BitmapText(energyText, PixelScene.pixelFont);
             amt.hardlight(0x44CCFF);
             amt.measure();
             amt.x = width - energy.width() - amt.width() - 1;

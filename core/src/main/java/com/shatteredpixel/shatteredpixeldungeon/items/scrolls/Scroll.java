@@ -24,6 +24,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
@@ -178,7 +179,21 @@ public abstract class Scroll extends Item {
 		super.execute( hero, action );
 
 		if (action.equals( AC_READ )) {
-			
+
+			// 文盲挑战：限制卷轴使用
+			// 密卷（ExoticScroll）不受此限制
+			if (Dungeon.isChallenged(Challenges.ILLITERACY) && !(this instanceof ExoticScroll)) {
+				boolean isAllowedScroll = this instanceof ScrollOfUpgrade
+					|| this instanceof ScrollOfIdentify
+					|| this instanceof ScrollOfRemoveCurse
+					|| this instanceof ScrollOfTransmutation;
+
+				if (!isAllowedScroll) {
+					GLog.w( Messages.get(Scroll.class, "illiteracy_block") );
+					return;
+				}
+			}
+
 			if (hero.buff(MagicImmune.class) != null){
 				GLog.w( Messages.get(this, "no_magic") );
 			} else if (hero.buff( Blindness.class ) != null) {
@@ -190,7 +205,7 @@ public abstract class Scroll extends Item {
 			} else {
 				doRead();
 			}
-			
+
 		}
 	}
 	
