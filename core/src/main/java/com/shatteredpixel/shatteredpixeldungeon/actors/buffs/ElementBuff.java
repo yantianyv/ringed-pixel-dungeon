@@ -378,7 +378,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
     /**
      * 超载反应（火+雷）
      *
-     * @return 消耗的元素量
+     * @return 伤害倍率
      */
     static float Overload(ElementBuff pyro, ElementBuff electro, Char ch) {
         float consume = Math.min(pyro.quantity, electro.quantity);
@@ -415,7 +415,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
     /**
      * 感电反应（雷+水）
      *
-     * @return 消耗的元素量
+     * @return 伤害倍率
      */
     static float Shock(ElementBuff electro, ElementBuff hydro, Char ch) {
         float consume = Math.min(electro.quantity, hydro.quantity);
@@ -449,7 +449,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
     /**
      * 冻结反应（冰+水）
      *
-     * @return 消耗的元素量
+     * @return 伤害倍率
      */
     static float Freeze(ElementBuff cryo, ElementBuff hydro, Char ch) {
         float consume = Math.min(cryo.quantity, hydro.quantity);
@@ -482,7 +482,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
     /**
      * 蒸发反应（火+水）
      *
-     * @return 消耗的元素量
+     * @return 伤害倍率
      */
     static float Vaporize(ElementBuff pyro, ElementBuff hydro, Char ch) {
         float consume = Math.min(pyro.quantity, hydro.quantity);
@@ -500,7 +500,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
     /**
      * 融化反应（火+冰）
      *
-     * @return 消耗的元素量
+     * @return 伤害倍率
      */
     static float Melt(ElementBuff pyro, ElementBuff cryo, Char ch) {
         float consume = Math.min(pyro.quantity, cryo.quantity);
@@ -518,7 +518,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
     /**
      * 扩散反应（风+其他元素） - 缩小范围版
      *
-     * @return 消耗的元素量
+     * @return 伤害倍率
      */
     static float Spread(ElementBuff anemo, ElementBuff other, Char ch) {
         float consume = Math.min(anemo.quantity, other.quantity);
@@ -576,7 +576,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
     /**
      * 结晶反应（岩+其他元素）
      *
-     * @return 消耗的元素量
+     * @return 伤害倍率
      */
     static float Crystalize(ElementBuff geo, ElementBuff other, Char ch) {
         float consume = Math.min(geo.quantity, other.quantity);
@@ -603,7 +603,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
     /**
      * 超导反应（雷+冰）
      *
-     * @return 消耗的元素量
+     * @return 伤害倍率
      */
     static float Superconduct(ElementBuff electro, ElementBuff cryo, Char ch) {
         float consume = Math.min(electro.quantity, cryo.quantity);
@@ -645,7 +645,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
     /**
      * 燃烧反应（火+草）
      *
-     * @return 消耗的元素量
+     * @return 伤害倍率
      */
     static float Burn(ElementBuff pyro, ElementBuff dendro, Char ch) {
         float consume = Math.min(pyro.quantity, dendro.quantity);
@@ -655,8 +655,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
         CharSprite cs = ch.sprite;
         cs.showStatus(CharSprite.NEUTRAL, Messages.get(ElementBuff.class, "burn"));
 
-        // 防止递归：清除草元素
-        dendro.detach();
+        dendro.quantity -= consume;
+        pyro.quantity -= consume;
         
         // 应用新的元素燃烧效果
         BurningElement buff = ch.buff(BurningElement.class);
@@ -673,7 +673,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
     /**
      * 激化反应（雷+草）
      *
-     * @return 消耗的元素量
+     * @return 伤害倍率
      */
     static float Activate(ElementBuff electro, ElementBuff dendro, Char ch) {
         // 跳过激元素参与的情况
@@ -701,7 +701,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
     /**
      * 绽放反应（水+草）
      *
-     * @return 消耗的元素量
+     * @return 伤害倍率
      */
     static float Bloom(ElementBuff hydro, ElementBuff dendro, Char ch) {
         float consume = Math.min(hydro.quantity, dendro.quantity);
