@@ -654,6 +654,9 @@ public class Dungeon {
 
     public static void saveGame(int save) {
         try {
+            // 禁用文本混淆以确保存档key一致性
+            Messages.setSerializing(true);
+
             Bundle bundle = new Bundle();
 
             bundle.put(INIT_VER, initialVersion);
@@ -725,6 +728,9 @@ public class Dungeon {
         } catch (IOException e) {
             GamesInProgress.setUnknown(save);
             ShatteredPixelDungeon.reportException(e);
+        } finally {
+            // 恢复文本混淆
+            Messages.setSerializing(false);
         }
     }
 
@@ -753,8 +759,11 @@ public class Dungeon {
     }
 
     public static void loadGame(int save, boolean fullLoad) throws IOException {
+        try {
+            // 禁用文本混淆以确保存档key一致性
+            Messages.setSerializing(true);
 
-        Bundle bundle = FileUtils.bundleFromFile(GamesInProgress.gameFile(save));
+            Bundle bundle = FileUtils.bundleFromFile(GamesInProgress.gameFile(save));
 
 		initialVersion = bundle.getInt( INIT_VER );
 		version = bundle.getInt( VERSION );
@@ -854,6 +863,13 @@ public class Dungeon {
         Statistics.restoreFromBundle(bundle);
         Generator.restoreFromBundle(bundle);
 
+        } catch (IOException e) {
+            ShatteredPixelDungeon.reportException(e);
+            throw e;
+        } finally {
+            // 恢复文本混淆
+            Messages.setSerializing(false);
+        }
 	}
 	
 	public static Level loadLevel( int save ) throws IOException {

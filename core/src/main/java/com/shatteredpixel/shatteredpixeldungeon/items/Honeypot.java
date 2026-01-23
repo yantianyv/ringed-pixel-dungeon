@@ -175,6 +175,9 @@ public class Honeypot extends Item {
 			tier = 1;
 			baseUses = 66;
 			sticky = false;
+
+			levelKnown = true;
+			cursedKnown = true;
 		}
 
 		@Override

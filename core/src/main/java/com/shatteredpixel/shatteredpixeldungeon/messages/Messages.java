@@ -50,12 +50,25 @@ public class Messages {
 
     public static final String NO_TEXT_FOUND = "!!!NO TEXT FOUND!!!";
 
+    // 序列化标志：禁用文本混淆以确保存档key一致性
+    private static final ThreadLocal<Boolean> isSerializing = ThreadLocal.withInitial(() -> false);
+
     public static Languages lang() {
         return lang;
     }
 
     public static Locale locale() {
         return locale;
+    }
+
+    // 设置序列化状态
+    public static void setSerializing(boolean serializing) {
+        isSerializing.set(serializing);
+    }
+
+    // 获取序列化状态
+    public static boolean isSerializing() {
+        return isSerializing.get();
     }
 
     private static String[] prop_files = new String[]{
@@ -190,6 +203,11 @@ public class Messages {
         try {
             String result = String.format(locale(), format, args);
 
+            // 检查是否正在序列化，如果是则跳过文本混淆
+            if (isSerializing.get()) {
+                return result;
+            }
+
             // 文盲挑战：只在游戏进行中将数值替换为十六进制
             // 必须同时满足：hero存在 + 启用了文盲挑战 + 当前场景是GameScene
             boolean isInGame = Dungeon.hero != null &&
@@ -213,6 +231,11 @@ public class Messages {
             formatters.put(format, new DecimalFormat(format, DecimalFormatSymbols.getInstance(locale())));
         }
         String result = formatters.get(format).format(number);
+
+        // 检查是否正在序列化，如果是则跳过文本混淆
+        if (isSerializing.get()) {
+            return result;
+        }
 
         // 文盲挑战：只在游戏进行中返回十六进制
         // 必须同时满足：hero存在 + 启用了文盲挑战 + 当前场景是GameScene
