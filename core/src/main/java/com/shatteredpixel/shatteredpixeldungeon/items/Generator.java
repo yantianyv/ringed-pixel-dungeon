@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.shatteredpixel.shatteredpixeldungeon.Cheat;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClericArmor;
@@ -620,6 +621,12 @@ public class Generator {
                 cat.seed = Random.Long();
                 cat.dropped = 0;
             }
+        }
+        // 根据天赋异禀作弊调整经验药水掉落率
+        if (Dungeon.isCheated(Cheat.GIFTED_PRODIGY)) {
+            // 经验药水索引为11，从1提高到3，与治疗药水相同
+            Category.POTION.defaultProbs[11] = 3;
+            Category.POTION.defaultProbs2[11] = 2;
         }
     }
 

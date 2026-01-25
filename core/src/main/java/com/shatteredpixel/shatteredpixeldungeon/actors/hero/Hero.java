@@ -231,6 +231,9 @@ public class Hero extends Char {
     private int attackSkill = 10;
     private int defenseSkill = 5;
 
+    // 追踪每层使用神意启发药剂的次数
+    public int[] divineInspirationUses = new int[5];
+
     public boolean ready = false;
     public boolean damageInterrupt = true;
     public HeroAction curAction = null;
@@ -432,11 +435,18 @@ public class Hero extends Char {
                 || (tier == 3 && subClass == HeroSubClass.NONE)
                 || (tier == 4 && armorAbility == null)) {
             return 0;
-        } else if (buff(PotionOfDivineInspiration.DivineInspirationTracker.class) != null
-                && buff(PotionOfDivineInspiration.DivineInspirationTracker.class).isBoosted(tier)) {
-            return 2;
         } else {
-            return 0;
+            PotionOfDivineInspiration.DivineInspirationTracker tracker =
+                    buff(PotionOfDivineInspiration.DivineInspirationTracker.class);
+            if (tracker != null && tracker.getUsesCount(tier) > 0) {
+                if (Dungeon.isCheated(Cheat.GIFTED_PRODIGY)) {
+                    return tracker.getUsesCount(tier) + 1;
+                } else {
+                    return 2;
+                }
+            } else {
+                return 0;
+            }
         }
     }
 

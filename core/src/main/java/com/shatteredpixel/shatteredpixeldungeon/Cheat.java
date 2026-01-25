@@ -43,16 +43,18 @@ public class Cheat extends Buff {
 
     public static final int XP_DUNGEON     = 1;
     public static final int BOOTSTRAPPING = 2;
-    
-    public static final int MAX_VALUE      = 16;
+    public static final int GIFTED_PRODIGY = 4;
+
+    public static final int MAX_VALUE      = 32;
 
     public static final String[] NAME_IDS = {
             "xp_dungeon",
-            "bootstrapping"
+            "bootstrapping",
+            "gifted_prodigy"
     };
 
     public static final int[] MASKS = {
-            XP_DUNGEON,BOOTSTRAPPING
+            XP_DUNGEON,BOOTSTRAPPING,GIFTED_PRODIGY
     };
 
     public static int activeCheat() {

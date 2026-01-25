@@ -25,6 +25,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Cheat;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -166,28 +167,52 @@ public class PotionOfDivineInspiration extends ExoticPotion {
 			revivePersists = true;
 		}
 
-		private boolean[] boostedTiers = new boolean[5];
+		private int[] boostedTierUses = new int[5];
 
 		private static final String BOOSTED_TIERS = "boosted_tiers";
+		private static final int[] MAX_USES_PER_TIER = {0, 2, 3, 6, 5};
 
 		@Override
 		public void storeInBundle(Bundle bundle) {
 			super.storeInBundle(bundle);
-			bundle.put(BOOSTED_TIERS, boostedTiers);
+			bundle.put(BOOSTED_TIERS, boostedTierUses);
 		}
 
 		@Override
 		public void restoreFromBundle(Bundle bundle) {
 			super.restoreFromBundle(bundle);
-			boostedTiers = bundle.getBooleanArray(BOOSTED_TIERS);
+			boostedTierUses = bundle.getIntArray(BOOSTED_TIERS);
+			if (boostedTierUses == null) {
+				boolean[] oldData = bundle.getBooleanArray(BOOSTED_TIERS);
+				if (oldData != null) {
+					boostedTierUses = new int[5];
+					for (int i = 0; i < oldData.length; i++) {
+						boostedTierUses[i] = oldData[i] ? 1 : 0;
+					}
+				} else {
+					boostedTierUses = new int[5];
+				}
+			}
 		}
 
-		public void setBoosted( int tier ){
-			boostedTiers[tier] = true;
+		public void setBoosted(int tier) {
+			if (Dungeon.isCheated(Cheat.GIFTED_PRODIGY)) {
+				boostedTierUses[tier]++;
+			} else {
+				boostedTierUses[tier] = 1;
+			}
 		}
 
-		public boolean isBoosted( int tier ){
-			return boostedTiers[tier];
+		public boolean isBoosted(int tier) {
+			if (Dungeon.isCheated(Cheat.GIFTED_PRODIGY)) {
+				return boostedTierUses[tier] >= MAX_USES_PER_TIER[tier];
+			} else {
+				return boostedTierUses[tier] > 0;
+			}
+		}
+
+		public int getUsesCount(int tier) {
+			return boostedTierUses[tier];
 		}
 
 	}
