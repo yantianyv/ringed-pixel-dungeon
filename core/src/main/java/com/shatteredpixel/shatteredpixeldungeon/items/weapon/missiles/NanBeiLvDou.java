@@ -43,7 +43,7 @@ import com.watabou.noosa.particles.Emitter;
 public class NanBeiLvDou extends MissileWeapon {
 
 	{
-		image = ItemSpriteSheet.SEED_SUNGRASS;
+		image = ItemSpriteSheet.NANBEI_LVDOU;
 		hitSound = Assets.Sounds.HIT;
 		hitSoundPitch = 1.1f;
 

@@ -87,7 +87,7 @@ public class Pasty extends Food {
                 image = ItemSpriteSheet.SPARKLING_POTION;
                 break;
             case CRAZY_4:
-                image = ItemSpriteSheet.CRAZY_BURGER;
+                image = ItemSpriteSheet.RINGED_CRAZY_BURGER;
                 break;
         }
     }

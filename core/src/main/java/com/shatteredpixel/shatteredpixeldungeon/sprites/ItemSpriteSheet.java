@@ -29,6 +29,9 @@ public class ItemSpriteSheet {
     public static final int SIZE = 16;
 
     public static TextureFilm film = new TextureFilm(Assets.Sprites.ITEMS, SIZE, SIZE);
+    public static TextureFilm filmRinged = new TextureFilm(Assets.Sprites.ITEMS_RINGED, SIZE, SIZE);
+
+    public static final int RINGED_OFFSET = 1000;
 
     private static int xy(int x, int y) {
         x -= 1;
@@ -52,6 +55,14 @@ public class ItemSpriteSheet {
         int x = ((item - 100) % (WIDTH * 2)) * (SIZE / 2);
         int y = ((item - 100) / (WIDTH * 2)) * SIZE;
         film.add(item, x, y, x + width, y + height);
+    }
+
+    static int getRingedIndex(int index) {
+        return index - RINGED_OFFSET;
+    }
+
+    static TextureFilm getFilm(int image) {
+        return (image >= RINGED_OFFSET) ? filmRinged : film;
     }
 
     private static final int PLACEHOLDERS = xy(1, 1);   //18 slots
@@ -341,6 +352,9 @@ public class ItemSpriteSheet {
     public static final int THROWING_HAMMER = MISSILE_WEP + 14;
     public static final int FORCE_CUBE = MISSILE_WEP + 15;
 
+    // Ringed 特有武器：南北绿豆
+    public static final int NANBEI_LVDOU = RINGED_OFFSET + MISSILE_WEP + 0;
+
     static {
         assignItemRect(SPIRIT_BOW, 16, 16);
 
@@ -363,6 +377,9 @@ public class ItemSpriteSheet {
         assignItemRect(TRIDENT, 16, 16);
         assignItemRect(THROWING_HAMMER, 12, 12);
         assignItemRect(FORCE_CUBE, 11, 12);
+
+        // 为南北绿豆分配贴图（使用 items_ringed.png）
+        filmRinged.add(NANBEI_LVDOU, 0, (MISSILE_WEP % WIDTH) * SIZE, (MISSILE_WEP / WIDTH) * SIZE + 10, 10);
     }
 
     public static final int DARTS = xy(1, 11);  //16 slots
@@ -427,43 +444,60 @@ public class ItemSpriteSheet {
     public static final int WAND_CORRUPTION = WANDS + 9;
     public static final int WAND_WARDING = WANDS + 10;
     public static final int WAND_REGROWTH = WANDS + 11;
-    public static final int WAND_TRANSFUSION = WANDS + 12;
+
+    // Ringed 特有法杖：输血法杖
+    public static final int WAND_TRANSFUSION = RINGED_OFFSET + WANDS + 12;
 
     static {
         for (int i = WANDS; i < WANDS + 16; i++) {
             assignItemRect(i, 14, 14);
         }
+
+        // 为输血法杖分配贴图（使用 items_ringed.png）
+        int transfusionIndex = (WANDS + 12) % WIDTH;
+        int transfusionX = transfusionIndex * SIZE;
+        int transfusionY = ((WANDS + 12) / WIDTH) * SIZE;
+        filmRinged.add(WAND_TRANSFUSION, transfusionX, transfusionY, transfusionX + 14, transfusionY + 14);
     }
 
     private static final int RINGS = half_xy(1, 15);  //32 slots
-    public static final int RING_VOID = RINGS + 0;
-    public static final int RING_GARNET = RINGS + 1;
-    public static final int RING_RUBY = RINGS + 2;
-    public static final int RING_TOPAZ = RINGS + 3;
-    public static final int RING_EMERALD = RINGS + 4;
-    public static final int RING_ONYX = RINGS + 5;
-    public static final int RING_OPAL = RINGS + 6;
-    public static final int RING_TOURMALINE = RINGS + 7;
-    public static final int RING_SAPPHIRE = RINGS + 8;
-    public static final int RING_AMETHYST = RINGS + 9;
-    public static final int RING_QUARTZ = RINGS + 10;
-    public static final int RING_AGATE = RINGS + 11;
-    public static final int RING_DIAMOND = RINGS + 12;
-    public static final int RING_JADE = RINGS + 13;
-    public static final int RING_OBSIDIAN = RINGS + 14;
-    public static final int RING_CHINA = RINGS + 15;
-    public static final int RING_CRYSTAL = RINGS + 16;
-    public static final int RING_GLASS = RINGS + 17;
 
-    public static final int YOG_RING = RINGS + 27;
-    public static final int IRON_RING = RINGS + 28;
+    // Ringed 戒指（使用 1000+ 索引）
+    public static final int RING_VOID = RINGED_OFFSET + RINGS + 0;
+    public static final int RING_GARNET = RINGED_OFFSET + RINGS + 1;
+    public static final int RING_RUBY = RINGED_OFFSET + RINGS + 2;
+    public static final int RING_TOPAZ = RINGED_OFFSET + RINGS + 3;
+    public static final int RING_EMERALD = RINGED_OFFSET + RINGS + 4;
+    public static final int RING_ONYX = RINGED_OFFSET + RINGS + 5;
+    public static final int RING_OPAL = RINGED_OFFSET + RINGS + 6;
+    public static final int RING_TOURMALINE = RINGED_OFFSET + RINGS + 7;
+    public static final int RING_SAPPHIRE = RINGED_OFFSET + RINGS + 8;
+    public static final int RING_AMETHYST = RINGED_OFFSET + RINGS + 9;
+    public static final int RING_QUARTZ = RINGED_OFFSET + RINGS + 10;
+    public static final int RING_AGATE = RINGED_OFFSET + RINGS + 11;
+    public static final int RING_DIAMOND = RINGED_OFFSET + RINGS + 12;
+    public static final int RING_JADE = RINGED_OFFSET + RINGS + 13;
+    public static final int RING_OBSIDIAN = RINGED_OFFSET + RINGS + 14;
+    public static final int RING_CHINA = RINGED_OFFSET + RINGS + 15;
+    public static final int RING_CRYSTAL = RINGED_OFFSET + RINGS + 16;
+    public static final int RING_GLASS = RINGED_OFFSET + RINGS + 17;
 
-    public static final int WEDDING_RING = RINGS + 30;
-    public static final int ORIGIN_GEM = RINGS + 31; 
+    public static final int YOG_RING = RINGED_OFFSET + RINGS + 27;
+    public static final int IRON_RING = RINGED_OFFSET + RINGS + 28;
+
+    public static final int WEDDING_RING = RINGED_OFFSET + RINGS + 30;
+    public static final int ORIGIN_GEM = RINGED_OFFSET + RINGS + 31;
 
     static {
         for (int i = RINGS; i < RINGS + 32; i++) {
             half_assignItemRect(i, 8, 10);
+
+            // 为所有 Ringed 戒指分配贴图（使用 items_ringed.png）
+            int ringedIndex = RINGED_OFFSET + i;
+            int adjustedIndex = i - 100;
+            int x = (adjustedIndex % (WIDTH * 2)) * (SIZE / 2);
+            int y = (adjustedIndex / (WIDTH * 2)) * SIZE;
+            filmRinged.add(ringedIndex, x, y, x + 8, y + 10);
         }
     }
 
@@ -534,7 +568,10 @@ public class ItemSpriteSheet {
     public static final int EYE_OF_NEWT = TRINKETS + 10;
     public static final int SALT_CUBE = TRINKETS + 11;
     public static final int BLOOD_VIAL = TRINKETS + 12;
-    public static final int OBLIVION_SHARD = TRINKETS + 13;
+
+    // Ringed 特有饰品：虚空碎片（倒数第三个）
+    public static final int OBLIVION_SHARD = RINGED_OFFSET + TRINKETS + 13;
+
     public static final int CHAOTIC_CENSER = TRINKETS + 14;
 	public static final int FERRET_TUFT     = TRINKETS+15;
 
@@ -552,7 +589,13 @@ public class ItemSpriteSheet {
         assignItemRect(EYE_OF_NEWT, 12, 12);
         assignItemRect(SALT_CUBE, 12, 13);
         assignItemRect(BLOOD_VIAL, 6, 15);
-        assignItemRect(OBLIVION_SHARD, 7, 14);
+
+        // 为虚空碎片分配贴图（使用 items_ringed.png）
+        int oblivionIndex = (TRINKETS + 13) % WIDTH;
+        int oblivionX = oblivionIndex * SIZE;
+        int oblivionY = ((TRINKETS + 13) / WIDTH) * SIZE;
+        filmRinged.add(OBLIVION_SHARD, oblivionX, oblivionY, oblivionX + 7, oblivionY + 14);
+
         assignItemRect(CHAOTIC_CENSER, 13, 15);
 		assignItemRect(FERRET_TUFT,     16, 15);
     }
@@ -773,30 +816,46 @@ public class ItemSpriteSheet {
     }
 
     private static final int HOLIDAY_FOOD = xy(1, 29);  //16 slots
-    public static final int STEAMED_FISH = HOLIDAY_FOOD + 0;
-    public static final int FISH_LEFTOVER = HOLIDAY_FOOD + 1;
-    public static final int CHOC_AMULET = HOLIDAY_FOOD + 2;
-    public static final int EASTER_EGG = HOLIDAY_FOOD + 3;
-    public static final int RINGED_CAKE = HOLIDAY_FOOD + 4;
-    public static final int SHATTERED_CAKE = HOLIDAY_FOOD + 5;
-    public static final int PUMPKIN_PIE = HOLIDAY_FOOD + 6;
-    public static final int VANILLA_CAKE = HOLIDAY_FOOD + 7;
-    public static final int CANDY_CANE = HOLIDAY_FOOD + 8;
-    public static final int SPARKLING_POTION = HOLIDAY_FOOD + 9;
-    public static final int CRAZY_BURGER = HOLIDAY_FOOD + 10;
+
+    // Ringed 所有节日食物（使用 1000+ 索引）
+    public static final int STEAMED_FISH = RINGED_OFFSET + HOLIDAY_FOOD + 0;
+    public static final int FISH_LEFTOVER = RINGED_OFFSET + HOLIDAY_FOOD + 1;
+    public static final int CHOC_AMULET = RINGED_OFFSET + HOLIDAY_FOOD + 2;
+    public static final int EASTER_EGG = RINGED_OFFSET + HOLIDAY_FOOD + 3;
+    public static final int RINGED_CAKE = RINGED_OFFSET + HOLIDAY_FOOD + 4;
+    public static final int SHATTERED_CAKE = RINGED_OFFSET + HOLIDAY_FOOD + 5;
+    public static final int PUMPKIN_PIE = RINGED_OFFSET + HOLIDAY_FOOD + 6;
+    public static final int VANILLA_CAKE = RINGED_OFFSET + HOLIDAY_FOOD + 7;
+    public static final int CANDY_CANE = RINGED_OFFSET + HOLIDAY_FOOD + 8;
+    public static final int SPARKLING_POTION = RINGED_OFFSET + HOLIDAY_FOOD + 9;
+    public static final int RINGED_CRAZY_BURGER = RINGED_OFFSET + HOLIDAY_FOOD + 10;
 
     static {
-        assignItemRect(STEAMED_FISH, 16, 12);
-        assignItemRect(FISH_LEFTOVER, 16, 12);
-        assignItemRect(CHOC_AMULET, 16, 16);
-        assignItemRect(EASTER_EGG, 12, 14);
-        assignItemRect(RINGED_CAKE, 14, 13);
-        assignItemRect(SHATTERED_CAKE, 14, 13);
-        assignItemRect(PUMPKIN_PIE, 16, 12);
-        assignItemRect(VANILLA_CAKE, 14, 13);
-        assignItemRect(CANDY_CANE, 13, 16);
-        assignItemRect(SPARKLING_POTION, 7, 16);
-        assignItemRect(CRAZY_BURGER, 16, 15);
+        // 为 Ringed 节日食物分配贴图（使用 items_ringed.png）
+        int foodBase = HOLIDAY_FOOD;
+
+        filmRinged.add(STEAMED_FISH, (foodBase % WIDTH) * SIZE, (foodBase / WIDTH) * SIZE,
+                       (foodBase % WIDTH) * SIZE + 16, (foodBase / WIDTH) * SIZE + 12);
+        filmRinged.add(FISH_LEFTOVER, ((foodBase + 1) % WIDTH) * SIZE, ((foodBase + 1) / WIDTH) * SIZE,
+                       ((foodBase + 1) % WIDTH) * SIZE + 16, ((foodBase + 1) / WIDTH) * SIZE + 12);
+        filmRinged.add(CHOC_AMULET, ((foodBase + 2) % WIDTH) * SIZE, ((foodBase + 2) / WIDTH) * SIZE,
+                       ((foodBase + 2) % WIDTH) * SIZE + 16, ((foodBase + 2) / WIDTH) * SIZE + 16);
+        filmRinged.add(EASTER_EGG, ((foodBase + 3) % WIDTH) * SIZE, ((foodBase + 3) / WIDTH) * SIZE,
+                       ((foodBase + 3) % WIDTH) * SIZE + 12, ((foodBase + 3) / WIDTH) * SIZE + 14);
+        filmRinged.add(RINGED_CAKE, ((foodBase + 4) % WIDTH) * SIZE, ((foodBase + 4) / WIDTH) * SIZE,
+                       ((foodBase + 4) % WIDTH) * SIZE + 14, ((foodBase + 4) / WIDTH) * SIZE + 13);
+        filmRinged.add(SHATTERED_CAKE, ((foodBase + 5) % WIDTH) * SIZE, ((foodBase + 5) / WIDTH) * SIZE,
+                       ((foodBase + 5) % WIDTH) * SIZE + 14, ((foodBase + 5) / WIDTH) * SIZE + 13);
+        filmRinged.add(PUMPKIN_PIE, ((foodBase + 6) % WIDTH) * SIZE, ((foodBase + 6) / WIDTH) * SIZE,
+                       ((foodBase + 6) % WIDTH) * SIZE + 16, ((foodBase + 6) / WIDTH) * SIZE + 12);
+        filmRinged.add(VANILLA_CAKE, ((foodBase + 7) % WIDTH) * SIZE, ((foodBase + 7) / WIDTH) * SIZE,
+                       ((foodBase + 7) % WIDTH) * SIZE + 14, ((foodBase + 7) / WIDTH) * SIZE + 13);
+        filmRinged.add(CANDY_CANE, ((foodBase + 8) % WIDTH) * SIZE, ((foodBase + 8) / WIDTH) * SIZE,
+                       ((foodBase + 8) % WIDTH) * SIZE + 13, ((foodBase + 8) / WIDTH) * SIZE + 16);
+        filmRinged.add(SPARKLING_POTION, ((foodBase + 9) % WIDTH) * SIZE, ((foodBase + 9) / WIDTH) * SIZE,
+                       ((foodBase + 9) % WIDTH) * SIZE + 7, ((foodBase + 9) / WIDTH) * SIZE + 16);
+        filmRinged.add(RINGED_CRAZY_BURGER, ((foodBase + 10) % WIDTH) * SIZE, ((foodBase + 10) / WIDTH) * SIZE,
+                       ((foodBase + 10) % WIDTH) * SIZE + 16, ((foodBase + 10) / WIDTH) * SIZE + 15);
     }
 
     private static final int QUEST = xy(1, 30);  //16 slots
@@ -828,7 +887,9 @@ public class ItemSpriteSheet {
     public static final int BANDOLIER = BAGS + 4;
     public static final int HOLSTER = BAGS + 5;
     public static final int VIAL = BAGS + 6;
-    public static final int RINGSTRING = BAGS + 7;
+
+    // Ringed 特有背包：戒指环
+    public static final int RINGSTRING = RINGED_OFFSET + BAGS + 7;
 
     static {
         assignItemRect(WATERSKIN, 16, 14);
@@ -838,7 +899,12 @@ public class ItemSpriteSheet {
         assignItemRect(BANDOLIER, 15, 16);
         assignItemRect(HOLSTER, 15, 16);
         assignItemRect(VIAL, 12, 12);
-        assignItemRect(RINGSTRING, 12, 12);
+
+        // 为戒指环分配贴图（使用 items_ringed.png）
+        int ringstringIndex = (BAGS + 7) % WIDTH;
+        int ringstringX = ringstringIndex * SIZE;
+        int ringstringY = ((BAGS + 7) / WIDTH) * SIZE;
+        filmRinged.add(RINGSTRING, ringstringX, ringstringY, ringstringX + 12, ringstringY + 12);
     }
 
     private static final int DOCUMENTS = xy(1, 32);  //16 slots
@@ -1036,5 +1102,53 @@ public class ItemSpriteSheet {
 
         //16 free slots
     }
+
+    // ========== LEGACY 索引（已弃用，保留作为备用） ==========
+
+    // 旧版戒指索引（原位置，已被 1000+ 索引替代）
+    public static final int LEGACY_RING_VOID = RINGS + 0;
+    public static final int LEGACY_RING_GARNET = RINGS + 1;
+    public static final int LEGACY_RING_RUBY = RINGS + 2;
+    public static final int LEGACY_RING_TOPAZ = RINGS + 3;
+    public static final int LEGACY_RING_EMERALD = RINGS + 4;
+    public static final int LEGACY_RING_ONYX = RINGS + 5;
+    public static final int LEGACY_RING_OPAL = RINGS + 6;
+    public static final int LEGACY_RING_TOURMALINE = RINGS + 7;
+    public static final int LEGACY_RING_SAPPHIRE = RINGS + 8;
+    public static final int LEGACY_RING_AMETHYST = RINGS + 9;
+    public static final int LEGACY_RING_QUARTZ = RINGS + 10;
+    public static final int LEGACY_RING_AGATE = RINGS + 11;
+    public static final int LEGACY_RING_DIAMOND = RINGS + 12;
+    public static final int LEGACY_RING_JADE = RINGS + 13;
+    public static final int LEGACY_RING_OBSIDIAN = RINGS + 14;
+    public static final int LEGACY_RING_CHINA = RINGS + 15;
+    public static final int LEGACY_RING_CRYSTAL = RINGS + 16;
+    public static final int LEGACY_RING_GLASS = RINGS + 17;
+    public static final int LEGACY_YOG_RING = RINGS + 27;
+    public static final int LEGACY_IRON_RING = RINGS + 28;
+    public static final int LEGACY_WEDDING_RING = RINGS + 30;
+    public static final int LEGACY_ORIGIN_GEM = RINGS + 31;
+
+    // 旧版节日食物索引（原位置，已被 1000+ 索引替代）
+    public static final int LEGACY_STEAMED_FISH = HOLIDAY_FOOD + 0;
+    public static final int LEGACY_FISH_LEFTOVER = HOLIDAY_FOOD + 1;
+    public static final int LEGACY_CHOC_AMULET = HOLIDAY_FOOD + 2;
+    public static final int LEGACY_EASTER_EGG = HOLIDAY_FOOD + 3;
+    public static final int LEGACY_RINGED_CAKE = HOLIDAY_FOOD + 4;
+    public static final int LEGACY_SHATTERED_CAKE = HOLIDAY_FOOD + 5;
+    public static final int LEGACY_PUMPKIN_PIE = HOLIDAY_FOOD + 6;
+    public static final int LEGACY_VANILLA_CAKE = HOLIDAY_FOOD + 7;
+    public static final int LEGACY_CANDY_CANE = HOLIDAY_FOOD + 8;
+    public static final int LEGACY_SPARKLING_POTION = HOLIDAY_FOOD + 9;
+    public static final int LEGACY_CRAZY_BURGER = HOLIDAY_FOOD + 10;
+
+    // 旧版背包索引（原位置，已被 1000+ 索引替代）
+    public static final int LEGACY_RINGSTRING = BAGS + 7;
+
+    // 旧版饰品索引（原位置，已被 1000+ 索引替代）
+    public static final int LEGACY_OBLIVION_SHARD = TRINKETS + 13;
+
+    // 旧版法杖索引（原位置，已被 1000+ 索引替代）
+    public static final int LEGACY_WAND_TRANSFUSION = WANDS + 12;
 
 }

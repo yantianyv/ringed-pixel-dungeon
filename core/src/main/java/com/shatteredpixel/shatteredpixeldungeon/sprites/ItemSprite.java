@@ -83,23 +83,31 @@ public class ItemSprite extends MovieClip {
 	}
 	
 	public ItemSprite( Heap heap ){
-		super(Assets.Sprites.ITEMS);
+		super(getTextureResource(0));
 		view( heap );
 	}
-	
+
 	public ItemSprite(Item item) {
-		super(Assets.Sprites.ITEMS);
+		super(getTextureResource(item.image()));
 		view( item );
 	}
-	
+
 	public ItemSprite( int image ){
 		this( image, null );
 	}
-	
+
 	public ItemSprite( int image, Glowing glowing ) {
-		super( Assets.Sprites.ITEMS );
-		
+		super(getTextureResource(image));
+
 		view(image, glowing);
+	}
+
+	private static Object getTextureResource(int image) {
+		if (image >= 1000) {
+			return Assets.Sprites.ITEMS_RINGED;
+		} else {
+			return Assets.Sprites.ITEMS;
+		}
 	}
 	
 	public void link() {
@@ -246,9 +254,12 @@ public class ItemSprite extends MovieClip {
 	}
 
 	public void frame( int image ){
-		frame( ItemSpriteSheet.film.get( image ));
+		TextureFilm targetFilm = ItemSpriteSheet.getFilm(image);
+		int adjustedIndex = (image >= 1000) ? ItemSpriteSheet.getRingedIndex(image) : image;
 
-		float height = ItemSpriteSheet.film.height( image );
+		frame(targetFilm.get(adjustedIndex));
+
+		float height = targetFilm.height(adjustedIndex);
 		//adds extra raise to very short items, so they are visible
 		if (height < 8f){
 			perspectiveRaise =  (5 + 8 - height) / 16f;
@@ -384,10 +395,14 @@ public class ItemSprite extends MovieClip {
 	}
 
 	public static int pick( int index, int x, int y ) {
-		SmartTexture tx = TextureCache.get( Assets.Sprites.ITEMS );
+		Object textureResource = (index >= 1000) ?
+			Assets.Sprites.ITEMS_RINGED : Assets.Sprites.ITEMS;
+		SmartTexture tx = TextureCache.get(textureResource);
+
+		int adjustedIndex = (index >= 1000) ? index - 1000 : index;
 		int rows = tx.width / SIZE;
-		int row = index / rows;
-		int col = index % rows;
+		int row = adjustedIndex / rows;
+		int col = adjustedIndex % rows;
 		return tx.getPixel( col * SIZE + x, row * SIZE + y );
 	}
 	
