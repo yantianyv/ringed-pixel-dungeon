@@ -123,6 +123,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.PotionOfCleansing;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution;
@@ -941,12 +942,12 @@ public abstract class Char extends Actor {
         float damage = dmg;
 
         if (src == Dungeon.hero) {
-            // 获取英雄实际佩戴的时光行者之戒
-            RingOfTimetraveler equippedRing = Dungeon.hero.belongings.getItem(RingOfTimetraveler.class);
-            if (equippedRing != null) {
-                // 基于当前效率值计算新效率（降低到90%）
-                float currentEfficiency = equippedRing.efficiency();
-                equippedRing.efficiency(currentEfficiency * 0.9f);
+            // 降低所有已装备时光行者之戒的效率
+            for (Ring r : Dungeon.hero.belongings.getEquippedRings()) {
+                if (r instanceof RingOfTimetraveler) {
+                    float currentEfficiency = r.efficiency();
+                    r.efficiency(currentEfficiency * 0.9f);
+                }
             }
         }
 

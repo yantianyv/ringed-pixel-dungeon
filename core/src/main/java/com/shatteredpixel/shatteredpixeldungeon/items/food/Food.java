@@ -142,7 +142,11 @@ public class Food extends Item {
         Buff.affect(hero, Hunger.class).satisfy(foodVal);
 
         if (hero.buff(RingOfTakeout.Takeout.class) != null) {
-            new RingOfTakeout().charge(foodVal);
+            for (com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring r : hero.belongings.getEquippedRings()) {
+                if (r instanceof RingOfTakeout) {
+                    ((RingOfTakeout) r).charge(foodVal);
+                }
+            }
         }
 
     }

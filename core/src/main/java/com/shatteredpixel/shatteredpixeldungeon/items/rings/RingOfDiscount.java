@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
@@ -24,48 +25,21 @@ public class RingOfDiscount extends Ring {
         ad_url = "https://mobile.yangkeduo.com/duo_collection.html?__page=dynamic&pid=36256075_308324886&duoduo_type=3&launch_pdd=1&campaign=ddjb&cid=launch_";
     }
 
-    static Heap goodHeap;
-    static Item good;
+    Heap goodHeap;
+    Item good;
     static public boolean baned = false;
 
-    // 返回物品描述
     public String statsInfo() {
-        // 依据是否鉴定返回不同信息
         if (baned){
             return Messages.get(this, "ban");
-
         }
         if (isIdentified()) {
-            // 基本统计信息，使用与实际计算一致的公式
-            // 实际计算使用 getBuffedBonus()，它返回所有 buff 的 buffedLvl() 之和
-            // 对于单个戒指，就是 buffedLvl()
-            // 显示的是折扣后的价格比例（乘以10是为了显示百分比）
-            int actualBonus = buffedLvl();
+            int actualBonus = soloBuffedBonus();
             float discountMulti = (float) Math.pow(0.99, actualBonus);
             String info = Messages.get(this, "stats",
                     Messages.decimalFormat("#.##", discountMulti * 10));
-            
-            //组合统计信息，当装备多个同类戒指时显示
-            if (isEquipped(Dungeon.hero)) {
-                // 计算实际装备的同类戒指数量
-                int ringCount = 0;
-                if (Dungeon.hero.belongings.ring1() != null && Dungeon.hero.belongings.ring1().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring2() != null && Dungeon.hero.belongings.ring2().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring3() != null && Dungeon.hero.belongings.ring3().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring4() != null && Dungeon.hero.belongings.ring4().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring5() != null && Dungeon.hero.belongings.ring5().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring6() != null && Dungeon.hero.belongings.ring6().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.misc() != null && Dungeon.hero.belongings.misc().getClass() == getClass()) ringCount++;
-                
-                // 如果有多个戒指，使用 discountMultiplier 直接计算实际效果
-                if (ringCount > 1) {
-                    float combinedMulti = discountMultiplier(Dungeon.hero);
-                    info += "\n\n" + Messages.get(this, "combined_stats",
-                            Messages.decimalFormat("#.##", combinedMulti * 10));
-                }
-            }
             return info;
-        } else {// 鉴定前的通用信息
+        } else {
             return Messages.get(this, "typical_stats", Messages.decimalFormat("#.##", 9.9f));
         }
     }
@@ -80,7 +54,11 @@ public class RingOfDiscount extends Ring {
         if (baned){
             return 1f;
         }
-        return (float) Math.pow(0.99, getBuffedBonus(target, Discount.class));
+        int maxLvl = 0;
+        for (Discount buff : target.buffs(Discount.class)) {
+            maxLvl = Math.max(maxLvl, buff.buffedLvl());
+        }
+        return (float) Math.pow(0.99, maxLvl);
     }
 
     @Override
@@ -104,14 +82,20 @@ public class RingOfDiscount extends Ring {
 
     public static void ban() {
         baned = true;
-        rm_good();
+        if (Dungeon.hero != null) {
+            for (Ring r : Dungeon.hero.belongings.getEquippedRings()) {
+                if (r instanceof RingOfDiscount) {
+                    ((RingOfDiscount) r).rm_good();
+                }
+            }
+        }
     }
 
     public static void unban() {
         baned = false;
     }
 
-    private static void rm_good() {
+    private void rm_good() {
         if (goodHeap != null && goodHeap.type == Heap.Type.FOR_SALE) {
             // GLog.p("移除商品" + good);
             if (goodHeap.items.remove(good) && goodHeap.items.isEmpty()) {
@@ -122,15 +106,13 @@ public class RingOfDiscount extends Ring {
             }
         }
     }
-    // ————————————————戒指效率————————————————
-    private static float efficiency = 1.0f;
 
     @Override
     public float efficiency() {
         if (baned) {
             return 0;
         }
-        return efficiency; // 返回当前类别的共享效率
+        return super.efficiency();
     }
 
     @Override
@@ -138,79 +120,69 @@ public class RingOfDiscount extends Ring {
         if (baned) {
             efficiency = 0;
         } else {
-            x = x > 1 ? 1 : x;
-            x = x < 0 ? 0 : x;
-            efficiency = x;
+            super.efficiency(x);
         }
     }
 
     public void charge(float x) {
-        efficiency(efficiency + x);
+        efficiency(efficiency() + x);
     }
 
-    // ————————————————————————————————————————
+    @Override
+    protected float tick() {
+        float chance = (1 - (float) Math.pow(0.99, soloBuffedBonus())) / 10;
+        if (Random.Float() < chance * efficiency()) {
+            int pospointer = Dungeon.hero.pos;
+            boolean success = false;
+            for (int i = 0; i <= 8; i++) {
+                pospointer = Dungeon.hero.pos + PathFinder.NEIGHBOURS9[i];
+                if ((Terrain.flags[Dungeon.level.map[pospointer]] & Terrain.PASSABLE) == 0
+                        || (Terrain.flags[Dungeon.level.map[pospointer]] & Terrain.SECRET) != 0
+                        || Dungeon.level.map[pospointer] == Terrain.ENTRANCE
+                        || Dungeon.level.map[pospointer] == Terrain.ENTRANCE_SP
+                        || Dungeon.level.map[pospointer] == Terrain.EXIT
+                        || (Dungeon.level.heaps.get(pospointer) != null)
+                        ) {
+                } else {
+                    success = true;
+                    break;
+                }
+            }
+            if (Dungeon.level.locked || Dungeon.depth == 10) {
+                efficiency *= 0.999;
+                Item gold = new Gold();
+                gold.quantity(1);
+                Dungeon.hero.spend(-TIME_TO_PICK_UP);
+                gold.doPickUp(Dungeon.hero);
+                GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
+                return 30f;
+            } else if (Dungeon.gold > 3000 && success) {
+                efficiency *= 0.9;
+                VisualShop visualshop = new VisualShop();
+                rm_good();
+                good = visualshop.chooseRandom();
+                goodHeap = Dungeon.level.drop(good, pospointer);
+                goodHeap.type = Heap.Type.FOR_SALE;
+                goodHeap.sprite.hardlight(0xFFFF99);
+                GLog.p(Messages.get(RingOfDiscount.class, "on_sale"));
+                Dungeon.hero.resting = false;
+                Dungeon.hero.interrupt();
+                return 30f;
+            } else {
+                efficiency *= 0.95;
+                Item gold = new Gold();
+                gold.quantity(Dungeon.depth * 10);
+                Dungeon.hero.spend(-TIME_TO_PICK_UP);
+                gold.doPickUp(Dungeon.hero);
+                GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
+                return Dungeon.depth;
+            }
+        }
+        return Actor.TICK;
+    }
+
     // 定义RingBuff类
     public class Discount extends RingBuff {
-
-        @Override
-        public boolean act() {
-            float chance = (1 - (float) Math.pow(0.99, getBuffedBonus(target, Discount.class))) / 10;
-            if (Random.Float() < chance * efficiency) {
-                int pospointer = Dungeon.hero.pos;
-                boolean success = false;
-                for (int i = 0; i <= 8; i++) {
-                    pospointer = Dungeon.hero.pos + PathFinder.NEIGHBOURS9[i];
-                    if ((Terrain.flags[Dungeon.level.map[pospointer]] & Terrain.PASSABLE) == 0 // 不可通过
-                            || (Terrain.flags[Dungeon.level.map[pospointer]] & Terrain.SECRET) != 0 // 存在隐藏物体
-                            || Dungeon.level.map[pospointer] == Terrain.ENTRANCE // 下楼
-                            || Dungeon.level.map[pospointer] == Terrain.ENTRANCE_SP // 特殊下楼
-                            || Dungeon.level.map[pospointer] == Terrain.EXIT // 上楼
-                            || (Dungeon.level.heaps.get(pospointer) != null) // 存在掉落物
-                            ) {
-                    } else {
-                        success = true;
-                        break;
-                    }
-                }
-                if (Dungeon.level.locked || Dungeon.depth == 10) {
-                    efficiency *= 0.999;
-                    // 特殊情况只有弱化的掉落
-                    Item gold = new Gold();
-                    gold.quantity(1);
-                    // Dungeon.level.drop(gold, pos);
-                    Dungeon.hero.spend(-TIME_TO_PICK_UP);
-                    gold.doPickUp(Dungeon.hero);
-                    GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
-                    spend(30f);
-                } else if (Dungeon.gold > 3000 && success) {
-                    efficiency *= 0.9;
-                    // 触发百亿补贴
-                    VisualShop visualshop = new VisualShop();
-                    rm_good();
-                    good = visualshop.chooseRandom();
-                    goodHeap = Dungeon.level.drop(good, pospointer);
-                    goodHeap.type = Heap.Type.FOR_SALE;
-                    goodHeap.sprite.hardlight(0xFFFF99);
-                    GLog.p(Messages.get(RingOfDiscount.class, "on_sale"));
-                    Dungeon.hero.resting = false;
-                    Dungeon.hero.interrupt();
-                    spend(30f);
-                } else {
-                    efficiency *= 0.95;
-                    // 触发红包到账
-                    Item gold = new Gold();
-                    gold.quantity(Dungeon.depth * 10);
-                    // Dungeon.level.drop(gold, pos);
-                    Dungeon.hero.spend(-TIME_TO_PICK_UP);
-                    gold.doPickUp(Dungeon.hero);
-                    GLog.p(Messages.get(RingOfDiscount.class, "drop_gold"));
-                    spend(Dungeon.depth);
-                }
-                // 显示光效
-                new Flare(8, 32).color(0x00FFFF, true).show(Dungeon.hero.sprite, 2f);
-            }
-            return super.act();
-        }
     }
 
 }

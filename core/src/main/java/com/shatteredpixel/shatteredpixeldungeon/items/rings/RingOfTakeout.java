@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import static com.shatteredpixel.shatteredpixeldungeon.Dungeon.hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdBonus;
@@ -27,32 +28,9 @@ public class RingOfTakeout extends Ring {
     public String statsInfo() {
         // 依据是否鉴定返回不同信息
         if (isIdentified()) {
-            // 基本统计信息，使用与实际计算一致的公式
-            // 实际计算使用 getBuffedBonus()，它返回所有 buff 的 buffedLvl() 之和
-            // 对于单个戒指，就是 buffedLvl()
-            int actualBonus = buffedLvl();
+            int actualBonus = soloBuffedBonus();
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100 * (1 - Math.pow(0.995, actualBonus)) * efficiency));
-            
-            //组合统计信息，当装备多个同类戒指时显示
-            if (isEquipped(Dungeon.hero)) {
-                // 计算实际装备的同类戒指数量
-                int ringCount = 0;
-                if (Dungeon.hero.belongings.ring1() != null && Dungeon.hero.belongings.ring1().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring2() != null && Dungeon.hero.belongings.ring2().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring3() != null && Dungeon.hero.belongings.ring3().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring4() != null && Dungeon.hero.belongings.ring4().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring5() != null && Dungeon.hero.belongings.ring5().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring6() != null && Dungeon.hero.belongings.ring6().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.misc() != null && Dungeon.hero.belongings.misc().getClass() == getClass()) ringCount++;
-                
-                // 如果有多个戒指，使用 takeoutChance 直接计算实际效果
-                if (ringCount > 1) {
-                    float combinedChance = takeoutChance(Dungeon.hero);
-                    info += "\n\n" + Messages.get(this, "combined_stats",
-                            Messages.decimalFormat("#.##", 100 * combinedChance));
-                }
-            }
+                    Messages.decimalFormat("#.##", 100 * (1 - Math.pow(0.995, actualBonus)) * efficiency()));
             return info;
         } else {// 鉴定前的通用信息
             return Messages.get(this, "typical_stats", 0.5);
@@ -60,12 +38,14 @@ public class RingOfTakeout extends Ring {
     }
 
     public static int eatEffectSatiety(Char target) {
-        int satiety = getBuffedBonus(target, Takeout.class);
-        if (Dungeon.isChallenged(Challenges.NO_FOOD)) {
-            satiety /= 3;
+        int maxLvl = 0;
+        for (Takeout buff : target.buffs(Takeout.class)) {
+            maxLvl = Math.max(maxLvl, buff.buffedLvl());
         }
-        return satiety;
-
+        if (Dungeon.isChallenged(Challenges.NO_FOOD)) {
+            maxLvl /= 3;
+        }
+        return maxLvl;
     }
 
     @Override
@@ -88,70 +68,67 @@ public class RingOfTakeout extends Ring {
     }
 
     public static float takeoutChance(Char target) {// 触发进食的几率
-        return (float) (1 - Math.pow(0.995, getBuffedBonus(target, Takeout.class))) * efficiency;
-    }
-
-    protected static float takeout_cooldown = 0f;// 冷却
-
-    @Override
-    public void storeInBundle(Bundle bundle) {
-        super.storeInBundle(bundle);
-        bundle.put("takeout_cooldown", takeout_cooldown);
-
-    }
-
-    @Override
-    public void restoreFromBundle(Bundle bundle) {
-        super.restoreFromBundle(bundle);
-    }
-
-    // ————————————————戒指效率————————————————
-    private static float efficiency = 1.0f;
-
-    @Override
-    public float efficiency() {
-        return efficiency>1?1:efficiency; // 返回当前类别的共享效率
-    }
-
-    @Override
-    public void efficiency(float x) {
-        x = x > 1 ? 1 : x;
-        x = x < 0 ? 0 : x;
-        efficiency = x;
+        int maxLvl = 0;
+        float eff = 1.0f;
+        for (Takeout buff : target.buffs(Takeout.class)) {
+            int lvl = buff.buffedLvl();
+            if (lvl > maxLvl) {
+                maxLvl = lvl;
+                eff = buff.getRing().efficiency();
+            }
+        }
+        return (float) (1 - Math.pow(0.995, maxLvl)) * eff;
     }
 
     public void charge(float x) {
         float charge = x / 3000;
-        efficiency += (charge + (1f - efficiency) / 5f);
+        efficiency += (charge + (1f - efficiency()) / 5f);
         efficiency = efficiency > 1 ? 1 : efficiency;
     }
-    // ————————————————————————————————————————
+
+    @Override
+    protected float tick() {
+        if (buff == null || !(buff instanceof Takeout)) return Actor.TICK;
+        Takeout t = (Takeout) buff;
+        float chance = (float) (1 - Math.pow(0.995, soloBuffedBonus())) / 10;
+        if ((float)Math.random() < chance * efficiency() * (1f - t.cooldown) && chance > 0 && !Dungeon.level.locked) {
+            efficiency(efficiency() * 0.95f);
+            t.cooldown = 1f;
+            int satiety = soloBuffedBonus();
+            if (Dungeon.isChallenged(Challenges.NO_FOOD)) {
+                satiety /= 3;
+            }
+            if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 3) {
+                Buff.affect(Dungeon.hero, Hunger.class).satisfy(15 + 1.5f * satiety);
+            } else {
+                Buff.affect(Dungeon.hero, Hunger.class).satisfy(10 + 1f * satiety);
+            }
+            Talent.onFoodEaten(hero, satiety, null);
+        } else {
+            t.cooldown -= 0.05f;
+            t.cooldown = t.cooldown < 0 ? 0 : t.cooldown;
+        }
+        return Actor.TICK;
+    }
 
     // 定义RingBuff类
     public class Takeout extends RingBuff {
 
+        private float cooldown = 0f;
+
+        private static final String COOLDOWN = "cooldown";
+
         @Override
-        public boolean act() {
-            // 触发膨胀神券之戒
-            if ((float)Math.random() < RingOfTakeout.takeoutChance(target) * (1f - takeout_cooldown) && RingOfTakeout.takeoutChance(target) > 0 && !Dungeon.level.locked) {
-                efficiency(0.95f * efficiency);
-                takeout_cooldown = 1f;
-                // 膨胀神券戒指的进餐逻辑
-                if (Dungeon.hero.hasTalent(Talent.FOOD_HUNTING) && Dungeon.hero.pointsInTalent(Talent.FOOD_HUNTING) >= 3) {
-                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(15 + 1.5f * RingOfTakeout.eatEffectSatiety(target));
-                } else {
-                    Buff.affect(Dungeon.hero, Hunger.class).satisfy(10 + 1f * RingOfTakeout.eatEffectSatiety(target));
-                }
-                Talent.onFoodEaten(hero, RingOfTakeout.eatEffectSatiety(target), null);
-                spend(TICK);
-                return true;
-            } else {
-                takeout_cooldown -= 0.05f;
-                takeout_cooldown = takeout_cooldown < 0 ? 0 : takeout_cooldown;
-            }
-            return super.act();
+        public void storeInBundle(Bundle bundle) {
+            super.storeInBundle(bundle);
+            bundle.put(COOLDOWN, cooldown);
         }
 
+        @Override
+        public void restoreFromBundle(Bundle bundle) {
+            super.restoreFromBundle(bundle);
+            cooldown = bundle.getFloat(COOLDOWN);
+        }
     }
 
 }

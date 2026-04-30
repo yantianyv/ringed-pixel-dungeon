@@ -40,6 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Camouflage;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.SandalsOfNature;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Berry;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfNahida;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.PetrifiedSeed;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
@@ -165,8 +166,11 @@ public class HighGrass {
                     if (ch != null) {
                         Hero hero = Dungeon.hero;
                         if (hero.buff(RingOfNahida.Nahida.class) != null) {	// 触发纳西妲之戒
-                            RingOfNahida ring = new RingOfNahida();
-                            ring.refresh();
+                            for (Ring r : hero.belongings.getEquippedRings()) {
+                                if (r instanceof RingOfNahida) {
+                                    r.refresh();
+                                }
+                            }
                         }
                     }
                 }

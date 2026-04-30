@@ -31,15 +31,7 @@ public class IronRing extends SpecialRing {
 
             // 组合统计信息，当装备多个同类戒指时显示
             if (isEquipped(Dungeon.hero)) {
-                // 计算实际装备的同类戒指数量
-                int ringCount = 0;
-                if (Dungeon.hero.belongings.ring1() != null && Dungeon.hero.belongings.ring1().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring2() != null && Dungeon.hero.belongings.ring2().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring3() != null && Dungeon.hero.belongings.ring3().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring4() != null && Dungeon.hero.belongings.ring4().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring5() != null && Dungeon.hero.belongings.ring5().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring6() != null && Dungeon.hero.belongings.ring6().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.misc() != null && Dungeon.hero.belongings.misc().getClass() == getClass()) ringCount++;
+                int ringCount = countEquippedRingsOfType(Dungeon.hero, getClass());
                 
                 // 如果有多个戒指，计算组合效果
                 if (ringCount > 1) {
@@ -77,18 +69,6 @@ public class IronRing extends SpecialRing {
         } else {
             return this.buffedLvl() + 1;
         }
-    }
-
-    private static Item getEquippedRing(Char target, Class<? extends Ring> type) {
-        if (target instanceof Hero) {
-            for (Item item : ((Hero) target).belongings) {
-                if (item.getClass() == type && item.isEquipped((Hero) target)) {
-                    return item;
-                }
-            }
-        }
-
-        return null;
     }
 
     public static float maxHurtRate(Char target) {

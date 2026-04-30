@@ -4,6 +4,7 @@ import static java.lang.Math.pow;
 
 import java.util.ArrayList;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char.Alignment;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AllyBuff;
@@ -38,15 +39,7 @@ public class YogRing extends SpecialRing {
 
             // 组合统计信息，当装备多个同类戒指时显示
             if (isEquipped(Dungeon.hero)) {
-                // 计算实际装备的同类戒指数量
-                int ringCount = 0;
-                if (Dungeon.hero.belongings.ring1() != null && Dungeon.hero.belongings.ring1().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring2() != null && Dungeon.hero.belongings.ring2().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring3() != null && Dungeon.hero.belongings.ring3().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring4() != null && Dungeon.hero.belongings.ring4().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring5() != null && Dungeon.hero.belongings.ring5().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.ring6() != null && Dungeon.hero.belongings.ring6().getClass() == getClass()) ringCount++;
-                if (Dungeon.hero.belongings.misc() != null && Dungeon.hero.belongings.misc().getClass() == getClass()) ringCount++;
+                int ringCount = countEquippedRingsOfType(Dungeon.hero, getClass());
                 
                 // 如果有多个戒指，使用 killThreshold 直接计算实际效果
                 if (ringCount > 1) {
@@ -120,31 +113,26 @@ public class YogRing extends SpecialRing {
         return (float) (1 - (pow(0.9, getBuffedBonus(target, Yogring.class)))) / 2;
     }
 
-    // 定义RingBuff类
-    public class Yogring extends RingBuff {
-        @Override
-        public boolean act() {
-            float threshold = killThreshold(Dungeon.hero);
-            // 确保戒指有效
-            if (threshold > 0) {
-                // 遍历场上的所有敌人（使用副本避免并发修改）
-                for (Char ch : new ArrayList<>(Dungeon.level.mobs)) {
-                    if (ch.alignment == Alignment.ENEMY && (float) ch.HP / ch.HT < threshold && ch.isAlive() && ch.HP >0) {
-                        if (Random.Float(1) < YogRing.corruptionChance(Dungeon.hero)
-                                && !ch.isImmune(Corruption.class)) {
-                            Corruption.corruptionHeal(ch);
-                            AllyBuff.affectAndLoot((Mob) ch, Dungeon.hero, Corruption.class);
-                        } else {
-                            // GLog.p(YogRing.corruptionChance(this) + "");
-                            ch.damage(ch.HP, this);
-                            // 添加伏击的视觉效果
-                            Wound.hit(ch);
-                        }
+    @Override
+    protected float tick() {
+        float threshold = killThreshold(Dungeon.hero);
+        if (threshold > 0) {
+            for (Char ch : new ArrayList<>(Dungeon.level.mobs)) {
+                if (ch.alignment == Alignment.ENEMY && (float) ch.HP / ch.HT < threshold && ch.isAlive() && ch.HP > 0) {
+                    if (Random.Float(1) < YogRing.corruptionChance(Dungeon.hero)
+                            && !ch.isImmune(Corruption.class)) {
+                        Corruption.corruptionHeal(ch);
+                        AllyBuff.affectAndLoot((Mob) ch, Dungeon.hero, Corruption.class);
+                    } else {
+                        ch.damage(ch.HP, this);
+                        Wound.hit(ch);
                     }
                 }
             }
-            spend(0.1f*TICK);
-            return true;
         }
+        return 0.1f * Actor.TICK;
+    }
+
+    public class Yogring extends RingBuff {
     }
 }

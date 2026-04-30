@@ -142,6 +142,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.PotionOfDiv
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.DarkGold;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.OriginGem;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
@@ -550,12 +551,12 @@ public class Hero extends Char {
 
         float accuracy = 1;
         if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
-            new RingOfAgility().efficiency_multy(0.9f);
+            Ring.multyEfficiencyAllEquippedOfType(this, RingOfAgility.class, 0.9f);
             return INFINITE_ACCURACY;
         } else if (Random.Float(1) < -RingOfAgility.agilityChance(this)) {
             return 0;
         } else {
-            new RingOfAgility().refresh();
+            Ring.refreshAllEquippedOfType(this, RingOfAgility.class);
         }
         if (wep instanceof MissileWeapon) {
             if (buff(Momentum.class) != null && buff(Momentum.class).freerunning()) {
@@ -629,12 +630,12 @@ public class Hero extends Char {
         float evasion = defenseSkill;
 
         if (Random.Float(1) < RingOfAgility.agilityChance(this)) {
-            new RingOfAgility().efficiency_multy(0.9f);
+            Ring.multyEfficiencyAllEquippedOfType(this, RingOfAgility.class, 0.9f);
             return INFINITE_EVASION;
         } else if (Random.Float(1) < -RingOfAgility.agilityChance(this)) {
             return 0;
         } else {
-            new RingOfAgility().refresh();
+            Ring.refreshAllEquippedOfType(this, RingOfAgility.class);
         }
 
         if (buff(Talent.LiquidAgilEVATracker.class) != null) {
@@ -2277,7 +2278,7 @@ public class Hero extends Char {
         }
         // 百亿补贴之戒
         if (buff(RingOfDiscount.Discount.class) != null) {
-            new RingOfDiscount().refresh();
+            Ring.refreshAllEquippedOfType(this, RingOfDiscount.class);
         }
 
         //xp granted by ascension challenge is only for on-exp gain effects

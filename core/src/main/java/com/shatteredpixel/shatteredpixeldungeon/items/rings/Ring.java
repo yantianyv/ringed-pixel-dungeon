@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.EnhancedRings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.SpiritForm;
@@ -52,12 +53,10 @@ import com.watabou.utils.Random;
 
 public abstract class Ring extends KindofMisc {
 
-    {
-        efficiency(1f);
-    }
-
     protected Buff buff;
     protected Class<? extends RingBuff> buffClass;
+
+    protected float efficiency = 1.0f;
 
     private static final LinkedHashMap<String, Integer> gems = new LinkedHashMap<String, Integer>() {
         {
@@ -131,22 +130,7 @@ public abstract class Ring extends KindofMisc {
         public String info() {
             return "";
         }
-        // ————————————————戒指效率————————————————
-        private static float efficiency = 1.0f;
-
-        @Override
-        public float efficiency() {
-            return efficiency; // 返回当前类别的共享效率
-        }
-
-        @Override
-        public void efficiency(float x) {
-            x = x > 1 ? 1 : x;
-            x = x < 0 ? 0 : x;
-            efficiency = x;
-        }
-
-        // ————————————————————————————————————————
+        // PlaceHolder inherits default efficiency from Ring
     }
     //anonymous rings are always IDed, do not affect ID status,
     //and their sprite is replaced by a placeholder if they are not known,
@@ -290,7 +274,10 @@ public abstract class Ring extends KindofMisc {
 
     @Override
     public Item upgrade() {
-        if (cursed == true) {
+        // Note: isUpgradable() only returns true when the ring is cursed and curse is known.
+        // Therefore this branch handles the "upgrade a cursed ring" case, which actually
+        // removes the curse and may drop a bonus item, but does NOT increase the ring's level.
+        if (cursed) {
             if (Random.Int(2) != 0) {
                 if (Dungeon.level != null) {
                     Dungeon.level.drop(new StoneOfEnchantment(), Dungeon.hero.pos).sprite.drop();
@@ -302,11 +289,11 @@ public abstract class Ring extends KindofMisc {
                 }
             }
             cursed = false;
-
+            // Level is intentionally NOT increased here. The "upgrade" action on a cursed ring
+            // acts as curse removal with a possible bonus drop.
         } else {
             super.upgrade();
         }
-
         return this;
     }
 
@@ -499,26 +486,10 @@ public abstract class Ring extends KindofMisc {
     //just used for ring descriptions
     public int combinedBonus(Hero hero) {
         int bonus = 0;
-        if (hero.belongings.ring6() != null && hero.belongings.ring6().getClass() == getClass()) {
-            bonus += hero.belongings.ring6().soloBonus();
-        }
-        if (hero.belongings.ring5() != null && hero.belongings.ring5().getClass() == getClass()) {
-            bonus += hero.belongings.ring5().soloBonus();
-        }
-        if (hero.belongings.ring4() != null && hero.belongings.ring4().getClass() == getClass()) {
-            bonus += hero.belongings.ring4().soloBonus();
-        }
-        if (hero.belongings.ring3() != null && hero.belongings.ring3().getClass() == getClass()) {
-            bonus += hero.belongings.ring3().soloBonus();
-        }
-        if (hero.belongings.ring2() != null && hero.belongings.ring2().getClass() == getClass()) {
-            bonus += hero.belongings.ring2().soloBonus();
-        }
-        if (hero.belongings.ring1() != null && hero.belongings.ring1().getClass() == getClass()) {
-            bonus += hero.belongings.ring1().soloBonus();
-        }
-        if (hero.belongings.misc() != null && hero.belongings.misc().getClass() == getClass()) {
-            bonus += ((Ring) hero.belongings.misc()).soloBonus();
+        for (Ring r : hero.belongings.getEquippedRings()) {
+            if (r.getClass() == getClass()) {
+                bonus += r.soloBonus();
+            }
         }
         return bonus;
     }
@@ -526,26 +497,10 @@ public abstract class Ring extends KindofMisc {
     //just used for ring descriptions
     public int combinedBuffedBonus(Hero hero) {
         int bonus = 0;
-        if (hero.belongings.ring6() != null && hero.belongings.ring6().getClass() == getClass()) {
-            bonus += hero.belongings.ring6().soloBuffedBonus();
-        }
-        if (hero.belongings.ring5() != null && hero.belongings.ring5().getClass() == getClass()) {
-            bonus += hero.belongings.ring5().soloBuffedBonus();
-        }
-        if (hero.belongings.ring4() != null && hero.belongings.ring4().getClass() == getClass()) {
-            bonus += hero.belongings.ring4().soloBuffedBonus();
-        }
-        if (hero.belongings.ring3() != null && hero.belongings.ring3().getClass() == getClass()) {
-            bonus += hero.belongings.ring3().soloBuffedBonus();
-        }
-        if (hero.belongings.ring2() != null && hero.belongings.ring2().getClass() == getClass()) {
-            bonus += hero.belongings.ring2().soloBuffedBonus();
-        }
-        if (hero.belongings.ring1() != null && hero.belongings.ring1().getClass() == getClass()) {
-            bonus += hero.belongings.ring1().soloBuffedBonus();
-        }
-        if (hero.belongings.misc() != null && hero.belongings.misc().getClass() == getClass()) {
-            bonus += ((Ring) hero.belongings.misc()).soloBuffedBonus();
+        for (Ring r : hero.belongings.getEquippedRings()) {
+            if (r.getClass() == getClass()) {
+                bonus += r.soloBuffedBonus();
+            }
         }
         return bonus;
     }
@@ -557,19 +512,65 @@ public abstract class Ring extends KindofMisc {
     }
 
     // ————————————————效率相关代码————————————————
-    // 抽象方法：获取效率（子类必须实现）
-    public abstract float efficiency();
+    public float efficiency() {
+        return efficiency;
+    }
 
-    // 抽象方法：设置效率（子类必须实现）
-    public abstract void efficiency(float value);
+    public void efficiency(float value) {
+        value = value > 1 ? 1 : value;
+        value = value < 0 ? 0 : value;
+        this.efficiency = value;
+    }
 
-    // 默认方法：重置效率（子类可选择覆盖）
     public void refresh() {
-        efficiency(1.0f); // 默认重置为1.0
+        efficiency(1.0f);
     }
 
     public void efficiency_multy(float value) {
         efficiency(efficiency() * value);
+    }
+
+    public static float getAverageEfficiency(Char target, Class<? extends RingBuff> buffClass) {
+        float weightedTotal = 0;
+        float totalWeight = 0;
+        for (RingBuff buff : target.buffs(buffClass)) {
+            float weight = Math.max(1, buff.buffedLvl());
+            weightedTotal += buff.getRing().efficiency() * weight;
+            totalWeight += weight;
+        }
+        return totalWeight > 0 ? weightedTotal / totalWeight : 1.0f;
+    }
+
+    public static int countEquippedRingsOfType(Hero hero, Class<? extends Ring> type) {
+        int count = 0;
+        for (Ring r : hero.belongings.getEquippedRings()) {
+            if (r.getClass() == type) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static void refreshAllEquippedOfType(Hero hero, Class<? extends Ring> type) {
+        for (Ring r : hero.belongings.getEquippedRings()) {
+            if (r.getClass() == type) {
+                r.refresh();
+            }
+        }
+    }
+
+    public static void multyEfficiencyAllEquippedOfType(Hero hero, Class<? extends Ring> type, float value) {
+        for (Ring r : hero.belongings.getEquippedRings()) {
+            if (r.getClass() == type) {
+                r.efficiency_multy(value);
+            }
+        }
+    }
+
+    // Called by RingBuff.act() each tick. Only trigger-type rings (e.g. Takeout, Discount)
+    // override this to perform per-tick logic. Return value is the time to spend.
+    protected float tick() {
+        return Actor.TICK;
     }
 
     // ———————————————————————————————————————————
@@ -589,7 +590,8 @@ public abstract class Ring extends KindofMisc {
 
         @Override
         public boolean act() {
-            spend(TICK);
+            float time = Ring.this.tick();
+            spend(time);
             return true;
         }
 
@@ -599,6 +601,10 @@ public abstract class Ring extends KindofMisc {
 
         public int buffedLvl() {
             return Ring.this.soloBuffedBonus();
+        }
+
+        public Ring getRing() {
+            return Ring.this;
         }
     }
 }

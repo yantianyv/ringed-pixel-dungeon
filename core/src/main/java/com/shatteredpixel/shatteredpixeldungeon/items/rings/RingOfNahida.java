@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -18,11 +19,11 @@ public class RingOfNahida extends Ring {
         if (isIdentified()) {
             // 基本统计信息，其中soloBuffedBonus()是当前戒指等级
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100 * (Math.pow(1+0.1*efficiency, soloBuffedBonus()))));
+                    Messages.decimalFormat("#.##", 100 * (Math.pow(1+0.1*efficiency(), soloBuffedBonus()))));
             //组合统计信息，其中combinedBuffedBonus(Dungeon.hero)是所有已装备同类戒指的等级之和
             if (isEquipped(Dungeon.hero) && soloBuffedBonus() != combinedBuffedBonus(Dungeon.hero)) {
                 info += "\n\n" + Messages.get(this, "combined_stats",
-                        Messages.decimalFormat("#.##", 100 * (Math.pow(1+0.1*efficiency, combinedBuffedBonus(Dungeon.hero)))));
+                        Messages.decimalFormat("#.##", 100 * (Math.pow(1+0.1*efficiency(), combinedBuffedBonus(Dungeon.hero)))));
             }
             return info;
         } else {// 鉴定前的通用信息
@@ -38,43 +39,26 @@ public class RingOfNahida extends Ring {
 
     // 元素精通
     public static float elementalMastery(Char target) {
-        return (float) Math.pow(1+0.1f * efficiency, getBuffedBonus(target, Nahida.class)) ;
+        return (float) Math.pow(1+0.1f * getAverageEfficiency(target, Nahida.class), getBuffedBonus(target, Nahida.class));
     }
 
     // 附魔加强
     public static float enchantPowerMultiplier(Char target) {
-        return (float) Math.pow(1 + 0.1f * efficiency, getBuffedBonus(target, Nahida.class));
-    }
-    // ————————————————戒指效率————————————————
-    private static float efficiency = 1.0f;
-
-    @Override
-    public float efficiency() {
-        return efficiency;
+        return (float) Math.pow(1 + 0.1f * getAverageEfficiency(target, Nahida.class), getBuffedBonus(target, Nahida.class));
     }
 
-    @Override
-    public void efficiency(float x) {
-        efficiency = x;
-    }
-
-
-
-    public void refresh(float x) {
+    public void recharge(float x) {
         efficiency += 0.1;
         efficiency = efficiency > 1 ? 1 : efficiency;
     }
 
-    // ————————————————————————————————————————
-    // 定义RingBuff类
-    public class Nahida extends RingBuff {
+    @Override
+    protected float tick() {
+        efficiency *= 0.999;
+        return Actor.TICK;
+    }
 
-        @Override
-        public boolean act() {
-            efficiency *= 0.999;
-            spend(TICK);
-            return true;
-        }
+    public class Nahida extends RingBuff {
     }
 
 }

@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 import java.util.HashSet;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Electricity;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
@@ -104,7 +105,7 @@ public class RingOfDefender extends Ring {
         //(HT - HP)/HT = heroes current % missing health.
         // float effect_rate = Math.max(((float) (t.HT - t.HP) / t.HT), getBuffedBonus(t, Defender.class) * 0.01f);
         // effect_rate = effect_rate < 1f ? effect_rate : 1f;
-        return (float) Math.pow(0.85, getBuffedBonus(t, Defender.class) * efficiency);
+        return (float) Math.pow(0.85, getBuffedBonus(t, Defender.class) * getAverageEfficiency(t, Defender.class));
     }
 
     public static final HashSet<Class> RESISTS = new HashSet<>();
@@ -133,7 +134,7 @@ public class RingOfDefender extends Ring {
             if (c.isAssignableFrom(effect)) {
                 // float effect_rate = Math.max(((float) (target.HP) / target.HT), getBuffedBonus(target, Defender.class) * 0.01f);
                 // effect_rate = effect_rate < 1f ? effect_rate : 1f;
-                return (float) Math.pow(0.85, getBuffedBonus(target, Resistance.class) * efficiency);
+                return (float) Math.pow(0.85, getBuffedBonus(target, Resistance.class) * getAverageEfficiency(target, Resistance.class));
             }
         }
 
@@ -143,31 +144,15 @@ public class RingOfDefender extends Ring {
     public static float HTAddition(Char target) {
         return (float) Math.pow(getBuffedBonus(target, Defender.class) * 1.5, 1);
     }
-    // ————————————————戒指效率————————————————
-    private static float efficiency = 1.0f;
 
     @Override
-    public float efficiency() {
-        return efficiency; // 返回当前类别的共享效率
+    protected float tick() {
+        float target_efficiency = 1f - Dungeon.hero.HP / (float) Dungeon.hero.HT;
+        efficiency = efficiency < target_efficiency ? target_efficiency : efficiency * 0.99f + target_efficiency * 0.01f;
+        return Actor.TICK;
     }
 
-    @Override
-    public void efficiency(float x) {
-        x = x > 1 ? 1 : x;
-        x = x < 0 ? 0 : x;
-        efficiency = x;
-    }
-
-    // ————————————————————————————————————————
     public class Defender extends RingBuff {
-
-        @Override
-        public boolean act() {
-            float target_efficiency = 1f - Dungeon.hero.HP / (float) Dungeon.hero.HT;
-            efficiency = efficiency < target_efficiency ? target_efficiency : efficiency * 0.99f + target_efficiency * 0.01f;
-            spend(TICK);
-            return true;
-        }
     }
 
     public class Resistance extends RingBuff {

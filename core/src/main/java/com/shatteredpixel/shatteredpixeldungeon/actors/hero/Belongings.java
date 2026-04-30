@@ -208,6 +208,18 @@ public class Belongings implements Iterable<Item> {
         }
     }
 
+    public ArrayList<Ring> getEquippedRings() {
+        ArrayList<Ring> rings = new ArrayList<>();
+        if (ring1() != null) rings.add(ring1());
+        if (ring2() != null) rings.add(ring2());
+        if (ring3() != null) rings.add(ring3());
+        if (ring4() != null) rings.add(ring4());
+        if (ring5() != null) rings.add(ring5());
+        if (ring6() != null) rings.add(ring6());
+        if (misc() instanceof Ring) rings.add((Ring) misc());
+        return rings;
+    }
+
     public KindOfWeapon secondWep() {
         if (!lostInventory() || (secondWep != null && secondWep.keptThroughLostInventory())) {
             return secondWep;
