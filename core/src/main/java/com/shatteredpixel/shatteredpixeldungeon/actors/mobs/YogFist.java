@@ -399,7 +399,7 @@ public abstract class YogFist extends Mob {
 
 			if (Dungeon.level.water[pos] && HP < HT) {
 				sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(HT/50), FloatingText.HEALING);
-				HP = Math.min(HT, HP + HT/50);
+				heal(HT/50, this);
 			}
 
 			return super.act();

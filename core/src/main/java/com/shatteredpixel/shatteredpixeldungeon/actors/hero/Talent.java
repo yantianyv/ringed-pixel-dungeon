@@ -855,7 +855,7 @@ public enum Talent {
         // 丰盛一餐
         if (hero.hasTalent(HEARTY_MEAL)) {
             int healing = (hero.HT - hero.HP) * hero.pointsInTalent(HEARTY_MEAL) / 100 + hero.pointsInTalent(HEARTY_MEAL);
-            hero.HP = Math.min(hero.HP + healing, hero.HT);
+            hero.heal(healing, Talent.HEARTY_MEAL);
             hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healing), FloatingText.HEALING);
         }// 钢铁之胃
         if (hero.hasTalent(IRON_STOMACH)) {

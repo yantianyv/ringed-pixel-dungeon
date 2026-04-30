@@ -265,9 +265,9 @@ public abstract class Mob extends Char {
         // 自然回复
         if (!enemyInFOV) {
             if (!Dungeon.level.locked && HP < HT) {
-                HP += (HT - HP) / 50;
+                heal((HT - HP) / 50, this);
                 if (Random.Int(50) < (HT - HP) % 50) {
-                    HP += 1;
+                    heal(1, this);
                 }
             }
         }
@@ -896,7 +896,7 @@ public abstract class Mob extends Char {
 
                 if (Dungeon.hero.HP < Dungeon.hero.HT) {
                     int heal = (int) Math.ceil(restoration * 0.4f);
-                    Dungeon.hero.HP = Math.min(Dungeon.hero.HT, Dungeon.hero.HP + heal);
+                    Dungeon.hero.heal(heal, this);
                     Dungeon.hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(heal), FloatingText.HEALING);
                 }
             }
@@ -1543,9 +1543,9 @@ public abstract class Mob extends Char {
                 target = enemy.pos;
                 invisibility(1);
             } else if (HP < HT / 2) {
-                HP += HT / 100;
+                heal(HT / 100, this);
                 if (HT % 100 > Random.Int(100)) {
-                    HP++;
+                    heal(1, this);
                 }
             }
             int oldPos = pos;

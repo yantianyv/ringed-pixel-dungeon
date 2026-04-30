@@ -53,7 +53,7 @@ public class WellFed extends Buff {
 			}
 			return true;
 		} else if (left % 18 == 0 && target.HP < target.HT){
-			target.HP += 1;
+				target.heal(1, this);
 			target.sprite.showStatusWithIcon(CharSprite.POSITIVE, "1", FloatingText.HEALING);
 
 			if (target.HP == target.HT && target instanceof Hero) {

@@ -1177,6 +1177,18 @@ public abstract class Char extends Actor {
         }
     }
 
+    public int heal(int amount, Object src) {
+        if (!isAlive() || amount <= 0) return 0;
+        int actualHeal = Math.min(amount, HT - HP);
+        if (actualHeal > 0) {
+            HP += actualHeal;
+            if (this instanceof Hero && HP >= HT) {
+                ((Hero) this).resting = false;
+            }
+        }
+        return actualHeal;
+    }
+
     //these are misc. sources of physical damage which do not apply armor, they get a different icon
     private static HashSet<Class> NO_ARMOR_PHYSICAL_SOURCES = new HashSet<>();
 

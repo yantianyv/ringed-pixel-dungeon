@@ -86,16 +86,13 @@ public class Regeneration extends Buff {
                 partialRegen += 1f / delay;
 
                 if (partialRegen >= 1) {
-                    target.HP += (int)partialRegen;
+                    target.heal((int)partialRegen, this);
                     ChaliceOfBlood.chaliceRegen cob = Dungeon.hero.buff(ChaliceOfBlood.chaliceRegen.class);
                     if (cob != null) {
                         cob.gainCharge(1);
                     }
                     partialRegen -= (int)partialRegen;
-                    if (target.HP >= regencap()) {
-						target.HP = regencap();
-                        ((Hero) target).resting = false;
-                    }
+
                 }
 
             }

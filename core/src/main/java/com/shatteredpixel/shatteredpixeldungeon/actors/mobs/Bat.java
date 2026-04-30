@@ -78,7 +78,7 @@ public class Bat extends Mob {
 		int reg = Math.min( damage - 4, HT - HP );
 		
 		if (reg > 0) {
-			HP += reg;
+			heal(reg, this);
 			sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(reg), FloatingText.HEALING);
 		}
 		
