@@ -106,7 +106,7 @@ public class WandOfTransfusion extends DamageWand {
 					shielding = 0;
 				}
 
-				ch.HP += healing;
+				ch.heal(healing, this);
 
 				ch.sprite.emitter().burst(Speck.factory(Speck.HEALING), 2 + buffedLvl() / 2);
 				if (healing > 0) {

@@ -292,7 +292,7 @@ public class Hero extends Char {
         }
         // 计算因生命上限增加获得的额外生命
         if (boostHP) {
-            HP += Math.max(HT - curHT, 0);
+            heal(Math.max(HT - curHT, 0), this);
         }
         HT = HT > 10 ? HT : 10;
         HP = Math.min(HP, HT);

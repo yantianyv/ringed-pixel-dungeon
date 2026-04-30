@@ -83,7 +83,7 @@ public class Hunger extends Buff implements Hero.Doom {
             if (hero.subClass == HeroSubClass.MUKBANGER && full() >= 3000) {
                 float x = full() / 1000;
                 level += x;
-                hero.HP += Math.log(1 + x) / Math.log(2);
+                hero.heal((int)(Math.log(1 + x) / Math.log(2)), this);
                 hero.updateHT(false);
             }// 触发极度饥饿结算 
             else if (isStarving()) {

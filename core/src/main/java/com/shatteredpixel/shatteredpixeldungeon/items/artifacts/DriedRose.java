@@ -338,7 +338,7 @@ public class DriedRose extends Artifact {
             }
         } else if (ghost.HP < ghost.HT) {
             int heal = Math.round((1 + level() / 3f) * amount);
-            ghost.HP = Math.min(ghost.HT, ghost.HP + heal);
+            ghost.heal(heal, this);
             if (ghost.sprite != null) {
                 ghost.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(heal), FloatingText.HEALING);
             }
@@ -695,7 +695,7 @@ public class DriedRose extends Artifact {
             if (buff(WeddingRing.Weddingring.class) != null) {
                 int heal = (int) (damage * WeddingRing.ghostPower(Dungeon.hero));
                 heal = HP + heal > HT ? HT - HP : heal;
-                HP += heal;
+                heal(heal, this);
             }
 
             return damage;
