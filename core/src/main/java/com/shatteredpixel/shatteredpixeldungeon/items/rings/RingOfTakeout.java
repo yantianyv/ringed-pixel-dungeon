@@ -11,6 +11,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdBonus.AdType;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.utils.Bundle;
@@ -28,13 +29,39 @@ public class RingOfTakeout extends Ring {
     public String statsInfo() {
         // 依据是否鉴定返回不同信息
         if (isIdentified()) {
-            int actualBonus = soloBuffedBonus();
+            float interval = expectedTriggerInterval();
+            if (interval > 99999f) {
+                return Messages.get(this, "stats", "∞");
+            }
             String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", 100 * (1 - Math.pow(0.995, actualBonus)) * efficiency()));
+                    Messages.decimalFormat("#.##", interval));
             return info;
         } else {// 鉴定前的通用信息
-            return Messages.get(this, "typical_stats", 0.5);
+            float typicalP = (float) (1 - Math.pow(0.995, 2));
+            float typicalInterval = expectedTriggerInterval(typicalP, 1.0f);
+            return Messages.get(this, "typical_stats",
+                    Messages.decimalFormat("#.##", typicalInterval));
         }
+    }
+
+    private float expectedTriggerInterval() {
+        int actualBonus = soloBuffedBonus();
+        float p = (float) (1 - Math.pow(0.995, actualBonus)) * efficiency();
+        return expectedTriggerInterval(p, 1.0f);
+    }
+
+    private static float expectedTriggerInterval(float p, float startCooldown) {
+        if (p <= 0) return Float.MAX_VALUE;
+        float[] S = new float[21];
+        S[0] = 1f / p;
+        for (int i = 1; i <= 20; i++) {
+            float c = i * 0.05f;
+            float triggerProb = p * (1f - c);
+            S[i] = 1f + (1f - triggerProb) * S[i - 1];
+        }
+        int idx = Math.round(startCooldown / 0.05f);
+        idx = Math.max(0, Math.min(20, idx));
+        return S[idx];
     }
 
     public static int eatEffectSatiety(Char target) {
@@ -90,7 +117,7 @@ public class RingOfTakeout extends Ring {
     protected float tick() {
         if (buff == null || !(buff instanceof Takeout)) return Actor.TICK;
         Takeout t = (Takeout) buff;
-        float chance = (float) (1 - Math.pow(0.995, soloBuffedBonus())) / 10;
+        float chance = (float) (1 - Math.pow(0.995, soloBuffedBonus()));
         if ((float)Math.random() < chance * efficiency() * (1f - t.cooldown) && chance > 0 && !Dungeon.level.locked) {
             efficiency(efficiency() * 0.95f);
             t.cooldown = 1f;
@@ -103,7 +130,12 @@ public class RingOfTakeout extends Ring {
             } else {
                 Buff.affect(Dungeon.hero, Hunger.class).satisfy(10 + 1f * satiety);
             }
+            boolean hadHealth = hero.buff(Sungrass.Health.class) != null;
             Talent.onFoodEaten(hero, satiety, null);
+            Sungrass.Health h = hero.buff(Sungrass.Health.class);
+            if (h != null && !hadHealth && hero.resting) {
+                h.setAutoTriggered(true);
+            }
         } else {
             t.cooldown -= 0.05f;
             t.cooldown = t.cooldown < 0 ? 0 : t.cooldown;

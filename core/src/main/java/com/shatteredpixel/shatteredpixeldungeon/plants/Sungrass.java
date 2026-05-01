@@ -79,6 +79,7 @@ public class Sungrass extends Plant {
 		private int pos;
 		private float partialHeal;
 		private int level;
+		private boolean autoTriggered = false;
 
 		{
 			type = buffType.POSITIVE;
@@ -100,17 +101,21 @@ public class Sungrass extends Plant {
 				level -= healThisTurn;
 
 				if (target.HP < target.HT) {
-
+					boolean wasResting = false;
+					if (target instanceof Hero) {
+						wasResting = ((Hero)target).resting;
+					}
 					target.heal(healThisTurn, this);
+					if (autoTriggered && target instanceof Hero) {
+						((Hero)target).resting = wasResting;
+					}
 					target.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healThisTurn), FloatingText.HEALING);
-
-
 				}
 			}
 			
 			if (level <= 0) {
 				detach();
-				if (target instanceof Hero){
+				if (target instanceof Hero && !autoTriggered){
 					((Hero)target).resting = false;
 				}
 			}
@@ -123,6 +128,10 @@ public class Sungrass extends Plant {
 				level += amount;
 				pos = target.pos;
 			}
+		}
+		
+		public void setAutoTriggered( boolean value ){
+			autoTriggered = value;
 		}
 		
 		@Override
