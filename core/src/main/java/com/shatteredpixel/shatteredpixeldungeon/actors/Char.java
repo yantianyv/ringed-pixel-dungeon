@@ -125,6 +125,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.PotionOfCle
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
@@ -1180,6 +1181,7 @@ public abstract class Char extends Actor {
 
     public int heal(int amount, Object src) {
         if (!isAlive() || amount <= 0) return 0;
+        amount = Math.round(amount * RingOfHeal.healMultiplier(this)); // 妙手回春之戒加成
         int actualHeal = Math.min(amount, HT - HP);
         if (actualHeal > 0) {
             HP += actualHeal;
