@@ -1567,25 +1567,23 @@ public class GameScene extends PixelScene {
     }
 
     private void trackTurnStuck() {
-        if (Actor.processing()) {
-            Actor cur = Actor.current();
-            if (cur != null) {
-                if (cur == lastStuckActor && cur.time() == lastStuckActorTime) {
-                    stuckTimer += Game.elapsed;
-                    if (!turnStuck && stuckTimer > TURN_STUCK_THRESHOLD) {
-                        turnStuck = true;
-                        // 诊断与保险：记录卡死 actor 并尝试中断线程
-                        GLog.n("Turn stuck detected on " + describeActor(cur));
-                        if (actorThread != null) {
-                            actorThread.interrupt();
-                        }
-                    }
-                } else {
-                    lastStuckActor = cur;
-                    lastStuckActorTime = cur.time();
-                    stuckTimer = 0f;
-                    turnStuck = false;
+        Actor cur = Actor.processing() ? Actor.current() : null;
+        // 等待玩家输入时不判定卡死
+        if (cur == Dungeon.hero && Dungeon.hero.ready
+                && actorThread != null && actorThread.isAlive()) {
+            cur = null;
+        }
+        if (cur != null) {
+            if (cur == lastStuckActor && cur.time() == lastStuckActorTime) {
+                stuckTimer += Game.elapsed;
+                if (!turnStuck && stuckTimer > TURN_STUCK_THRESHOLD) {
+                    turnStuck = true;
                 }
+            } else {
+                lastStuckActor = cur;
+                lastStuckActorTime = cur.time();
+                stuckTimer = 0f;
+                turnStuck = false;
             }
         } else {
             stuckTimer = 0f;
