@@ -118,6 +118,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.BloomingRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
@@ -280,6 +281,8 @@ public class Hero extends Char {
         // 计算江东铁壁之戒提供的基础生命上限
         float addition = RingOfDefender.HTAddition(this);
         HT = Math.round(HT + addition);
+        // 计算永绽玫瑰提供的生命上限
+        HT += BloomingRose.htBoost(this);
         // 计算蓄意轰拳之戒提供的生命上限倍增
         float multiplier = RingOfKungfu.HTMultiplier(this);
         HT = Math.round(multiplier * HT);
@@ -303,6 +306,7 @@ public class Hero extends Char {
         int strBonus = 0;
 
         strBonus += RingOfKungfu.strengthBonus(this);
+        strBonus += BloomingRose.strBonus(this);
 
         AdrenalineSurge buff = buff(AdrenalineSurge.class);
         if (buff != null) {
@@ -1622,7 +1626,15 @@ public class Hero extends Char {
 			break;
 		default:
 		}
-		
+
+        // 永绽玫瑰的吸血
+        if (damage > 0) {
+            int heal = (int) (damage * BloomingRose.lifesteal(this));
+            if (heal > 0) {
+                heal(Math.min(heal, HT - HP), this);
+            }
+        }
+
 		return damage;
 	}
 	
@@ -1820,6 +1832,15 @@ public class Hero extends Char {
         
         //计算实际受到的伤害
         super.damage(dmg, src);
+
+        // 永绽玫瑰的反伤
+        if (src instanceof Mob && src != this) {
+            int rec = (int) (dmg * BloomingRose.reflect(this));
+            if (rec > 0) {
+                ((Mob) src).damage(rec, this);
+            }
+        }
+
         int postHP = HP + shielding();
         if (src instanceof Hunger) {
             postHP -= shielding();

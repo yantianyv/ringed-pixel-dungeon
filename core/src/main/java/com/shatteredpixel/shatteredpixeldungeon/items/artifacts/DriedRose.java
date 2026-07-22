@@ -29,8 +29,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.CorrosiveGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AllyBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invulnerability;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Regeneration;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
@@ -43,7 +45,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
@@ -77,6 +81,7 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.IconTitle;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoItem;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndQuest;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndUseItem;
 import com.watabou.noosa.Game;
@@ -125,7 +130,8 @@ public class DriedRose extends Artifact {
             RingOfHeal.class,
             RingOfKungfu.class,
             RingOfNahida.class,
-            RingOfTimetraveler.class
+            RingOfTimetraveler.class,
+            WeddingRing.class
     ));
 
     public int droppedPetals = 0;
@@ -133,6 +139,20 @@ public class DriedRose extends Artifact {
     public static final String AC_SUMMON = "SUMMON";
     public static final String AC_DIRECT = "DIRECT";
     public static final String AC_OUTFIT = "OUTFIT";
+    public static final String AC_RELEASE = "RELEASE";
+
+    // 幽妹佩戴婚戒且持有祝福十字架时可超度
+    private boolean canRelease(Hero hero) {
+        if (cursed || !(ring1 instanceof WeddingRing || ring2 instanceof WeddingRing)) {
+            return false;
+        }
+        for (Ankh ankh : hero.belongings.getAllItems(Ankh.class)) {
+            if (ankh.isBlessed()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public ArrayList<String> actions(Hero hero) {
@@ -152,6 +172,9 @@ public class DriedRose extends Artifact {
         }
         if (isIdentified() && !cursed) {
             actions.add(AC_OUTFIT);
+        }
+        if (Ghost.Quest.completed() && canRelease(hero)) {
+            actions.add(AC_RELEASE);
         }
 
         return actions;
@@ -245,7 +268,99 @@ public class DriedRose extends Artifact {
 
         } else if (action.equals(AC_OUTFIT)) {
             GameScene.show(new WndGhostHero(this));
+        } else if (action.equals(AC_RELEASE)) {
+            GameScene.show(new WndOptions(
+                    Messages.get(DriedRose.class, "release_confirm_title"),
+                    Messages.get(DriedRose.class, "release_confirm_message"),
+                    Messages.get(DriedRose.class, "release_confirm_yes"),
+                    Messages.get(DriedRose.class, "release_confirm_no")) {
+                @Override
+                protected void onSelect(int index) {
+                    if (index == 0) {
+                        release(hero);
+                    }
+                }
+            });
         }
+    }
+
+    // 超度仪式：消耗祝福十字架与婚戒，玫瑰升华为永绽玫瑰
+    private void release(Hero hero) {
+        Ankh ankh = null;
+        for (Ankh a : hero.belongings.getAllItems(Ankh.class)) {
+            if (a.isBlessed()) {
+                ankh = a;
+                break;
+            }
+        }
+        if (ankh == null || !(ring1 instanceof WeddingRing || ring2 instanceof WeddingRing)) {
+            return;
+        }
+        ankh.detach(hero.belongings.backpack);
+
+        int weddingLevel = 0;
+        if (weapon != null) {
+            if (!weapon.doPickUp(hero)) Dungeon.level.drop(weapon, hero.pos);
+            weapon = null;
+        }
+        if (armor != null) {
+            if (!armor.doPickUp(hero)) Dungeon.level.drop(armor, hero.pos);
+            armor = null;
+        }
+        if (ring1 != null) {
+            if (ring1 instanceof WeddingRing) {
+                weddingLevel = Math.max(weddingLevel, ring1.level());
+                ring1.deactivate();
+            } else {
+                ring1.deactivate();
+                if (!ring1.doPickUp(hero)) Dungeon.level.drop(ring1, hero.pos);
+            }
+            ring1 = null;
+        }
+        if (ring2 != null) {
+            if (ring2 instanceof WeddingRing) {
+                weddingLevel = Math.max(weddingLevel, ring2.level());
+                ring2.deactivate();
+            } else {
+                ring2.deactivate();
+                if (!ring2.doPickUp(hero)) Dungeon.level.drop(ring2, hero.pos);
+            }
+            ring2 = null;
+        }
+
+        if (ghost != null) {
+            GhostHero g = ghost;
+            g.yell(Messages.get(GhostHero.class, "release_farewell_" + Random.IntRange(1, 2)));
+            CellEmitter.get(g.pos).start(ShaftParticle.FACTORY, 0.3f, 4);
+            CellEmitter.get(g.pos).start(Speck.factory(Speck.LIGHT), 0.2f, 3);
+            g.destroy();
+            if (g.sprite != null) {
+                g.sprite.die();
+            }
+        }
+
+        BloomingRose bloom = new BloomingRose();
+        bloom.level(level() + weddingLevel);
+        bloom.identify();
+
+        if (isEquipped(hero)) {
+            // 直接装备到原槽位，不消耗回合
+            doUnequip(hero, false, false);
+            if (!bloom.doEquip(hero) && !bloom.doPickUp(hero)) {
+                Dungeon.level.drop(bloom, hero.pos);
+            }
+        } else {
+            detach(hero.belongings.backpack);
+            if (!bloom.doPickUp(hero)) {
+                Dungeon.level.drop(bloom, hero.pos);
+            }
+        }
+
+        GLog.p(Messages.get(this, "released"));
+        Sample.INSTANCE.play(Assets.Sounds.GHOST);
+        GameScene.flash(0x80FFFF40);
+        hero.spend(1f);
+        hero.busy();
     }
 
     private void findGhost() {
@@ -649,6 +764,9 @@ public class DriedRose extends Artifact {
 
         private DriedRose rose = null;
 
+        // 婚戒免死次数，满血或重新召唤时重置
+        private boolean weddingReviveReady = true;
+
         public GhostHero() {
             super();
         }
@@ -690,6 +808,7 @@ public class DriedRose extends Artifact {
 			HT = Math.round(20 + 8*rose.level()+WeddingRing.extraHT(Dungeon.hero) + RingOfDefender.HTAddition(this));
 			HT = Math.round(HT * RingOfKungfu.HTMultiplier(this));
 			if (HP > HT) HP = HT;
+			if (HP >= HT) weddingReviveReady = true;
 		}
 
 		public Weapon weapon(){
@@ -780,7 +899,7 @@ public class DriedRose extends Artifact {
                 }
             }
             if (buff(WeddingRing.Weddingring.class) != null) {
-                int heal = (int) (damage * WeddingRing.ghostPower(Dungeon.hero));
+                int heal = (int) (damage * WeddingRing.ghostPower(this));
                 heal = HP + heal > HT ? HT - HP : heal;
                 heal(heal, this);
             }
@@ -889,6 +1008,17 @@ public class DriedRose extends Artifact {
 
         @Override
         public void die(Object cause) {
+            int wedding = WeddingRing.getBuffedBonus(this, WeddingRing.Weddingring.class);
+            if (weddingReviveReady && wedding > 0 && !(cause instanceof NoRoseDamage)) {
+                weddingReviveReady = false;
+                HP = 1;
+                Buff.prolong(this, Invulnerability.class, wedding);
+                SpellSprite.show(this, SpellSprite.ANKH);
+                GameScene.flash(0x80FFFF40);
+                Sample.INSTANCE.play(Assets.Sounds.GHOST);
+                yell(Messages.get(this, "wedding_revive_" + Random.IntRange(1, 2)));
+                return;
+            }
             sayDefeated();
             super.die(cause);
         }
@@ -1247,7 +1377,7 @@ public class DriedRose extends Artifact {
                             public void onSelect(Item item) {
                                 if (!(item instanceof Ring) || !DriedRose.GHOST_RINGS.contains(item.getClass())) {
                                     //do nothing, should only happen when window is cancelled
-                                } else if (item.unique) {
+                                } else if (item.unique && !(item instanceof WeddingRing)) {
                                     GLog.w(Messages.get(WndGhostHero.class, "cant_unique"));
                                     hide();
                                 } else if (item.cursed || !item.cursedKnown) {

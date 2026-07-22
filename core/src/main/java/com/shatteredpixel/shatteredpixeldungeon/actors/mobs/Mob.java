@@ -74,6 +74,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.BloomingRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.ExoticPotion;
@@ -275,6 +276,12 @@ public abstract class Mob extends Char {
         // 婚戒添加回复buff
         if (Dungeon.hero.buff(WeddingRing.Weddingring.class) != null && alignment == Alignment.ALLY && Random.Int(10) == 0) {
             int heal = WeddingRing.allyHealing(Dungeon.hero);
+            Buff.affect(this, Healing.class).setHeal(heal, 0.5f, 0);
+        }
+
+        // 永绽玫瑰添加回复buff
+        if (Dungeon.hero.buff(BloomingRose.BloomingBlessing.class) != null && alignment == Alignment.ALLY && Random.Int(10) == 0) {
+            int heal = BloomingRose.allyHealing(Dungeon.hero);
             Buff.affect(this, Healing.class).setHeal(heal, 0.5f, 0);
         }
 
