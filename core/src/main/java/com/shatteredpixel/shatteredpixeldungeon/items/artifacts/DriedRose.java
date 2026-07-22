@@ -389,12 +389,12 @@ public class DriedRose extends Artifact {
     // 把戒指buff惰性激活到幽妹身上，等级超过玫瑰等级时按玫瑰等级封顶
     public void activateGhostRings(Char ghost) {
         if (ring1 != null) {
-            ring1.setExternalLevelCap(level());
+            ring1.socketLevelCap(level());
             if (ghost != null) ring1.ensureActivated(ghost);
         }
         if (ring2 != null) {
+            ring2.socketLevelCap(level());
             if (secondRingSlotUnlocked()) {
-                ring2.setExternalLevelCap(level());
                 if (ghost != null) ring2.ensureActivated(ghost);
             } else {
                 ring2.deactivate();
@@ -458,8 +458,7 @@ public class DriedRose extends Artifact {
 
     // 幽妹戒指的专用介绍，数值按玫瑰等级封顶
     public String ghostRingStats(Ring ring) {
-        ring.setExternalLevelCap(level());
-        int bonus = ring.soloBuffedBonus();
+        int bonus = Math.min(ring.soloBuffedBonus(), level() + 1);
         if (ring instanceof RingOfAgility) {
             return Messages.get(ring, "ghost_stats",
                     Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.95f, bonus))));
@@ -1399,7 +1398,7 @@ public class DriedRose extends Artifact {
         // 戒指调整后刷新介绍文本与窗口高度
         private void refreshRingStats(DriedRose rose) {
             String stats = rose.ghostRingsDesc();
-            // 同步图标上的等级显示（cap在ghostRingsDesc中设置）
+            // 同步图标上的等级显示
             if (rose.ring1 != null) btnRing1.slot().updateText();
             if (rose.ring2 != null) btnRing2.slot().updateText();
             if (stats.isEmpty()) {
@@ -1422,6 +1421,7 @@ public class DriedRose extends Artifact {
                     if (equipped != null) {
                         item(new WndBag.Placeholder(ItemSpriteSheet.RING_HOLDER));
                         equipped.deactivate();
+                        equipped.socketLevelCap(-1);
                         if (!equipped.doPickUp(Dungeon.hero)) {
                             Dungeon.level.drop(equipped, Dungeon.hero.pos);
                         }

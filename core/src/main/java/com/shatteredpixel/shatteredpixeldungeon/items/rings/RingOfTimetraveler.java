@@ -85,7 +85,7 @@ public class RingOfTimetraveler extends Ring {
     }
 
     @Override
-    protected float tick() {
+    protected float tick(Char target) {
         efficiency += 0.01;
         efficiency = efficiency > 1 ? 1 : efficiency;
         return Actor.TICK;

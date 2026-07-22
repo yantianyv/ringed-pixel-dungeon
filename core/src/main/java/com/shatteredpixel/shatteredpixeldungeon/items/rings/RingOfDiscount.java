@@ -129,7 +129,7 @@ public class RingOfDiscount extends Ring {
     }
 
     @Override
-    protected float tick() {
+    protected float tick(Char target) {
         float chance = (1 - (float) Math.pow(0.99, soloBuffedBonus())) / 10;
         if (Random.Float() < chance * efficiency()) {
             int pospointer = Dungeon.hero.pos;

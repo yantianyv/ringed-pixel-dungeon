@@ -53,7 +53,7 @@ public class RingOfNahida extends Ring {
     }
 
     @Override
-    protected float tick() {
+    protected float tick(Char target) {
         efficiency *= 0.999;
         return Actor.TICK;
     }

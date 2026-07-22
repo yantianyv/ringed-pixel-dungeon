@@ -21,10 +21,8 @@ public class IronRing extends SpecialRing {
     public String statsInfo() {
         // 依据是否鉴定返回不同信息
         if (isIdentified()) {
-            // 基本统计信息，使用与实际计算一致的公式
-            // 实际计算使用 getBuffedBonus()，它返回所有 buff 的 buffedLvl() 之和
-            // 对于单个戒指，就是 buffedLvl()
-            int actualBonus = buffedLvl();
+            // 与实际计算一致，单戒指的 getBuffedBonus() 即 soloBuffedBonus()
+            int actualBonus = soloBuffedBonus();
             float soloBonus = (float) (pow(0.99, actualBonus)) / 10;
             String info = Messages.get(this, "stats",
                     Messages.decimalFormat("#.##", soloBonus * 100f));

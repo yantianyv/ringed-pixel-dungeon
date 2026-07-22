@@ -114,7 +114,7 @@ public class RingOfTakeout extends Ring {
     }
 
     @Override
-    protected float tick() {
+    protected float tick(Char target) {
         if (buff == null || !(buff instanceof Takeout)) return Actor.TICK;
         Takeout t = (Takeout) buff;
         float chance = (float) (1 - Math.pow(0.995, soloBuffedBonus()));

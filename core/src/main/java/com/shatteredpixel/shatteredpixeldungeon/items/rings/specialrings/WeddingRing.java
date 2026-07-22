@@ -16,10 +16,8 @@ public class WeddingRing extends SpecialRing {
     public String statsInfo() {
         // 依据是否鉴定返回不同信息
         if (isIdentified()) {
-            // 基本统计信息，使用与实际计算一致的公式
-            // 显示的是 allyHealing，实际计算是 getBuffedBonus() * 2
-            // 对于单个戒指，getBuffedBonus() = buffedLvl()
-            int actualBonus = buffedLvl();
+            // 与实际计算一致，单戒指的 getBuffedBonus() 即 soloBuffedBonus()
+            int actualBonus = soloBuffedBonus();
             int soloHealing = actualBonus * 2;
             String info = Messages.get(this, "stats",
                     Messages.decimalFormat("#.##", soloHealing));

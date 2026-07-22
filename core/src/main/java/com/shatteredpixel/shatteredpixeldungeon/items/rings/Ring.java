@@ -56,15 +56,15 @@ public abstract class Ring extends KindofMisc {
     protected Buff buff;
     protected Class<? extends RingBuff> buffClass;
 
-    // 幽妹佩戴时的等级上限，-1为不限制
-    private int externalLevelCap = -1;
+    // 镶嵌在干枯玫瑰中时的等级上限，-1为不限制
+    private int socketLevelCap = -1;
 
-    public void setExternalLevelCap(int cap) {
-        externalLevelCap = cap;
+    public void socketLevelCap(int cap) {
+        socketLevelCap = cap;
     }
 
-    private int effectiveLevel() {
-        return externalLevelCap >= 0 ? Math.min(level(), externalLevelCap) : level();
+    public int socketLevelCap() {
+        return socketLevelCap;
     }
 
     public void deactivate() {
@@ -72,7 +72,6 @@ public abstract class Ring extends KindofMisc {
             buff.detach();
             buff = null;
         }
-        externalLevelCap = -1;
     }
 
     public void ensureActivated(Char ch) {
@@ -407,12 +406,14 @@ public abstract class Ring extends KindofMisc {
     }
 
     private static final String LEVELS_TO_ID = "levels_to_ID";
+    private static final String SOCKET_LEVEL_CAP = "socket_level_cap";
 
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
         bundle.put(LEVELS_TO_ID, levelsToID);
         bundle.put("efficiency", efficiency());
+        bundle.put(SOCKET_LEVEL_CAP, socketLevelCap);
     }
 
     @Override
@@ -420,6 +421,7 @@ public abstract class Ring extends KindofMisc {
         super.restoreFromBundle(bundle);
         levelsToID = bundle.getFloat(LEVELS_TO_ID);
         efficiency(bundle.getFloat("efficiency"));
+        socketLevelCap = bundle.contains(SOCKET_LEVEL_CAP) ? bundle.getInt(SOCKET_LEVEL_CAP) : -1;
     }
 
     @Override
@@ -447,11 +449,17 @@ public abstract class Ring extends KindofMisc {
     @Override
     public int buffedLvl() {
         int lvl = super.buffedLvl();
-        if (externalLevelCap >= 0) {
-            lvl = Math.min(lvl, externalLevelCap);
-        }
         if (Dungeon.hero.buff(EnhancedRings.class) != null) {
             lvl++;
+        }
+        return lvl;
+    }
+
+    @Override
+    public int buffedVisiblyUpgraded() {
+        int lvl = super.buffedVisiblyUpgraded();
+        if (socketLevelCap >= 0) {
+            lvl = Math.min(lvl, socketLevelCap);
         }
         return lvl;
     }
@@ -494,9 +502,9 @@ public abstract class Ring extends KindofMisc {
     //just used for ring descriptions
     public int soloBonus() {
         if (cursed) {
-            return Math.min(0, -Ring.this.effectiveLevel());
+            return Math.min(0, -Ring.this.level());
         } else {
-            return Ring.this.effectiveLevel() + 1;
+            return Ring.this.level() + 1;
         }
     }
 
@@ -595,7 +603,7 @@ public abstract class Ring extends KindofMisc {
 
     // Called by RingBuff.act() each tick. Only trigger-type rings (e.g. Takeout, Discount)
     // override this to perform per-tick logic. Return value is the time to spend.
-    protected float tick() {
+    protected float tick(Char target) {
         return Actor.TICK;
     }
 
@@ -616,17 +624,23 @@ public abstract class Ring extends KindofMisc {
 
         @Override
         public boolean act() {
-            float time = Ring.this.tick();
+            float time = Ring.this.tick(target);
             spend(time);
             return true;
         }
 
+        // 镶嵌在玫瑰中时按玫瑰等级封顶
+        private int cap(int bonus) {
+            int cap = Ring.this.socketLevelCap;
+            return cap >= 0 ? Math.min(bonus, cap + 1) : bonus;
+        }
+
         public int level() {
-            return Ring.this.soloBonus();
+            return cap(Ring.this.soloBonus());
         }
 
         public int buffedLvl() {
-            return Ring.this.soloBuffedBonus();
+            return cap(Ring.this.soloBuffedBonus());
         }
 
         public Ring getRing() {
