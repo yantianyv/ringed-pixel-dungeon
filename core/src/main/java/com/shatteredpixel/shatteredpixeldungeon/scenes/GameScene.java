@@ -1574,6 +1574,11 @@ public class GameScene extends PixelScene {
                     stuckTimer += Game.elapsed;
                     if (!turnStuck && stuckTimer > TURN_STUCK_THRESHOLD) {
                         turnStuck = true;
+                        // 诊断与保险：记录卡死 actor 并尝试中断线程
+                        GLog.n("Turn stuck detected on " + describeActor(cur));
+                        if (actorThread != null) {
+                            actorThread.interrupt();
+                        }
                     }
                 } else {
                     lastStuckActor = cur;

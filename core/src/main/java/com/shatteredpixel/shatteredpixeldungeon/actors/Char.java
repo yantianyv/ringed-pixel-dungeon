@@ -1214,6 +1214,11 @@ public abstract class Char extends Actor {
         HP = 0;
         Actor.remove(this);
 
+        // 若当前角色正在执行回合，立即释放 Actor 线程，避免尸体阻塞调度
+        if (Actor.current() == this) {
+            next();
+        }
+
         for (Char ch : Actor.chars().toArray(new Char[0])) {
             if (ch.buff(Charm.class) != null && ch.buff(Charm.class).object == id()) {
                 ch.buff(Charm.class).detach();

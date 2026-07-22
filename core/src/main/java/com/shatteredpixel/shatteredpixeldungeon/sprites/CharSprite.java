@@ -318,6 +318,12 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
         if (health != null) {
             health.killAndErase();
         }
+
+        // 死亡时若 Actor 线程正在等待本精灵移动，立即唤醒，避免卡死
+        synchronized (this) {
+            isMoving = false;
+            notifyAll();
+        }
     }
 
     public Emitter emitter() {

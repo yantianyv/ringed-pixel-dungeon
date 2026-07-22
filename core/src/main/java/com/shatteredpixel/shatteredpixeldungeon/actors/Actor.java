@@ -252,7 +252,12 @@ public abstract class Actor implements Bundlable {
 	public static int curActorPriority() {
 		return current != null ? current.actPriority : HERO_PRIO;
 	}
-	
+
+	// 检查 actor 是否仍在队列中且存活（deathMarked 视为存活）
+	private static boolean isActiveActor(Actor a) {
+		return a != null && all.contains(a) && (!(a instanceof Char) || ((Char) a).isAlive());
+	}
+
 	public static boolean keepActorThreadAlive = true;
 	
 	public static void process() {
@@ -283,6 +288,13 @@ public abstract class Actor implements Bundlable {
 				now = current.time;
 				Actor acting = current;
 
+				// 若 actor 已被移除或死亡，跳过并重新选下一个
+				if (!isActiveActor(acting)) {
+					current = null;
+					doNext = false;
+					continue;
+				}
+
 				if (acting instanceof Char && ((Char) acting).sprite != null) {
 					// If it's character's turn to act, but its sprite
 					// is moving, wait till the movement is over
@@ -307,6 +319,13 @@ public abstract class Actor implements Bundlable {
 					if (doNext && (Dungeon.hero == null || !Dungeon.hero.isAlive())) {
 						doNext = false;
 						current = null;
+					}
+
+					// act() 中可能死亡/被移除，避免等待已不存在的 actor 的回调
+					if (!isActiveActor(acting)) {
+						current = null;
+						doNext = false;
+						continue;
 					}
 				}
 			} else {
