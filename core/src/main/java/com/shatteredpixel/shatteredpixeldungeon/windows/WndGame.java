@@ -34,6 +34,8 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.HeroSelectScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.RankingsScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.TitleScene;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.brews.UnstableBrew;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -110,6 +112,16 @@ public class WndGame extends Window {
 			} );
 			curBtn.icon(Icons.get(Icons.RANKINGS));
 		}
+
+		// Buy me a milk tea
+		addButton(curBtn = new RedButton(Messages.get(this, "milktea")) {
+			@Override
+			protected void onClick() {
+				hide();
+				GameScene.show(new WndAppreciationCode());
+			}
+		});
+		curBtn.icon(new ItemSprite(new UnstableBrew()));
 
 		// Main menu
 		addButton(curBtn = new RedButton(Messages.get(this, "menu")) {
