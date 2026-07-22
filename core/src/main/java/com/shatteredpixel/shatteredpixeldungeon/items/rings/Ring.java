@@ -56,6 +56,29 @@ public abstract class Ring extends KindofMisc {
     protected Buff buff;
     protected Class<? extends RingBuff> buffClass;
 
+    // 幽妹佩戴时的等级上限，-1为不限制
+    private int externalLevelCap = -1;
+
+    public void setExternalLevelCap(int cap) {
+        externalLevelCap = cap;
+    }
+
+    private int effectiveLevel() {
+        return externalLevelCap >= 0 ? Math.min(level(), externalLevelCap) : level();
+    }
+
+    public void deactivate() {
+        if (buff != null) {
+            buff.detach();
+            buff = null;
+        }
+        externalLevelCap = -1;
+    }
+
+    public void ensureActivated(Char ch) {
+        if (buff == null || buff.target != ch) activate(ch);
+    }
+
     protected float efficiency = 1.0f;
 
     private static final LinkedHashMap<String, Integer> gems = new LinkedHashMap<String, Integer>() {
@@ -424,6 +447,9 @@ public abstract class Ring extends KindofMisc {
     @Override
     public int buffedLvl() {
         int lvl = super.buffedLvl();
+        if (externalLevelCap >= 0) {
+            lvl = Math.min(lvl, externalLevelCap);
+        }
         if (Dungeon.hero.buff(EnhancedRings.class) != null) {
             lvl++;
         }
@@ -468,9 +494,9 @@ public abstract class Ring extends KindofMisc {
     //just used for ring descriptions
     public int soloBonus() {
         if (cursed) {
-            return Math.min(0, -Ring.this.level());
+            return Math.min(0, -Ring.this.effectiveLevel());
         } else {
-            return Ring.this.level() + 1;
+            return Ring.this.effectiveLevel() + 1;
         }
     }
 

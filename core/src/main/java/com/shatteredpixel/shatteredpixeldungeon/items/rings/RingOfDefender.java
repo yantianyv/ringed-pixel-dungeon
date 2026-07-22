@@ -147,7 +147,8 @@ public class RingOfDefender extends Ring {
 
     @Override
     protected float tick() {
-        float target_efficiency = 1f - Dungeon.hero.HP / (float) Dungeon.hero.HT;
+        Char t = (buff != null && buff.target != null) ? buff.target : Dungeon.hero;
+        float target_efficiency = 1f - t.HP / (float) t.HT;
         efficiency = efficiency < target_efficiency ? target_efficiency : efficiency * 0.99f + target_efficiency * 0.01f;
         return Actor.TICK;
     }

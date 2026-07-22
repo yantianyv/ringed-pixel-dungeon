@@ -47,7 +47,14 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfDefender;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHeal;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfKungfu;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfNahida;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTimetraveler;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfPsionicBlast;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
@@ -80,6 +87,8 @@ import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.WeddingRing;
@@ -105,6 +114,19 @@ public class DriedRose extends Artifact {
 
     private MeleeWeapon weapon = null;
     private Armor armor = null;
+
+    private Ring ring1 = null;
+    private Ring ring2 = null;
+
+    // 幽妹可佩戴的戒指白名单
+    public static final HashSet<Class<? extends Ring>> GHOST_RINGS = new HashSet<>(Arrays.asList(
+            RingOfAgility.class,
+            RingOfDefender.class,
+            RingOfHeal.class,
+            RingOfKungfu.class,
+            RingOfNahida.class,
+            RingOfTimetraveler.class
+    ));
 
     public int droppedPetals = 0;
 
@@ -244,6 +266,27 @@ public class DriedRose extends Artifact {
         return 13 + level() / 2 + WeddingRing.extraStr(Dungeon.hero);
     }
 
+    // 突破+10后解锁第二个戒指槽
+    public boolean secondRingSlotUnlocked() {
+        return level() > levelCap;
+    }
+
+    // 把戒指buff惰性激活到幽妹身上，等级超过玫瑰等级时按玫瑰等级封顶
+    public void activateGhostRings(Char ghost) {
+        if (ring1 != null) {
+            ring1.setExternalLevelCap(level());
+            ring1.ensureActivated(ghost);
+        }
+        if (ring2 != null) {
+            if (secondRingSlotUnlocked()) {
+                ring2.setExternalLevelCap(level());
+                ring2.ensureActivated(ghost);
+            } else {
+                ring2.deactivate();
+            }
+        }
+    }
+
     @Override
     public String desc() {
         if (!Ghost.Quest.completed()
@@ -280,6 +323,13 @@ public class DriedRose extends Artifact {
 
         }
 
+        if (ring1 != null) {
+            desc += "\n" + Messages.get(this, "desc_ring", Messages.titleCase(ring1.title()));
+        }
+        if (ring2 != null) {
+            desc += "\n" + Messages.get(this, "desc_ring", Messages.titleCase(ring2.title()));
+        }
+
         return desc;
     }
 
@@ -289,6 +339,9 @@ public class DriedRose extends Artifact {
             return -1;
         }
         if (armor != null) {
+            return -1;
+        }
+        if (ring1 != null || ring2 != null) {
             return -1;
         }
         return super.value();
@@ -372,6 +425,14 @@ public class DriedRose extends Artifact {
         return armor;
     }
 
+    public Ring ghostRing1() {
+        return ring1;
+    }
+
+    public Ring ghostRing2() {
+        return ring2;
+    }
+
     private static final String TALKEDTO = "talkedto";
     private static final String FIRSTSUMMON = "firstsummon";
     private static final String GHOSTID = "ghostID";
@@ -379,6 +440,8 @@ public class DriedRose extends Artifact {
 
     private static final String WEAPON = "weapon";
     private static final String ARMOR = "armor";
+    private static final String RING1 = "ring1";
+    private static final String RING2 = "ring2";
 
     @Override
     public void storeInBundle(Bundle bundle) {
@@ -394,6 +457,12 @@ public class DriedRose extends Artifact {
         }
         if (armor != null) {
             bundle.put(ARMOR, armor);
+        }
+        if (ring1 != null) {
+            bundle.put(RING1, ring1);
+        }
+        if (ring2 != null) {
+            bundle.put(RING2, ring2);
         }
     }
 
@@ -411,6 +480,12 @@ public class DriedRose extends Artifact {
         }
         if (bundle.contains(ARMOR)) {
             armor = (Armor) bundle.get(ARMOR);
+        }
+        if (bundle.contains(RING1)) {
+            ring1 = (Ring) bundle.get(RING1);
+        }
+        if (bundle.contains(RING2)) {
+            ring2 = (Ring) bundle.get(RING2);
         }
     }
 
@@ -607,11 +682,14 @@ public class DriedRose extends Artifact {
 			if (rose == null) {
 				rose = Dungeon.hero.belongings.getItem(DriedRose.class);
 			}
-			
+
 			//same dodge as the hero
 			defenseSkill = (Dungeon.hero.lvl+4);
 			if (rose == null) return;
-			HT = 20 + 8*rose.level()+WeddingRing.extraHT(Dungeon.hero);
+			rose.activateGhostRings(this);
+			HT = Math.round(20 + 8*rose.level()+WeddingRing.extraHT(Dungeon.hero) + RingOfDefender.HTAddition(this));
+			HT = Math.round(HT * RingOfKungfu.HTMultiplier(this));
+			if (HP > HT) HP = HT;
 		}
 
 		public Weapon weapon(){
@@ -644,7 +722,14 @@ public class DriedRose extends Artifact {
 
 		@Override
 		public int attackSkill(Char target) {
-			
+
+			float agility = RingOfAgility.agilityChance(this);
+			if (Random.Float(1) < agility) {
+				return INFINITE_ACCURACY;
+			} else if (Random.Float(1) < -agility) {
+				return 0;
+			}
+
 			//same accuracy as the hero.
 			int acc = Dungeon.hero.lvl + 9;
 			
@@ -677,7 +762,9 @@ public class DriedRose extends Artifact {
 			} else {
 				dmg += Random.NormalIntRange(0, 5);
 			}
-			
+
+			dmg += RingOfKungfu.armedDamageBonus(this);
+
 			return dmg;
 		}
 		
@@ -706,6 +793,7 @@ public class DriedRose extends Artifact {
             if (armor() != null) {
                 damage = armor().proc(enemy, this, damage);
             }
+            damage = (int) Math.ceil(damage * RingOfDefender.damageMultiplier(this));
             return super.defenseProc(enemy, damage);
         }
 
@@ -738,7 +826,20 @@ public class DriedRose extends Artifact {
         }
 
         @Override
+        public void spend(float time) {
+            time = time * RingOfTimetraveler.timeMultiplier(this);
+            super.spend(time);
+        }
+
+        @Override
         public int defenseSkill(Char enemy) {
+            float agility = RingOfAgility.agilityChance(this);
+            if (Random.Float(1) < agility) {
+                return INFINITE_EVASION;
+            } else if (Random.Float(1) < -agility) {
+                return 0;
+            }
+
             int defense = super.defenseSkill(enemy);
 
 			if (defense != 0 && armor() != null ){
@@ -801,6 +902,8 @@ public class DriedRose extends Artifact {
                 rose.charge = 0;
                 rose.partialCharge = 0;
                 rose.ghostID = -1;
+                if (rose.ring1 != null) rose.ring1.deactivate();
+                if (rose.ring2 != null) rose.ring2.deactivate();
             }
             super.destroy();
         }
@@ -899,22 +1002,29 @@ public class DriedRose extends Artifact {
         private static final int BTN_SIZE = 32;
         private static final float GAP = 2;
         private static final float BTN_GAP = 12;
-        private static final int WIDTH = 116;
+        // 横屏单行4按钮，竖屏2×2布局避免窗口过宽
+        private static final int WIDTH_LAND = 4 * BTN_SIZE + 3 * (int) BTN_GAP + 8;
+        private static final int WIDTH_PORT = 116;
 
         private ItemButton btnWeapon;
         private ItemButton btnArmor;
+        private ItemButton btnRing1;
+        private ItemButton btnRing2;
 
         WndGhostHero(final DriedRose rose) {
+
+            final boolean landscape = PixelScene.landscape();
+            final int width = landscape ? WIDTH_LAND : WIDTH_PORT;
 
             IconTitle titlebar = new IconTitle();
             titlebar.icon(new ItemSprite(rose));
             titlebar.label(Messages.get(this, "title"));
-            titlebar.setRect(0, 0, WIDTH, 0);
+            titlebar.setRect(0, 0, width, 0);
             add(titlebar);
 
             RenderedTextBlock message
                     = PixelScene.renderTextBlock(Messages.get(this, "desc", rose.ghostStrength()), 6);
-            message.maxWidth(WIDTH);
+            message.maxWidth(width);
             message.setPos(0, titlebar.bottom() + GAP);
             add(message);
 
@@ -985,7 +1095,11 @@ public class DriedRose extends Artifact {
                     return false;
                 }
             };
-            btnWeapon.setRect((WIDTH - BTN_GAP) / 2 - BTN_SIZE, message.top() + message.height() + GAP, BTN_SIZE, BTN_SIZE);
+            float hGap = landscape ? BTN_GAP : 8;
+            float vGap = landscape ? BTN_GAP : 8;
+            float btnRowWidth = (landscape ? 4 : 2) * BTN_SIZE + (landscape ? 3 : 1) * hGap;
+            float btnY = message.top() + message.height() + 8;
+            btnWeapon.setRect((width - btnRowWidth) / 2, btnY, BTN_SIZE, BTN_SIZE);
             if (rose.weapon != null) {
                 btnWeapon.item(rose.weapon);
             } else {
@@ -1060,7 +1174,7 @@ public class DriedRose extends Artifact {
                     return false;
                 }
             };
-            btnArmor.setRect(btnWeapon.right() + BTN_GAP, btnWeapon.top(), BTN_SIZE, BTN_SIZE);
+            btnArmor.setRect(btnWeapon.right() + hGap, btnWeapon.top(), BTN_SIZE, BTN_SIZE);
             if (rose.armor != null) {
                 btnArmor.item(rose.armor);
             } else {
@@ -1068,7 +1182,102 @@ public class DriedRose extends Artifact {
             }
             add(btnArmor);
 
-            resize(WIDTH, (int) (btnArmor.bottom() + GAP));
+            btnRing1 = createRingButton(rose, false);
+            if (landscape) {
+                btnRing1.setRect(btnArmor.right() + hGap, btnArmor.top(), BTN_SIZE, BTN_SIZE);
+            } else {
+                btnRing1.setRect(btnWeapon.left(), btnArmor.bottom() + vGap, BTN_SIZE, BTN_SIZE);
+            }
+            if (rose.ring1 != null) {
+                btnRing1.item(rose.ring1);
+            } else {
+                btnRing1.item(new WndBag.Placeholder(ItemSpriteSheet.RING_HOLDER));
+            }
+            add(btnRing1);
+
+            btnRing2 = createRingButton(rose, true);
+            btnRing2.setRect(btnRing1.right() + hGap, btnRing1.top(), BTN_SIZE, BTN_SIZE);
+            if (rose.ring2 != null) {
+                btnRing2.item(rose.ring2);
+            } else {
+                btnRing2.item(new WndBag.Placeholder(ItemSpriteSheet.RING_HOLDER));
+                if (!rose.secondRingSlotUnlocked()) {
+                    btnRing2.slot().alpha(0.35f);
+                }
+            }
+            add(btnRing2);
+
+            resize(width, (int) (btnRing2.bottom() + (landscape ? GAP : 8)));
+        }
+
+        private ItemButton createRingButton(final DriedRose rose, final boolean second) {
+            return new ItemButton() {
+                @Override
+                protected void onClick() {
+                    final Ring equipped = second ? rose.ring2 : rose.ring1;
+                    if (equipped != null) {
+                        item(new WndBag.Placeholder(ItemSpriteSheet.RING_HOLDER));
+                        equipped.deactivate();
+                        if (!equipped.doPickUp(Dungeon.hero)) {
+                            Dungeon.level.drop(equipped, Dungeon.hero.pos);
+                        }
+                        if (second) rose.ring2 = null;
+                        else        rose.ring1 = null;
+                    } else if (second && !rose.secondRingSlotUnlocked()) {
+                        GLog.w(Messages.get(WndGhostHero.class, "ring_locked"));
+                    } else {
+                        GameScene.selectItem(new WndBag.ItemSelector() {
+
+                            @Override
+                            public String textPrompt() {
+                                return Messages.get(WndGhostHero.class, "ring_prompt");
+                            }
+
+                            @Override
+                            public Class<? extends Bag> preferredBag() {
+                                return Belongings.Backpack.class;
+                            }
+
+                            @Override
+                            public boolean itemSelectable(Item item) {
+                                return item instanceof Ring && DriedRose.GHOST_RINGS.contains(item.getClass());
+                            }
+
+                            @Override
+                            public void onSelect(Item item) {
+                                if (!(item instanceof Ring) || !DriedRose.GHOST_RINGS.contains(item.getClass())) {
+                                    //do nothing, should only happen when window is cancelled
+                                } else if (item.unique) {
+                                    GLog.w(Messages.get(WndGhostHero.class, "cant_unique"));
+                                    hide();
+                                } else if (item.cursed || !item.cursedKnown) {
+                                    GLog.w(Messages.get(WndGhostHero.class, "cant_cursed"));
+                                    hide();
+                                } else {
+                                    if (item.isEquipped(Dungeon.hero)) {
+                                        ((Ring) item).doUnequip(Dungeon.hero, false, false);
+                                    } else {
+                                        item.detach(Dungeon.hero.belongings.backpack);
+                                    }
+                                    if (second) rose.ring2 = (Ring) item;
+                                    else        rose.ring1 = (Ring) item;
+                                    if (rose.ghost != null) rose.activateGhostRings(rose.ghost);
+                                    item((Ring) item);
+                                }
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                protected boolean onLongClick() {
+                    if (item() != null && item().name() != null) {
+                        GameScene.show(new WndInfoItem(item()));
+                        return true;
+                    }
+                    return false;
+                }
+            };
         }
 
     }
