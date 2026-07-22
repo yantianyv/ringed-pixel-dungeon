@@ -390,12 +390,12 @@ public class DriedRose extends Artifact {
     public void activateGhostRings(Char ghost) {
         if (ring1 != null) {
             ring1.setExternalLevelCap(level());
-            ring1.ensureActivated(ghost);
+            if (ghost != null) ring1.ensureActivated(ghost);
         }
         if (ring2 != null) {
             if (secondRingSlotUnlocked()) {
                 ring2.setExternalLevelCap(level());
-                ring2.ensureActivated(ghost);
+                if (ghost != null) ring2.ensureActivated(ghost);
             } else {
                 ring2.deactivate();
             }
@@ -439,12 +439,62 @@ public class DriedRose extends Artifact {
         }
 
         if (ring1 != null) {
-            desc += "\n" + Messages.get(this, "desc_ring", Messages.titleCase(ring1.title()));
+            desc += "\n" + Messages.get(this, "desc_ring", ghostRingTitle(ring1));
         }
         if (ring2 != null) {
-            desc += "\n" + Messages.get(this, "desc_ring", Messages.titleCase(ring2.title()));
+            desc += "\n" + Messages.get(this, "desc_ring", ghostRingTitle(ring2));
         }
 
+        return desc;
+    }
+
+    // 幽妹戒指的显示名，等级超过玫瑰时按玫瑰等级封顶显示
+    private String ghostRingTitle(Ring ring) {
+        if (ring.levelKnown && ring.level() > level()) {
+            return Messages.format(TXT_TO_STRING_LVL, Messages.titleCase(ring.name()), level());
+        }
+        return Messages.titleCase(ring.title());
+    }
+
+    // 幽妹戒指的专用介绍，数值按玫瑰等级封顶
+    public String ghostRingStats(Ring ring) {
+        ring.setExternalLevelCap(level());
+        int bonus = ring.soloBuffedBonus();
+        if (ring instanceof RingOfAgility) {
+            return Messages.get(ring, "ghost_stats",
+                    Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.95f, bonus))));
+        } else if (ring instanceof RingOfDefender) {
+            return Messages.get(ring, "ghost_stats",
+                    Messages.decimalFormat("#.##", 100f * (1f - Math.pow(0.85f, bonus))),
+                    Messages.decimalFormat("#.##", bonus * 1.5f));
+        } else if (ring instanceof RingOfHeal) {
+            return Messages.get(ring, "ghost_stats",
+                    Messages.decimalFormat("#.##", 100f * (Math.pow(1.1f, bonus) - 1f)));
+        } else if (ring instanceof RingOfKungfu) {
+            return Messages.get(ring, "ghost_stats", bonus,
+                    Messages.decimalFormat("#.##", 100f * (Math.pow(1.02f, bonus) - 1f)));
+        } else if (ring instanceof RingOfNahida) {
+            return Messages.get(ring, "ghost_stats",
+                    Messages.decimalFormat("#.##", 100f * (Math.pow(1.1f, bonus) - 1f)));
+        } else if (ring instanceof RingOfTimetraveler) {
+            return Messages.get(ring, "ghost_stats",
+                    Messages.decimalFormat("#.##", 100f * (Math.pow(1f / 0.9f, bonus) - 1f)));
+        } else if (ring instanceof WeddingRing) {
+            return Messages.get(ring, "ghost_stats", bonus);
+        }
+        return "";
+    }
+
+    // 配装窗口展示的幽妹戒指介绍，未解锁的第二槽不生效故不显示
+    public String ghostRingsDesc() {
+        String desc = "";
+        if (ring1 != null) {
+            desc += ghostRingTitle(ring1) + "：" + ghostRingStats(ring1);
+        }
+        if (ring2 != null && secondRingSlotUnlocked()) {
+            if (!desc.isEmpty()) desc += "\n";
+            desc += ghostRingTitle(ring2) + "：" + ghostRingStats(ring2);
+        }
         return desc;
     }
 
@@ -1140,11 +1190,14 @@ public class DriedRose extends Artifact {
         private ItemButton btnArmor;
         private ItemButton btnRing1;
         private ItemButton btnRing2;
+        private RenderedTextBlock ringInfo;
+        private boolean landscape;
+        private int width;
 
         WndGhostHero(final DriedRose rose) {
 
-            final boolean landscape = PixelScene.landscape();
-            final int width = landscape ? WIDTH_LAND : WIDTH_PORT;
+            landscape = PixelScene.landscape();
+            width = landscape ? WIDTH_LAND : WIDTH_PORT;
 
             IconTitle titlebar = new IconTitle();
             titlebar.icon(new ItemSprite(rose));
@@ -1337,7 +1390,28 @@ public class DriedRose extends Artifact {
             }
             add(btnRing2);
 
-            resize(width, (int) (btnRing2.bottom() + (landscape ? GAP : 8)));
+            ringInfo = PixelScene.renderTextBlock(6);
+            ringInfo.maxWidth(width);
+            add(ringInfo);
+            refreshRingStats(rose);
+        }
+
+        // 戒指调整后刷新介绍文本与窗口高度
+        private void refreshRingStats(DriedRose rose) {
+            String stats = rose.ghostRingsDesc();
+            // 同步图标上的等级显示（cap在ghostRingsDesc中设置）
+            if (rose.ring1 != null) btnRing1.slot().updateText();
+            if (rose.ring2 != null) btnRing2.slot().updateText();
+            if (stats.isEmpty()) {
+                ringInfo.visible = false;
+                resize(width, (int) (btnRing2.bottom() + (landscape ? GAP : 8)));
+            } else {
+                ringInfo.visible = true;
+                ringInfo.text(stats);
+                ringInfo.maxWidth(width);
+                ringInfo.setPos(0, btnRing2.bottom() + 8);
+                resize(width, (int) (ringInfo.bottom() + (landscape ? GAP : 8)));
+            }
         }
 
         private ItemButton createRingButton(final DriedRose rose, final boolean second) {
@@ -1353,6 +1427,7 @@ public class DriedRose extends Artifact {
                         }
                         if (second) rose.ring2 = null;
                         else        rose.ring1 = null;
+                        refreshRingStats(rose);
                     } else if (second && !rose.secondRingSlotUnlocked()) {
                         GLog.w(Messages.get(WndGhostHero.class, "ring_locked"));
                     } else {
@@ -1391,8 +1466,9 @@ public class DriedRose extends Artifact {
                                     }
                                     if (second) rose.ring2 = (Ring) item;
                                     else        rose.ring1 = (Ring) item;
-                                    if (rose.ghost != null) rose.activateGhostRings(rose.ghost);
+                                    rose.activateGhostRings(rose.ghost);
                                     item((Ring) item);
+                                    refreshRingStats(rose);
                                 }
                             }
                         });
