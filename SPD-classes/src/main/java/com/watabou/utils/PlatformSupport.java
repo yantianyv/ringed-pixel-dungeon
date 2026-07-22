@@ -25,6 +25,7 @@
 package com.watabou.utils;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.PixmapPacker;
@@ -62,6 +63,24 @@ public abstract class PlatformSupport {
 
 	public void copyToClipboard( String text ){
 		Gdx.app.getClipboard().setContents(text);
+	}
+
+	//Saves an internal image asset to external storage, returns the saved file path or null.
+	public String saveImage( String internalPath, String fileName ){
+		try {
+			FileHandle src = Gdx.files.internal(internalPath);
+			FileHandle dst = Gdx.files.external(fileName);
+			dst.write(src.read(), false);
+			return dst.file().getAbsolutePath();
+		} catch (Exception e) {
+			Game.reportException(e);
+			return null;
+		}
+	}
+
+	//Desktop platforms may override this to show a file chooser.
+	public String saveImageWithDialog( String internalPath, String fileName ){
+		return saveImage(internalPath, fileName);
 	}
 
 	public void setOnscreenKeyboardVisible(boolean value){

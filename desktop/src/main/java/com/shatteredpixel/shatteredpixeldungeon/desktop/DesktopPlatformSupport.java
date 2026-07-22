@@ -27,6 +27,7 @@ package com.shatteredpixel.shatteredpixeldungeon.desktop;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.PixmapPacker;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -36,6 +37,8 @@ import com.watabou.noosa.Game;
 import com.watabou.utils.PlatformSupport;
 import com.watabou.utils.Point;
 
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,6 +108,27 @@ public class DesktopPlatformSupport extends PlatformSupport {
 	public boolean supportsVibration() {
 		//only supports vibration via controller
 		return ControllerHandler.vibrationSupported();
+	}
+
+	@Override
+	public String saveImageWithDialog(String internalPath, String fileName) {
+		try {
+			FileDialog dialog = new FileDialog((Frame) null, "Save Appreciation Code", FileDialog.SAVE);
+			dialog.setFile(fileName);
+			dialog.setVisible(true);
+			String dir = dialog.getDirectory();
+			String file = dialog.getFile();
+			if (dir == null || file == null) {
+				return null;
+			}
+			FileHandle dst = Gdx.files.absolute(dir + file);
+			FileHandle src = Gdx.files.internal(internalPath);
+			dst.write(src.read(), false);
+			return dst.file().getAbsolutePath();
+		} catch (Exception e) {
+			Game.reportException(e);
+			return saveImage(internalPath, fileName);
+		}
 	}
 
 	/* FONT SUPPORT */

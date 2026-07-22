@@ -36,6 +36,7 @@ import android.view.WindowManager;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidGraphics;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.PixmapPacker;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -44,6 +45,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.noosa.Game;
 import com.watabou.utils.PlatformSupport;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -172,6 +174,23 @@ public class AndroidPlatformSupport extends PlatformSupport {
 	@Override
 	public boolean supportsVibration() {
 		return true; //always true on Android
+	}
+
+	@Override
+	public String saveImage(String internalPath, String fileName) {
+		try {
+			FileHandle src = Gdx.files.internal(internalPath);
+			File dir = AndroidLauncher.instance.getExternalFilesDir(null);
+			if (dir == null) {
+				return null;
+			}
+			FileHandle dst = Gdx.files.absolute(new File(dir, fileName).getAbsolutePath());
+			dst.write(src.read(), false);
+			return dst.file().getAbsolutePath();
+		} catch (Exception e) {
+			Game.reportException(e);
+			return null;
+		}
 	}
 
 	/* FONT SUPPORT */

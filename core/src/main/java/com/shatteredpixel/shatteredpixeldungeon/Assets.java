@@ -105,6 +105,7 @@ public class Assets {
         public static final String HERO_ICONS_RINGED = "interfaces/hero_icons_ringed.png";
 
         public static final String RADIAL_MENU = "interfaces/radial_menu.png";
+        public static final String APPRECIATION_CODE = "interfaces/appreciation_code.jpg";
     }
 
     //these points to resource bundles, not raw asset files
