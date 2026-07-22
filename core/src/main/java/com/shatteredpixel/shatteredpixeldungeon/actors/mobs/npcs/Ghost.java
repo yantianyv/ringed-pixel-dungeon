@@ -34,8 +34,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollTrickster;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GreatCrab;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.OriginGem;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.WeddingRing;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
@@ -227,7 +228,7 @@ public class Ghost extends NPC {
         private static int depth;
 
         public static Ring ring;
-        public static Ring special_ring;
+        public static Item special_ring;
 
         public static void reset() {
             spawned = false;
@@ -280,7 +281,7 @@ public class Ghost extends NPC {
                 depth = node.getInt(DEPTH);
 
                 ring = (Ring) node.get(RING);
-                special_ring = (Ring) node.get(SPECIAL_RING);
+                special_ring = (Item) node.get(SPECIAL_RING);
 
 			} else {
 				reset();
@@ -306,7 +307,7 @@ public class Ghost extends NPC {
 				depth = Dungeon.depth;
 
                 ring = (Ring) Generator.random(Generator.Category.RING);
-                special_ring = new WeddingRing();
+                special_ring = new OriginGem().quantity(20);
 
                 ring.curse(false);
                 ring.upgrade(3);

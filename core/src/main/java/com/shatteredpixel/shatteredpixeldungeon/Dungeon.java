@@ -456,6 +456,17 @@ public class Dungeon {
         return depth == 5 || depth == 10 || depth == 15 || depth == 20 || depth == 25;
     }
 
+    // 婚戒骨头堆所在楼层，6~19层的随机非boss层，由种子决定
+    public static int weddingRingDepth() {
+        Random.pushGenerator(seed + 0x9E3779B9L);
+        int depth;
+        do {
+            depth = 6 + Random.Int(14);
+        } while (bossLevel(depth));
+        Random.popGenerator();
+        return depth;
+    }
+
     //value used for scaling of damage values and other effects.
     //is usually the dungeon depth, but can be set to 26 when ascending
     public static int scalingDepth() {

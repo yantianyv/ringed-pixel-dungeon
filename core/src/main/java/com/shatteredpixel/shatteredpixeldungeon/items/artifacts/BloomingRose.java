@@ -46,9 +46,9 @@ public class BloomingRose extends Artifact {
         return bonus(ch) * 2;
     }
 
-    // 以下三项是婚戒给予幽妹的效果，折半后给予英雄
+    // 婚戒给予幽妹的效果折半后给予英雄，力量加成恒定为1
     public static int strBonus(Char ch) {
-        return bonus(ch) / 2;
+        return ch.buff(BloomingBlessing.class) == null ? 0 : 1;
     }
 
     public static int htBoost(Char ch) {
@@ -73,7 +73,7 @@ public class BloomingRose extends Artifact {
         String desc = super.desc();
         int b = level() + 1;
         String power = Messages.decimalFormat("#.##", 100f * halvedPower(b));
-        desc += "\n\n" + Messages.get(this, "stats", b / 2, b * b / 2, power, power, b * 2);
+        desc += "\n\n" + Messages.get(this, "stats", 1, b * b / 2, power, power, b * 2);
         return desc;
     }
 

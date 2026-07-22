@@ -53,6 +53,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.journal.RegionLorePage;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.CrystalKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.GoldenKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.WeddingRing;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.MimicTooth;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.TrinketCatalyst;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Document;
@@ -502,6 +503,18 @@ public abstract class RegularLevel extends Level {
 				for (Item i : bonesItems) {
 					drop(i, cell).setHauntedIfCursed().type = Heap.Type.REMAINS;
 				}
+			}
+		Random.popGenerator();
+
+		Random.pushGenerator( Random.Long() );
+			//婚戒骨头堆，每局一个
+			if (Dungeon.branch == 0 && Dungeon.depth == Dungeon.weddingRingDepth()) {
+				int cell = randomDropCell();
+				if (map[cell] == Terrain.HIGH_GRASS || map[cell] == Terrain.FURROWED_GRASS) {
+					map[cell] = Terrain.GRASS;
+					losBlocking[cell] = false;
+				}
+				drop( new WeddingRing(), cell ).type = Heap.Type.REMAINS;
 			}
 		Random.popGenerator();
 
