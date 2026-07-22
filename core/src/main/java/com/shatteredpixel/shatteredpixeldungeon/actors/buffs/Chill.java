@@ -47,6 +47,7 @@ public class Chill extends FlavourBuff {
     @Override
     public boolean attachTo(Char target) {
         Buff.detach(target, Burning.class);
+        Buff.detach(target, BurningElement.class);
 
         return super.attachTo(target);
     }

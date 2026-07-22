@@ -22,19 +22,17 @@ public class BurningElement extends ElementBuff {
     
     @Override
     public boolean act() {
-        // 水域转换逻辑
+        // 跳水即灭火
         if (Dungeon.level.water[target.pos] && !target.flying) {
-            // 转换为普通火元素附着
             if (target.buff(Burning.class) == null) {
-                fx(false); // 移除燃烧特效
+                fx(false);
             }
             detach();
-            ElementBuff.apply(Element.PYRO, null, target, quantity);
             return true;
         }
-        
-        // 每0.1秒衰减1%（加快衰减速度）
-        quantity *= 0.99f;
+
+        // 线性衰减，附着量即燃烧秒数
+        quantity -= 0.1f;
         
         // 每秒执行伤害（约10次调用）
         if (timer++ >= 10) {
@@ -78,7 +76,7 @@ public class BurningElement extends ElementBuff {
     // 增强燃烧效果
     public void reignite(float amount) {
         quantity += amount;
-        if (quantity > 100f) quantity = 100f;
+        if (quantity > 10f) quantity = 10f;
         fx(true);
     }
     

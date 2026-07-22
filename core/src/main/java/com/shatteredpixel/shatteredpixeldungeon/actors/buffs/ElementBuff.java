@@ -866,8 +866,20 @@ public class ElementBuff extends Buff implements Hero.Doom {
 
     public static class HydroElement extends ElementBuff {
 
+        // 水中水附着量阈值
+        public static final float WATER_THRESHOLD = 5f;
+
         public HydroElement() {
             super();
+        }
+
+        @Override
+        public boolean act() {
+            // 水中补全，不触发反应
+            if (Dungeon.level.water[target.pos] && !target.flying && quantity < WATER_THRESHOLD) {
+                quantity = WATER_THRESHOLD;
+            }
+            return super.act();
         }
 
         @Override

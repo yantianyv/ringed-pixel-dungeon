@@ -58,7 +58,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff.Element;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Foresight;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.GreaterHaste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
@@ -918,6 +917,8 @@ public class Hero extends Char {
 
         //calls to dungeon.observe will also update hero's local FOV.
         fieldOfView = Dungeon.level.heroFOV;
+
+        updateWaterAttachment();
 
         if (buff(Endure.EndureTracker.class) != null) {
             buff(Endure.EndureTracker.class).endEnduring();
@@ -2725,7 +2726,6 @@ public class Hero extends Char {
         if (!flying && travelling) {
             if (Dungeon.level.water[pos]) {
                 Sample.INSTANCE.play(Assets.Sounds.WATER, 1, Random.Float(0.8f, 1.25f));
-                ElementBuff.apply(Element.HYDRO, this, this, 3);
             } else if (Dungeon.level.map[pos] == Terrain.EMPTY_SP) {
                 Sample.INSTANCE.play(Assets.Sounds.STURDY, 1, Random.Float(0.96f, 1.05f));
             } else if (Dungeon.level.map[pos] == Terrain.GRASS

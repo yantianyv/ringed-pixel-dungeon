@@ -215,10 +215,16 @@ public abstract class Char extends Actor {
         if (properties().contains(Property.IMMOVABLE)) {
             throwItems();
         }
-        if (Dungeon.level.water[pos] && !flying) {
-            ElementBuff.apply(Element.HYDRO, this, this, 3);
-        }
+        updateWaterAttachment();
         return false;
+    }
+
+    // 水中挂水入口，附着量由 HydroElement 自维护
+    protected void updateWaterAttachment() {
+        if (Dungeon.level.water[pos] && !flying
+                && buff(ElementBuff.HydroElement.class) == null) {
+            ElementBuff.apply(Element.HYDRO, this, this, ElementBuff.HydroElement.WATER_THRESHOLD);
+        }
     }
 
     protected void throwItems() {

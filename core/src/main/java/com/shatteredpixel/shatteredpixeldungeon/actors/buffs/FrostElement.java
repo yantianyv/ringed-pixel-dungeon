@@ -71,6 +71,7 @@ public class FrostElement extends ElementBuff {
     public boolean attachTo(Char target) {
         // 移除燃烧和寒冷效果
         Buff.detach(target, Burning.class);
+        Buff.detach(target, BurningElement.class);
         Buff.detach(target, Chill.class);
 
         if (super.attachTo(target)) {

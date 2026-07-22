@@ -52,6 +52,7 @@ public class Frost extends FlavourBuff {
     @Override
     public boolean attachTo(Char target) {
         Buff.detach(target, Burning.class);
+        Buff.detach(target, BurningElement.class);
 
         if (super.attachTo(target)) {
 
