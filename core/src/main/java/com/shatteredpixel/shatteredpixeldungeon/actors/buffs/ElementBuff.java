@@ -875,9 +875,11 @@ public class ElementBuff extends Buff implements Hero.Doom {
 
         @Override
         public boolean act() {
-            // 水中补全，不触发反应
+            // 水中补全
             if (Dungeon.level.water[target.pos] && !target.flying && quantity < WATER_THRESHOLD) {
-                quantity = WATER_THRESHOLD;
+                ElementBuff.apply(Element.HYDRO, target, target, WATER_THRESHOLD - quantity);
+                // 补全触发的反应可能耗尽本buff
+                if (quantity <= 0f) return true;
             }
             return super.act();
         }
