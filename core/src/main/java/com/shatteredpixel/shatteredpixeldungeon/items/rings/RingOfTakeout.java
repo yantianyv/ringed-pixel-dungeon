@@ -30,11 +30,17 @@ public class RingOfTakeout extends Ring {
         // 依据是否鉴定返回不同信息
         if (isIdentified()) {
             float interval = expectedTriggerInterval();
+            String info;
             if (interval > 99999f) {
-                return Messages.get(this, "stats", "∞");
+                info = Messages.get(this, "stats", "∞");
+            } else {
+                info = Messages.get(this, "stats",
+                        Messages.decimalFormat("#.##", interval));
             }
-            String info = Messages.get(this, "stats",
-                    Messages.decimalFormat("#.##", interval));
+            // 多枚同种戒指各自独立生效，无联动加成
+            if (isEquipped(Dungeon.hero) && countEquippedRingsOfType(Dungeon.hero, getClass()) > 1) {
+                info += "\n\n" + Messages.get(this, "combined_stats");
+            }
             return info;
         } else {// 鉴定前的通用信息
             float typicalP = (float) (1 - Math.pow(0.995, 2));

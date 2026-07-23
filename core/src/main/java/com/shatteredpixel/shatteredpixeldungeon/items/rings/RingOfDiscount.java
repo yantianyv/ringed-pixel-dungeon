@@ -38,6 +38,10 @@ public class RingOfDiscount extends Ring {
             float discountMulti = (float) Math.pow(0.99, actualBonus);
             String info = Messages.get(this, "stats",
                     Messages.decimalFormat("#.##", discountMulti * 10));
+            // 多枚同种戒指各自独立生效，无联动加成
+            if (isEquipped(Dungeon.hero) && countEquippedRingsOfType(Dungeon.hero, getClass()) > 1) {
+                info += "\n\n" + Messages.get(this, "combined_stats");
+            }
             return info;
         } else {
             return Messages.get(this, "typical_stats", Messages.decimalFormat("#.##", 9.9f));
