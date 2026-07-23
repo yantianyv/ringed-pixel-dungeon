@@ -320,13 +320,6 @@ public abstract class Actor implements Bundlable {
 						doNext = false;
 						current = null;
 					}
-
-					// act() 中可能死亡/被移除，避免等待已不存在的 actor 的回调
-					if (!isActiveActor(acting)) {
-						current = null;
-						doNext = false;
-						continue;
-					}
 				}
 			} else {
 				doNext = false;
