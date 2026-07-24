@@ -307,7 +307,7 @@ public class Ghost extends NPC {
 				depth = Dungeon.depth;
 
                 ring = (Ring) Generator.random(Generator.Category.RING);
-                special_ring = new OriginGem().quantity(20);
+                special_ring = new OriginGem().quantity(15);
 
                 ring.curse(false);
                 ring.upgrade(3);
