@@ -1187,6 +1187,7 @@ public abstract class Char extends Actor {
 
     public int heal(int amount, Object src) {
         if (!isAlive() || amount <= 0) return 0;
+        int baseHeal = Math.min(amount, HT - HP);
         amount = Math.round(amount * RingOfHeal.healMultiplier(this)); // 妙手回春之戒加成
         int actualHeal = Math.min(amount, HT - HP);
         if (actualHeal > 0) {
@@ -1194,6 +1195,14 @@ public abstract class Char extends Actor {
             if (this instanceof Hero && HP >= HT) {
                 ((Hero) this).resting = false;
             }
+        }
+        int ringDiff = actualHeal - baseHeal;
+        if (ringDiff > 0 && sprite != null) {
+            // 妙手回春之戒加成，浅绿色区分
+            sprite.showStatusWithIcon(0x88FF88, Integer.toString(ringDiff), FloatingText.HEALING);
+        } else if (ringDiff < 0 && sprite != null) {
+            // 诅咒戒指的治疗衰减
+            sprite.showStatusWithIcon(CharSprite.NEGATIVE, Integer.toString(ringDiff), FloatingText.HEALING);
         }
         return actualHeal;
     }

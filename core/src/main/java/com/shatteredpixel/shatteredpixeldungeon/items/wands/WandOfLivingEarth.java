@@ -401,7 +401,8 @@ public class WandOfLivingEarth extends DamageWand {
             if (HP != 0 && sprite != null) {
                 sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healthToAdd), FloatingText.HEALING);
             }
-            heal(healthToAdd, this);
+            // 新建守卫 HP=0，heal 会被 isAlive 拦截
+            HP = Math.min(HT, HP + healthToAdd);
             //half of hero's evasion
             defenseSkill = (hero.lvl + 4) / 2;
         }

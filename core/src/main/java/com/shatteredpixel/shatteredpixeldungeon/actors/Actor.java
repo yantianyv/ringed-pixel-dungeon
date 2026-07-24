@@ -253,9 +253,9 @@ public abstract class Actor implements Bundlable {
 		return current != null ? current.actPriority : HERO_PRIO;
 	}
 
-	// 检查 actor 是否仍在队列中且存活（deathMarked 视为存活）
+	// 检查 actor 是否仍在队列中且可行动
 	private static boolean isActiveActor(Actor a) {
-		return a != null && all.contains(a) && (!(a instanceof Char) || ((Char) a).isAlive());
+		return a != null && all.contains(a) && (!(a instanceof Char) || ((Char) a).isActive());
 	}
 
 	public static boolean keepActorThreadAlive = true;
@@ -290,6 +290,10 @@ public abstract class Actor implements Bundlable {
 
 				// 若 actor 已被移除或死亡，跳过并重新选下一个
 				if (!isActiveActor(acting)) {
+					// 死亡但滞留队列的角色会被反复选中导致死循环，直接移除
+					if (all.contains(acting)) {
+						remove(acting);
+					}
 					current = null;
 					doNext = false;
 					continue;

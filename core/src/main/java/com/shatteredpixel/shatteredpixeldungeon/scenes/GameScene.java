@@ -1566,18 +1566,38 @@ public class GameScene extends PixelScene {
         }
     }
 
+    private boolean isActorThreadWaiting() {
+        if (actorThread == null || !actorThread.isAlive()) {
+            return false;
+        }
+        StackTraceElement[] stack = actorThread.getStackTrace();
+        for (StackTraceElement e : stack) {
+            if (e.getClassName().equals("java.lang.Object")
+                    && e.getMethodName().startsWith("wait")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void trackTurnStuck() {
         Actor cur = Actor.processing() ? Actor.current() : null;
-        // 等待玩家输入时不判定卡死
-        if (cur == Dungeon.hero && Dungeon.hero.ready
-                && actorThread != null && actorThread.isAlive()) {
+        boolean waiting = actorThread != null && actorThread.isAlive() && isActorThreadWaiting();
+
+        // 英雄等待玩家输入时不判定卡死
+        if (cur == Dungeon.hero && waiting) {
             cur = null;
         }
+
         if (cur != null) {
             if (cur == lastStuckActor && cur.time() == lastStuckActorTime) {
                 stuckTimer += Game.elapsed;
                 if (!turnStuck && stuckTimer > TURN_STUCK_THRESHOLD) {
                     turnStuck = true;
+                    GLog.n("Turn stuck detected on " + describeActor(cur));
+                    if (actorThread != null) {
+                        actorThread.interrupt();
+                    }
                 }
             } else {
                 lastStuckActor = cur;
@@ -1585,12 +1605,24 @@ public class GameScene extends PixelScene {
                 stuckTimer = 0f;
                 turnStuck = false;
             }
-        } else {
+        } else if (waiting && Dungeon.hero != null && Dungeon.hero.ready) {
+            // 正常等待玩家输入
             stuckTimer = 0f;
             turnStuck = false;
             lastStuckActor = null;
             lastStuckActorTime = Float.NaN;
+        } else if (waiting) {
+            // actor 线程在等待但英雄无法操作，调度未推进
+            stuckTimer += Game.elapsed;
+            if (!turnStuck && stuckTimer > TURN_STUCK_THRESHOLD) {
+                turnStuck = true;
+                GLog.n("Turn stuck detected while actor thread waiting (hero not ready)");
+                if (actorThread != null) {
+                    actorThread.interrupt();
+                }
+            }
         }
+        // 忙等（不在 wait）时保持计时，避免采样间隙清零
     }
 
     public static boolean isTurnStuck() {

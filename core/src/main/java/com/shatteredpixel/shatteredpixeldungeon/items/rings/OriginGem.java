@@ -184,7 +184,8 @@ public class OriginGem extends Item {
 
         @Override
         public int cost(ArrayList<Item> ingredients) {
-            return 5;
+            // 每生成1个宝珠消耗1能量
+            return ingredients.get(0).level() + 2;
         }
 
         @Override
