@@ -452,6 +452,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
      * @return 伤害倍率
      */
     static float Freeze(ElementBuff cryo, ElementBuff hydro, Char ch) {
+        if (cryo instanceof FrostElement) return 1f; // 冻结状态不再触发水冰反应
+
         float consume = Math.min(cryo.quantity, hydro.quantity);
         if (consume <= 0) return 1f;
 
@@ -471,8 +473,8 @@ public class ElementBuff extends Buff implements Hero.Doom {
         if (consume > 1) {
             // 统一使用元素冰冻效果
             FrostElement buff = Buff.affect(ch, FrostElement.class);
-            buff.quantity = consume; // 设置初始回合数为消耗量
-            buff.shatterDamage = dmg;
+            buff.quantity = Math.max(buff.quantity, consume);
+            buff.shatterDamage = Math.max(buff.shatterDamage, dmg);
         } else {
             ch.damage(dmg, new ElementBuff());
         }

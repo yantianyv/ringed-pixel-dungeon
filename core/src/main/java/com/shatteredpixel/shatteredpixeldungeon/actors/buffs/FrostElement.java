@@ -55,6 +55,7 @@ public class FrostElement extends ElementBuff {
         // 在解除效果时造成破冰伤害
         if (shatterDamage > 0) {
             target.damage(shatterDamage, this);
+            shatterDamage = 0;
         }
         super.detach();
         // 减少麻痹计数器
