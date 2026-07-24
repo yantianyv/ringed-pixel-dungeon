@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.watabou.noosa.ui.Component;
 import com.watabou.utils.DeviceCompat;
 
 public class WndTurnDebug extends Window {
@@ -53,10 +54,15 @@ public class WndTurnDebug extends Window {
 
 		RenderedTextBlock info = PixelScene.renderTextBlock( debugText, 6 );
 		info.maxWidth(WIDTH - MARGIN * 2);
+		info.setPos(0, 0);
 
-		ScrollPane sp = new ScrollPane( info );
-		add( sp );
-		sp.setRect( MARGIN, MARGIN, WIDTH - MARGIN * 2, HEIGHT - MARGIN * 2 - BTN_HEIGHT - GAP );
+		Component content = new Component();
+		content.add(info);
+		content.setSize(info.width(), info.height());
+
+		ScrollPane sp = new ScrollPane(content);
+		add(sp);
+		sp.setRect(MARGIN, MARGIN, WIDTH - MARGIN * 2, HEIGHT - MARGIN * 2 - BTN_HEIGHT - GAP);
 
 		RedButton btnCopy = new RedButton( Messages.get(this, "copy") ) {
 			@Override

@@ -66,16 +66,15 @@ public class WndGame extends Window {
 		});
 		curBtn.icon(Icons.get(Icons.PREFS));
 
-		addButton(curBtn = new RedButton(Messages.get(this, "turn_debug")) {
-			@Override
-			protected void onClick() {
-				hide();
-				GameScene.show(new WndTurnDebug());
-			}
-		});
-		curBtn.icon(Icons.get(Icons.INFO));
-		if (!GameScene.isTurnStuck()) {
-			curBtn.textColor(0xBBBBBB);
+		if (GameScene.isTurnStuck()) {
+			addButton(curBtn = new RedButton(Messages.get(this, "turn_debug")) {
+				@Override
+				protected void onClick() {
+					hide();
+					GameScene.show(new WndTurnDebug());
+				}
+			});
+			curBtn.icon(Icons.get(Icons.INFO));
 		}
 
 		// Challenges window
