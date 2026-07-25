@@ -33,8 +33,8 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.HeroSelectScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.RankingsScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.SupporterScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.TitleScene;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.brews.UnstableBrew;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
@@ -113,15 +113,19 @@ public class WndGame extends Window {
 			curBtn.icon(Icons.get(Icons.RANKINGS));
 		}
 
-		// Buy me a milk tea
-		addButton(curBtn = new RedButton(Messages.get(this, "milktea")) {
-			@Override
-			protected void onClick() {
-				hide();
-				GameScene.show(new WndAppreciationCode());
-			}
-		});
-		curBtn.icon(new ItemSprite(new UnstableBrew()));
+		if (SPDSettings.adIntensity() >= 2){
+			int appreciationIndex = SupporterScene.randomAppreciationIndex();
+
+			// appreciation
+			addButton(curBtn = new RedButton(Messages.get(SupporterScene.class, SupporterScene.APPRECIATION_KEYS[appreciationIndex])) {
+				@Override
+				protected void onClick() {
+					hide();
+					GameScene.show(new WndAppreciationCode());
+				}
+			});
+			curBtn.icon(new ItemSprite(SupporterScene.APPRECIATION_ICONS[appreciationIndex]));
+		}
 
 		// Main menu
 		addButton(curBtn = new RedButton(Messages.get(this, "menu")) {

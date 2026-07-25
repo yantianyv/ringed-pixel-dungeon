@@ -25,9 +25,9 @@ package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.brews.UnstableBrew;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
@@ -40,11 +40,49 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.NinePatch;
 import com.watabou.noosa.ui.Component;
+import com.watabou.utils.Random;
 
 public class SupporterScene extends PixelScene {
 
 	private static final int BTN_HEIGHT = 22;
 	private static final int GAP = 2;
+
+	public static final String[] APPRECIATION_KEYS = {
+			"milktea", "bbq", "burger", "naan", "donate", "cup", "cat",
+			"flower", "redpacket", "token",
+			"feast", "stewed", "mystery_meat", "carpaccio", "candy", "fish", "pie",
+			"cake1", "cake2", "cake3", "egg", "blob", "bone_soup"
+	};
+
+	public static final int[] APPRECIATION_ICONS = {
+			ItemSpriteSheet.SPARKLING_POTION,
+			ItemSpriteSheet.STEAK,
+			ItemSpriteSheet.CRAZY_BURGER,
+			ItemSpriteSheet.PASTY,
+			ItemSpriteSheet.WAND_TRANSFUSION,
+			ItemSpriteSheet.ARTIFACT_CHALICE1,
+			ItemSpriteSheet.HONEYPOT,
+			ItemSpriteSheet.ARTIFACT_ROSE1,
+			ItemSpriteSheet.GOLD,
+			ItemSpriteSheet.TOKEN,
+			ItemSpriteSheet.MEAT_PIE,
+			ItemSpriteSheet.STEWED,
+			ItemSpriteSheet.MEAT,
+			ItemSpriteSheet.CARPACCIO,
+			ItemSpriteSheet.CANDY_CANE,
+			ItemSpriteSheet.STEAMED_FISH,
+			ItemSpriteSheet.PUMPKIN_PIE,
+			ItemSpriteSheet.RINGED_CAKE,
+			ItemSpriteSheet.SHATTERED_CAKE,
+			ItemSpriteSheet.VANILLA_CAKE,
+			ItemSpriteSheet.EASTER_EGG,
+			ItemSpriteSheet.BLOB,
+			ItemSpriteSheet.RAT_SKULL
+	};
+
+	public static int randomAppreciationIndex(){
+		return Random.Int(APPRECIATION_KEYS.length);
+	}
 
 	@Override
 	public void create() {
@@ -123,17 +161,19 @@ public class SupporterScene extends PixelScene {
 		link_ringed_ad.setSize(elementWidth, BTN_HEIGHT);
 		add(link_ringed_ad);
 
-		StyledButton link_milktea = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, "milktea")) {
+		int appreciationIndex = Random.Int(APPRECIATION_KEYS.length);
+
+		StyledButton link_appreciation = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(this, APPRECIATION_KEYS[appreciationIndex])) {
 			@Override
 			protected void onClick() {
 				super.onClick();
 				addToFront(new WndAppreciationCode());
 			}
 		};
-		link_milktea.icon(new ItemSprite(new UnstableBrew()));
-		link_milktea.textColor(Window.TITLE_COLOR);
-		link_milktea.setSize(elementWidth, BTN_HEIGHT);
-		add(link_milktea);
+		link_appreciation.icon(new ItemSprite(APPRECIATION_ICONS[appreciationIndex]));
+		link_appreciation.textColor(Window.TITLE_COLOR);
+		link_appreciation.setSize(elementWidth, BTN_HEIGHT);
+		add(link_appreciation);
 
 		float buttonsHeight = 4 * BTN_HEIGHT + 3 * GAP;
 		float elementHeight = twoColumn
@@ -153,17 +193,17 @@ public class SupporterScene extends PixelScene {
 			link.setPos(right, top);
 			link_ringed.setPos(right, link.bottom() + GAP);
 			link_ringed_ad.setPos(right, link_ringed.bottom() + GAP);
-			link_milktea.setPos(right, link_ringed_ad.bottom() + GAP);
+			link_appreciation.setPos(right, link_ringed_ad.bottom() + GAP);
 		} else {
 			link.setPos(left, msg.bottom() + GAP);
 			link_ringed.setPos(left, link.bottom() + GAP);
 			link_ringed_ad.setPos(left, link_ringed.bottom() + GAP);
-			link_milktea.setPos(left, link_ringed_ad.bottom() + GAP);
+			link_appreciation.setPos(left, link_ringed_ad.bottom() + GAP);
 		}
 		align(link);
 		align(link_ringed);
 		align(link_ringed_ad);
-		align(link_milktea);
+		align(link_appreciation);
 	}
 
 	@Override
