@@ -567,7 +567,7 @@ public enum HeroClass {
         if (slot0 != null) {
             Dungeon.quickslot.setSlot(0, slot0);
         }
-        // 把一个驱邪卷轴放入第二个快捷栏
+        // 把一个祛邪卷轴放入第二个快捷栏
         Item slot1 = Dungeon.hero.belongings.getItem(ScrollOfRemoveCurse.class);
         if (slot1 != null) {
             Dungeon.quickslot.setSlot(1, slot1);

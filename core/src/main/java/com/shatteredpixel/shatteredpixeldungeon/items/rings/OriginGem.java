@@ -121,7 +121,7 @@ public class OriginGem extends Item {
                     } else {
                         GLog.w(Messages.get(OriginGem.class, "not_enough"));
                     }
-                }// 对于已鉴定被诅咒的戒指，花费2个驱邪 
+                }// 对于已鉴定被诅咒的戒指，花费2个祛邪 
                 else if (w.cursed == true) {
                     if (quantity() >= 2) {
                         ScrollOfRemoveCurse.uncurse(Dungeon.hero, w);
