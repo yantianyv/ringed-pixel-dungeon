@@ -114,7 +114,7 @@ import com.watabou.utils.DeviceCompat;
 public enum HeroClass {
 
     WARRIOR(HeroSubClass.BERSERKER, HeroSubClass.GLADIATOR, HeroSubClass.MUKBANGER),
-    MAGE(HeroSubClass.BATTLEMAGE, HeroSubClass.WARLOCK),
+    MAGE(HeroSubClass.BATTLEMAGE, HeroSubClass.WARLOCK, HeroSubClass.TRAVELER),
     ROGUE(HeroSubClass.ASSASSIN, HeroSubClass.FREERUNNER, HeroSubClass.MAGICIAN),
     HUNTRESS(HeroSubClass.SNIPER, HeroSubClass.WARDEN),
     DUELIST(HeroSubClass.CHAMPION, HeroSubClass.MONK),

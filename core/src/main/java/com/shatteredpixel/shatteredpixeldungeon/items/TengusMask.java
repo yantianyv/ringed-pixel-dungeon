@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.GnosisEye;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -104,6 +105,20 @@ public class TengusMask extends Item {
 		
 		curUser.subClass = way;
 		Talent.initSubclassTalents(curUser);
+
+		if (way == HeroSubClass.TRAVELER) {
+			GnosisEye eye = new GnosisEye();
+			if (eye.collect(curUser.belongings.backpack)) {
+				if (curUser.belongings.artifact == null) {
+					curUser.belongings.artifact = eye;
+				} else {
+					curUser.belongings.misc = eye;
+				}
+				curUser.belongings.backpack.items.remove(eye);
+				eye.activate(curUser);
+				eye.cursedKnown = true;
+			}
+		}
 
 		if (way == HeroSubClass.ASSASSIN && curUser.invisible > 0){
 			Buff.affect(curUser, Preparation.class);

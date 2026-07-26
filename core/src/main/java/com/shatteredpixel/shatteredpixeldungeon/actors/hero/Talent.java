@@ -24,6 +24,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,6 +64,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.LeafParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
@@ -131,6 +133,8 @@ public enum Talent {
     EMPOWERED_STRIKE(43, 3), MYSTICAL_CHARGE(44, 3), EXCESS_CHARGE(45, 3),
     //Warlock T3
     SOUL_EATER(46, 3), SOUL_SIPHON(47, 3), NECROMANCERS_MINIONS(48, 3),
+    //Traveler T3
+    ELEMENTAL_MASTERY(1080, 3), ELEMENTAL_RECHARGE(1081, 3), ELEMENTAL_TRANSMUTATION(1082, 3),
     //Elemental Blast T4
     BLAST_RADIUS(49, 4), ELEMENTAL_POWER(50, 4), REACTIVE_BARRIER(51, 4),
     //Wild Magic T4
@@ -835,6 +839,125 @@ public enum Talent {
         if (talent == SPIRIT_FORM) {
             Dungeon.hero.updateHT(false);
         }
+
+        // 旅行者-元素转化
+        if (talent == ELEMENTAL_TRANSMUTATION) {
+            int points = hero.pointsInTalent(ELEMENTAL_TRANSMUTATION);
+            if (points == 1 || points == 2) {
+                Wand wand = (Wand) Generator.random(Generator.Category.WAND);
+                wand.level(0);
+                wand.identify();
+                if (!wand.collect()) {
+                    Dungeon.level.drop(wand, hero.pos).sprite.drop();
+                }
+                if (points == 2) {
+                    // 再给一个，优先从未获得过或背包中没有同类的法杖
+                    Wand second = generateUnownedWand(hero);
+                    if (second == null) {
+                        second = (Wand) Generator.random(Generator.Category.WAND);
+                        second.level(0);
+                    }
+                    second.identify();
+                    if (!second.collect()) {
+                        Dungeon.level.drop(second, hero.pos).sprite.drop();
+                    }
+                }
+            }
+            if (points == 3) {
+                applyElementalTransmutation(hero);
+            }
+        }
+    }
+
+    // 可嬗变的三阶天赋池（元素转化）：每个专精 T3 的前两个公共天赋
+    private static final Talent[] TRANSMUTABLE_T3 = new Talent[]{
+            ENDLESS_RAGE, DEATHLESS_FURY,
+            CLEAVE, LETHAL_DEFENSE,
+            BALANCED_MEAL, FEAST_FRENZY,
+            EMPOWERED_STRIKE, MYSTICAL_CHARGE,
+            SOUL_EATER, SOUL_SIPHON,
+            ENHANCED_LETHALITY, ASSASSINS_REACH,
+            EVASIVE_ARMOR, PROJECTILE_MOMENTUM,
+            GOLDEN_CICADA, THREE_IMMORTALS,
+            FARSIGHT, SHARED_ENCHANTMENT,
+            DURABLE_TIPS, BARKSKIN,
+            VARIED_CHARGE, TWIN_UPGRADES,
+            UNENCUMBERED_SPIRIT, MONASTIC_VIGOR,
+            HOLY_LANCE, HALLOWED_GROUND,
+            LAY_ON_HANDS, AURA_OF_PROTECTION
+    };
+
+    // 随机获取一个英雄当前未持有的法杖类型
+    private static Wand generateUnownedWand(Hero hero) {
+        ArrayList<Class<? extends Wand>> owned = new ArrayList<>();
+        for (Item item : hero.belongings) {
+            if (item instanceof Wand) {
+                owned.add((Class<? extends Wand>) item.getClass());
+            }
+        }
+        ArrayList<Class<? extends Wand>> candidates = new ArrayList<>();
+        for (Class<?> cls : Generator.Category.WAND.classes) {
+            if (Wand.class.isAssignableFrom(cls) && !owned.contains(cls)) {
+                candidates.add((Class<? extends Wand>) cls);
+            }
+        }
+        if (candidates.isEmpty()) {
+            return null;
+        }
+        Wand wand = Reflection.newInstance(Random.element(candidates));
+        wand.level(0);
+        return wand;
+    }
+
+    // 元素转化 +3：把 ELEMENTAL_TRANSMUTATION 替换为随机三阶天赋
+    public static void applyElementalTransmutation(Hero hero) {
+        LinkedHashMap<Talent, Integer> tier3 = hero.talents.get(2);
+        if (!tier3.containsKey(ELEMENTAL_TRANSMUTATION)) {
+            return;
+        }
+        int points = tier3.get(ELEMENTAL_TRANSMUTATION);
+        if (points < 3) {
+            return;
+        }
+
+        Talent replacement = randomTransmutableT3(hero);
+        tier3.remove(ELEMENTAL_TRANSMUTATION);
+        tier3.put(replacement, points);
+        hero.metamorphedTalents.put(ELEMENTAL_TRANSMUTATION, replacement);
+        GLog.p(Messages.get(Talent.class, "transmutation_applied", replacement.title()));
+    }
+
+    // 随机选择一个可嬗变的三阶天赋，优先不与当前已选冲突
+    private static Talent randomTransmutableT3(Hero hero) {
+        ArrayList<Talent> candidates = new ArrayList<>();
+        for (Talent t : TRANSMUTABLE_T3) {
+            if (hero.pointsInTalent(t) == 0) {
+                candidates.add(t);
+            }
+        }
+        if (candidates.isEmpty()) {
+            candidates.addAll(Arrays.asList(TRANSMUTABLE_T3));
+        }
+        return Random.element(candidates);
+    }
+
+    // 嬗变已转化的旅行者天赋
+    public static void transmuteTravelerTalent(Hero hero) {
+        Talent current = hero.metamorphedTalents.get(ELEMENTAL_TRANSMUTATION);
+        if (current == null) {
+            return;
+        }
+        LinkedHashMap<Talent, Integer> tier3 = hero.talents.get(2);
+        int points = tier3.containsKey(current) ? tier3.get(current) : 3;
+        tier3.remove(current);
+
+        Talent replacement = randomTransmutableT3(hero);
+        while (replacement == current && TRANSMUTABLE_T3.length > 1) {
+            replacement = randomTransmutableT3(hero);
+        }
+        tier3.put(replacement, points);
+        hero.metamorphedTalents.put(ELEMENTAL_TRANSMUTATION, replacement);
+        GLog.p(Messages.get(Talent.class, "transmutation_rerolled", replacement.title()));
     }
 
     public static class CachedRationsDropped extends CounterBuff {
@@ -1390,10 +1513,14 @@ public enum Talent {
     }
 
     public static void initSubclassTalents(Hero hero) {
-        initSubclassTalents(hero.subClass, hero.talents);
+        initSubclassTalents(hero.subClass, hero.talents, hero.metamorphedTalents);
     }
 
     public static void initSubclassTalents(HeroSubClass cls, ArrayList<LinkedHashMap<Talent, Integer>> talents) {
+        initSubclassTalents(cls, talents, null);
+    }
+
+    public static void initSubclassTalents(HeroSubClass cls, ArrayList<LinkedHashMap<Talent, Integer>> talents, LinkedHashMap<Talent, Talent> replacements) {
         if (cls == HeroSubClass.NONE) {
             return;
         }
@@ -1421,6 +1548,9 @@ public enum Talent {
                 break;
             case WARLOCK:
                 Collections.addAll(tierTalents, SOUL_EATER, SOUL_SIPHON, NECROMANCERS_MINIONS);
+                break;
+            case TRAVELER:// 旅行者
+                Collections.addAll(tierTalents, ELEMENTAL_MASTERY, ELEMENTAL_RECHARGE, ELEMENTAL_TRANSMUTATION);
                 break;
             case ASSASSIN:// 刺客
                 Collections.addAll(tierTalents, ENHANCED_LETHALITY, ASSASSINS_REACH, BOUNTY_HUNTER);
@@ -1451,6 +1581,9 @@ public enum Talent {
                 break;
         }
         for (Talent talent : tierTalents) {
+            if (replacements != null && replacements.containsKey(talent)) {
+                talent = replacements.get(talent);
+            }
             talents.get(2).put(talent, 0);
         }
         tierTalents.clear();

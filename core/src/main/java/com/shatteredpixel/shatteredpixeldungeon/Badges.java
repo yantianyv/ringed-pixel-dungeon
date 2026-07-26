@@ -194,6 +194,7 @@ public class Badges {
         BOSS_SLAIN_3_WARLOCK,
         BOSS_SLAIN_3_MAGICIAN, // 魔术师
         BOSS_SLAIN_3_BATTLEMAGE,
+        BOSS_SLAIN_3_TRAVELER, // 旅行者
         BOSS_SLAIN_3_FREERUNNER,
         BOSS_SLAIN_3_ASSASSIN,
         BOSS_SLAIN_3_SNIPER,
@@ -912,6 +913,7 @@ public class Badges {
         thirdBossSubclassBadges.put(HeroSubClass.ASSASSIN, Badge.BOSS_SLAIN_3_ASSASSIN); // 刺客
         thirdBossSubclassBadges.put(HeroSubClass.FREERUNNER, Badge.BOSS_SLAIN_3_FREERUNNER);// 疾行客
         thirdBossSubclassBadges.put(HeroSubClass.MAGICIAN, Badge.BOSS_SLAIN_3_MAGICIAN);// 魔术师
+        thirdBossSubclassBadges.put(HeroSubClass.TRAVELER, Badge.BOSS_SLAIN_3_TRAVELER);// 旅行者
         thirdBossSubclassBadges.put(HeroSubClass.SNIPER, Badge.BOSS_SLAIN_3_SNIPER);
         thirdBossSubclassBadges.put(HeroSubClass.WARDEN, Badge.BOSS_SLAIN_3_WARDEN);
         thirdBossSubclassBadges.put(HeroSubClass.CHAMPION, Badge.BOSS_SLAIN_3_CHAMPION);

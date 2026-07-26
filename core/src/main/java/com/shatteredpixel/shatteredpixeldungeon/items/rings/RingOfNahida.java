@@ -3,6 +3,8 @@ package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
@@ -39,12 +41,20 @@ public class RingOfNahida extends Ring {
 
     // 元素精通
     public static float elementalMastery(Char target) {
-        return (float) Math.pow(1+0.1f * getAverageEfficiency(target, Nahida.class), getBuffedBonus(target, Nahida.class));
+        int bonus = getBuffedBonus(target, Nahida.class) + getTravelerMasteryBonus(target);
+        return (float) Math.pow(1+0.1f * getAverageEfficiency(target, Nahida.class), bonus);
     }
 
     // 附魔加强
     public static float enchantPowerMultiplier(Char target) {
         return (float) Math.pow(1 + 0.1f * getAverageEfficiency(target, Nahida.class), getBuffedBonus(target, Nahida.class));
+    }
+
+    private static int getTravelerMasteryBonus(Char target) {
+        if (target instanceof Hero) {
+            return ((Hero) target).pointsInTalent(Talent.ELEMENTAL_MASTERY);
+        }
+        return 0;
     }
 
     public void recharge(float x) {

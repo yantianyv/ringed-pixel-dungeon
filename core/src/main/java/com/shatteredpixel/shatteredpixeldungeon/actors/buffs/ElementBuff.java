@@ -60,6 +60,11 @@ public class ElementBuff extends Buff implements Hero.Doom {
 
     // 元素附着量
     protected float quantity = 0f;
+
+    public float quantity() {
+        return quantity;
+    }
+
     // 元素类型
     protected Element element;
 
@@ -168,7 +173,7 @@ public class ElementBuff extends Buff implements Hero.Doom {
                 buff = new CryoElement();
                 break;
         }
-        if (Dungeon.hero != null && Dungeon.hero.buff(RingOfNahida.Nahida.class) != null) {
+        if (Dungeon.hero != null && RingOfNahida.elementalMastery(Dungeon.hero) > 1f) {
             if (defender instanceof Hero) {
                 quantity /= RingOfNahida.elementalMastery(Dungeon.hero);
             } else {

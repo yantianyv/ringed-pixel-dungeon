@@ -31,8 +31,10 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
@@ -64,6 +66,19 @@ public class WandOfLightning extends DamageWand {
     private ArrayList<Char> affected = new ArrayList<>();
 
     private ArrayList<Lightning.Arc> arcs = new ArrayList<>();
+
+    // 旅行者战技加成
+    public float dmgMulti = 1f;
+    public boolean hitAllies = false;
+    public float allyDmgMulti = 0.5f;
+    public float paralysisDuration = 0f;
+
+    public void resetTravelerModifiers() {
+        dmgMulti = 1f;
+        hitAllies = false;
+        allyDmgMulti = 0.5f;
+        paralysisDuration = 0f;
+    }
 
     public int min(int lvl) {
         return 5 + lvl;
@@ -101,6 +116,12 @@ public class WandOfLightning extends DamageWand {
             float dmg_multi = ElementBuff.apply(ElementBuff.Element.ELECTRO, curUser, ch, 1 + buffedLvl() * 0.5f);
 
             if (ch != curUser && ch.alignment == curUser.alignment && ch.pos != bolt.collisionPos) {
+                if (hitAllies) {
+                    ch.damage(Math.round(damageRoll() * multiplier * allyDmgMulti), this);
+                    if (paralysisDuration > 0) {
+                        Buff.prolong(ch, Paralysis.class, paralysisDuration);
+                    }
+                }
                 continue;
             }
             wandProc(ch, chargesPerCast());
@@ -112,7 +133,10 @@ public class WandOfLightning extends DamageWand {
                     GLog.n(Messages.get(this, "ondeath"));
                 }
             } else {
-                ch.damage(Math.round(damageRoll() * multiplier * dmg_multi), this);
+                ch.damage(Math.round(damageRoll() * multiplier * dmgMulti * dmg_multi), this);
+                if (paralysisDuration > 0) {
+                    Buff.prolong(ch, Paralysis.class, paralysisDuration);
+                }
             }
         }
     }

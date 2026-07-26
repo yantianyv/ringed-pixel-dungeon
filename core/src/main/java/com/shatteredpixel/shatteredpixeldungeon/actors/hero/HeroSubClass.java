@@ -40,6 +40,7 @@ public enum HeroSubClass {
     // 法师
     BATTLEMAGE(HeroIcon.BATTLEMAGE),
     WARLOCK(HeroIcon.WARLOCK),
+    TRAVELER(HeroIcon.TRAVELER), // 旅行者
     // 盗贼
     ASSASSIN(HeroIcon.ASSASSIN),        // 刺客
     FREERUNNER(HeroIcon.FREERUNNER),    // 疾行客

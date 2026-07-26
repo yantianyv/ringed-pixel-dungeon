@@ -23,9 +23,11 @@ package com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArtifactRecharge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
@@ -34,6 +36,8 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.TravelerSpells;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.GnosisEye;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorrosion;
@@ -41,8 +45,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfRegrowth;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -64,6 +70,7 @@ public class MagesStaff extends MeleeWeapon {
 
     public static final String AC_IMBUE = "IMBUE";
     public static final String AC_ZAP = "ZAP";
+    public static final String AC_ELEMENTAL_SKILL = "ELEMENTAL_SKILL";
 
     private static final float STAFF_SCALE_FACTOR = 0.75f;
 
@@ -105,14 +112,28 @@ public class MagesStaff extends MeleeWeapon {
     public ArrayList<String> actions(Hero hero) {
         ArrayList<String> actions = super.actions(hero);
         actions.add(AC_IMBUE);
-        if (wand != null && wand.curCharges > 0) {
-            actions.add(AC_ZAP);
+        if (wand != null) {
+            if (hero.subClass == HeroSubClass.TRAVELER) {
+                if (wand.curCharges >= skillChargeCost()) {
+                    actions.add(AC_ELEMENTAL_SKILL);
+                }
+            } else if (wand.curCharges > 0) {
+                actions.add(AC_ZAP);
+            }
         }
         return actions;
     }
 
+    // 哨卫法杖的元素战技消耗更多充能
+    private int skillChargeCost() {
+        return wand instanceof WandOfWarding ? 4 : 2;
+    }
+
     @Override
     public String defaultAction() {
+        if (Dungeon.hero != null && Dungeon.hero.subClass == HeroSubClass.TRAVELER && wand != null) {
+            return AC_ELEMENTAL_SKILL;
+        }
         return AC_ZAP;
     }
 
@@ -141,10 +162,15 @@ public class MagesStaff extends MeleeWeapon {
             curUser = hero;
             GameScene.selectItem(itemSelector);
 
-        } else if (action.equals(AC_ZAP)) {
+        } else if (action.equals(AC_ZAP) || action.equals(AC_ELEMENTAL_SKILL)) {
 
             if (wand == null) {
                 GameScene.show(new WndUseItem(null, this));
+                return;
+            }
+
+            if (hero.subClass == HeroSubClass.TRAVELER) {
+                castTravelerSkill(hero);
                 return;
             }
 
@@ -155,6 +181,49 @@ public class MagesStaff extends MeleeWeapon {
             }
             wand.execute(hero, AC_ZAP);
         }
+    }
+
+    private void castTravelerSkill(Hero hero) {
+        if (GnosisEye.getHeroGnosisEye(hero) == null) {
+            GLog.w(Messages.get(this, "no_gnosis_eye"));
+            return;
+        }
+        if (hero.buff(MagicImmune.class) != null) {
+            GLog.w(Messages.get(Wand.class, "no_magic"));
+            return;
+        }
+        if (wand.curCharges < skillChargeCost()) {
+            GLog.w(Messages.get(Wand.class, "fizzles"));
+            return;
+        }
+        promptSkillTarget(hero);
+    }
+
+    private void promptSkillTarget(Hero hero) {
+        curUser = hero;
+        GameScene.selectCell(new CellSelector.Listener() {
+            @Override
+            public void onSelect(Integer target) {
+                if (target == null) return;
+                GnosisEye eye = GnosisEye.getHeroGnosisEye(hero);
+                if (eye == null || wand == null) return;
+                TravelerSpells.castSkill(wand, hero, target);
+                wand.curCharges -= skillChargeCost();
+                int recharge = hero.pointsInTalent(Talent.ELEMENTAL_RECHARGE);
+                float energyGain = 1f + 0.5f * recharge;
+                eye.gainEnergy(energyGain);
+                if (wand instanceof WandOfWarding) {
+                    eye.gainEnergy(energyGain);
+                }
+                hero.spendAndNext(Actor.TICK);
+                updateQuickslot();
+            }
+
+            @Override
+            public String prompt() {
+                return Messages.get(MagesStaff.class, "skill_prompt");
+            }
+        });
     }
 
     @Override
@@ -306,6 +375,10 @@ public class MagesStaff extends MeleeWeapon {
 
     public Class<? extends Wand> wandClass() {
         return wand != null ? wand.getClass() : null;
+    }
+
+    public Wand wand() {
+        return wand;
     }
 
     @Override

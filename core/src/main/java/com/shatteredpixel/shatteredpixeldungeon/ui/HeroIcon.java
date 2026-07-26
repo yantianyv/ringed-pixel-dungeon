@@ -44,7 +44,7 @@ public class HeroIcon extends Image {
     // 预留给战士第四天赋（1001）
     public static final int BATTLEMAGE = 2;
     public static final int WARLOCK = 3;
-    // 预留给法师第三天赋（1002）
+    public static final int TRAVELER = 1002; // 旅行者
     // 预留给法师第四天赋（1003）
     public static final int ASSASSIN = 4;
     public static final int FREERUNNER = 5;

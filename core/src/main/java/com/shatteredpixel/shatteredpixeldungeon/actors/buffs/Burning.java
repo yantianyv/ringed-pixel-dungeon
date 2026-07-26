@@ -214,6 +214,10 @@ public class Burning extends Buff implements Hero.Doom {
         left += duration;
     }
 
+    public float left() {
+        return left;
+    }
+
     @Override
     public int icon() {
         return BuffIndicator.FIRE;
