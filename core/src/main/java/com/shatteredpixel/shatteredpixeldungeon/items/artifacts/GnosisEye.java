@@ -190,6 +190,16 @@ public class GnosisEye extends Artifact {
     public String desc() {
         String desc = super.desc();
         desc += "\n\n" + Messages.get(this, "energy_desc", Messages.decimalFormat("#.0", energy));
+        if (Dungeon.hero != null && Dungeon.hero.belongings.contains(this)) {
+            Wand wand = getStaffWand(Dungeon.hero);
+            if (wand != null) {
+                String key = wand.getClass().getSimpleName().toLowerCase();
+                desc += "\n\n" + Messages.get(this, "skill_prefix") + Messages.get(this, "skill_" + key);
+                desc += "\n" + Messages.get(this, "burst_prefix") + Messages.get(this, "burst_" + key);
+            } else {
+                desc += "\n\n" + Messages.get(this, "no_wand_desc");
+            }
+        }
         return desc;
     }
 
