@@ -37,10 +37,10 @@ import com.watabou.utils.Bundle;
 public class CorrosiveGas extends Blob {
 
 	//FIXME should have strength per-cell
-	private int strength = 0;
+	protected int strength = 0;
 
 	//used in specific cases where the source of the corrosion is important for death logic
-	private Class source;
+	protected Class source;
 
 	@Override
 	protected void evolve() {
@@ -58,11 +58,15 @@ public class CorrosiveGas extends Blob {
 					cell = i + j*Dungeon.level.width();
 					if (cur[cell] > 0 && (ch = Actor.findChar( cell )) != null) {
 						if (!ch.isImmune(this.getClass()))
-							Buff.affect(ch, Corrosion.class).set(2f, strength, source);
+							affectCorrosion(ch);
 					}
 				}
 			}
 		}
+	}
+
+	protected void affectCorrosion(Char ch){
+		Buff.affect(ch, Corrosion.class).set(2f, strength, source);
 	}
 
 	public CorrosiveGas setStrength(int str){

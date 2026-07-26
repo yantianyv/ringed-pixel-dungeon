@@ -88,6 +88,31 @@ public class WandOfRegrowth extends Wand {
         }
     }
 
+    public void castTravelerSkill(Hero hero, int target, Callback callback) {
+        setCurrent(hero);
+        this.target = target;
+        Ballistica bolt = new Ballistica(hero.pos, target, collisionProperties);
+        int chrgUsed = 2;
+        cone = new ConeAOE(bolt, 2 + 2 * chrgUsed, 20 + 10 * chrgUsed,
+                Ballistica.STOP_SOLID | Ballistica.STOP_TARGET);
+
+        int oldTot = totChrgUsed;
+        int oldOver = chargesOverLimit;
+        fx(bolt, new Callback() {
+            @Override
+            public void call() {
+                onZap(bolt);
+                totChrgUsed = oldTot;
+                chargesOverLimit = oldOver;
+                callback.call();
+            }
+        });
+    }
+
+    public ConeAOE getCone() {
+        return cone;
+    }
+
     @Override
     public void onZap(Ballistica bolt) {
 

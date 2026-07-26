@@ -5,8 +5,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.CorrosiveGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.TravelerCorrosiveGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AllyBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
@@ -100,7 +100,7 @@ public class TravelerSpells {
         } else if (wand instanceof WandOfBlastWave) {
             castBlastWaveSkill((WandOfBlastWave) wand, hero, target, lvl);
         } else if (wand instanceof WandOfLivingEarth) {
-            castLivingEarthSkill(hero, lvl);
+            castLivingEarthSkill((WandOfLivingEarth) wand, hero, target, lvl);
         } else if (wand instanceof WandOfFrost) {
             castFrostSkill(hero, lvl);
         } else if (wand instanceof WandOfPrismaticLight) {
@@ -112,7 +112,7 @@ public class TravelerSpells {
         } else if (wand instanceof WandOfCorruption) {
             castCorruptionSkill((WandOfCorruption) wand, hero, target, lvl);
         } else if (wand instanceof WandOfRegrowth) {
-            castRegrowthSkill(hero, target, lvl);
+            castRegrowthSkill((WandOfRegrowth) wand, hero, target, lvl);
         }
     }
 
@@ -264,6 +264,7 @@ public class TravelerSpells {
                 Ballistica.STOP_TARGET | Ballistica.STOP_SOLID | Ballistica.IGNORE_SOFT_SOLID);
         ConeAOE cone = new ConeAOE(bolt, 5, 50,
                 Ballistica.STOP_TARGET | Ballistica.STOP_SOLID | Ballistica.IGNORE_SOFT_SOLID);
+        fxCone(hero, cone, MagicMissile.FIRE_CONE);
         for (int cell : cone.cells) {
             if (cell == hero.pos) continue;
             if (Dungeon.level.map[cell] == Terrain.DOOR) {
@@ -315,38 +316,43 @@ public class TravelerSpells {
         Ballistica bolt = new Ballistica(hero.pos, target,
                 Ballistica.STOP_TARGET | Ballistica.STOP_SOLID);
         int collision = bolt.collisionPos;
-        GameScene.add(Blob.seed(collision, 50 + 10 * lvl, CorrosiveGas.class)
-                .setStrength(2 + lvl, WandOfCorrosion.class));
+        TravelerCorrosiveGas gas = Blob.seed(collision, 50 + 10 * lvl, TravelerCorrosiveGas.class);
+        gas.setStrength(2 + lvl, WandOfCorrosion.class);
+        gas.setAttacker(hero.id());
+        gas.setElement(Element.ANEMO, 0.5f);
+        GameScene.add(gas);
         CellEmitter.get(collision).burst(Speck.factory(Speck.CORROSION), 10);
-        for (int n : PathFinder.NEIGHBOURS9) {
-            Char ch = Actor.findChar(collision + n);
-            if (ch != null && ch.alignment != Char.Alignment.ALLY) {
-                ElementBuff.apply(Element.ANEMO, hero, ch, 0.5f);
-            }
-        }
         if (Actor.findChar(collision) == null) {
             Dungeon.level.pressCell(collision);
         }
+        fxMissile(hero, collision, MagicMissile.CORROSION);
         hero.sprite.zap(collision);
         Sample.INSTANCE.play(Assets.Sounds.GAS);
     }
 
     private static void castCorrosionBurst(Hero hero, int target) {
-        hero.sprite.zap(target);
-        MagicMissile.boltFromChar(hero.sprite.parent, MagicMissile.CORROSION, hero.sprite, target,
+        Ballistica bolt = new Ballistica(hero.pos, target,
+                Ballistica.STOP_TARGET | Ballistica.STOP_SOLID);
+        final int collision = bolt.collisionPos;
+        hero.sprite.zap(collision);
+        MagicMissile.boltFromChar(hero.sprite.parent, MagicMissile.CORROSION, hero.sprite, collision,
                 new Callback() {
                     @Override
                     public void call() {
                     }
                 });
         Sample.INSTANCE.play(Assets.Sounds.GAS);
+        TravelerCorrosiveGas gas = Blob.seed(collision, 120, TravelerCorrosiveGas.class);
+        gas.setStrength(4 + hero.lvl / 5, WandOfCorrosion.class);
+        gas.setAttacker(hero.id());
+        gas.setElement(Element.HYDRO, 1f);
+        GameScene.add(gas);
         for (int n : PathFinder.NEIGHBOURS9) {
-            int c = target + n;
+            int c = collision + n;
             CellEmitter.get(c).burst(Speck.factory(Speck.CORROSION), 6);
             Char ch = Actor.findChar(c);
             if (ch == null || ch.alignment != Char.Alignment.ENEMY) continue;
             Buff.affect(ch, Ooze.class).set(Ooze.DURATION);
-            ElementBuff.apply(Element.HYDRO, hero, ch, 1f);
         }
         GnosisEye eye = GnosisEye.getHeroGnosisEye(hero);
         if (eye != null) eye.gainEnergy(80f);
@@ -362,10 +368,10 @@ public class TravelerSpells {
         WandOfBlastWave.BlastWave.blast(bolt.collisionPos);
         Char ch = Actor.findChar(bolt.collisionPos);
         if (ch != null && ch != hero && ch.alignment != Char.Alignment.ALLY) {
-            ch.damage(3 + lvl, wand);
+            float multi = ElementBuff.apply(Element.ANEMO, hero, ch, 1f);
+            ch.damage(Math.round((3 + lvl) * multi), wand);
             Buff.prolong(ch, Paralysis.class, 1f);
             Buff.prolong(ch, Levitation.class, 1f);
-            ElementBuff.apply(Element.ANEMO, hero, ch, 1f);
 
             if ((ch.isAlive() || ch.flying || !Dungeon.level.pit[ch.pos])
                     && bolt.path.size() > bolt.dist + 1 && ch.pos == bolt.collisionPos) {
@@ -403,23 +409,35 @@ public class TravelerSpells {
                 ch.pos = dest;
                 Dungeon.level.occupyCell(ch);
             }));
-            ch.damage(1, hero);
+            float multi = ElementBuff.apply(Element.ANEMO, hero, ch, 3f);
+            ch.damage(Math.round(1 * multi), hero);
             Buff.prolong(ch, Paralysis.class, 2f);
             Buff.prolong(ch, Levitation.class, 2f);
-            ElementBuff.apply(Element.ANEMO, hero, ch, 3f);
             slots.remove((Integer) dest);
             teleported++;
         }
     }
 
-    private static void castLivingEarthSkill(Hero hero, int lvl) {
-        int shield = Math.round(hero.HT * (0.1f + 0.01f * lvl));
-        Buff.affect(hero, Barrier.class).setShield(shield);
-        hero.sprite.showStatusWithIcon(com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite.POSITIVE,
-                Integer.toString(shield), com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText.SHIELDING);
+    private static void castLivingEarthSkill(final WandOfLivingEarth wand, final Hero hero,
+            int target, final int lvl) {
+        wand.setCurrent(hero);
+        final Ballistica bolt = new Ballistica(hero.pos, target, Ballistica.MAGIC_BOLT);
+        wand.fx(bolt, new Callback() {
+            @Override
+            public void call() {
+                wand.onZap(bolt);
+                int shield = Math.round(hero.HT * (0.1f + 0.01f * lvl));
+                Buff.affect(hero, Barrier.class).setShield(shield);
+                hero.sprite.showStatusWithIcon(
+                        com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite.POSITIVE,
+                        Integer.toString(shield),
+                        com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText.SHIELDING);
+            }
+        });
     }
 
     private static void castLivingEarthBurst(Hero hero, int target) {
+        fxMissile(hero, target, MagicMissile.EARTH);
         int lost = hero.HT - hero.HP;
         if (lost <= 0) lost = 1;
         int total = 0;
@@ -427,10 +445,11 @@ public class TravelerSpells {
             int c = target + n;
             Char ch = Actor.findChar(c);
             if (ch != null && ch.alignment != Char.Alignment.ALLY) {
-                ch.damage(lost, hero);
+                float multi = ElementBuff.apply(Element.GEO, hero, ch, 2f);
+                int beforeHP = ch.HP;
+                ch.damage(Math.round(lost * multi), hero);
+                total += beforeHP - ch.HP;
                 Buff.prolong(ch, Paralysis.class, 3f);
-                ElementBuff.apply(Element.GEO, hero, ch, 2f);
-                total += Math.min(lost, ch.HP > 0 ? lost : lost + ch.HP);
             }
         }
         if (total > 0) {
@@ -451,8 +470,8 @@ public class TravelerSpells {
     private static void castFrostBurst(Hero hero) {
         for (Char ch : Actor.chars()) {
             if (ch != hero && ch.alignment != Char.Alignment.ALLY) {
-                ch.damage(3, hero);
-                ElementBuff.apply(Element.CRYO, hero, ch, 1f);
+                float multi = ElementBuff.apply(Element.CRYO, hero, ch, 1f);
+                ch.damage(Math.round(3 * multi), hero);
                 Buff.prolong(ch, Frost.class, 3f);
             }
         }
@@ -461,12 +480,12 @@ public class TravelerSpells {
     private static void castPrismaticLightSkill(WandOfPrismaticLight wand, Hero hero, int target) {
         Ballistica beam = new Ballistica(hero.pos, target, Ballistica.MAGIC_BOLT);
         wand.setCurrent(hero);
-        wand.onZap(beam);
         Char ch = Actor.findChar(beam.collisionPos);
-        if (ch != null && ch.isAlive()) {
+        if (ch != null) {
             Element[] extra = {Element.ELECTRO, Element.PYRO, Element.DENDRO};
             ElementBuff.apply(Random.element(extra), hero, ch, 1f);
         }
+        wand.onZap(beam);
         hero.sprite.parent.add(new com.shatteredpixel.shatteredpixeldungeon.effects.Beam.LightRay(
                 hero.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(beam.collisionPos)));
     }
@@ -519,8 +538,8 @@ public class TravelerSpells {
             Charm charm = Buff.affect(ch, Charm.class, 5f);
             charm.object = hero.id();
             Buff.affect(ch, Weakness.class, 5f);
-            ch.damage(1 + lvl, hero);
-            ElementBuff.apply(Element.HYDRO, hero, ch, 3f);
+            float multi = ElementBuff.apply(Element.HYDRO, hero, ch, 3f);
+            ch.damage(Math.round((1 + lvl) * multi), hero);
         }
     }
 
@@ -541,8 +560,9 @@ public class TravelerSpells {
 
     private static void castCorruptionSkill(WandOfCorruption wand, Hero hero, int target, int lvl) {
         fxMissile(hero, target, MagicMissile.SHADOW);
+        if (!Dungeon.level.heroFOV[target]) return;
         Char ch = Actor.findChar(target);
-        if (ch instanceof Mob && Dungeon.level.heroFOV[target]) {
+        if (ch instanceof Mob) {
             Mob enemy = (Mob) ch;
             if (attemptCorrupt(hero, enemy, lvl)) return;
             attemptCorrupt(hero, enemy, lvl);
@@ -557,38 +577,38 @@ public class TravelerSpells {
     }
 
     private static void castCorruptionBurst(WandOfCorruption wand, Hero hero, int target) {
-        fxMissile(hero, target, MagicMissile.SHADOW);
-        Char ch = Actor.findChar(target);
-        if (ch instanceof Mob && Dungeon.level.heroFOV[target]) {
-            attemptCorrupt(hero, (Mob) ch, lvl(wand));
+        boolean cast = false;
+        for (Char ch : visibleEnemies(hero)) {
+            if (ch instanceof Mob) {
+                MagicMissile.boltFromChar(hero.sprite.parent, MagicMissile.SHADOW, hero.sprite, ch.pos,
+                        new Callback() {
+                            @Override
+                            public void call() {
+                            }
+                        });
+                attemptCorrupt(hero, (Mob) ch, lvl(wand));
+                cast = true;
+            }
+        }
+        if (cast) {
+            Sample.INSTANCE.play(Assets.Sounds.ZAP);
         }
     }
 
-    private static void castRegrowthSkill(Hero hero, int target, int lvl) {
-        Ballistica bolt = new Ballistica(hero.pos, target, Ballistica.STOP_SOLID | Ballistica.STOP_TARGET);
-        ConeAOE cone = new ConeAOE(bolt, 4, 30, Ballistica.STOP_SOLID | Ballistica.STOP_TARGET);
-        for (int cell : cone.cells) {
-            if (!Dungeon.level.insideMap(cell)) continue;
-            int terr = Dungeon.level.map[cell];
-            if (terr == Terrain.EMPTY || terr == Terrain.EMBERS || terr == Terrain.EMPTY_DECO
-                    || terr == Terrain.GRASS || terr == Terrain.HIGH_GRASS || terr == Terrain.FURROWED_GRASS) {
-                if (terr != Terrain.HIGH_GRASS && terr != Terrain.FURROWED_GRASS) {
-                    Level.set(cell, Terrain.GRASS);
-                    GameScene.updateMap(cell);
-                }
-                Char ch = Actor.findChar(cell);
-                if (ch != null && ch.alignment != Char.Alignment.ALLY) {
-                    ch.damage(1 + lvl, hero);
-                    ElementBuff.apply(Element.DENDRO, hero, ch, 2f);
+    private static void castRegrowthSkill(final WandOfRegrowth wand, final Hero hero, int target, final int lvl) {
+        wand.castTravelerSkill(hero, target, new Callback() {
+            @Override
+            public void call() {
+                for (int cell : wand.getCone().cells) {
+                    if (!Dungeon.level.insideMap(cell)) continue;
+                    Char ch = Actor.findChar(cell);
+                    if (ch != null && ch.alignment != Char.Alignment.ALLY) {
+                        float multi = ElementBuff.apply(Element.DENDRO, hero, ch, 2f);
+                        ch.damage(Math.round((1 + lvl) * multi), hero);
+                    }
                 }
             }
-        }
-        if (Random.Float() < 0.5f) {
-            Plant.Seed seed = (Plant.Seed) Generator.randomUsingDefaults(Generator.Category.SEED);
-            Dungeon.level.plant(seed, target);
-        }
-        hero.sprite.zap(target);
-        Sample.INSTANCE.play(Assets.Sounds.ZAP);
+        });
     }
 
     private static void castRegrowthBurst(Hero hero) {
@@ -698,6 +718,26 @@ public class TravelerSpells {
 
     private static void fxMissile(Hero hero, int target, int type) {
         MagicMissile.boltFromChar(hero.sprite.parent, type, hero.sprite, target,
+                new Callback() {
+                    @Override
+                    public void call() {
+                    }
+                });
+        Sample.INSTANCE.play(Assets.Sounds.ZAP);
+    }
+
+    // 与原法杖一致的锥形喷射动画
+    private static void fxCone(Hero hero, ConeAOE cone, int missileType) {
+        Ballistica longestRay = null;
+        for (Ballistica ray : cone.outerRays) {
+            if (longestRay == null || ray.dist > longestRay.dist) {
+                longestRay = ray;
+            }
+            ((MagicMissile) hero.sprite.parent.recycle(MagicMissile.class)).reset(
+                    missileType, hero.sprite, ray.path.get(ray.dist), null);
+        }
+        MagicMissile.boltFromChar(hero.sprite.parent, missileType, hero.sprite,
+                longestRay.path.get(longestRay.dist / 2),
                 new Callback() {
                     @Override
                     public void call() {

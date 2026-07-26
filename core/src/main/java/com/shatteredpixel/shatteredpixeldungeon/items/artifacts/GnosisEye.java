@@ -34,7 +34,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorrosion;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
@@ -131,12 +130,14 @@ public class GnosisEye extends Artifact {
         TravelerSpells.castBurst(wand, hero, target);
         hero.spendAndNext(Actor.TICK);
         updateQuickslot();
+        if (hero.belongings.weapon instanceof MagesStaff) {
+            hero.belongings.weapon.updateQuickslot();
+        }
     }
 
     private static boolean burstNeedsTarget(Wand wand) {
         return wand instanceof WandOfBlastWave
                 || wand instanceof WandOfCorrosion
-                || wand instanceof WandOfCorruption
                 || wand instanceof WandOfLivingEarth
                 || wand instanceof WandOfTransfusion;
     }
