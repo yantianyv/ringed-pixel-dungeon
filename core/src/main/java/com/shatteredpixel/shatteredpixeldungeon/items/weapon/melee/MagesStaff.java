@@ -210,11 +210,8 @@ public class MagesStaff extends MeleeWeapon {
                 TravelerSpells.castSkill(wand, hero, target);
                 wand.curCharges -= skillChargeCost();
                 int recharge = hero.pointsInTalent(Talent.ELEMENTAL_RECHARGE);
-                float energyGain = 1f + 0.5f * recharge;
+                float energyGain = 2f + recharge;
                 eye.gainEnergy(energyGain);
-                if (wand instanceof WandOfWarding) {
-                    eye.gainEnergy(energyGain);
-                }
                 hero.spendAndNext(Actor.TICK);
                 updateQuickslot();
             }
