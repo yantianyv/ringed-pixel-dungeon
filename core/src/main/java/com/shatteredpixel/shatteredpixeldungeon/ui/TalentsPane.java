@@ -160,6 +160,7 @@ public class TalentsPane extends ScrollPane {
 	public static class TalentTierPane extends Component {
 
 		private int tier;
+		private TalentButton.Mode mode;
 
 		public RenderedTextBlock title;
 		ArrayList<TalentButton> buttons;
@@ -170,6 +171,7 @@ public class TalentsPane extends ScrollPane {
 			super();
 
 			this.tier = tier;
+			this.mode = mode;
 
 			title = PixelScene.renderTextBlock(Messages.titleCase(Messages.get(TalentsPane.class, "tier", tier)), 9);
 			title.hardlight(Window.TITLE_COLOR);
@@ -186,6 +188,9 @@ public class TalentsPane extends ScrollPane {
 						if (parent != null) {
 							setupStars();
 							TalentTierPane.this.layout();
+							if (!Dungeon.hero.talents.get(tier-1).containsKey(talent)){
+								TalentTierPane.this.rebuild();
+							}
 						}
 					}
 				};
@@ -193,6 +198,34 @@ public class TalentsPane extends ScrollPane {
 				add(btn);
 			}
 
+		}
+
+		public void rebuild(){
+			for (TalentButton btn : buttons){
+				btn.destroy();
+			}
+			buttons.clear();
+
+			LinkedHashMap<Talent, Integer> talents = Dungeon.hero.talents.get(tier-1);
+			for (Talent talent : talents.keySet()){
+				TalentButton btn = new TalentButton(tier, talent, talents.get(talent), mode){
+					@Override
+					public void upgradeTalent() {
+						super.upgradeTalent();
+						if (parent != null) {
+							setupStars();
+							TalentTierPane.this.layout();
+							if (!Dungeon.hero.talents.get(tier-1).containsKey(talent)){
+								TalentTierPane.this.rebuild();
+							}
+						}
+					}
+				};
+				buttons.add(btn);
+				add(btn);
+			}
+			setupStars();
+			layout();
 		}
 
 		private void setupStars(){

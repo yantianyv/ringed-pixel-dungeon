@@ -24,7 +24,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,7 +74,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfMetamorphosis;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.Runestone;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfIntuition;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfOblivion;
@@ -864,28 +865,33 @@ public enum Talent {
                 }
             }
             if (points == 3) {
-                applyElementalTransmutation(hero);
+                // 蜕变秘卷：可将本天赋蜕变替换
+                ScrollOfMetamorphosis meta = new ScrollOfMetamorphosis();
+                meta.identify();
+                if (!meta.collect()) {
+                    Dungeon.level.drop(meta, hero.pos).sprite.drop();
+                }
+                // 嬗变卷轴：可嬗变一件物品
+                ScrollOfTransmutation trans = new ScrollOfTransmutation();
+                trans.identify();
+                if (!trans.collect()) {
+                    Dungeon.level.drop(trans, hero.pos).sprite.drop();
+                }
             }
         }
     }
 
-    // 可嬗变的三阶天赋池（元素转化）：每个专精 T3 的前两个公共天赋
-    private static final Talent[] TRANSMUTABLE_T3 = new Talent[]{
-            ENDLESS_RAGE, DEATHLESS_FURY,
-            CLEAVE, LETHAL_DEFENSE,
-            BALANCED_MEAL, FEAST_FRENZY,
-            EMPOWERED_STRIKE, MYSTICAL_CHARGE,
-            SOUL_EATER, SOUL_SIPHON,
-            ENHANCED_LETHALITY, ASSASSINS_REACH,
-            EVASIVE_ARMOR, PROJECTILE_MOMENTUM,
-            GOLDEN_CICADA, THREE_IMMORTALS,
-            FARSIGHT, SHARED_ENCHANTMENT,
-            DURABLE_TIPS, BARKSKIN,
-            VARIED_CHARGE, TWIN_UPGRADES,
-            UNENCUMBERED_SPIRIT, MONASTIC_VIGOR,
-            HOLY_LANCE, HALLOWED_GROUND,
-            LAY_ON_HANDS, AURA_OF_PROTECTION
-    };
+    // 判断某天赋是否属于任意基础职业的指定 tier
+    public static boolean isBaseClassTalent(Talent talent, int tier) {
+        for (HeroClass cls : HeroClass.values()) {
+            ArrayList<LinkedHashMap<Talent, Integer>> tmp = new ArrayList<>();
+            initClassTalents(cls, tmp);
+            if (tmp.size() > tier - 1 && tmp.get(tier - 1).containsKey(talent)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // 随机获取一个英雄当前未持有的法杖类型
     private static Wand generateUnownedWand(Hero hero) {
@@ -907,57 +913,6 @@ public enum Talent {
         Wand wand = Reflection.newInstance(Random.element(candidates));
         wand.level(0);
         return wand;
-    }
-
-    // 元素转化 +3：把 ELEMENTAL_TRANSMUTATION 替换为随机三阶天赋
-    public static void applyElementalTransmutation(Hero hero) {
-        LinkedHashMap<Talent, Integer> tier3 = hero.talents.get(2);
-        if (!tier3.containsKey(ELEMENTAL_TRANSMUTATION)) {
-            return;
-        }
-        int points = tier3.get(ELEMENTAL_TRANSMUTATION);
-        if (points < 3) {
-            return;
-        }
-
-        Talent replacement = randomTransmutableT3(hero);
-        tier3.remove(ELEMENTAL_TRANSMUTATION);
-        tier3.put(replacement, points);
-        hero.metamorphedTalents.put(ELEMENTAL_TRANSMUTATION, replacement);
-        GLog.p(Messages.get(Talent.class, "transmutation_applied", replacement.title()));
-    }
-
-    // 随机选择一个可嬗变的三阶天赋，优先不与当前已选冲突
-    private static Talent randomTransmutableT3(Hero hero) {
-        ArrayList<Talent> candidates = new ArrayList<>();
-        for (Talent t : TRANSMUTABLE_T3) {
-            if (hero.pointsInTalent(t) == 0) {
-                candidates.add(t);
-            }
-        }
-        if (candidates.isEmpty()) {
-            candidates.addAll(Arrays.asList(TRANSMUTABLE_T3));
-        }
-        return Random.element(candidates);
-    }
-
-    // 嬗变已转化的旅行者天赋
-    public static void transmuteTravelerTalent(Hero hero) {
-        Talent current = hero.metamorphedTalents.get(ELEMENTAL_TRANSMUTATION);
-        if (current == null) {
-            return;
-        }
-        LinkedHashMap<Talent, Integer> tier3 = hero.talents.get(2);
-        int points = tier3.containsKey(current) ? tier3.get(current) : 3;
-        tier3.remove(current);
-
-        Talent replacement = randomTransmutableT3(hero);
-        while (replacement == current && TRANSMUTABLE_T3.length > 1) {
-            replacement = randomTransmutableT3(hero);
-        }
-        tier3.put(replacement, points);
-        hero.metamorphedTalents.put(ELEMENTAL_TRANSMUTATION, replacement);
-        GLog.p(Messages.get(Talent.class, "transmutation_rerolled", replacement.title()));
     }
 
     public static class CachedRationsDropped extends CounterBuff {
@@ -1550,7 +1505,7 @@ public enum Talent {
                 Collections.addAll(tierTalents, SOUL_EATER, SOUL_SIPHON, NECROMANCERS_MINIONS);
                 break;
             case TRAVELER:// 旅行者
-                Collections.addAll(tierTalents, ELEMENTAL_MASTERY, ELEMENTAL_RECHARGE, ELEMENTAL_TRANSMUTATION);
+                Collections.addAll(tierTalents, ELEMENTAL_TRANSMUTATION, ELEMENTAL_MASTERY, ELEMENTAL_RECHARGE);
                 break;
             case ASSASSIN:// 刺客
                 Collections.addAll(tierTalents, ENHANCED_LETHALITY, ASSASSINS_REACH, BOUNTY_HUNTER);

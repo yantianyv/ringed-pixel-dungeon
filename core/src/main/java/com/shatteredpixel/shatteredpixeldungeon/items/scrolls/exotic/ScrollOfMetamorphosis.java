@@ -137,6 +137,21 @@ public class ScrollOfMetamorphosis extends ExoticScroll {
 			ArrayList<LinkedHashMap<Talent, Integer>> talents = new ArrayList<>();
 			Talent.initClassTalents(Dungeon.hero.heroClass, talents, Dungeon.hero.metamorphedTalents);
 
+			// 将英雄实际拥有的其他基础职业 T3（如元素转化产物）也加入选择面板
+			if (Dungeon.hero.talents.size() > 2) {
+				LinkedHashMap<Talent, Integer> classTier3 = talents.get(2);
+				for (Talent talent : Dungeon.hero.talents.get(2).keySet()) {
+					if (!classTier3.containsKey(talent) && Talent.isBaseClassTalent(talent, 3)) {
+						classTier3.put(talent, Dungeon.hero.pointsInTalent(talent));
+					}
+				}
+				// 元素转化天赋可被蜕变
+				if (Dungeon.hero.hasTalent(Talent.ELEMENTAL_TRANSMUTATION)
+						&& !classTier3.containsKey(Talent.ELEMENTAL_TRANSMUTATION)) {
+					classTier3.put(Talent.ELEMENTAL_TRANSMUTATION, Dungeon.hero.pointsInTalent(Talent.ELEMENTAL_TRANSMUTATION));
+				}
+			}
+
 			for (LinkedHashMap<Talent, Integer> tier : talents){
 				for (Talent talent : tier.keySet()){
 					tier.put(talent, Dungeon.hero.pointsInTalent(talent));

@@ -28,9 +28,9 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.TravelerSpells;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorrosion;
@@ -58,7 +58,7 @@ public class GnosisEye extends Artifact {
     private float energy = 0f;
 
     {
-        image = ItemSpriteSheet.ARTIFACT_HOURGLASS; // 占位图标
+        image = ItemSpriteSheet.ARTIFACT_BEACON; // 占位图标
 
         levelCap = 0;
         charge = 0;
@@ -68,22 +68,45 @@ public class GnosisEye extends Artifact {
 
         unique = true;
         bones = false;
+
+        levelKnown = true;
+        cursedKnown = true;
     }
 
     @Override
     public boolean doEquip(Hero hero) {
-        if (hero.subClass != HeroSubClass.TRAVELER) {
-            GLog.w(Messages.get(this, "not_traveler"));
-            return false;
-        }
-        return super.doEquip(hero);
+        GLog.w(Messages.get(this, "not_equip"));
+        return false;
     }
 
     @Override
     public ArrayList<String> actions(Hero hero) {
         ArrayList<String> actions = super.actions(hero);
+        actions.remove(AC_EQUIP);
+        actions.remove(AC_UNEQUIP);
         actions.add(AC_ELEMENTAL_BURST);
         return actions;
+    }
+
+    @Override
+    public boolean collect(Bag container) {
+        if (super.collect(container)) {
+            if (container.owner instanceof Hero) {
+                activate((Hero) container.owner);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onDetach() {
+        if (passiveBuff != null) {
+            if (passiveBuff.target != null) {
+                passiveBuff.detach();
+            }
+            passiveBuff = null;
+        }
     }
 
     @Override

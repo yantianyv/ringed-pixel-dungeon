@@ -26,6 +26,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
@@ -108,16 +109,11 @@ public class TengusMask extends Item {
 
 		if (way == HeroSubClass.TRAVELER) {
 			GnosisEye eye = new GnosisEye();
-			if (eye.collect(curUser.belongings.backpack)) {
-				if (curUser.belongings.artifact == null) {
-					curUser.belongings.artifact = eye;
-				} else {
-					curUser.belongings.misc = eye;
-				}
-				curUser.belongings.backpack.items.remove(eye);
-				eye.activate(curUser);
-				eye.cursedKnown = true;
+			if (!eye.collect(curUser.belongings.backpack)) {
+				// 背包已满时丢在脚下
+				Dungeon.level.drop(eye, curUser.pos).sprite.drop();
 			}
+			eye.cursedKnown = true;
 		}
 
 		if (way == HeroSubClass.ASSASSIN && curUser.invisible > 0){
