@@ -425,7 +425,12 @@ public class MagesStaff extends MeleeWeapon {
         if (Dungeon.hero != null && Dungeon.hero.subClass == HeroSubClass.TRAVELER) {
             GnosisEye eye = GnosisEye.getHeroGnosisEye(Dungeon.hero);
             if (eye != null && eye.skillMode) {
-                return Integer.toString(wand.curCharges / skillChargeCost());
+                if (wand.levelKnown) {
+                    return (wand.curChargeKnown ? Integer.toString(wand.curCharges / skillChargeCost()) : "?")
+                            + "/" + (wand.maxCharges / skillChargeCost());
+                } else {
+                    return null;
+                }
             }
         }
         return wand.status();
