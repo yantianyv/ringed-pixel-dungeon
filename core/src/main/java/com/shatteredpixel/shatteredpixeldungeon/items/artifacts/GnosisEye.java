@@ -54,8 +54,11 @@ public class GnosisEye extends Artifact {
     public static final float MAX_ENERGY = 100f;
 
     public static final String AC_ELEMENTAL_BURST = "ELEMENTAL_BURST";
+    public static final String AC_TOGGLE_SKILL = "TOGGLE_SKILL";
 
     private float energy = 0f;
+
+    public boolean skillMode = true;
 
     {
         image = ItemSpriteSheet.ARTIFACT_BEACON; // 占位图标
@@ -84,6 +87,7 @@ public class GnosisEye extends Artifact {
         ArrayList<String> actions = super.actions(hero);
         actions.remove(AC_EQUIP);
         actions.remove(AC_UNEQUIP);
+        actions.add(AC_TOGGLE_SKILL);
         actions.add(AC_ELEMENTAL_BURST);
         return actions;
     }
@@ -113,7 +117,13 @@ public class GnosisEye extends Artifact {
     public void execute(Hero hero, String action) {
         super.execute(hero, action);
 
-        if (action.equals(AC_ELEMENTAL_BURST)) {
+        if (action.equals(AC_TOGGLE_SKILL)) {
+            skillMode = !skillMode;
+            if (hero.belongings.weapon instanceof MagesStaff) {
+                hero.belongings.weapon.updateQuickslot();
+            }
+            GLog.i(Messages.get(this, skillMode ? "skill_mode_on" : "skill_mode_off"));
+        } else if (action.equals(AC_ELEMENTAL_BURST)) {
             if (!isFull()) {
                 GLog.w(Messages.get(this, "not_full"));
                 return;
@@ -232,17 +242,20 @@ public class GnosisEye extends Artifact {
     }
 
     private static final String ENERGY = "energy";
+    private static final String SKILL_MODE = "skill_mode";
 
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
         bundle.put(ENERGY, energy);
+        bundle.put(SKILL_MODE, skillMode);
     }
 
     @Override
     public void restoreFromBundle(Bundle bundle) {
         super.restoreFromBundle(bundle);
         energy = bundle.getFloat(ENERGY);
+        skillMode = !bundle.contains(SKILL_MODE) || bundle.getBoolean(SKILL_MODE);
     }
 
     public static GnosisEye getHeroGnosisEye(Hero hero) {

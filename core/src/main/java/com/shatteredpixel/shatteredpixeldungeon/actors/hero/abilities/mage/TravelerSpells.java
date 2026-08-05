@@ -23,6 +23,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementalSentryPlus
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FrozenInvulnerability;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Levitation;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
@@ -35,10 +36,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.BloodParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.PurpleParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.RainbowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
@@ -532,7 +535,10 @@ public class TravelerSpells {
     }
 
     private static void castTransfusionSkill(Hero hero, int target, int lvl) {
-        fxMissile(hero, target, MagicMissile.SHADOW);
+        Ballistica beam = new Ballistica(hero.pos, target, Ballistica.PROJECTILE);
+        hero.sprite.parent.add(new Beam.HealthRay(hero.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(beam.collisionPos)));
+        for (int c : beam.subPath(0, beam.dist))
+            CellEmitter.center(c).burst(BloodParticle.BURST, 1);
         Char ch = Actor.findChar(target);
         if (ch != null && ch.alignment != Char.Alignment.ALLY && Dungeon.level.heroFOV[target]) {
             Charm charm = Buff.affect(ch, Charm.class, 5f);
@@ -540,11 +546,16 @@ public class TravelerSpells {
             Buff.affect(ch, Weakness.class, 5f);
             float multi = ElementBuff.apply(Element.HYDRO, hero, ch, 3f);
             ch.damage(Math.round((1 + lvl) * multi), hero);
+            // 缓慢治疗
+            Buff.affect(hero, Healing.class).setHeal(3 + lvl, 0.15f, 0);
         }
     }
 
     private static void castTransfusionBurst(Hero hero, int target) {
-        fxMissile(hero, target, MagicMissile.SHADOW);
+        Ballistica beam = new Ballistica(hero.pos, target, Ballistica.PROJECTILE);
+        hero.sprite.parent.add(new Beam.HealthRay(hero.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(beam.collisionPos)));
+        for (int c : beam.subPath(0, beam.dist))
+            CellEmitter.center(c).burst(BloodParticle.BURST, 1);
         Char ch = Actor.findChar(target);
         if (ch != null && ch.alignment != Char.Alignment.ALLY && Dungeon.level.heroFOV[target]) {
             Charm charm = Buff.affect(ch, Charm.class, 10f);

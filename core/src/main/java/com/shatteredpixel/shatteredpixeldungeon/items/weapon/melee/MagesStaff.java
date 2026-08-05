@@ -114,8 +114,11 @@ public class MagesStaff extends MeleeWeapon {
         actions.add(AC_IMBUE);
         if (wand != null) {
             if (hero.subClass == HeroSubClass.TRAVELER) {
-                if (wand.curCharges >= skillChargeCost()) {
+                GnosisEye eye = GnosisEye.getHeroGnosisEye(hero);
+                if (eye != null && eye.skillMode) {
                     actions.add(AC_ELEMENTAL_SKILL);
+                } else if (wand.curCharges > 0) {
+                    actions.add(AC_ZAP);
                 }
             } else if (wand.curCharges > 0) {
                 actions.add(AC_ZAP);
@@ -132,7 +135,10 @@ public class MagesStaff extends MeleeWeapon {
     @Override
     public String defaultAction() {
         if (Dungeon.hero != null && Dungeon.hero.subClass == HeroSubClass.TRAVELER && wand != null) {
-            return AC_ELEMENTAL_SKILL;
+            GnosisEye eye = GnosisEye.getHeroGnosisEye(Dungeon.hero);
+            if (eye != null && eye.skillMode) {
+                return AC_ELEMENTAL_SKILL;
+            }
         }
         return AC_ZAP;
     }
@@ -170,8 +176,11 @@ public class MagesStaff extends MeleeWeapon {
             }
 
             if (hero.subClass == HeroSubClass.TRAVELER) {
-                castTravelerSkill(hero);
-                return;
+                GnosisEye eye = GnosisEye.getHeroGnosisEye(hero);
+                if (eye != null && eye.skillMode) {
+                    castTravelerSkill(hero);
+                    return;
+                }
             }
 
             if (cursed || hasCurseEnchant()) {
@@ -194,6 +203,7 @@ public class MagesStaff extends MeleeWeapon {
         }
         if (wand.curCharges < skillChargeCost()) {
             GLog.w(Messages.get(Wand.class, "fizzles"));
+            hero.spendAndNext(Actor.TICK);
             return;
         }
         promptSkillTarget(hero);
@@ -411,9 +421,14 @@ public class MagesStaff extends MeleeWeapon {
     public String status() {
         if (wand == null) {
             return super.status();
-        } else {
-            return wand.status();
         }
+        if (Dungeon.hero != null && Dungeon.hero.subClass == HeroSubClass.TRAVELER) {
+            GnosisEye eye = GnosisEye.getHeroGnosisEye(Dungeon.hero);
+            if (eye != null && eye.skillMode) {
+                return Integer.toString(wand.curCharges / skillChargeCost());
+            }
+        }
+        return wand.status();
     }
 
     @Override
