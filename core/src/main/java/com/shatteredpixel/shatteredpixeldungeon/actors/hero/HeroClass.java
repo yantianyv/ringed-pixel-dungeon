@@ -118,7 +118,8 @@ public enum HeroClass {
     ROGUE(HeroSubClass.ASSASSIN, HeroSubClass.FREERUNNER, HeroSubClass.MAGICIAN),
     HUNTRESS(HeroSubClass.SNIPER, HeroSubClass.WARDEN),
     DUELIST(HeroSubClass.CHAMPION, HeroSubClass.MONK),
-    CLERIC(HeroSubClass.PRIEST, HeroSubClass.PALADIN);
+    CLERIC(HeroSubClass.PRIEST, HeroSubClass.PALADIN),
+    HACKER();   // 黑客：专精/护甲技能待定，暂用默认（战士）天赋树占位
 
     private HeroSubClass[] subClasses;
     public boolean develop_mode = false;
@@ -173,6 +174,10 @@ public enum HeroClass {
 
             case CLERIC:
                 initCleric(hero);
+                break;
+
+            case HACKER:
+                initHacker(hero);
                 break;
         }
         if (Dungeon.is_developer_mode()) {
@@ -315,6 +320,19 @@ public enum HeroClass {
         new ScrollOfMirrorImage().identify();
     }
 
+    private static void initHacker(Hero hero) {    // 黑客
+        // 武器
+        (hero.belongings.weapon = new Dagger()).identify();
+        // 投武
+        ThrowingKnife knives = new ThrowingKnife();
+        knives.identify().collect();
+
+        Dungeon.quickslot.setSlot(0, knives);
+        // 鉴定
+        new ScrollOfMagicMapping().identify();
+        new PotionOfInvisibility().identify();
+    }
+
     private static void initCleric(Hero hero) {    // 牧师
         // 武器
         (hero.belongings.weapon = new Cudgel()).identify();
@@ -385,6 +403,8 @@ public enum HeroClass {
                 return Assets.Sprites.DUELIST;
             case CLERIC:
                 return Assets.Sprites.CLERIC;
+            case HACKER:
+                return Assets.Sprites.HACKER;
         }
     }
 
@@ -403,6 +423,8 @@ public enum HeroClass {
                 return Assets.Splashes.DUELIST;
             case CLERIC:
                 return Assets.Splashes.CLERIC;
+            case HACKER:
+                return Assets.Splashes.HACKER;
         }
     }
 
@@ -426,6 +448,8 @@ public enum HeroClass {
                 return Badges.isUnlocked(Badges.Badge.UNLOCK_DUELIST);
             case CLERIC:
                 return Badges.isUnlocked(Badges.Badge.UNLOCK_CLERIC);
+            case HACKER:
+                return true;    // 黑客默认解锁
         }
     }
 
