@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.RingString;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.specialrings.SpecialRing;
 
 import java.util.ArrayList;
@@ -73,9 +74,9 @@ public class ArchitectMapping extends Buff {
             }
         }
 
-        // 建立/刷新映射：已鉴定且未诅咒的普通戒指
+        // 建立/刷新映射：已鉴定且未诅咒的普通戒指（财富之戒除外，无法被映射）
         for (Ring r : present) {
-            if (!(r instanceof SpecialRing) && r.isIdentified() && !r.cursed) {
+            if (!(r instanceof SpecialRing) && !(r instanceof RingOfWealth) && r.isIdentified() && !r.cursed) {
                 if (!r.isMapped() || r.mappedLevelCap() != cap) {
                     r.mapTo(hero, cap);
                 }
