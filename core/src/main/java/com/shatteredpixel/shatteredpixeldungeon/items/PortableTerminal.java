@@ -47,6 +47,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Random;
@@ -64,6 +65,8 @@ public class PortableTerminal extends Item {
     {
         image = ItemSpriteSheet.PORTABLE_TERMINAL;
         defaultAction = AC_HACK;
+        // 启用快捷栏目标锁定机制（像法杖/投武一样：记忆目标、准星锁定、二次点击自动命中）
+        usesTargeting = true;
         unique = true;
     }
 
@@ -86,25 +89,14 @@ public class PortableTerminal extends Item {
                 return;
             }
 
-            // 默认目标：当前攻击目标在视野内则直接施放（类似投武/法杖的自动瞄准）
-            Char auto = hero.attackTarget();
-            if (auto != null && auto.isAlive() && auto.alignment == Char.Alignment.ENEMY
-                    && Dungeon.level.heroFOV[auto.pos] && Dungeon.level.distance(auto.pos, hero.pos) <= 8) {
-                hero.spend(hackTime(hero));
-                hero.busy();
-                Sample.INSTANCE.play(Assets.Sounds.HIT_MAGIC, 1f, 1.2f);
-                activeHack(hero, auto, activeHackLayers(hero));
-                hero.sprite.operate(hero.pos);
-                hero.next();
-                return;
-            }
-
+            // 像法杖一样打开瞄准器；若已通过快捷栏锁定记忆目标，再次点击快捷栏可直接命中
             GameScene.selectCell(new CellSelector.Listener() {
                 @Override
                 public void onSelect(Integer cell) {
                     if (cell == null) {
                         return; // 取消
                     }
+                    // 无效目标：视野外/超距/空格/非敌人（自己、NPC、队友等）——不触发并提示
                     if (!Dungeon.level.heroFOV[cell] || Dungeon.level.distance(cell, hero.pos) > 8) {
                         GLog.w(Messages.get(PortableTerminal.class, "no_target"));
                         return;
@@ -114,13 +106,18 @@ public class PortableTerminal extends Item {
                         GLog.w(Messages.get(PortableTerminal.class, "no_target"));
                         return;
                     }
+                    if (ch.alignment != Char.Alignment.ENEMY) {
+                        GLog.w(Messages.get(PortableTerminal.class, "invalid_target"));
+                        return;
+                    }
                     hero.spend(hackTime(hero));
                     hero.busy();
                     Sample.INSTANCE.play(Assets.Sounds.HIT_MAGIC, 1f, 1.2f);
-                    int layers = activeHackLayers(hero);
-                    activeHack(hero, ch, layers);
+                    activeHack(hero, ch, activeHackLayers(hero));
                     hero.sprite.operate(hero.pos);
                     hero.next();
+                    // 记忆目标，供下次快捷栏锁定（像法杖/投武一样）
+                    QuickSlotButton.target(ch);
                 }
 
                 @Override
@@ -129,6 +126,12 @@ public class PortableTerminal extends Item {
                 }
             });
         }
+    }
+
+    // 骇入没有弹道，自动瞄准时直接锁定目标所在格
+    @Override
+    public int targetingPos(Hero user, int dst) {
+        return dst;
     }
 
     // 终端的攻击耗时：1 + 1/神器充能速率
