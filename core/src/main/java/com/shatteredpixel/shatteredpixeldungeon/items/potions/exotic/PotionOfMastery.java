@@ -128,7 +128,7 @@ public class PotionOfMastery extends ExoticPotion {
 				if (!anonymous) {
 					Catalog.countUse(PotionOfMastery.class);
 					if (Random.Float() < talentChance) {
-						Talent.onPotionUsed(curUser, curUser.pos, talentFactor);
+						Talent.onPotionUsed(curUser, curUser.pos, talentFactor, PotionOfMastery.this);
 					}
 				}
 			}

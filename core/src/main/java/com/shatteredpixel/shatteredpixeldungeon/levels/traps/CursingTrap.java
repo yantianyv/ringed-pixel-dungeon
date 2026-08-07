@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.KindofMisc;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
@@ -96,9 +97,10 @@ public class CursingTrap extends Trap {
 		}
 
 		// 检查装备的 YogRing（优先被诅咒）
-		Ring ring1 = hero.belongings.ring1();
-		Ring ring2 = hero.belongings.ring2();
-		Ring ring3 = hero.belongings.ring3();
+		// 动态类型：ring1-3 可能装着神器
+		KindofMisc ring1 = hero.belongings.ring1();
+		KindofMisc ring2 = hero.belongings.ring2();
+		KindofMisc ring3 = hero.belongings.ring3();
 		Ring ring4 = hero.belongings.ring4();
 		Ring ring5 = hero.belongings.ring5();
 		Ring ring6 = hero.belongings.ring6();

@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.SacrificialFire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hacked;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Challenge;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
@@ -262,7 +263,15 @@ public class Ghoul extends Mob {
                 //champion buff, mainly
                 for (Buff b : buffs()) {
                     if (b.revivePersists) {
-                        Buff.affect(child, b.getClass());
+                        if (b instanceof Hacked) {
+                            // 骇入：子体静默继承层数（避免 attachTo 默认 1 层叠加与伤害流程）
+                            Hacked h = new Hacked();
+                            h.silent = true;
+                            h.layers = ((Hacked) b).layers;
+                            h.attachTo(child);
+                        } else {
+                            Buff.affect(child, b.getClass());
+                        }
                     }
                 }
 
@@ -297,19 +306,9 @@ public class Ghoul extends Mob {
         if (Dungeon.level.pit[pos]) {
             losePartner();
             super.die(cause);
-        } else if (num_of_revive <= 0) {
+        } else {
             losePartner();
             super.die(cause);
-            sprite.remove(CharSprite.State.SHIELDED);
-        } else {
-            // 确保复活时HP至少为1
-            HP = Math.max(1, num_of_revive);
-            HT = 10;
-            num_of_revive -= 1;
-            sprite.add(CharSprite.State.SHIELDED);
-            // 添加格挡音效
-            Sample.INSTANCE.play(Assets.Sounds.HIT_PARRY);
-
         }
 
     }
@@ -321,21 +320,6 @@ public class Ghoul extends Mob {
                 partner.partnerID = -1;
             }
             partnerID = -1;
-        }
-    }
-
-    @Override
-    public void damage(int dmg, Object src) {
-        // 如果已经死亡且没有复活次数，直接返回，避免无限递归
-        if (HP <= 0 && num_of_revive <= 0) {
-            return;
-        }
-        if (num_of_revive >= 3) {
-            super.damage(dmg, src);
-            HT = Math.min(HP + 2, HT);
-        } else {
-            die(src);
-            sprite.flash();
         }
     }
 
@@ -369,10 +353,7 @@ public class Ghoul extends Mob {
 
     @Override
     protected void ringpd_extra(boolean enemyInFOV) {
-        // 移除逃跑与自然回复的特性
-        if (num_of_revive >= 3) {
-            HT = Math.min(HP + 2, HT);
-        }
+        // 次数盾机制已移除，由配对与复活机制替代
     }
 
     private class Sleeping extends Mob.Sleeping {

@@ -53,7 +53,10 @@ public enum HeroSubClass {
     MONK(HeroIcon.MONK),
     // 牧师
     PRIEST(HeroIcon.PRIEST),
-    PALADIN(HeroIcon.PALADIN);
+    PALADIN(HeroIcon.PALADIN),
+    // 骇客
+    TROJAN_MASTER(HeroIcon.TROJAN_MASTER), // 木马大师
+    ARCHITECT(HeroIcon.ARCHITECT);         // 架构师
 
     int icon;
 

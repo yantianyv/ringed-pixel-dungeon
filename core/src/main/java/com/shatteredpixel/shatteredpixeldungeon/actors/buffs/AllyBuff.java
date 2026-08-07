@@ -47,6 +47,10 @@ public abstract class AllyBuff extends Buff {
 	public boolean attachTo(Char target) {
 		if (super.attachTo(target)){
 			target.alignment = Char.Alignment.ALLY;
+			// 敌人被转化为友军时，清除所有骇入效果
+			if (target.buff(Hacked.class) != null){
+				target.buff(Hacked.class).detach();
+			}
 			if (target.buff(PinCushion.class) != null){
 				target.buff(PinCushion.class).detach();
 			}

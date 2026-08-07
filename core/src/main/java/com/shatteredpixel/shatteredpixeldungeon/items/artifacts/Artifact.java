@@ -64,7 +64,11 @@ public class Artifact extends KindofMisc {
     public boolean doEquip(final Hero hero) {
 
         if ((hero.belongings.artifact != null && hero.belongings.artifact.getClass() == this.getClass())
-                || (hero.belongings.misc != null && hero.belongings.misc.getClass() == this.getClass())) {
+                || (hero.belongings.misc != null && hero.belongings.misc.getClass() == this.getClass())
+                // 动态类型：前三个戒指槽可能装着神器
+                || (hero.belongings.ring1 != null && hero.belongings.ring1.getClass() == this.getClass())
+                || (hero.belongings.ring2 != null && hero.belongings.ring2.getClass() == this.getClass())
+                || (hero.belongings.ring3 != null && hero.belongings.ring3.getClass() == this.getClass())) {
 
             GLog.w(Messages.get(Artifact.class, "cannot_wear_two"));
             return false;

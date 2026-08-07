@@ -30,6 +30,9 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LostInventory;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
@@ -83,13 +86,42 @@ public class Belongings implements Iterable<Item> {
         backpack.owner = owner;
     }
 
+    // 动态类型（架构师）：被转换为杂项槽的戒指槽数量（从第一个戒指槽起依次转换）
+    public int dynamicMiscSlots() {
+        if (owner instanceof Hero && ((Hero) owner).subClass == HeroSubClass.ARCHITECT) {
+            return ((Hero) owner).pointsInTalent(Talent.DYNAMIC_TYPING);
+        }
+        return 0;
+    }
+
+    // 指定戒指槽（1-3）是否已被动态类型转换为杂项槽
+    public boolean isConvertedRingSlot(int slot) {
+        return slot >= 1 && slot <= 3 && dynamicMiscSlots() >= slot;
+    }
+
+    // 动态类型：槽位失效（天赋点减少/失去架构师身份）时，杂项槽变回戒指槽，
+    // 其中的神器不再兼容，自动卸下转移到背包（或掉落脚下）；戒指则可继续留在原位。
+    public void validateDynamicMiscSlots(Hero hero) {
+        int slots = dynamicMiscSlots();
+        if (slots < 1 && ring1 != null && !(ring1 instanceof Ring)) unequipInvalid(hero, ring1);
+        if (slots < 2 && ring2 != null && !(ring2 instanceof Ring)) unequipInvalid(hero, ring2);
+        if (slots < 3 && ring3 != null && !(ring3 instanceof Ring)) unequipInvalid(hero, ring3);
+    }
+
+    private void unequipInvalid(Hero hero, KindofMisc m) {
+        if (m.doUnequip(hero, true, false)) {
+            GLog.n(Messages.get(Belongings.class, "misc_slot_lost", m.name()));
+        }
+    }
+
     public KindOfWeapon weapon = null;
     public Armor armor = null;
     public Artifact artifact = null;
     public KindofMisc misc = null;
-    public Ring ring1 = null;
-    public Ring ring2 = null;
-    public Ring ring3 = null;
+    // 动态类型（架构师）：前三个戒指槽可被转换为杂项槽（字段复用，物品无条件保留在原槽位）
+    public KindofMisc ring1 = null;
+    public KindofMisc ring2 = null;
+    public KindofMisc ring3 = null;
     public Ring ring4 = null;
     public Ring ring5 = null;
     public Ring ring6 = null;
@@ -160,7 +192,7 @@ public class Belongings implements Iterable<Item> {
         }
     }
 
-    public Ring ring1() {
+    public KindofMisc ring1() {
         if (!lostInventory() || (ring1 != null && ring1.keptThroughLostInventory())) {
             return ring1;
         } else {
@@ -168,7 +200,7 @@ public class Belongings implements Iterable<Item> {
         }
     }
 
-    public Ring ring2() {
+    public KindofMisc ring2() {
         if (!lostInventory() || (ring2 != null && ring2.keptThroughLostInventory())) {
             return ring2;
         } else {
@@ -176,7 +208,7 @@ public class Belongings implements Iterable<Item> {
         }
     }
 
-    public Ring ring3() {
+    public KindofMisc ring3() {
         if (!lostInventory() || (ring3 != null && ring3.keptThroughLostInventory())) {
             return ring3;
         } else {
@@ -210,9 +242,10 @@ public class Belongings implements Iterable<Item> {
 
     public ArrayList<Ring> getEquippedRings() {
         ArrayList<Ring> rings = new ArrayList<>();
-        if (ring1() != null) rings.add(ring1());
-        if (ring2() != null) rings.add(ring2());
-        if (ring3() != null) rings.add(ring3());
+        // 动态类型：ring1-3 可能装着神器，需逐个确认
+        if (ring1() instanceof Ring) rings.add((Ring) ring1());
+        if (ring2() instanceof Ring) rings.add((Ring) ring2());
+        if (ring3() instanceof Ring) rings.add((Ring) ring3());
         if (ring4() != null) rings.add(ring4());
         if (ring5() != null) rings.add(ring5());
         if (ring6() != null) rings.add(ring6());
@@ -285,15 +318,16 @@ public class Belongings implements Iterable<Item> {
             misc().activate(owner);
         }
 
-        ring1 = (Ring) bundle.get(RING1);
+        // 动态类型：ring1-3 可能装着神器
+        ring1 = (KindofMisc) bundle.get(RING1);
         if (ring1() != null) {
             ring1().activate(owner);
         }
-        ring2 = (Ring) bundle.get(RING2);
+        ring2 = (KindofMisc) bundle.get(RING2);
         if (ring2() != null) {
             ring2().activate(owner);
         }
-        ring3 = (Ring) bundle.get(RING3);
+        ring3 = (KindofMisc) bundle.get(RING3);
         if (ring3() != null) {
             ring3().activate(owner);
         }
@@ -467,25 +501,28 @@ public class Belongings implements Iterable<Item> {
                 Badges.validateItemLevelAquired(misc());
             }
         }
+        // 动态类型：ring1-3 可能装着神器，需逐个确认
         if (ring1() != null) {
-            if (ShardOfOblivion.passiveIDDisabled()) {
-                ring1().setIDReady();
+            if (ShardOfOblivion.passiveIDDisabled() && ring1() instanceof Ring) {
+                ((Ring) ring1()).setIDReady();
             } else {
                 ring1().identify();
                 Badges.validateItemLevelAquired(ring1());
             }
         }
+        // 动态类型：ring1-3 可能装着神器，需逐个确认
         if (ring2() != null) {
-            if (ShardOfOblivion.passiveIDDisabled()) {
-                ring2().setIDReady();
+            if (ShardOfOblivion.passiveIDDisabled() && ring2() instanceof Ring) {
+                ((Ring) ring2()).setIDReady();
             } else {
                 ring2().identify();
                 Badges.validateItemLevelAquired(ring2());
             }
         }
+        // 动态类型：ring1-3 可能装着神器，需逐个确认
         if (ring3() != null) {
-            if (ShardOfOblivion.passiveIDDisabled()) {
-                ring3().setIDReady();
+            if (ShardOfOblivion.passiveIDDisabled() && ring3() instanceof Ring) {
+                ((Ring) ring3()).setIDReady();
             } else {
                 ring3().identify();
                 Badges.validateItemLevelAquired(ring3());

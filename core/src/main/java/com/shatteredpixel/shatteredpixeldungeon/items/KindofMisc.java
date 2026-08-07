@@ -24,6 +24,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
@@ -45,58 +46,21 @@ public abstract class KindofMisc extends EquipableItem {
         if (this instanceof Artifact
                 && hero.belongings.artifact != null
                 && hero.belongings.misc != null) {
-            if (hero.belongings.ring1 != null) {
-                if (hero.belongings.ring5 instanceof Ring && hero.belongings.ring6 == null) {
-                    hero.belongings.ring6 = (Ring) hero.belongings.ring5;
-                    hero.belongings.ring5 = null;
-                }
-                if (hero.belongings.ring4 instanceof Ring && hero.belongings.ring5 == null) {
-                    hero.belongings.ring5 = (Ring) hero.belongings.ring4;
-                    hero.belongings.ring4 = null;
-                }
-                if (hero.belongings.ring3 instanceof Ring && hero.belongings.ring4 == null) {
-                    hero.belongings.ring4 = (Ring) hero.belongings.ring3;
-                    hero.belongings.ring3 = null;
-                }
-                if (hero.belongings.ring2 instanceof Ring && hero.belongings.ring3 == null) {
-                    hero.belongings.ring3 = (Ring) hero.belongings.ring2;
-                    hero.belongings.ring2 = null;
-                }
-                if (hero.belongings.ring1 instanceof Ring && hero.belongings.ring2 == null) {
-                    hero.belongings.ring2 = (Ring) hero.belongings.ring1;
-                    hero.belongings.ring1 = null;
-                }
-            }
             //see if we can re-arrange items first
-            if (hero.belongings.misc instanceof Ring && hero.belongings.ring1 == null) {
-                hero.belongings.ring1 = (Ring) hero.belongings.misc;
+            // 把 misc 槽的戒指挪到第一个空闲戒指槽（含被转换的槽位）
+            if (hero.belongings.misc instanceof Ring
+                    && moveRingToFreeSlot(hero, (Ring) hero.belongings.misc, 1)) {
                 hero.belongings.misc = null;
             } else {
                 equipFull = true;
             }
         } else if (this instanceof Ring
                 && hero.belongings.misc != null
-                && hero.belongings.ring1
-                != null) {
+                && hero.belongings.ring1 != null) {
 
-            if (hero.belongings.ring5 instanceof Ring && hero.belongings.ring6 == null) {
-                hero.belongings.ring6 = (Ring) hero.belongings.ring5;
-                hero.belongings.ring5 = null;
-            }
-            if (hero.belongings.ring4 instanceof Ring && hero.belongings.ring5 == null) {
-                hero.belongings.ring5 = (Ring) hero.belongings.ring4;
-                hero.belongings.ring4 = null;
-            }
-            if (hero.belongings.ring3 instanceof Ring && hero.belongings.ring4 == null) {
-                hero.belongings.ring4 = (Ring) hero.belongings.ring3;
-                hero.belongings.ring3 = null;
-            }
-            if (hero.belongings.ring2 instanceof Ring && hero.belongings.ring3 == null) {
-                hero.belongings.ring3 = (Ring) hero.belongings.ring2;
-                hero.belongings.ring2 = null;
-            }
-            if (hero.belongings.ring1 instanceof Ring && hero.belongings.ring2 == null) {
-                hero.belongings.ring2 = (Ring) hero.belongings.ring1;
+            // 腾出 ring1：把其中的戒指移到第一个空闲戒指槽（转换槽可能装着神器，直接跳过）
+            if (hero.belongings.ring1 instanceof Ring
+                    && moveRingToFreeSlot(hero, (Ring) hero.belongings.ring1, 2)) {
                 hero.belongings.ring1 = null;
             }
 
@@ -107,6 +71,23 @@ public abstract class KindofMisc extends EquipableItem {
             }
             if (hero.belongings.ring1 != null) {
                 equipFull = true;
+            }
+        }
+
+        // 有空闲槽位时不弹替换对话框：
+        // 戒指可使用任何空闲戒指槽（ring2-6，含被转换的）；神器可使用空闲的转换槽
+        if (equipFull) {
+            Belongings b = hero.belongings;
+            if (this instanceof Ring
+                    && (b.ring2 == null || b.ring3 == null || b.ring4 == null
+                    || b.ring5 == null || b.ring6 == null)) {
+                equipFull = false;
+            } else if (this instanceof Artifact
+                    && b.dynamicMiscSlots() > 0
+                    && ((b.isConvertedRingSlot(1) && b.ring1 == null)
+                    || (b.isConvertedRingSlot(2) && b.ring2 == null)
+                    || (b.isConvertedRingSlot(3) && b.ring3 == null))) {
+                equipFull = false;
             }
         }
 
@@ -133,7 +114,11 @@ public abstract class KindofMisc extends EquipableItem {
 
             if (this instanceof Artifact && hero.belongings.misc instanceof Artifact) {
                 for (int i = 2; i <= 7; i++) {
-                    enabled[i] = false; //disable ring
+                    // 动态类型：普通戒指槽不能放神器，禁用；转换槽能容纳神器，保持可选
+                    boolean converted = (i == 2 && hero.belongings.isConvertedRingSlot(1))
+                            || (i == 3 && hero.belongings.isConvertedRingSlot(2))
+                            || (i == 4 && hero.belongings.isConvertedRingSlot(3));
+                    if (!converted) enabled[i] = false;
                 }
             }
             GameScene.show(
@@ -161,28 +146,35 @@ public abstract class KindofMisc extends EquipableItem {
                             hero.belongings.artifact = (Artifact) hero.belongings.misc;
                             hero.belongings.misc = null;
                         } else if (index >= 2 && KindofMisc.this instanceof Artifact) {// 用神器替换戒指槽
-                            if (hero.belongings.ring5 instanceof Ring && hero.belongings.ring6 == null) {
-                                hero.belongings.ring6 = (Ring) hero.belongings.ring5;
-                                hero.belongings.ring5 = null;
+                            // 动态类型：替换的是转换槽时无需链条平移（神器可直接放进该槽），
+                            // 否则按原版逻辑平移（且要求 misc 槽是戒指，避免强转崩溃）
+                            boolean converted = (index == 2 && hero.belongings.isConvertedRingSlot(1))
+                                    || (index == 3 && hero.belongings.isConvertedRingSlot(2))
+                                    || (index == 4 && hero.belongings.isConvertedRingSlot(3));
+                            if (!converted) {
+                                if (hero.belongings.ring5 instanceof Ring && hero.belongings.ring6 == null) {
+                                    hero.belongings.ring6 = (Ring) hero.belongings.ring5;
+                                    hero.belongings.ring5 = null;
+                                }
+                                if (hero.belongings.ring4 instanceof Ring && hero.belongings.ring5 == null) {
+                                    hero.belongings.ring5 = (Ring) hero.belongings.ring4;
+                                    hero.belongings.ring4 = null;
+                                }
+                                if (hero.belongings.ring3 instanceof Ring && hero.belongings.ring4 == null) {
+                                    hero.belongings.ring4 = (Ring) hero.belongings.ring3;
+                                    hero.belongings.ring3 = null;
+                                }
+                                if (hero.belongings.ring2 instanceof Ring && hero.belongings.ring3 == null) {
+                                    hero.belongings.ring3 = (Ring) hero.belongings.ring2;
+                                    hero.belongings.ring2 = null;
+                                }
+                                if (hero.belongings.ring1 instanceof Ring && hero.belongings.ring2 == null) {
+                                    hero.belongings.ring2 = (Ring) hero.belongings.ring1;
+                                    hero.belongings.ring1 = null;
+                                }
+                                hero.belongings.ring1 = (Ring) hero.belongings.misc;
+                                hero.belongings.misc = null;
                             }
-                            if (hero.belongings.ring4 instanceof Ring && hero.belongings.ring5 == null) {
-                                hero.belongings.ring5 = (Ring) hero.belongings.ring4;
-                                hero.belongings.ring4 = null;
-                            }
-                            if (hero.belongings.ring3 instanceof Ring && hero.belongings.ring4 == null) {
-                                hero.belongings.ring4 = (Ring) hero.belongings.ring3;
-                                hero.belongings.ring3 = null;
-                            }
-                            if (hero.belongings.ring2 instanceof Ring && hero.belongings.ring3 == null) {
-                                hero.belongings.ring3 = (Ring) hero.belongings.ring2;
-                                hero.belongings.ring2 = null;
-                            }
-                            if (hero.belongings.ring1 instanceof Ring && hero.belongings.ring2 == null) {
-                                hero.belongings.ring2 = (Ring) hero.belongings.ring1;
-                                hero.belongings.ring1 = null;
-                            }
-                            hero.belongings.ring1 = (Ring) hero.belongings.misc;
-                            hero.belongings.misc = null;
                         }
                         doEquip(hero);
                     } else {
@@ -218,13 +210,24 @@ public abstract class KindofMisc extends EquipableItem {
             if (this instanceof Artifact) {
                 if (hero.belongings.artifact == null) {
                     hero.belongings.artifact = (Artifact) this;
+                } else if (hero.belongings.misc == null) {
+                    hero.belongings.misc = (Artifact) this;
+                } else if (hero.belongings.isConvertedRingSlot(1) && hero.belongings.ring1 == null) {
+                    hero.belongings.ring1 = this; // 动态类型：转换槽
+                } else if (hero.belongings.isConvertedRingSlot(2) && hero.belongings.ring2 == null) {
+                    hero.belongings.ring2 = this;
+                } else if (hero.belongings.isConvertedRingSlot(3) && hero.belongings.ring3 == null) {
+                    hero.belongings.ring3 = this;
                 } else {
                     hero.belongings.misc = (Artifact) this;
                 }
             } else if (this instanceof Ring) {
                 if (hero.belongings.ring1 == null) {
                     hero.belongings.ring1 = (Ring) this;
-                } else {
+                } else if (hero.belongings.misc == null) {
+                    hero.belongings.misc = (Ring) this;
+                } else if (!moveRingToFreeSlot(hero, (Ring) this, 2)) {
+                    // 动态类型：第一个空闲戒指槽（含被转换的）；理论不可达，兜底放 misc
                     hero.belongings.misc = (Ring) this;
                 }
             }
@@ -245,6 +248,18 @@ public abstract class KindofMisc extends EquipableItem {
 
         }
 
+    }
+
+    // 把戒指移到第一个空闲的戒指槽（从第 from 个槽到 ring6，含被动态类型转换的槽位），成功返回 true
+    private static boolean moveRingToFreeSlot(Hero hero, Ring ring, int from) {
+        Belongings b = hero.belongings;
+        if (from <= 1 && b.ring1 == null) { b.ring1 = ring; return true; }
+        if (from <= 2 && b.ring2 == null) { b.ring2 = ring; return true; }
+        if (from <= 3 && b.ring3 == null) { b.ring3 = ring; return true; }
+        if (from <= 4 && b.ring4 == null) { b.ring4 = ring; return true; }
+        if (from <= 5 && b.ring5 == null) { b.ring5 = ring; return true; }
+        if (b.ring6 == null) { b.ring6 = ring; return true; }
+        return false;
     }
 
     @Override

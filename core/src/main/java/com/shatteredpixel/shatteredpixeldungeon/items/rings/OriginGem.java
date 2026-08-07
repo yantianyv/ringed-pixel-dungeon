@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -191,6 +192,20 @@ public class OriginGem extends Item {
         @Override
         public Item brew(ArrayList<Item> ingredients) {
             Item result = sampleOutput(ingredients);
+
+            // 内存回收（架构师）：炼金分解不低于 +4 的戒指时返还炼金能量
+            Hero hero = Dungeon.hero;
+            if (hero != null
+                    && hero.subClass == HeroSubClass.ARCHITECT
+                    && hero.hasTalent(Talent.MEMORY_RECYCLING)
+                    && ingredients.get(0) instanceof Ring
+                    && ingredients.get(0).level() >= 4){
+                int energy = hero.pointsInTalent(Talent.MEMORY_RECYCLING);
+                if (energy > 0){
+                    Dungeon.energy += energy;
+                    GLog.p(Messages.get(OriginGem.class, "energy_refund", energy));
+                }
+            }
 
             ingredients.get(0).quantity(0);
 

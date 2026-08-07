@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.utils.Bundle;
@@ -82,6 +83,14 @@ public class RingOfTimetraveler extends Ring {
         result = (float) Math.pow(result, getAverageEfficiency(target, TimeCompression.class));
         result = Math.abs(result) < 0.01f ? 0.01f : result;
         return result;
+    }
+
+    // 降低英雄所有时光行者之戒的效率（物理伤害与终端主动骇入都会触发）。
+    // 通过 buff 驱动：装备的与架构师映射的戒指一视同仁。
+    public static void reduceEfficiency(Hero hero) {
+        for (TimeCompression buff : hero.buffs(TimeCompression.class)) {
+            buff.getRing().efficiency_multy(0.9f);
+        }
     }
 
     @Override

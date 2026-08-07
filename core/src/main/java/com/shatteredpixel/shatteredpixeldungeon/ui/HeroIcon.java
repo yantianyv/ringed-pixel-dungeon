@@ -58,6 +58,9 @@ public class HeroIcon extends Image {
     public static final int MONK = 9;
     public static final int PRIEST = 10;
     public static final int PALADIN = 11;
+    // 骇客（借用牧师/圣骑士在 ringed 资源中的位置 10/11）
+    public static final int TROJAN_MASTER = 1010;   // 木马大师
+    public static final int ARCHITECT = 1011;       // 架构师
 
     //abilities
     public static final int HEROIC_LEAP = 16;
@@ -79,6 +82,8 @@ public class HeroIcon extends Image {
     public static final int TRINITY = 32;
     public static final int POWER_OF_MANY = 33;
     public static final int RATMOGRIFY = 34;
+    // 骇客护甲技能
+    public static final int BROADCAST_STORM = 1035; // 广播风暴
 
     //cleric spells
     public static final int GUIDING_LIGHT = 40;

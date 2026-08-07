@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
@@ -133,12 +134,14 @@ public abstract class Plant implements Bundlable {
 	public static class Seed extends Item {
 
 		public static final String AC_PLANT	= "PLANT";
+		public static final String AC_EAT	= "EAT";
 		
 		private static final float TIME_TO_PLANT = 1f;
+		private static final float TIME_TO_EAT = 1f;
 		
 		{
 			stackable = true;
-			defaultAction = AC_THROW;
+			defaultAction = AC_EAT; // 所有种子都可食用
 		}
 		
 		protected Class<? extends Plant> plantClass;
@@ -147,6 +150,7 @@ public abstract class Plant implements Bundlable {
 		public ArrayList<String> actions( Hero hero ) {
 			ArrayList<String> actions = super.actions( hero );
 			actions.add( AC_PLANT );
+			actions.add( AC_EAT );
 			return actions;
 		}
 		
@@ -186,6 +190,24 @@ public abstract class Plant implements Bundlable {
 				hero.spend( TIME_TO_PLANT );
 
 				hero.sprite.operate( hero.pos );
+				
+			} else if (action.equals( AC_EAT )) {
+
+				hero.busy();
+				detach( hero.belongings.backpack );
+
+				// 食用种子：获得 25 饱食度，触发进食效果
+				if (hero.buff(Hunger.class) != null) {
+					hero.buff(Hunger.class).satisfy(25f);
+				}
+				Talent.onFoodEaten(hero, 25f, this);
+
+				// 种子特殊效果（onSeedEaten）
+				Talent.onSeedEaten(hero, this);
+
+				hero.spend( TIME_TO_EAT );
+				hero.sprite.operate( hero.pos );
+				Sample.INSTANCE.play( Assets.Sounds.EAT );
 				
 			}
 		}

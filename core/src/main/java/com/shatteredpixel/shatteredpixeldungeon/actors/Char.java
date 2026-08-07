@@ -70,6 +70,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicalSleep;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Momentum;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Overclock;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.items.PortableTerminal;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
@@ -582,6 +586,22 @@ public abstract class Char extends Actor {
 
                 effectiveDamage = attackProc(enemy, effectiveDamage);
             }
+
+            // 僵尸网络（骇客天赋）：友军物理攻击有几率触发协同骇入；
+            // 其它英雄获得该天赋时，友军物理伤害 +0~n
+            if (this != Dungeon.hero && this.alignment == Alignment.ALLY
+                    && enemy.alignment == Alignment.ENEMY
+                    && Dungeon.hero != null
+                    && Dungeon.hero.hasTalent(Talent.BOTNET)
+                    && effectiveDamage >= 0) {
+                if (Dungeon.hero.heroClass == HeroClass.HACKER) {
+                    if (Random.Int(10) < Dungeon.hero.pointsInTalent(Talent.BOTNET)) {
+                        PortableTerminal.hackTarget(Dungeon.hero, enemy, PortableTerminal.coopHackLayers(Dungeon.hero));
+                    }
+                } else {
+                    effectiveDamage += Random.IntRange(0, Dungeon.hero.pointsInTalent(Talent.BOTNET));
+                }
+            }
             if (visibleFight) {
                 if (effectiveDamage > 0 || !enemy.blockSound(Random.Float(0.96f, 1.05f))) {
                     hitSound(Random.Float(0.87f, 1.15f));
@@ -732,6 +752,7 @@ public abstract class Char extends Actor {
 
 		float acuRoll = Random.Float( acuStat );
 		if (attacker.buff(Bless.class) != null) acuRoll *= 1.25f;
+		if (Overclock.grantsAccuracy(attacker)) acuRoll *= Overclock.ACC_MULTIPLIER; // 超频：2 倍命中
 		if (attacker.buff(  Hex.class) != null) acuRoll *= 0.8f;
 		if (attacker.buff( Daze.class) != null) acuRoll *= 0.5f;
 		for (ChampionEnemy buff : attacker.buffs(ChampionEnemy.class)){
@@ -950,12 +971,7 @@ public abstract class Char extends Actor {
 
         if (src == Dungeon.hero) {
             // 降低所有已装备时光行者之戒的效率
-            for (Ring r : Dungeon.hero.belongings.getEquippedRings()) {
-                if (r instanceof RingOfTimetraveler) {
-                    float currentEfficiency = r.efficiency();
-                    r.efficiency(currentEfficiency * 0.9f);
-                }
-            }
+            RingOfTimetraveler.reduceEfficiency(Dungeon.hero);
         }
 
         //if dmg is from a character we already reduced it in Char.attack

@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.noosa.ColorBlock;
@@ -102,6 +103,10 @@ public class InventorySlot extends ItemSlot {
                     bg.ra = +0.35f;
                     bg.ba = +0.35f;
                 }
+            } else if (item instanceof Ring && ((Ring) item).isMapped()) {
+                // 架构师映射中的戒指：浅荧光绿
+                bg.ga = +0.35f;
+                bg.ra = -0.1f;
             }
 
             if (item.name() == null) {

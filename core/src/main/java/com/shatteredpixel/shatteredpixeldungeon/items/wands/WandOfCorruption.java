@@ -196,6 +196,22 @@ public class WandOfCorruption extends Wand {
 		}
 	}
 	
+	// 供骇客「花式入侵」等效果复用：随机一个可施加的次级 debuff（与 0 级腐化法杖一致）
+	public static Class<? extends FlavourBuff> randomMinorDebuff(Char target){
+		HashMap<Class<? extends Buff>, Float> debuffs = new HashMap<>(MINOR_DEBUFFS);
+		for (Buff existing : target.buffs()){
+			if (debuffs.containsKey(existing.getClass())) {
+				debuffs.put(existing.getClass(), 0f);
+			}
+		}
+		for (Class<? extends Buff> toAssign : debuffs.keySet()){
+			if (debuffs.get(toAssign) > 0 && target.isImmune(toAssign)){
+				debuffs.put(toAssign, 0f);
+			}
+		}
+		return (Class<? extends FlavourBuff>) Random.chances(debuffs);
+	}
+
 	private void debuffEnemy( Mob enemy, HashMap<Class<? extends Buff>, Float> category ){
 		
 		//do not consider buffs which are already assigned, or that the enemy is immune to.

@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArchitectMapping;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -114,6 +115,10 @@ public class TengusMask extends Item {
 				Dungeon.level.drop(eye, curUser.pos).sprite.drop();
 			}
 			eye.cursedKnown = true;
+		}
+
+		if (way == HeroSubClass.ARCHITECT) {
+			Buff.affect(curUser, ArchitectMapping.class);
 		}
 
 		if (way == HeroSubClass.ASSASSIN && curUser.invisible > 0){

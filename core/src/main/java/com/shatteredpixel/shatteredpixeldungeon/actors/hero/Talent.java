@@ -38,12 +38,20 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArtifactRecharge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FrostImbue;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Overclock;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FireImbue;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Foresight;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.CounterBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.EnhancedRings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hacked;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LostInventory;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PhysicalEmpower;
@@ -66,7 +74,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.PortableTerminal;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
@@ -74,6 +85,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfMetamorphosis;
@@ -89,7 +101,20 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWea
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Blindweed;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Fadeleaf;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Firebloom;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Icecap;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Mageroyal;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Rotberry;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Sorrowmoss;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Starflower;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Stormvine;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass.Health;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
@@ -214,7 +239,19 @@ public enum Talent {
     //universal T4
     HEROIC_ENERGY(26, 4), //See icon() and title() for special logic for this one
     //Ratmogrify T4
-    RATSISTANCE(215, 4), RATLOMACY(216, 4), RATFORCEMENTS(217, 4);
+    RATSISTANCE(215, 4), RATLOMACY(216, 4), RATFORCEMENTS(217, 4),
+    //Hacker T1
+    HOLO_RATIONS(1224), RUNESTONE_CONFUSION(1225), ARMOR_PIERCE(1226), REVERSE_PROXY(1227),
+    //Hacker T2
+    SKIPPED_MEAL(1228), LIQUID_COOLING(1229), BFS_SEARCH(1230), PRIVILEGE_ESCALATION(1231), OVERCLOCKING(1232),
+    //Hacker T3
+    ZERO_DAY(1233, 3), BOTNET(1234, 3),
+    //Trojan Master T3
+    KERNEL_BREACH(1235, 3), FANCY_INVASION(1236, 3), SUBNET_BROADCAST(1237, 3),
+    //Architect T3
+    STABLE_MAPPING(1238, 3), DYNAMIC_TYPING(1239, 3), MEMORY_RECYCLING(1240, 3),
+    //Broadcast Storm T4
+    LONG_LASTING(1241, 4), FULL_OPTIC_FIBER(1242, 4), SIGNAL_AMPLIFICATION(1243, 4);
 
     public static class ImprovisedProjectileCooldown extends FlavourBuff {
 
@@ -680,6 +717,12 @@ public enum Talent {
             Buff.affect(hero, BrokenSeal.WarriorShield.class);
         }
 
+        // 动态类型：天赋点变化后校验额外杂项槽（增加时无操作，减少时卸下失效槽位物品）
+        hero.belongings.validateDynamicMiscSlots(hero);
+        if (talent == DYNAMIC_TYPING) {
+            GameScene.updateItemDisplays = true; // 刷新装备槽显示
+        }
+
         if (talent == VETERANS_INTUITION && hero.pointsInTalent(VETERANS_INTUITION) == 2) {
             if (hero.belongings.armor() != null && !ShardOfOblivion.passiveIDDisabled()) {
                 hero.belongings.armor.identify();
@@ -740,7 +783,7 @@ public enum Talent {
         }
         if (talent == THIEFS_INTUITION && hero.pointsInTalent(THIEFS_INTUITION) == 1) {
             if (hero.belongings.ring1 instanceof Ring) {
-                hero.belongings.ring1.setKnown();
+                ((Ring) hero.belongings.ring1).setKnown();
             }
             if (hero.belongings.misc instanceof Ring) {
                 ((Ring) hero.belongings.misc).setKnown();
@@ -748,7 +791,7 @@ public enum Talent {
         }
         if (talent == THIEFS_INTUITION && hero.pointsInTalent(THIEFS_INTUITION) == 1) {
             if (hero.belongings.ring2 instanceof Ring) {
-                hero.belongings.ring2.setKnown();
+                ((Ring) hero.belongings.ring2).setKnown();
             }
             if (hero.belongings.misc instanceof Ring) {
                 ((Ring) hero.belongings.misc).setKnown();
@@ -756,7 +799,7 @@ public enum Talent {
         }
         if (talent == THIEFS_INTUITION && hero.pointsInTalent(THIEFS_INTUITION) == 1) {
             if (hero.belongings.ring3 instanceof Ring) {
-                hero.belongings.ring3.setKnown();
+                ((Ring) hero.belongings.ring3).setKnown();
             }
             if (hero.belongings.misc instanceof Ring) {
                 ((Ring) hero.belongings.misc).setKnown();
@@ -1033,6 +1076,12 @@ public enum Talent {
                     ScrollOfRecharging.charge(hero);
             }
         }
+        // 屏蔽一餐（骇客）：进食时获得 3%/5% 最大生命的护盾
+        if (hero.hasTalent(SKIPPED_MEAL)) {
+            int shield = Math.round(hero.HT * (0.01f + 0.02f * hero.pointsInTalent(SKIPPED_MEAL))); // 3%/5%
+            Buff.affect(hero, Barrier.class).setShield(shield);
+            hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shield), FloatingText.SHIELDING);
+        }
     }
 
     public static class WarriorFoodImmunity extends FlavourBuff {
@@ -1071,6 +1120,10 @@ public enum Talent {
 	}
 
 	public static void onPotionUsed( Hero hero, int cell, float factor ){
+		onPotionUsed(hero, cell, factor, null);
+	}
+
+	public static void onPotionUsed( Hero hero, int cell, float factor, Item potion ){
 		if (hero.hasTalent(LIQUID_WILLPOWER)){
 			// 6.5/10% of max HP
 			int shieldToGive = Math.round( factor * hero.HT * (0.030f + 0.035f*hero.pointsInTalent(LIQUID_WILLPOWER)));
@@ -1119,6 +1172,19 @@ public enum Talent {
 				Buff.prolong(hero, LiquidAgilACCTracker.class, 5f).uses = Math.round(factor);
 			}
 		}
+
+		// ———————— 骇客 ————————
+		// 液冷散热：饮用药剂获得冰霜之力并解除燃烧（液火药剂无法触发；力量/经验药剂等 factor=2 翻倍）
+		if (hero.hasTalent(LIQUID_COOLING) && !(potion instanceof PotionOfLiquidFlame)){
+			int turns = Math.round(factor * (1 + 2 * hero.pointsInTalent(LIQUID_COOLING))); // +1: 3/6, +2: 5/10
+			Buff.prolong(hero, FrostImbue.class, turns);
+			Buff.detach(hero, Burning.class);
+		}
+		// 超频运算：喝下液火药剂后获得超频（2 倍命中、3 倍攻速，5 回合）
+		if (hero.hasTalent(OVERCLOCKING) && potion instanceof PotionOfLiquidFlame){
+			Buff.prolong(hero, Overclock.class, Overclock.DURATION);
+			hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Messages.get(Talent.class, "overclocked"), FloatingText.CORRUPTION);
+		}
 	}
 
     public static void onScrollUsed(Hero hero, int pos, float factor, Class<? extends Item> cls) {
@@ -1142,6 +1208,18 @@ public enum Talent {
                 }
             }
         }
+
+        // 全息口粮（骇客）：阅读卷轴时恢复饱腹值，并有几率触发进食效果
+        if (hero.hasTalent(HOLO_RATIONS)) {
+            int food = 5 * hero.pointsInTalent(HOLO_RATIONS); // 5/10
+            if (hero.buff(Hunger.class) != null) {
+                hero.buff(Hunger.class).satisfy(food);
+            }
+            // 1%/2% 概率触发进食效果
+            if (Random.Float() < 0.01f * hero.pointsInTalent(HOLO_RATIONS)) {
+                onFoodEaten(hero, food, null);
+            }
+        }
     }
 
     public static void onRunestoneUsed(Hero hero, int pos, Class<? extends Item> cls) {
@@ -1162,6 +1240,68 @@ public enum Talent {
             }
         }
     }
+
+	// 种子食用后的特殊效果（onSeedEaten）：温和的植物主题效果，不触发女猎种子流等联动
+	public static void onSeedEaten(Hero hero, Plant.Seed seed) {
+
+		// 超频运算 +2：吃下烈焰花之种获得超频（2 倍命中、3 倍攻速，5 回合）
+		if (seed instanceof Firebloom.Seed
+				&& hero.hasTalent(OVERCLOCKING)
+				&& hero.pointsInTalent(OVERCLOCKING) >= 2){
+			Buff.prolong(hero, Overclock.class, Overclock.DURATION);
+			return;
+		}
+
+		if (seed instanceof Firebloom.Seed){
+			// 烈焰花：获得 1 回合火焰附魔
+			Buff.affect(hero, FireImbue.class).set(1f);
+		} else if (seed instanceof Earthroot.Seed){
+			// 地根：获得 5 点护盾
+			Buff.affect(hero, Barrier.class).setShield(5);
+		} else if (seed instanceof Sorrowmoss.Seed){
+			// 忧伤苔：解除中毒并恢复 3 点生命
+			Buff.detach(hero, Poison.class);
+			hero.heal(3, Talent.class);
+		} else if (seed instanceof Fadeleaf.Seed){
+			// 消隐草：随机传送（重试若干次，避免落入墙体或被占据的格子）
+			for (int i = 0; i < 20; i++) {
+				int dest = Random.Int(Dungeon.level.length());
+				if (Dungeon.level.passable[dest] && Actor.findChar(dest) == null){
+					ScrollOfTeleportation.appear(hero, dest);
+					break;
+				}
+			}
+		} else if (seed instanceof Icecap.Seed){
+			// 冰盖：获得 1 回合冰霜附魔
+			Buff.prolong(hero, FrostImbue.class, 1f);
+		} else if (seed instanceof Mageroyal.Seed){
+			// 皇家草：移除自身所有 debuff
+			for (Buff b : hero.buffs()){
+				if (b.type == Buff.buffType.NEGATIVE){
+					b.detach();
+				}
+			}
+		} else if (seed instanceof Rotberry.Seed){
+			// 腐莓：提高 5 点生命上限
+			hero.HT += 5;
+			hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, "+5", FloatingText.STRENGTH);
+		} else if (seed instanceof Starflower.Seed){
+			// 星花：获得少量经验
+			hero.earnExp(1, Talent.class);
+		} else if (seed instanceof Stormvine.Seed){
+			// 风暴藤：获得 1 回合加速
+			Buff.prolong(hero, Haste.class, 1f);
+		} else if (seed instanceof Sungrass.Seed){
+			// 日光草：恢复 10 点生命
+			hero.heal(10, Talent.class);
+		} else if (seed instanceof Swiftthistle.Seed){
+			// 迅捷蓟：获得 2 回合急速
+			Buff.prolong(hero, Haste.class, 2f);
+		} else if (seed instanceof Blindweed.Seed){
+			// 盲草：获得 1 回合预知
+			Buff.prolong(hero, Foresight.class, 1f);
+		}
+	}
 
     public static void onArtifactUsed(Hero hero) {
         if (hero.hasTalent(ENHANCED_RINGS)) {
@@ -1275,6 +1415,52 @@ public enum Talent {
             } else if (hero.buff(DeadlyFollowupTracker.class) != null
                     && hero.buff(DeadlyFollowupTracker.class).object == enemy.id()) {
                 dmg = Math.round(dmg * (1.0f + .1f * hero.pointsInTalent(DEADLY_FOLLOWUP)));
+            }
+        }
+
+        // ———————— 骇客：协同骇入 & 护甲穿透 ————————
+        if (hero.heroClass == HeroClass.HACKER
+                && enemy.alignment == Char.Alignment.ENEMY
+                && enemy.isAlive()) {
+
+            // 协同骇入：物理攻击命中时叠加骇入层数（onAttackProc 仅物理攻击触发，含投掷武器）
+            PortableTerminal.hackTarget(hero, enemy, PortableTerminal.coopHackLayers(hero));
+
+            // 护甲穿透：近战攻击对被骇入的敌人造成额外伤害
+            KindOfWeapon atkWep = hero.belongings.attackingWeapon();
+            boolean melee = atkWep == null || atkWep instanceof MeleeWeapon;
+            if (melee && hero.hasTalent(ARMOR_PIERCE) && enemy.buff(Hacked.class) != null) {
+                if (hero.pointsInTalent(ARMOR_PIERCE) == 1) {
+                    dmg += Random.Int(2); // 0~1
+                } else {
+                    dmg += 1;
+                }
+            }
+        }
+
+        // ———————— 零日漏洞（其它英雄获得的变体）：近战攻击叠加骇入 ————————
+        if (hero.heroClass != HeroClass.HACKER
+                && hero.hasTalent(ZERO_DAY)
+                && enemy.alignment == Char.Alignment.ENEMY
+                && enemy.isAlive()) {
+            KindOfWeapon atkWep = hero.belongings.attackingWeapon();
+            boolean melee = atkWep == null || atkWep instanceof MeleeWeapon;
+            if (melee) {
+                int layers = 0;
+                switch (hero.pointsInTalent(ZERO_DAY)) {
+                    case 1:
+                        if (Random.Int(2) == 0) layers = 1; // 50% 概率
+                        break;
+                    case 2:
+                        layers = 1;
+                        break;
+                    case 3:
+                        layers = 2;
+                        break;
+                }
+                if (layers > 0) {
+                    PortableTerminal.hackTarget(hero, enemy, layers);
+                }
             }
         }
 
@@ -1394,6 +1580,9 @@ public enum Talent {
             case CLERIC:
                 Collections.addAll(tierTalents, SATIATED_SPELLS, HOLY_INTUITION, SEARING_LIGHT, SHIELD_OF_LIGHT);
                 break;
+            case HACKER:
+                Collections.addAll(tierTalents, HOLO_RATIONS, RUNESTONE_CONFUSION, ARMOR_PIERCE, REVERSE_PROXY);
+                break;
         }
         for (Talent talent : tierTalents) {
             if (replacements.containsKey(talent)) {
@@ -1424,6 +1613,9 @@ public enum Talent {
             case CLERIC:
                 Collections.addAll(tierTalents, ENLIGHTENING_MEAL, RECALL_INSCRIPTION, SUNRAY, DIVINE_SENSE, BLESS);
                 break;
+            case HACKER:
+                Collections.addAll(tierTalents, SKIPPED_MEAL, LIQUID_COOLING, BFS_SEARCH, PRIVILEGE_ESCALATION, OVERCLOCKING);
+                break;
         }
         for (Talent talent : tierTalents) {
             if (replacements.containsKey(talent)) {
@@ -1453,6 +1645,9 @@ public enum Talent {
                 break;
             case CLERIC:
                 Collections.addAll(tierTalents, CLEANSE, LIGHT_READING);
+                break;
+            case HACKER:
+                Collections.addAll(tierTalents, ZERO_DAY, BOTNET);
                 break;
         }
         for (Talent talent : tierTalents) {
@@ -1533,6 +1728,12 @@ public enum Talent {
                 break;
             case PALADIN:
                 Collections.addAll(tierTalents, LAY_ON_HANDS, AURA_OF_PROTECTION, WALL_OF_LIGHT);
+                break;
+            case TROJAN_MASTER:// 木马大师
+                Collections.addAll(tierTalents, KERNEL_BREACH, FANCY_INVASION, SUBNET_BROADCAST);
+                break;
+            case ARCHITECT:// 架构师
+                Collections.addAll(tierTalents, STABLE_MAPPING, DYNAMIC_TYPING, MEMORY_RECYCLING);
                 break;
         }
         for (Talent talent : tierTalents) {

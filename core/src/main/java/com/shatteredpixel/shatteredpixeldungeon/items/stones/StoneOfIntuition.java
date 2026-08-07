@@ -35,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.ExoticPotio
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ExoticScroll;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -48,6 +49,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.IconTitle;
 import com.watabou.noosa.Image;
+import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
@@ -60,6 +62,11 @@ public class StoneOfIntuition extends InventoryStone {
 
 	@Override
 	protected boolean usableOnItem(Item item) {
+		// 骇客（符石混淆）：可以使用感知符石鉴定所有可被鉴定的物品（种类/等级/诅咒/法杖充能任一未知即可）
+		if (Dungeon.hero != null && Dungeon.hero.hasTalent(Talent.RUNESTONE_CONFUSION)){
+			return !item.isIdentified() || !item.levelKnown || !item.cursedKnown
+					|| (item instanceof Wand && !((Wand) item).curChargeKnown);
+		}
 		if (item instanceof Ring){
 			return !((Ring) item).isKnown();
 		} else if (item instanceof Potion){
@@ -72,9 +79,50 @@ public class StoneOfIntuition extends InventoryStone {
 	
 	@Override
 	protected void onItemSelected(Item item) {
-
+		// 骇客（符石混淆）：不再需要猜测，直接进行独立判定
+		if (Dungeon.hero != null && Dungeon.hero.hasTalent(Talent.RUNESTONE_CONFUSION)){
+			hackConfuse(item);
+			return;
+		}
 		GameScene.show( new WndGuess(item));
 		
+	}
+
+	// 符石混淆：分别独立判定鉴定等级/诅咒/种类/法杖充能（20%/30% 概率）
+	private void hackConfuse(Item item){
+		int chance = 20 + 10 * (Dungeon.hero.pointsInTalent(Talent.RUNESTONE_CONFUSION) - 1); // 20%/30%
+
+		boolean any = false;
+		// 鉴定物品等级
+		if (Random.Int(100) < chance) { item.levelKnown = true; any = true; }
+		// 鉴定物品诅咒状态
+		if (Random.Int(100) < chance) { item.cursedKnown = true; any = true; }
+		// 鉴定物品的种类
+		if (Random.Int(100) < chance) { item.identify(); any = true; }
+		// 鉴定（法杖的）充能
+		if (item instanceof Wand && Random.Int(100) < chance) {
+			((Wand) item).curChargeKnown = true; any = true;
+		}
+
+		if (any){
+			Item.updateQuickslot();
+			GLog.p( Messages.get(this, "confused") );
+			curUser.sprite.parent.add( new Identification( curUser.sprite.center().offset( 0, -16 ) ) );
+		} else {
+			GLog.w( Messages.get(this, "confused_fail") );
+		}
+
+		// 消耗逻辑与猜测一致：第一次免费，之后消耗
+		if (!anonymous) {
+			Catalog.countUse(StoneOfIntuition.class);
+			if (curUser.buff(IntuitionUseTracker.class) == null) {
+				Buff.affect(curUser, IntuitionUseTracker.class);
+			} else {
+				curItem.detach(curUser.belongings.backpack);
+				curUser.buff(IntuitionUseTracker.class).detach();
+			}
+			Talent.onRunestoneUsed(curUser, curUser.pos, StoneOfIntuition.class);
+		}
 	}
 
 	@Override

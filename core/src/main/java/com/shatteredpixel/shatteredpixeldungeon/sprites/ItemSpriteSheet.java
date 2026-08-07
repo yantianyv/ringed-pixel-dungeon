@@ -245,6 +245,16 @@ public class ItemSpriteSheet {
         assignItemRect(MAGES_STAFF, 15, 16);
     }
 
+    //Ringed 骇客 mod 自定义区（行 26）
+    private static final int RINGED_ITEMS = xy(1, 26);   //16 slots
+    public static final int PORTABLE_TERMINAL = RINGED_ITEMS + 0;  // 便携终端
+    public static final int HOLOGRAM_DAGGER = RINGED_ITEMS + 1;    // 皇帝的新全息匕首（透明贴图）
+
+    static {
+        assignItemRect(PORTABLE_TERMINAL, 15, 14); // 内容实际范围 x1-14, y2-13
+        assignItemRect(HOLOGRAM_DAGGER, 12, 13);
+    }
+
     private static final int WEP_TIER2 = xy(9, 7);   //8 slots
     public static final int SHORTSWORD = WEP_TIER2 + 0;
     public static final int HAND_AXE = WEP_TIER2 + 1;
@@ -398,6 +408,7 @@ public class ItemSpriteSheet {
     public static final int ARMOR_HUNTRESS = ARMOR + 8;
     public static final int ARMOR_DUELIST = ARMOR + 9;
     public static final int ARMOR_CLERIC = ARMOR + 10;
+    public static final int ARMOR_HACKER = ARMOR + 11;   // 骇客职业甲
 
     static {
         assignItemRect(ARMOR_CLOTH, 15, 12);
@@ -411,6 +422,7 @@ public class ItemSpriteSheet {
         assignItemRect(ARMOR_HUNTRESS, 13, 15);
         assignItemRect(ARMOR_DUELIST, 12, 13);
         assignItemRect(ARMOR_CLERIC, 13, 14);
+        assignItemRect(ARMOR_HACKER, 15, 14);   // 内容实际范围 x1-14, y1-13
     }
 
     //16 free slots

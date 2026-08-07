@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hacked;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
@@ -116,13 +117,25 @@ public class Swarm extends Mob {
 
                 clone.HP = (HP - damage) / 2;
                 clone.HT = clone.HP;
+                int splitShare = clone.HP;
 
-                Actor.add(new Pushing(clone, pos, clone.pos));
+                // 骇入：分裂子体继承层数后，重新应用生命上限削减
+                Hacked hacked = clone.buff(Hacked.class);
+                if (hacked != null) {
+                    hacked.applyHTLoss(hacked.layers);
+                }
 
-                Dungeon.level.occupyCell(clone);
+                if (clone.HP > 0 && clone.HT > 0) {
+                    Actor.add(new Pushing(clone, pos, clone.pos));
 
-                HP -= clone.HP;
-                HT -= clone.HT;
+                    Dungeon.level.occupyCell(clone);
+                } else {
+                    // 骇入导致生命上限归零：分裂体立刻死亡（走正常死亡链路）
+                    clone.die(hacked);
+                }
+
+                HP -= splitShare;
+                HT -= splitShare;
             } else {
                 damage -= 1;
                 Buff.affect(this, Amok.class, 1f); // 给自身添加3回合的狂乱debuff
@@ -150,7 +163,15 @@ public class Swarm extends Mob {
         }
         for (Buff b : buffs()) {
             if (b.revivePersists) {
-                Buff.affect(clone, b.getClass());
+                if (b instanceof Hacked) {
+                    // 骇入：子体静默继承层数（此时尚未加入场景，sprite 未创建，不能触发伤害/状态显示）
+                    Hacked h = new Hacked();
+                    h.silent = true;
+                    h.layers = ((Hacked) b).layers;
+                    h.attachTo(clone);
+                } else {
+                    Buff.affect(clone, b.getClass());
+                }
             }
         }
         return clone;

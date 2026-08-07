@@ -73,6 +73,7 @@ public class Badges {
         MASTERY_HUNTRESS,
         MASTERY_DUELIST,
         MASTERY_CLERIC,
+        MASTERY_HACKER,
         FOUND_RATMOGRIFY,
 
         // bronze
@@ -132,6 +133,7 @@ public class Badges {
         BOSS_SLAIN_1_HUNTRESS,
         BOSS_SLAIN_1_DUELIST,
         BOSS_SLAIN_1_CLERIC,
+        BOSS_SLAIN_1_HACKER,
         BOSS_SLAIN_1_ALL_CLASSES(54, BadgeType.GLOBAL),
         RESEARCHER_2(55, BadgeType.JOURNAL),
         GAMES_PLAYED_2(56, BadgeType.GLOBAL),
@@ -186,6 +188,7 @@ public class Badges {
         VICTORY_HUNTRESS,
         VICTORY_DUELIST,
         VICTORY_CLERIC,
+        VICTORY_HACKER,
         VICTORY_ALL_CLASSES(102, BadgeType.GLOBAL),
         DEATH_FROM_ALL(103, BadgeType.GLOBAL),
         BOSS_SLAIN_3_GLADIATOR,
@@ -203,6 +206,8 @@ public class Badges {
         BOSS_SLAIN_3_MONK,
         BOSS_SLAIN_3_PRIEST,
         BOSS_SLAIN_3_PALADIN,
+        BOSS_SLAIN_3_TROJAN_MASTER, // 木马大师
+        BOSS_SLAIN_3_ARCHITECT, // 架构师
         BOSS_SLAIN_3_ALL_SUBCLASSES(104, BadgeType.GLOBAL),
         BOSS_CHALLENGE_3(105),
         BOSS_CHALLENGE_4(106),
@@ -889,6 +894,7 @@ public class Badges {
         firstBossClassBadges.put(HeroClass.HUNTRESS, Badge.BOSS_SLAIN_1_HUNTRESS);
         firstBossClassBadges.put(HeroClass.DUELIST, Badge.BOSS_SLAIN_1_DUELIST);
         firstBossClassBadges.put(HeroClass.CLERIC, Badge.BOSS_SLAIN_1_CLERIC);
+        firstBossClassBadges.put(HeroClass.HACKER, Badge.BOSS_SLAIN_1_HACKER);
     }
 
     private static LinkedHashMap<HeroClass, Badge> victoryClassBadges = new LinkedHashMap<>();
@@ -900,6 +906,7 @@ public class Badges {
         victoryClassBadges.put(HeroClass.HUNTRESS, Badge.VICTORY_HUNTRESS);
         victoryClassBadges.put(HeroClass.DUELIST, Badge.VICTORY_DUELIST);
         victoryClassBadges.put(HeroClass.CLERIC, Badge.VICTORY_CLERIC);
+        victoryClassBadges.put(HeroClass.HACKER, Badge.VICTORY_HACKER);
     }
 
     private static LinkedHashMap<HeroSubClass, Badge> thirdBossSubclassBadges = new LinkedHashMap<>();
@@ -920,6 +927,8 @@ public class Badges {
         thirdBossSubclassBadges.put(HeroSubClass.MONK, Badge.BOSS_SLAIN_3_MONK);
         thirdBossSubclassBadges.put(HeroSubClass.PRIEST, Badge.BOSS_SLAIN_3_PRIEST);
         thirdBossSubclassBadges.put(HeroSubClass.PALADIN, Badge.BOSS_SLAIN_3_PALADIN);
+        thirdBossSubclassBadges.put(HeroSubClass.TROJAN_MASTER, Badge.BOSS_SLAIN_3_TROJAN_MASTER);
+        thirdBossSubclassBadges.put(HeroSubClass.ARCHITECT, Badge.BOSS_SLAIN_3_ARCHITECT);
     }
 
     public static void validateBossSlain() {
@@ -1045,6 +1054,9 @@ public class Badges {
                 break;
             case CLERIC:
                 badge = Badge.MASTERY_CLERIC;
+                break;
+            case HACKER:
+                badge = Badge.MASTERY_HACKER;
                 break;
         }
 
@@ -1293,6 +1305,7 @@ public class Badges {
     }
 
     public static void unlock(Badge badge) {
+        if (badge == null) return; // 防御：新职业/专精未注册徽章时不崩溃
         if (!isUnlocked(badge) && (badge.type == BadgeType.JOURNAL || Dungeon.customSeedText.isEmpty())) {
             global.add(badge);
             saveNeeded = true;

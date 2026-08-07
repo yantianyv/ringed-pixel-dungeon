@@ -59,6 +59,30 @@ public abstract class Ring extends KindofMisc {
     // 镶嵌在干枯玫瑰中时的等级上限，-1为不限制
     private int socketLevelCap = -1;
 
+    // 架构师映射时的等级上限（稳定映射天赋点数），-1为未映射。
+    // 与玫瑰同一套 cap 机制：被映射的戒指与装备的戒指使用相同的 buff 机制，仅等级被封顶。
+    private int mappedLevelCap = -1;
+
+    public int mappedLevelCap() {
+        return mappedLevelCap;
+    }
+
+    public boolean isMapped() {
+        return mappedLevelCap >= 0;
+    }
+
+    // 建立映射：以指定等级上限把戒指的 buff 挂到英雄身上（与装备同一机制，由 ArchitectMapping 驱动）
+    public void mapTo(Hero hero, int levelCap) {
+        mappedLevelCap = levelCap;
+        activate(hero);
+    }
+
+    // 解除映射：摘掉映射产生的 buff
+    public void unmap() {
+        mappedLevelCap = -1;
+        deactivate();
+    }
+
     public void socketLevelCap(int cap) {
         socketLevelCap = cap;
     }
@@ -72,6 +96,13 @@ public abstract class Ring extends KindofMisc {
             buff.detach();
             buff = null;
         }
+    }
+
+    @Override
+    public boolean doEquip(Hero hero) {
+        // 装备后不再是映射状态（activate 会重建不受映射封顶的 buff）
+        mappedLevelCap = -1;
+        return super.doEquip(hero);
     }
 
     public void ensureActivated(Char ch) {
@@ -461,6 +492,9 @@ public abstract class Ring extends KindofMisc {
         if (socketLevelCap >= 0) {
             lvl = Math.min(lvl, socketLevelCap);
         }
+        if (mappedLevelCap >= 0) {
+            lvl = Math.min(lvl, mappedLevelCap);
+        }
         return lvl;
     }
 
@@ -629,10 +663,13 @@ public abstract class Ring extends KindofMisc {
             return true;
         }
 
-        // 镶嵌在玫瑰中时按玫瑰等级封顶
+        // 镶嵌在玫瑰中时按玫瑰等级封顶；被架构师映射时按映射等级封顶（两者取严）
         private int cap(int bonus) {
             int cap = Ring.this.socketLevelCap;
-            return cap >= 0 ? Math.min(bonus, cap + 1) : bonus;
+            if (cap >= 0) bonus = Math.min(bonus, cap + 1);
+            cap = Ring.this.mappedLevelCap;
+            if (cap >= 0) bonus = Math.min(bonus, cap + 1);
+            return bonus;
         }
 
         public int level() {

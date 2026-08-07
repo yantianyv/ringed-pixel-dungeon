@@ -222,6 +222,7 @@ public class InventoryPane extends Component {
 
         float left = x + 4;
         for (InventorySlot i : equipped) {
+            if (!i.visible) continue; // 跳过隐藏的额外杂项槽
             i.setRect(left, y + 4, EQ_SLOT_WIDTH, EQ_SLOT_HEIGHT);
             left = i.right() + 1;
         }
@@ -311,9 +312,9 @@ public class InventoryPane extends Component {
         equipped.get(1).item(stuff.armor == null ? new WndBag.Placeholder(ItemSpriteSheet.ARMOR_HOLDER) : stuff.armor);
         equipped.get(2).item(stuff.artifact == null ? new WndBag.Placeholder(ItemSpriteSheet.ARTIFACT_HOLDER) : stuff.artifact);
         equipped.get(3).item(stuff.misc == null ? new WndBag.Placeholder(ItemSpriteSheet.SOMETHING) : stuff.misc);
-        equipped.get(4).item(stuff.ring1 == null ? new WndBag.Placeholder(ItemSpriteSheet.RING_HOLDER) : stuff.ring1);
-        equipped.get(5).item(stuff.ring2 == null ? new WndBag.Placeholder(ItemSpriteSheet.RING_HOLDER) : stuff.ring2);
-        equipped.get(6).item(stuff.ring3 == null ? new WndBag.Placeholder(ItemSpriteSheet.RING_HOLDER) : stuff.ring3);
+        equipped.get(4).item(stuff.ring1 == null ? new WndBag.Placeholder(stuff.isConvertedRingSlot(1) ? ItemSpriteSheet.SOMETHING : ItemSpriteSheet.RING_HOLDER) : stuff.ring1);
+        equipped.get(5).item(stuff.ring2 == null ? new WndBag.Placeholder(stuff.isConvertedRingSlot(2) ? ItemSpriteSheet.SOMETHING : ItemSpriteSheet.RING_HOLDER) : stuff.ring2);
+        equipped.get(6).item(stuff.ring3 == null ? new WndBag.Placeholder(stuff.isConvertedRingSlot(3) ? ItemSpriteSheet.SOMETHING : ItemSpriteSheet.RING_HOLDER) : stuff.ring3);
         equipped.get(7).item(stuff.ring4 == null ? new WndBag.Placeholder(ItemSpriteSheet.RING_HOLDER) : stuff.ring4);
         equipped.get(8).item(stuff.ring5 == null ? new WndBag.Placeholder(ItemSpriteSheet.RING_HOLDER) : stuff.ring5);
         equipped.get(9).item(stuff.ring6 == null ? new WndBag.Placeholder(ItemSpriteSheet.RING_HOLDER) : stuff.ring6);

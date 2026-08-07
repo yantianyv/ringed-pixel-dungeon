@@ -42,6 +42,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Fe
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.NaturesPower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpectralBlades;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.hacker.BroadcastStorm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.ElementalBlast;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WildMagic;
@@ -54,6 +55,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Sh
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.PortableTerminal;
 import com.shatteredpixel.shatteredpixeldungeon.items.Waterskin;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
@@ -67,6 +69,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAgility;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
@@ -98,6 +102,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Rapier;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.HologramDagger;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife;
@@ -119,7 +124,7 @@ public enum HeroClass {
     HUNTRESS(HeroSubClass.SNIPER, HeroSubClass.WARDEN),
     DUELIST(HeroSubClass.CHAMPION, HeroSubClass.MONK),
     CLERIC(HeroSubClass.PRIEST, HeroSubClass.PALADIN),
-    HACKER();   // 黑客：专精/护甲技能待定，暂用默认（战士）天赋树占位
+    HACKER(HeroSubClass.TROJAN_MASTER, HeroSubClass.ARCHITECT);   // 骇客：木马大师 / 架构师
 
     private HeroSubClass[] subClasses;
     public boolean develop_mode = false;
@@ -218,6 +223,8 @@ public enum HeroClass {
                 return Badges.Badge.MASTERY_DUELIST;
             case CLERIC:
                 return Badges.Badge.MASTERY_CLERIC;
+            case HACKER:
+                return Badges.Badge.MASTERY_HACKER;
         }
         return null;
     }
@@ -320,17 +327,22 @@ public enum HeroClass {
         new ScrollOfMirrorImage().identify();
     }
 
-    private static void initHacker(Hero hero) {    // 黑客
-        // 武器
-        (hero.belongings.weapon = new Dagger()).identify();
-        // 投武
-        ThrowingKnife knives = new ThrowingKnife();
-        knives.identify().collect();
+    private static void initHacker(Hero hero) {    // 骇客
+        // 武器：皇帝的新全息匕首（透明贴图，高精准、快速度、低伤害）
+        (hero.belongings.weapon = new HologramDagger()).identify();
+        // 独特物品：便携终端（主动骇入）
+        PortableTerminal terminal = new PortableTerminal();
+        terminal.identify().collect();
+        // 戒指：山里灵活之戒
+        (hero.belongings.ring1 = new RingOfAgility()).identify().level(1);
+        hero.belongings.ring1.activate(hero);
 
-        Dungeon.quickslot.setSlot(0, knives);
+        // 装进包里
+        Dungeon.quickslot.setSlot(0, terminal);
         // 鉴定
-        new ScrollOfMagicMapping().identify();
-        new PotionOfInvisibility().identify();
+        new ScrollOfIdentify().identify();
+        new PotionOfExperience().identify();
+        new ScrollOfTransmutation().identify();
     }
 
     private static void initCleric(Hero hero) {    // 牧师
@@ -385,6 +397,8 @@ public enum HeroClass {
                 return new ArmorAbility[]{new Challenge(), new ElementalStrike(), new Feint()};
             case CLERIC:
                 return new ArmorAbility[]{new AscendedForm(), new Trinity(), new PowerOfMany()};
+            case HACKER:
+                return new ArmorAbility[]{new BroadcastStorm()};
         }
     }
 
@@ -449,7 +463,7 @@ public enum HeroClass {
             case CLERIC:
                 return Badges.isUnlocked(Badges.Badge.UNLOCK_CLERIC);
             case HACKER:
-                return true;    // 黑客默认解锁
+                return true;    // 骇客默认解锁
         }
     }
 

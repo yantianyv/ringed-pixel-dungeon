@@ -138,6 +138,9 @@ public class BuffIndicator extends Component {
 	public static final int SEAL_SHIELD = 84;
 	public static final int THROWN_WEP  = 85;
 	public static final int GNOSIS_EYE  = 86;
+	// 骇客
+	public static final int HACKED = 87;
+	public static final int OVERCLOCK = 88;
 
 	public static final int SIZE_SMALL  = 7;
 	public static final int SIZE_LARGE  = 16;

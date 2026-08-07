@@ -273,9 +273,9 @@ public class WndBag extends WndTabbed {
         placeItem(stuff.armor != null ? stuff.armor : new Placeholder(ItemSpriteSheet.ARMOR_HOLDER));
         placeItem(stuff.artifact != null ? stuff.artifact : new Placeholder(ItemSpriteSheet.ARTIFACT_HOLDER));
         placeItem(stuff.misc != null ? stuff.misc : new Placeholder(ItemSpriteSheet.SOMETHING));
-        placeItem(stuff.ring1 != null ? stuff.ring1 : new Placeholder(ItemSpriteSheet.RING_HOLDER));
-        placeItem(stuff.ring2 != null ? stuff.ring2 : new Placeholder(ItemSpriteSheet.RING_HOLDER));
-        placeItem(stuff.ring3 != null ? stuff.ring3 : new Placeholder(ItemSpriteSheet.RING_HOLDER));
+        placeItem(stuff.ring1 != null ? stuff.ring1 : new Placeholder(stuff.isConvertedRingSlot(1) ? ItemSpriteSheet.SOMETHING : ItemSpriteSheet.RING_HOLDER));
+        placeItem(stuff.ring2 != null ? stuff.ring2 : new Placeholder(stuff.isConvertedRingSlot(2) ? ItemSpriteSheet.SOMETHING : ItemSpriteSheet.RING_HOLDER));
+        placeItem(stuff.ring3 != null ? stuff.ring3 : new Placeholder(stuff.isConvertedRingSlot(3) ? ItemSpriteSheet.SOMETHING : ItemSpriteSheet.RING_HOLDER));
         placeItem(stuff.ring4 != null ? stuff.ring4 : new Placeholder(ItemSpriteSheet.RING_HOLDER));
         placeItem(stuff.ring5 != null ? stuff.ring5 : new Placeholder(ItemSpriteSheet.RING_HOLDER));
         placeItem(stuff.ring6 != null ? stuff.ring6 : new Placeholder(ItemSpriteSheet.RING_HOLDER));

@@ -25,6 +25,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 
@@ -63,6 +64,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.GreaterHaste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.HeroDisguise;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.HoldFast;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hacked;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invulnerability;
@@ -79,6 +81,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.TimeStasis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Overclock;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdBonus.AdType;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.LingeringMagicTracker;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
@@ -864,6 +867,10 @@ public class Hero extends Char {
 
         float delay = 1f;
 
+        if (Overclock.grantsSpeed(this)) {
+            delay /= Overclock.DELAY_DIVISOR; // 超频：3 倍攻速
+        }
+
         if (!RingOfKungfu.fightingUnarmed(this)) {
 
             return delay * belongings.attackingWeapon().delayFactor(this);
@@ -914,6 +921,9 @@ public class Hero extends Char {
     @Override
     public boolean act() {
         // GLog.p(this.buffs().toString());
+
+        // 动态类型：校验额外杂项槽是否仍然有效（天赋点减少/失去架构师身份时自动卸下）
+        belongings.validateDynamicMiscSlots(this);
 
         //calls to dungeon.observe will also update hero's local FOV.
         fieldOfView = Dungeon.level.heroFOV;
@@ -1663,6 +1673,16 @@ public class Hero extends Char {
         WandOfLivingEarth.RockArmor rockArmor = buff(WandOfLivingEarth.RockArmor.class);
         if (rockArmor != null) {
             damage = rockArmor.absorb(damage);
+        }
+
+        // 反向代理（骇客）：受到被骇入敌人近战攻击的伤害减免
+        if (hasTalent(Talent.REVERSE_PROXY) && enemy.buff(Hacked.class) != null && damage > 0) {
+            if (pointsInTalent(Talent.REVERSE_PROXY) == 1) {
+                damage -= Random.Int(2); // 0~1
+            } else {
+                damage -= 1;
+            }
+            if (damage < 0) damage = 0;
         }
 
         // 战士的反伤
@@ -2879,10 +2899,47 @@ public class Hero extends Char {
         );
         boolean cursed = talisman != null && talisman.isCursed();
 
+        // ———————— 骇客：广度优先搜索（BFS_SEARCH） ————————
+        // 搜索 9/16 个有效格（非墙壁/障碍），按顺时针层序，初始方向随机
+        // 被访问格相邻的隐藏格（密门等）也会被顺带检查，但不计入 9/16 格数
+        ArrayList<Integer> bfsCells = null;
+        if (heroClass == HeroClass.HACKER && hasTalent(Talent.BFS_SEARCH)) {
+            int steps = pointsInTalent(Talent.BFS_SEARCH) == 1 ? 9 : 16; // +1: 9 格, +2: 16 格
+            int bw = Dungeon.level.width();
+            int rot = Random.Int(8);
+            int[] bdx = {0, 1, 1, 1, 0, -1, -1, -1};
+            int[] bdy = {-1, -1, 0, 1, 1, 1, 0, -1}; // 北→东北→东→…→西北，顺时针
+            boolean[] seen = new boolean[Dungeon.level.length()];
+            ArrayList<Integer> secretCells = new ArrayList<>(); // 相邻的隐藏格（密门/隐藏陷阱），不占搜索格数
+            LinkedList<Integer> queue = new LinkedList<>();
+            queue.add(pos);
+            seen[pos] = true;
+            bfsCells = new ArrayList<>();
+            while (!queue.isEmpty() && bfsCells.size() < steps) {
+                int cell = queue.poll();
+                if (cell != pos) {
+                    bfsCells.add(cell);
+                }
+                for (int i = 0; i < 8; i++) {
+                    int idx = (rot + i) % 8;
+                    int n = cell + bdx[idx] + bdy[idx] * bw;
+                    if (!Dungeon.level.insideMap(n) || seen[n]) continue;
+                    seen[n] = true;
+                    if (Dungeon.level.passable[n]) {
+                        queue.add(n);
+                    } else if (Dungeon.level.secret[n]) {
+                        secretCells.add(n);
+                    }
+                }
+            }
+            bfsCells.addAll(secretCells);
+        }
+
         int[] rounding = ShadowCaster.rounding[distance];
 
         int left, right;
         int curr;
+        if (bfsCells == null) {
         for (int y = Math.max(0, c.y - distance); y <= Math.min(Dungeon.level.height() - 1, c.y + distance); y++) {
 
             if (!circular) {
@@ -2899,6 +2956,83 @@ public class Hero extends Char {
             right = Math.min(Dungeon.level.width() - 1, c.x + c.x - left);
             left = Math.max(0, left);
             for (curr = left + y * Dungeon.level.width(); curr <= right + y * Dungeon.level.width(); curr++) {
+
+                if ((foresight || fieldOfView[curr]) && curr != pos) {
+
+                    if ((foresight && (!Dungeon.level.mapped[curr] || foresightScan))) {
+                        GameScene.effectOverFog(new CheckedCell(curr, foresightScan ? pos : curr));
+                    } else if (intentional) {
+                        GameScene.effectOverFog(new CheckedCell(curr, pos));
+                    }
+
+                    if (foresight) {
+                        Dungeon.level.mapped[curr] = true;
+                    }
+
+                    if (Dungeon.level.secret[curr]) {
+
+                        Trap trap = Dungeon.level.traps.get(curr);
+                        float chance;
+
+                        //searches aided by foresight always succeed, even if trap isn't searchable
+                        if (foresight) {
+                            chance = 1f;
+
+                            //otherwise if the trap isn't searchable, searching always fails
+                        } else if (trap != null && !trap.canBeSearched) {
+                            chance = 0f;
+
+                            //intentional searches always succeed against regular traps and doors
+                        } else if (intentional) {
+                            chance = 1f;
+
+                            //unintentional searches always fail with a cursed talisman
+                        } else if (cursed) {
+                            chance = 0f;
+
+                            //unintentional trap detection scales from 40% at floor 0 to 30% at floor 25
+                        } else if (Dungeon.level.map[curr] == Terrain.SECRET_TRAP) {
+                            chance = 0.4f - (Dungeon.depth / 250f);
+
+                            //unintentional door detection scales from 20% at floor 0 to 0% at floor 20
+                        } else {
+                            chance = 0.2f - (Dungeon.depth / 100f);
+                        }
+
+                        //don't want to let the player search though hidden doors in tutorial
+                        if (SPDSettings.intro()) {
+                            chance = 0;
+                        }
+
+                        if (Random.Float() < chance) {
+                            int oldValue = Dungeon.level.map[curr];
+
+                            GameScene.discoverTile(curr, oldValue);
+
+                            Dungeon.level.discover(curr);
+
+                            ScrollOfMagicMapping.discover(curr);
+
+                            if (fieldOfView[curr]) {
+                                smthFound = true;
+                            }
+
+                            if (talisman != null) {
+                                if (oldValue == Terrain.SECRET_TRAP) {
+                                    talisman.charge(2);
+                                } else if (oldValue == Terrain.SECRET_DOOR) {
+                                    talisman.charge(10);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        } else {
+            // 骇客 BFS 搜索：按广度优先顺序检查
+            for (int sc : bfsCells) {
+                curr = sc;
 
                 if ((foresight || fieldOfView[curr]) && curr != pos) {
 
