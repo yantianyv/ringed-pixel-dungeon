@@ -30,12 +30,15 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Identification;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.ExoticPotion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ExoticScroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -60,12 +63,34 @@ public class StoneOfIntuition extends InventoryStone {
 		image = ItemSpriteSheet.STONE_INTUITION;
 	}
 
+	// 骇客（符石混淆）专精：拥有等级/诅咒这类信息的物品（武器、护甲、法杖、戒指、神器）
+	private static boolean hasUpgradeInfo(Item item){
+		return item instanceof Weapon || item instanceof Armor
+				|| item instanceof Wand || item instanceof Ring || item instanceof Artifact;
+	}
+
+	// 骇客（符石混淆）专精：拥有隐藏种类的物品（药水、卷轴、戒指）
+	private static boolean hasHiddenType(Item item){
+		return item instanceof Ring || item instanceof Potion || item instanceof Scroll;
+	}
+
+	private static boolean typeKnown(Item item){
+		if (item instanceof Ring) return ((Ring) item).isKnown();
+		if (item instanceof Potion) return ((Potion) item).isKnown();
+		if (item instanceof Scroll) return ((Scroll) item).isKnown();
+		return true;
+	}
+
 	@Override
 	protected boolean usableOnItem(Item item) {
 		// 骇客（符石混淆）：可以使用感知符石鉴定所有可被鉴定的物品（种类/等级/诅咒/法杖充能任一未知即可）
 		if (Dungeon.hero != null && Dungeon.hero.hasTalent(Talent.RUNESTONE_CONFUSION)){
-			return !item.isIdentified() || !item.levelKnown || !item.cursedKnown
-					|| (item instanceof Wand && !((Wand) item).curChargeKnown);
+			// 已完全鉴定的物品（没有任何可鉴定信息）不可选中
+			if (hasUpgradeInfo(item) && !item.levelKnown) return true;
+			if (hasUpgradeInfo(item) && !item.cursedKnown) return true;
+			if (hasHiddenType(item) && !typeKnown(item)) return true;
+			if (item instanceof Wand && !((Wand) item).curChargeKnown) return true;
+			return false;
 		}
 		if (item instanceof Ring){
 			return !((Ring) item).isKnown();
@@ -88,19 +113,42 @@ public class StoneOfIntuition extends InventoryStone {
 		
 	}
 
-	// 符石混淆：分别独立判定鉴定等级/诅咒/种类/法杖充能（20%/30% 概率）
+	// 符石混淆：分别独立判定鉴定等级/诅咒/种类/法杖充能
+	// +1 基础触发概率 10%，+2 为 20%；每个不适用的效果（物品无该类信息，或该类信息已被鉴定）额外 +5%/+10%
 	private void hackConfuse(Item item){
-		int chance = 20 + 10 * (Dungeon.hero.pointsInTalent(Talent.RUNESTONE_CONFUSION) - 1); // 20%/30%
+		int points = Dungeon.hero.pointsInTalent(Talent.RUNESTONE_CONFUSION);
+		int chance = points * 10; // +1: 10%，+2: 20%
+
+		// 统计不适用的效果数量，每个不适用效果 +5%/+10%
+		int nonApplicable = 0;
+		if (!hasUpgradeInfo(item) || item.levelKnown) nonApplicable++;
+		if (!hasUpgradeInfo(item) || item.cursedKnown) nonApplicable++;
+		if (!hasHiddenType(item) || typeKnown(item)) nonApplicable++;
+		if (!(item instanceof Wand) || ((Wand) item).curChargeKnown) nonApplicable++;
+		chance += nonApplicable * points * 5;
 
 		boolean any = false;
 		// 鉴定物品等级
-		if (Random.Int(100) < chance) { item.levelKnown = true; any = true; }
+		if (hasUpgradeInfo(item) && !item.levelKnown && Random.Int(100) < chance) {
+			item.levelKnown = true; any = true;
+		}
 		// 鉴定物品诅咒状态
-		if (Random.Int(100) < chance) { item.cursedKnown = true; any = true; }
+		if (hasUpgradeInfo(item) && !item.cursedKnown && Random.Int(100) < chance) {
+			item.cursedKnown = true; any = true;
+		}
 		// 鉴定物品的种类
-		if (Random.Int(100) < chance) { item.identify(); any = true; }
+		if (hasHiddenType(item) && !typeKnown(item) && Random.Int(100) < chance) {
+			if (item instanceof Ring) {
+				((Ring) item).setKnown();
+			} else if (item instanceof Potion) {
+				((Potion) item).setKnown();
+			} else if (item instanceof Scroll) {
+				((Scroll) item).setKnown();
+			}
+			any = true;
+		}
 		// 鉴定（法杖的）充能
-		if (item instanceof Wand && Random.Int(100) < chance) {
+		if (item instanceof Wand && !((Wand) item).curChargeKnown && Random.Int(100) < chance) {
 			((Wand) item).curChargeKnown = true; any = true;
 		}
 
