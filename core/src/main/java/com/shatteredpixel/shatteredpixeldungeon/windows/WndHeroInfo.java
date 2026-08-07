@@ -216,7 +216,6 @@ public class WndHeroInfo extends WndTabbed {
 				case HACKER:
 					icons = new Image[]{ new ItemSprite(ItemSpriteSheet.PORTABLE_TERMINAL),
 							new ItemSprite(ItemSpriteSheet.HOLOGRAM_DAGGER),
-							new ItemSprite(ItemSpriteSheet.RING_AGATE),
 							new ItemSprite(ItemSpriteSheet.SCROLL_ISAZ)};
 					break;
 			}
