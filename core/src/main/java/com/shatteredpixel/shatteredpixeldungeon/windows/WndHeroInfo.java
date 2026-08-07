@@ -79,6 +79,9 @@ public class WndHeroInfo extends WndTabbed {
 			case CLERIC:
 				tabIcon = new ItemSprite(ItemSpriteSheet.ARTIFACT_TOME, null);
 				break;
+			case HACKER:
+				tabIcon = new ItemSprite(ItemSpriteSheet.PORTABLE_TERMINAL, null);
+				break;
 		}
 
 		int finalHeight = MIN_HEIGHT;
@@ -210,6 +213,12 @@ public class WndHeroInfo extends WndTabbed {
 							new ItemSprite(ItemSpriteSheet.CUDGEL),
 							new ItemSprite(ItemSpriteSheet.SCROLL_ISAZ)};
 					break;
+				case HACKER:
+					icons = new Image[]{ new ItemSprite(ItemSpriteSheet.PORTABLE_TERMINAL),
+							new ItemSprite(ItemSpriteSheet.HOLOGRAM_DAGGER),
+							new ItemSprite(ItemSpriteSheet.RING_AGATE),
+							new ItemSprite(ItemSpriteSheet.SCROLL_ISAZ)};
+					break;
 			}
 			for (Image im : icons) {
 				add(im);
@@ -225,13 +234,22 @@ public class WndHeroInfo extends WndTabbed {
 
 			float pos = title.bottom()+4*MARGIN;
 
+			// icons may not match the number of desc paragraphs (e.g. different translations),
+			// so guard against index mismatch instead of assuming they are equal
+			int iconCount = Math.min(info.length, icons.length);
+			for (int i = 0; i < icons.length; i++){
+				icons[i].visible = icons[i].active = (i < iconCount);
+			}
+
 			for (int i = 0; i < info.length; i++){
 				info[i].maxWidth((int)width - 20);
 				info[i].setPos(20, pos);
 
-				icons[i].x = (20-icons[i].width())/2;
-				icons[i].y = info[i].top() + (info[i].height() - icons[i].height())/2;
-				PixelScene.align(icons[i]);
+				if (i < iconCount){
+					icons[i].x = (20-icons[i].width())/2;
+					icons[i].y = info[i].top() + (info[i].height() - icons[i].height())/2;
+					PixelScene.align(icons[i]);
+				}
 
 				pos = info[i].bottom() + 4*MARGIN;
 			}

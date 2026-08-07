@@ -38,27 +38,29 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArtifactRecharge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FrostImbue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Overclock;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FireImbue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Foresight;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.CounterBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.EnhancedRings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hacked;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Levitation;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LostInventory;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PhysicalEmpower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.RevealedArea;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ScrollEmpower;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.WandEmpower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.Ratmogrify;
@@ -122,6 +124,7 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.particles.Emitter;
+import com.watabou.utils.BArray;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.PathFinder;
@@ -1244,6 +1247,17 @@ public enum Talent {
 	// 种子食用后的特殊效果（onSeedEaten）：温和的植物主题效果，不触发女猎种子流等联动
 	public static void onSeedEaten(Hero hero, Plant.Seed seed) {
 
+		// 部分种子额外提供 5 点饱食值（在基础 25 点之上）
+		if (seed instanceof Firebloom.Seed
+				|| seed instanceof Sorrowmoss.Seed
+				|| seed instanceof Icecap.Seed
+				|| seed instanceof Stormvine.Seed
+				|| seed instanceof Blindweed.Seed) {
+			if (hero.buff(Hunger.class) != null) {
+				hero.buff(Hunger.class).satisfy(5f);
+			}
+		}
+
 		// 超频运算 +2：吃下烈焰花之种获得超频（2 倍命中、3 倍攻速，5 回合）
 		if (seed instanceof Firebloom.Seed
 				&& hero.hasTalent(OVERCLOCKING)
@@ -1253,32 +1267,43 @@ public enum Talent {
 		}
 
 		if (seed instanceof Firebloom.Seed){
-			// 烈焰花：获得 1 回合火焰附魔
-			Buff.affect(hero, FireImbue.class).set(1f);
+			// 烈焰花：获得 1 回合燃烧
+			Buff.affect(hero, Burning.class).reignite(hero, 1f);
 		} else if (seed instanceof Earthroot.Seed){
-			// 地根：获得 5 点护盾
+			// 地根：获得 5 点护盾与 1 回合束缚
 			Buff.affect(hero, Barrier.class).setShield(5);
+			Buff.affect(hero, Roots.class, 1f);
 		} else if (seed instanceof Sorrowmoss.Seed){
-			// 忧伤苔：解除中毒并恢复 3 点生命
-			Buff.detach(hero, Poison.class);
-			hero.heal(3, Talent.class);
+			// 断肠苔：获得 1 回合中毒
+			Buff.affect(hero, Poison.class).set(1f);
 		} else if (seed instanceof Fadeleaf.Seed){
-			// 消隐草：随机传送（重试若干次，避免落入墙体或被占据的格子）
-			for (int i = 0; i < 20; i++) {
-				int dest = Random.Int(Dungeon.level.length());
-				if (Dungeon.level.passable[dest] && Actor.findChar(dest) == null){
-					ScrollOfTeleportation.appear(hero, dest);
-					break;
+			// 消逝草：随机小范围传送（闪到 2~6 格内的随机可通行空格）
+			ArrayList<Integer> candidates = new ArrayList<>();
+			PathFinder.buildDistanceMap(hero.pos, BArray.or(Dungeon.level.passable, Dungeon.level.avoid, null), 6);
+			for (int i = 0; i < Dungeon.level.length(); i++){
+				if (i != hero.pos
+						&& PathFinder.distance[i] >= 2
+						&& PathFinder.distance[i] < Integer.MAX_VALUE
+						&& Actor.findChar(i) == null){
+					candidates.add(i);
 				}
 			}
+			if (!candidates.isEmpty()){
+				int dest = Random.element(candidates);
+				ScrollOfTeleportation.appear(hero, dest);
+				Dungeon.level.occupyCell(hero);
+				Buff.detach(hero, Roots.class);
+				Dungeon.observe();
+				GameScene.updateFog();
+			}
 		} else if (seed instanceof Icecap.Seed){
-			// 冰盖：获得 1 回合冰霜附魔
-			Buff.prolong(hero, FrostImbue.class, 1f);
+			// 冰冠花：获得 2 回合冻结
+			Buff.affect(hero, Frost.class, 2f);
 		} else if (seed instanceof Mageroyal.Seed){
-			// 皇家草：移除自身所有 debuff
+			// 魔皇草：身上所有 debuff 余量移除一半
 			for (Buff b : hero.buffs()){
 				if (b.type == Buff.buffType.NEGATIVE){
-					b.detach();
+					b.halveRemaining();
 				}
 			}
 		} else if (seed instanceof Rotberry.Seed){
@@ -1289,17 +1314,18 @@ public enum Talent {
 			// 星花：获得少量经验
 			hero.earnExp(1, Talent.class);
 		} else if (seed instanceof Stormvine.Seed){
-			// 风暴藤：获得 1 回合加速
-			Buff.prolong(hero, Haste.class, 1f);
+			// 风暴藤：获得 3 回合眩晕与 3 回合浮空
+			Buff.affect(hero, Vertigo.class, 3f);
+			Buff.affect(hero, Levitation.class, 3f);
 		} else if (seed instanceof Sungrass.Seed){
-			// 日光草：恢复 10 点生命
-			hero.heal(10, Talent.class);
+			// 阳春草：获得相当于 50% 生命上限的草药治疗
+			Buff.affect(hero, Health.class).boost(hero.HT / 2);
 		} else if (seed instanceof Swiftthistle.Seed){
-			// 迅捷蓟：获得 2 回合急速
-			Buff.prolong(hero, Haste.class, 2f);
+			// 速行蓟：获得 5 回合急速
+			Buff.prolong(hero, Haste.class, 5f);
 		} else if (seed instanceof Blindweed.Seed){
-			// 盲草：获得 1 回合预知
-			Buff.prolong(hero, Foresight.class, 1f);
+			// 致盲草：获得 3 回合致盲
+			Buff.affect(hero, Blindness.class, 3f);
 		}
 	}
 

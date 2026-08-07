@@ -90,6 +90,11 @@ public class Ooze extends Buff {
 	}
 
 	@Override
+	public void halveRemaining() {
+		left /= 2f;
+	}
+
+	@Override
 	public boolean act() {
 		//washing away happens before debuff effects if debuff has gotten to act
 		if (acted && Dungeon.level.water[target.pos] && !target.flying){

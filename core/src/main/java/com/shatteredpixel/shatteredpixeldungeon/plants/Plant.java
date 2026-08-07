@@ -141,7 +141,7 @@ public abstract class Plant implements Bundlable {
 		
 		{
 			stackable = true;
-			defaultAction = AC_EAT; // 所有种子都可食用
+			defaultAction = AC_PLANT; // 与原生一致：默认动作是种植，食用需手动选择
 		}
 		
 		protected Class<? extends Plant> plantClass;
@@ -205,7 +205,16 @@ public abstract class Plant implements Bundlable {
 				// 种子特殊效果（onSeedEaten）
 				Talent.onSeedEaten(hero, this);
 
-				hero.spend( TIME_TO_EAT );
+				// 食用速度与浆果一致：默认 1 回合，有食用加速类技能时不消耗回合
+				if (!(hero.hasTalent(Talent.IRON_STOMACH)
+						|| hero.hasTalent(Talent.ENERGIZING_MEAL)
+						|| hero.hasTalent(Talent.MYSTICAL_MEAL)
+						|| hero.hasTalent(Talent.INVIGORATING_MEAL)
+						|| hero.hasTalent(Talent.FOCUSED_MEAL)
+						|| hero.hasTalent(Talent.ENLIGHTENING_MEAL)
+						|| hero.hasTalent(Talent.FEAST_FRENZY))) {
+					hero.spend( TIME_TO_EAT );
+				}
 				hero.sprite.operate( hero.pos );
 				Sample.INSTANCE.play( Assets.Sounds.EAT );
 				

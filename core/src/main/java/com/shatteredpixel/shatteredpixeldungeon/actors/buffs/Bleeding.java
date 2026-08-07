@@ -85,6 +85,11 @@ public class Bleeding extends Buff {
 	public void extend( float amount ) {
 		level += amount;
 	}
+
+	@Override
+	public void halveRemaining() {
+		level /= 2f;
+	}
 	
 	@Override
 	public int icon() {

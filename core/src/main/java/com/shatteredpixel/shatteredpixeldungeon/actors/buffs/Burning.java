@@ -214,6 +214,11 @@ public class Burning extends Buff implements Hero.Doom {
         left += duration;
     }
 
+    @Override
+    public void halveRemaining() {
+        left /= 2f;
+    }
+
     public float left() {
         return left;
     }

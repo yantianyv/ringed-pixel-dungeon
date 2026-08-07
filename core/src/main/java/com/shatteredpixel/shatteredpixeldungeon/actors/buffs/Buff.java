@@ -99,6 +99,13 @@ public class Buff extends Actor {
         return true;
     }
 
+    // 将剩余效果时长减半（魔皇草种子效果：所有 debuff 余量移除一半）
+    // 以时间驱动的 buff（如 FlavourBuff）默认减半剩余冷却时间；
+    // 以 left 字段驱动的 buff（中毒/燃烧/流血/酸性等）自行覆写减半 left。
+    public void halveRemaining() {
+        spend(-cooldown() / 2f);
+    }
+
     public int icon() {
         return BuffIndicator.NONE;
     }
