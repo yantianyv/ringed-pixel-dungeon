@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.ui;
 import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hacked;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.ui.Component;
 
@@ -32,18 +33,21 @@ public class HealthBar extends Component {
     private static final int COLOR_HP = 0xFF00EE00;
     private static final int COLOR_SHLD = 0xFFFFFFFF;
     private static final int COLOR_DIVIDER = 0xFF888888;
+    private static final int COLOR_LOST = 0xFF666666; // 骇入削减的生命上限（灰色）
 
     private static final int HEIGHT = 2;
     private static final int SEGMENT_SIZE = 10;
     private static final int MAX_DIVIDERS = 20; // 限制最大分隔线数量
 
     private ColorBlock Bg;
+    private ColorBlock Lost;
     private ColorBlock Shld;
     private ColorBlock Hp;
     private ArrayList<ColorBlock> dividers = new ArrayList<>();
 
     private float health;
     private float shield;
+    private float lost;
     private int maxHP;
     private int lastMaxHP = 0; // 缓存上一次的Max HP
 
@@ -51,6 +55,10 @@ public class HealthBar extends Component {
     protected void createChildren() {
         Bg = new ColorBlock(1, 1, COLOR_BG);
         add(Bg);
+
+        // 骇入削减的生命上限：灰色段，绘制在背景之上、护盾/血量之下
+        Lost = new ColorBlock(1, 1, COLOR_LOST);
+        add(Lost);
 
         Shld = new ColorBlock(1, 1, COLOR_SHLD);
         add(Shld);
@@ -76,6 +84,13 @@ public class HealthBar extends Component {
         }
         Shld.size(width * (float) Math.ceil(shield * pixelWidth) / pixelWidth, height);
         Hp.size(width * (float) Math.ceil(health * pixelWidth) / pixelWidth, height);
+
+        // 灰色段贴齐血条右端，保证血条单位长度代表的血量稳定
+        float lostWidth = width * (float) Math.ceil(lost * pixelWidth) / pixelWidth;
+        Lost.size(lostWidth, height);
+        Lost.x = x + width - lostWidth;
+        Lost.y = y;
+        Lost.visible = lost > 0;
 
         // 无论Max HP是否变化，都要更新分隔线位置（因为血条可能移动）
         updateDividersPosition();
@@ -139,8 +154,15 @@ public class HealthBar extends Component {
     public void level(Char c) {
         float health = c.HP;
         float shield = c.shielding();
-        float max = Math.max(health + shield, c.HT);
+        // 被骇入削减的生命上限（每层骇入削减 1 点，对 BOSS 无效）：以灰色段显示在血条末端
+        int lostHP = 0;
+        Hacked hacked = c.buff(Hacked.class);
+        if (hacked != null && !c.properties().contains(Char.Property.BOSS)) {
+            lostHP = hacked.layers;
+        }
+        float max = Math.max(health + shield, c.HT + lostHP);
         this.maxHP = (int) max;
+        this.lost = lostHP / max;
 
         level(health / max, (health + shield) / max);
     }

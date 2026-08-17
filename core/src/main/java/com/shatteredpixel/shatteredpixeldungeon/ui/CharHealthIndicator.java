@@ -24,6 +24,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hacked;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -59,7 +60,10 @@ public class CharHealthIndicator extends HealthBar {
             x = sprite.x + sprite.width() / 6f;
             y = sprite.y - 2;
             level(target);
-            visible = target.HP < target.HT || target.shielding() > 0;
+            // 被骇入（生命上限被削减）时也显示血条，方便观察骇入进度
+            visible = target.HP < target.HT || target.shielding() > 0
+                    || (target.buff(Hacked.class) != null
+                            && !target.properties().contains(Char.Property.BOSS));
         } else {
             visible = false;
         }

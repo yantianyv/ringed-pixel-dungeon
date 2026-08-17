@@ -244,9 +244,9 @@ public enum Talent {
     //Ratmogrify T4
     RATSISTANCE(215, 4), RATLOMACY(216, 4), RATFORCEMENTS(217, 4),
     //Hacker T1
-    HOLO_RATIONS(1224), RUNESTONE_CONFUSION(1225), ARMOR_PIERCE(1226), REVERSE_PROXY(1227),
+    PORT_SCAN(1224), RUNESTONE_CONFUSION(1225), ARMOR_PIERCE(1226), REVERSE_PROXY(1227),
     //Hacker T2
-    SKIPPED_MEAL(1228), LIQUID_COOLING(1229), BFS_SEARCH(1230), PRIVILEGE_ESCALATION(1231), OVERCLOCKING(1232),
+    HOLO_RATIONS(1228), LIQUID_COOLING(1229), BFS_SEARCH(1230), PRIVILEGE_ESCALATION(1231), OVERCLOCKING(1232),
     //Hacker T3
     ZERO_DAY(1233, 3), BOTNET(1234, 3),
     //Trojan Master T3
@@ -1079,12 +1079,6 @@ public enum Talent {
                     ScrollOfRecharging.charge(hero);
             }
         }
-        // 屏蔽一餐（骇客）：进食时获得 3%/5% 最大生命的护盾
-        if (hero.hasTalent(SKIPPED_MEAL)) {
-            int shield = Math.round(hero.HT * (0.01f + 0.02f * hero.pointsInTalent(SKIPPED_MEAL))); // 3%/5%
-            Buff.affect(hero, Barrier.class).setShield(shield);
-            hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shield), FloatingText.SHIELDING);
-        }
     }
 
     public static class WarriorFoodImmunity extends FlavourBuff {
@@ -1212,14 +1206,14 @@ public enum Talent {
             }
         }
 
-        // 全息口粮（骇客）：阅读卷轴时恢复饱腹值，并有几率触发进食效果
+        // 全息口粮（骇客，二层）：阅读卷轴时恢复大量饱腹值，并有概率触发进食效果
         if (hero.hasTalent(HOLO_RATIONS)) {
-            int food = 5 * hero.pointsInTalent(HOLO_RATIONS); // 5/10
+            int food = 25 * hero.pointsInTalent(HOLO_RATIONS); // 25/50
             if (hero.buff(Hunger.class) != null) {
                 hero.buff(Hunger.class).satisfy(food);
             }
-            // 1%/2% 概率触发进食效果
-            if (Random.Float() < 0.01f * hero.pointsInTalent(HOLO_RATIONS)) {
+            // 10%/20% 概率触发进食效果
+            if (Random.Float() < 0.10f * hero.pointsInTalent(HOLO_RATIONS)) {
                 onFoodEaten(hero, food, null);
             }
         }
@@ -1607,7 +1601,7 @@ public enum Talent {
                 Collections.addAll(tierTalents, SATIATED_SPELLS, HOLY_INTUITION, SEARING_LIGHT, SHIELD_OF_LIGHT);
                 break;
             case HACKER:
-                Collections.addAll(tierTalents, HOLO_RATIONS, RUNESTONE_CONFUSION, ARMOR_PIERCE, REVERSE_PROXY);
+                Collections.addAll(tierTalents, PORT_SCAN, RUNESTONE_CONFUSION, ARMOR_PIERCE, REVERSE_PROXY);
                 break;
         }
         for (Talent talent : tierTalents) {
@@ -1640,7 +1634,7 @@ public enum Talent {
                 Collections.addAll(tierTalents, ENLIGHTENING_MEAL, RECALL_INSCRIPTION, SUNRAY, DIVINE_SENSE, BLESS);
                 break;
             case HACKER:
-                Collections.addAll(tierTalents, SKIPPED_MEAL, LIQUID_COOLING, BFS_SEARCH, PRIVILEGE_ESCALATION, OVERCLOCKING);
+                Collections.addAll(tierTalents, HOLO_RATIONS, LIQUID_COOLING, BFS_SEARCH, PRIVILEGE_ESCALATION, OVERCLOCKING);
                 break;
         }
         for (Talent talent : tierTalents) {
@@ -1822,7 +1816,9 @@ public enum Talent {
 
 	private static final HashMap<String, String> renamedTalents = new HashMap<>();
 	static{
-		//nothing atm
+		//v0.1.7：骇客一层「全息口粮」重做为一层「端口扫描」，二层「屏蔽一餐」重做为二层「全息口粮」
+		renamedTalents.put("HOLO_RATIONS", "PORT_SCAN");
+		renamedTalents.put("SKIPPED_MEAL", "HOLO_RATIONS");
 	}
 
     public static void restoreTalentsFromBundle(Bundle bundle, Hero hero) {
