@@ -248,11 +248,13 @@ public class ItemSpriteSheet {
     //Ringed 骇客 mod 自定义区（行 26）
     private static final int RINGED_ITEMS = xy(1, 26);   //16 slots
     public static final int PORTABLE_TERMINAL = RINGED_ITEMS + 0;  // 便携终端
-    public static final int HOLOGRAM_DAGGER = RINGED_ITEMS + 1;    // 皇帝的新全息匕首（透明贴图）
+    public static final int HOLOGRAM_DAGGER = RINGED_ITEMS + 1;    // 皇帝的新全息匕首（全息投影贴图）
+    public static final int CRACKED_TERMINAL = RINGED_ITEMS + 2;   // 碎屏终端（骇客职业遗物）
 
     static {
         assignItemRect(PORTABLE_TERMINAL, 15, 14); // 内容实际范围 x1-14, y2-13
         assignItemRect(HOLOGRAM_DAGGER, 12, 13);
+        assignItemRect(CRACKED_TERMINAL, 16, 15); // 撕裂后内容横跨整个格子（x0-15, y2-14）
     }
 
     private static final int WEP_TIER2 = xy(9, 7);   //8 slots
