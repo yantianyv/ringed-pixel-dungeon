@@ -19,6 +19,25 @@ DARK = (14, 16, 18)
 
 # ---------- 大图标 16x16 ----------
 LARGE = {
+    # 86 神之眼：眼睛剪影（白灰配色，供 EnergyTracker 的蓝色 hardlight 染色）
+    86: dict(bg=DARK, rows=[
+        "................",
+        "................",
+        "................",
+        "................",
+        ".....wwwwww.....",
+        "...ww......ww...",
+        "..w....WW....w..",
+        ".w....WWWW....w.",
+        ".w....WWWW....w.",
+        "..w....WW....w..",
+        "...ww......ww...",
+        ".....wwwwww.....",
+        "................",
+        "................",
+        "................",
+        "................",
+    ]),
     # 87 骇入：灰核心 + 绿缠绕环 + 四角数据线头
     87: dict(bg=DARK, rows=[
         "................",
@@ -61,6 +80,16 @@ LARGE = {
 
 # ---------- 小图标 7x7 ----------
 SMALL = {
+    # 86 神之眼：眼睛
+    86: dict(bg=DARK, rows=[
+        ".......",
+        "..www..",
+        ".w.W.w.",
+        "w.WWW.w",
+        ".w.W.w.",
+        "..www..",
+        ".......",
+    ]),
     87: dict(bg=DARK, rows=[
         ".......",
         ".GGGGG.",
@@ -119,8 +148,8 @@ def main():
     # 预览：大图标 + 小图标 + 原版 buff 风格参照（帧 3燃烧/4 等大图）
     scale = 16
     prev = Image.new("RGBA", (8 * 17 + 1, 35), (40, 40, 48, 255))
-    items = [(large, 87, 16), (large, 88, 16), (large, 3, 16), (large, 6, 16),
-             (small, 87, 7), (small, 88, 7), (small, 3, 7), (small, 6, 7)]
+    items = [(large, 86, 16), (large, 87, 16), (large, 88, 16), (large, 3, 16),
+             (small, 86, 7), (small, 87, 7), (small, 88, 7), (small, 3, 7)]
     for i, (sheet, idx, sz) in enumerate(items):
         cols = 16 if sz == 16 else 18
         box = ((idx % cols) * sz, (idx // cols) * sz, (idx % cols) * sz + sz, (idx // cols) * sz + sz)

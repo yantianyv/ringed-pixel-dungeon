@@ -30,9 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hacked;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
@@ -98,27 +96,9 @@ public class PortableTerminal extends Item {
                     if (cell == null) {
                         return; // 取消
                     }
-                    // 端口扫描（一层天赋）：骇客对自身使用终端，获得 3/5 回合灵视。
-                    // 不消耗时间，但消耗 10 点饱腹值。
-                    if (cell == hero.pos && hero.hasTalent(Talent.PORT_SCAN)) {
-                        Hunger hunger = hero.buff(Hunger.class);
-                        if (hunger == null || hunger.full() < 10) {
-                            GLog.w(Messages.get(PortableTerminal.class, "scan_hungry"));
-                            return;
-                        }
-                        int turns = 1 + 2 * hero.pointsInTalent(Talent.PORT_SCAN);
-                        hunger.affectHunger(-10);
-                        Buff.prolong(hero, MindVision.class, turns);
-                        Sample.INSTANCE.play(Assets.Sounds.SCAN);
-                        GLog.p(Messages.get(PortableTerminal.class, "scan_success", turns));
-                        hero.sprite.operate(hero.pos);
-                        Dungeon.observe();
-                        return;
-                    }
-                    // 无效目标：视野外/超距/空格/非敌人（自己、NPC、队友等）——不触发并提示
-                    // 灵视状态下无视 8 格距离限制，可骇入任何被灵视感知到的敌人
-                    if (!Dungeon.level.heroFOV[cell]
-                            || (Dungeon.level.distance(cell, hero.pos) > 8 && hero.buff(MindVision.class) == null)) {
+                    // 无效目标：视野/感知外、空格、非敌人（自己、NPC、队友等）——不触发并提示
+                    // 无距离限制：任何可见的敌人（包括灵视/感知发现的）都可骇入
+                    if (!Dungeon.level.heroFOV[cell]) {
                         GLog.w(Messages.get(PortableTerminal.class, "no_target"));
                         return;
                     }
@@ -143,9 +123,6 @@ public class PortableTerminal extends Item {
 
                 @Override
                 public String prompt() {
-                    if (Dungeon.hero.hasTalent(Talent.PORT_SCAN)) {
-                        return Messages.get(PortableTerminal.class, "prompt_scan");
-                    }
                     return Messages.get(PortableTerminal.class, "prompt");
                 }
             });

@@ -115,9 +115,10 @@ public class MagesStaff extends MeleeWeapon {
         if (wand != null) {
             if (hero.subClass == HeroSubClass.TRAVELER) {
                 GnosisEye eye = GnosisEye.getHeroGnosisEye(hero);
-                if (eye != null && eye.skillMode) {
+                // 战技模式下充能不足时不显示战技动作（与法杖充能耗尽时隐藏释放动作一致）
+                if (eye != null && eye.skillMode && wand.curCharges >= skillChargeCost()) {
                     actions.add(AC_ELEMENTAL_SKILL);
-                } else if (wand.curCharges > 0) {
+                } else if ((eye == null || !eye.skillMode) && wand.curCharges > 0) {
                     actions.add(AC_ZAP);
                 }
             } else if (wand.curCharges > 0) {
@@ -202,8 +203,8 @@ public class MagesStaff extends MeleeWeapon {
             return;
         }
         if (wand.curCharges < skillChargeCost()) {
+            // 充能不足：仅提示，不消耗回合（正常情况下动作已被隐藏，此处为快捷栏等入口的兜底）
             GLog.w(Messages.get(Wand.class, "fizzles"));
-            hero.spendAndNext(Actor.TICK);
             return;
         }
         promptSkillTarget(hero);

@@ -27,6 +27,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.artifacts;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.TravelerSpells;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -124,6 +125,10 @@ public class GnosisEye extends Artifact {
             }
             GLog.i(Messages.get(this, skillMode ? "skill_mode_on" : "skill_mode_off"));
         } else if (action.equals(AC_ELEMENTAL_BURST)) {
+            if (hero.buff(MagicImmune.class) != null) {
+                GLog.w(Messages.get(Wand.class, "no_magic"));
+                return;
+            }
             if (!isFull()) {
                 GLog.w(Messages.get(this, "not_full"));
                 return;

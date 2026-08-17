@@ -57,6 +57,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hacked;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany;
@@ -102,6 +103,7 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
@@ -1053,6 +1055,26 @@ public abstract class Mob extends Char {
                         && Dungeon.hero.buff(Talent.LethalHasteCooldown.class) == null) {
                     Buff.affect(Dungeon.hero, Talent.LethalHasteCooldown.class, 100f);
                     Buff.affect(Dungeon.hero, GreaterHaste.class).set(2 + 2 * Dungeon.hero.pointsInTalent(Talent.LETHAL_HASTE));
+                }
+            }
+
+            // 设备发现（骇客）：击杀敌人后有 15%/30% 几率获得一名随机存活敌人的视野（10 回合）
+            if (Dungeon.hero.hasTalent(Talent.DEVICE_DISCOVERY)
+                    && (cause == Dungeon.hero || cause instanceof Weapon || cause instanceof Weapon.Enchantment
+                            || cause instanceof Hacked)) {
+                if (Random.Float() < 0.15f * Dungeon.hero.pointsInTalent(Talent.DEVICE_DISCOVERY)) {
+                    ArrayList<Mob> candidates = new ArrayList<>();
+                    for (Mob m : Dungeon.level.mobs) {
+                        if (m != this && m.isAlive() && m.alignment == Alignment.ENEMY) {
+                            candidates.add(m);
+                        }
+                    }
+                    if (!candidates.isEmpty()) {
+                        Mob found = Random.element(candidates);
+                        Buff.append(Dungeon.hero, TalismanOfForesight.CharAwareness.class, 10f).charID = found.id();
+                        GLog.p(Messages.get(Talent.class, "device_discovery.proc"));
+                        Sample.INSTANCE.play(Assets.Sounds.SCAN);
+                    }
                 }
             }
 

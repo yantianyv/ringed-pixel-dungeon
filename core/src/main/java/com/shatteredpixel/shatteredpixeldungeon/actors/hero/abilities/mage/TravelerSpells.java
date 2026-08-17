@@ -465,6 +465,7 @@ public class TravelerSpells {
             GnosisEye eye = GnosisEye.getHeroGnosisEye(hero);
             if (eye != null) eye.gainEnergy(lvl);
         }
+        // 无敌/冻结 buff 在附加的当回合就会消耗 1 回合，所以 set(3f) 实际生效 2 回合，与文案一致
         Buff.affect(hero, FrozenInvulnerability.class).set(3f);
         hero.sprite.centerEmitter().burst(com.shatteredpixel.shatteredpixeldungeon.effects.particles.SnowParticle.FACTORY, 10);
         Sample.INSTANCE.play(Assets.Sounds.SHATTER);
@@ -561,8 +562,9 @@ public class TravelerSpells {
             Charm charm = Buff.affect(ch, Charm.class, 10f);
             charm.object = hero.id();
             Buff.prolong(ch, Paralysis.class, 3f);
-            if (Random.Float() < 0.5f && !ch.isImmune(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo.class)) {
-                Buff.prolong(ch, com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo.class, 5f);
+            // 50% 概率狂乱（敌我不分），免疫或判定失败则改为自攻
+            if (Random.Float() < 0.5f && !ch.isImmune(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok.class)) {
+                Buff.affect(ch, com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok.class, 5f);
             } else {
                 ch.attack(ch);
             }

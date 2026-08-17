@@ -244,7 +244,7 @@ public enum Talent {
     //Ratmogrify T4
     RATSISTANCE(215, 4), RATLOMACY(216, 4), RATFORCEMENTS(217, 4),
     //Hacker T1
-    PORT_SCAN(1224), RUNESTONE_CONFUSION(1225), ARMOR_PIERCE(1226), REVERSE_PROXY(1227),
+    DEVICE_DISCOVERY(1224), RUNESTONE_CONFUSION(1225), ARMOR_PIERCE(1226), REVERSE_PROXY(1227),
     //Hacker T2
     HOLO_RATIONS(1228), LIQUID_COOLING(1229), BFS_SEARCH(1230), PRIVILEGE_ESCALATION(1231), OVERCLOCKING(1232),
     //Hacker T3
@@ -1601,7 +1601,7 @@ public enum Talent {
                 Collections.addAll(tierTalents, SATIATED_SPELLS, HOLY_INTUITION, SEARING_LIGHT, SHIELD_OF_LIGHT);
                 break;
             case HACKER:
-                Collections.addAll(tierTalents, PORT_SCAN, RUNESTONE_CONFUSION, ARMOR_PIERCE, REVERSE_PROXY);
+                Collections.addAll(tierTalents, DEVICE_DISCOVERY, RUNESTONE_CONFUSION, ARMOR_PIERCE, REVERSE_PROXY);
                 break;
         }
         for (Talent talent : tierTalents) {
@@ -1816,9 +1816,10 @@ public enum Talent {
 
 	private static final HashMap<String, String> renamedTalents = new HashMap<>();
 	static{
-		//v0.1.7：骇客一层「全息口粮」重做为一层「端口扫描」，二层「屏蔽一餐」重做为二层「全息口粮」
-		renamedTalents.put("HOLO_RATIONS", "PORT_SCAN");
+		//v0.1.7：骇客一层「全息口粮」重做为一层「设备发现」，二层「屏蔽一餐」重做为二层「全息口粮」
+		renamedTalents.put("HOLO_RATIONS", "DEVICE_DISCOVERY");
 		renamedTalents.put("SKIPPED_MEAL", "HOLO_RATIONS");
+		renamedTalents.put("PORT_SCAN", "DEVICE_DISCOVERY");
 	}
 
     public static void restoreTalentsFromBundle(Bundle bundle, Hero hero) {
