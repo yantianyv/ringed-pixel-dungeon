@@ -1206,17 +1206,6 @@ public enum Talent {
             }
         }
 
-        // 全息口粮（骇客，二层）：阅读卷轴时恢复大量饱腹值，并有概率触发进食效果
-        if (hero.hasTalent(HOLO_RATIONS)) {
-            int food = 25 * hero.pointsInTalent(HOLO_RATIONS); // 25/50
-            if (hero.buff(Hunger.class) != null) {
-                hero.buff(Hunger.class).satisfy(food);
-            }
-            // 10%/20% 概率触发进食效果
-            if (Random.Float() < 0.10f * hero.pointsInTalent(HOLO_RATIONS)) {
-                onFoodEaten(hero, food, null);
-            }
-        }
     }
 
     public static void onRunestoneUsed(Hero hero, int pos, Class<? extends Item> cls) {

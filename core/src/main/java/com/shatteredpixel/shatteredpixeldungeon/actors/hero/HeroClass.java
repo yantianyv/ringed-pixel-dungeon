@@ -343,6 +343,7 @@ public enum HeroClass {
         new ScrollOfIdentify().identify();
         new PotionOfExperience().identify();
         new ScrollOfTransmutation().identify();
+        new ScrollOfUpgrade().identify();
     }
 
     private static void initCleric(Hero hero) {    // 牧师

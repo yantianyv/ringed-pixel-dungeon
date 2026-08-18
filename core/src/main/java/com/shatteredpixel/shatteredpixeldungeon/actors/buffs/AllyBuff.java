@@ -47,9 +47,12 @@ public abstract class AllyBuff extends Buff {
 	public boolean attachTo(Char target) {
 		if (super.attachTo(target)){
 			target.alignment = Char.Alignment.ALLY;
-			// 敌人被转化为友军时，清除所有骇入效果
+			// 敌人被转化为友军时，清除所有骇入效果，并恢复相当于骇入层数的生命值（上限不超过最大生命）
 			if (target.buff(Hacked.class) != null){
-				target.buff(Hacked.class).detach();
+				Hacked hacked = target.buff(Hacked.class);
+				int layers = hacked.layers;
+				hacked.detach();
+				target.HP = Math.min(target.HT, target.HP + layers);
 			}
 			if (target.buff(PinCushion.class) != null){
 				target.buff(PinCushion.class).detach();

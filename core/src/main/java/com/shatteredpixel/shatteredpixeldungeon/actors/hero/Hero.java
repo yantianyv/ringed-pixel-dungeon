@@ -2900,8 +2900,11 @@ public class Hero extends Char {
         boolean cursed = talisman != null && talisman.isCursed();
 
         // ———————— 骇客：广度优先搜索（BFS_SEARCH） ————————
-        // 搜索 9/16 个有效格（非墙壁/障碍），按顺时针层序，初始方向随机
-        // 被访问格相邻的隐藏格（密门等）也会被顺带检查，但不计入 9/16 格数
+        // 从玩家位置出发广度优先扩散，最多扫描 9/16 个"有必要搜索"的格子。
+        // · 只在视野内（fieldOfView，预知护符时不受限）扩散与扫描
+        // · 搜索（占格数）：空地（可能藏隐藏陷阱）、隐藏陷阱、密门（唯一的例外墙）
+        // · 可路过（不占格数）：水、草、高草、门、非隐藏陷阱等可走但无隐藏物的格子
+        // · 障碍（墙、墙饰、路障、虚空等）：不搜索、不扩散（密门除外）
         ArrayList<Integer> bfsCells = null;
         if (heroClass == HeroClass.HACKER && hasTalent(Talent.BFS_SEARCH)) {
             int steps = pointsInTalent(Talent.BFS_SEARCH) == 1 ? 9 : 16; // +1: 9 格, +2: 16 格
@@ -2910,29 +2913,29 @@ public class Hero extends Char {
             int[] bdx = {0, 1, 1, 1, 0, -1, -1, -1};
             int[] bdy = {-1, -1, 0, 1, 1, 1, 0, -1}; // 北→东北→东→…→西北，顺时针
             boolean[] seen = new boolean[Dungeon.level.length()];
-            ArrayList<Integer> secretCells = new ArrayList<>(); // 相邻的隐藏格（密门/隐藏陷阱），不占搜索格数
             LinkedList<Integer> queue = new LinkedList<>();
             queue.add(pos);
             seen[pos] = true;
             bfsCells = new ArrayList<>();
             while (!queue.isEmpty() && bfsCells.size() < steps) {
                 int cell = queue.poll();
-                if (cell != pos) {
-                    bfsCells.add(cell);
+                if (cell != pos && isSearchableTile(cell)) {
+                    bfsCells.add(cell); // 空地/隐藏陷阱：搜索，占格数
                 }
                 for (int i = 0; i < 8; i++) {
                     int idx = (rot + i) % 8;
                     int n = cell + bdx[idx] + bdy[idx] * bw;
                     if (!Dungeon.level.insideMap(n) || seen[n]) continue;
                     seen[n] = true;
+                    if (!(fieldOfView[n] || foresight)) continue; // 视野内才扩散/扫描
                     if (Dungeon.level.passable[n]) {
-                        queue.add(n);
-                    } else if (Dungeon.level.secret[n]) {
-                        secretCells.add(n);
+                        queue.add(n); // 可走格（空地/水草门/陷阱）：穿过扩散
+                    } else if (isSearchableTile(n) && bfsCells.size() < steps) {
+                        bfsCells.add(n); // 密门（唯一例外墙）：相邻扫描，不扩散
                     }
+                    // 其余障碍（墙、墙饰、路障、虚空等）：不搜索、不扩散
                 }
             }
-            bfsCells.addAll(secretCells);
         }
 
         int[] rounding = ShadowCaster.rounding[distance];
@@ -3141,6 +3144,23 @@ public class Hero extends Char {
         }
 
         return smthFound;
+    }
+
+    // 骇客 BFS 搜索：玩家视角下"有必要搜索"（占搜索格数）的格子。
+    // 空地外观（EMPTY 及变体，可能藏隐藏陷阱）、隐藏陷阱（SECRET_TRAP）、
+    // 密门（SECRET_DOOR，唯一的例外墙）。
+    private static boolean isSearchableTile(int cell) {
+        switch (Dungeon.level.map[cell]) {
+            case Terrain.EMPTY:
+            case Terrain.EMPTY_SP:
+            case Terrain.EMPTY_DECO:
+            case Terrain.CUSTOM_DECO_EMPTY:
+            case Terrain.SECRET_TRAP:
+            case Terrain.SECRET_DOOR:
+                return true;
+            default:
+                return false;
+        }
     }
 
     public void resurrect() {

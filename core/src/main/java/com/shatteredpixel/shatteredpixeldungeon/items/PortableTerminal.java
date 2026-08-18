@@ -221,13 +221,22 @@ public class PortableTerminal extends Item {
         Hacked hacked = Buff.affect(target, Hacked.class);
         if (hacked != null) {
             hacked.addLayers(layers);
-            // 设备提权：骇入机械类敌人时，有几率令其沉沦（BOSS 改为 1 回合麻痹）
-            if (hero.hasTalent(Talent.PRIVILEGE_ESCALATION) && isMechanical(target)) {
-                float chance = 0.01f * hero.pointsInTalent(Talent.PRIVILEGE_ESCALATION) * hacked.layers;
+            // 设备提权：+1 仅对机械类敌人触发（1% × 层数）；
+            // +2 替换原先“概率翻倍”的效果：非机械类敌人也能触发，但概率为 0.1% × 层数（机械类概率的 10%）
+            // 触发后目标转化为友军；不能被转化的（BOSS）降级为 1 回合麻痹——机械类与非机械类一致
+            int escalation = hero.pointsInTalent(Talent.PRIVILEGE_ESCALATION);
+            boolean mechanical = isMechanical(target);
+            if (escalation > 0 && (mechanical || escalation >= 2)) {
+                float chance = 0.01f * hacked.layers; // 机械类：1% × 层数（+2 不翻倍）
+                if (!mechanical) {
+                    chance *= 0.1f; // 非机械类：0.1% × 层数
+                }
                 if (Random.Float() < chance) {
                     if (target.properties().contains(Char.Property.BOSS)) {
+                        // 不能被转化（BOSS）：降级为 1 回合麻痹
                         Buff.prolong(target, Paralysis.class, 1f);
                     } else if (target instanceof Mob) {
+                        // 转化为友军（机械类与非机械类一致）
                         ScrollOfSirensSong.Enthralled.affectAndLoot((Mob) target, hero, ScrollOfSirensSong.Enthralled.class);
                     }
                 }

@@ -24,18 +24,21 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Wayward;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 // 皇帝的新全息匕首：骇客开局武器。
-// 没有贴图（纯透明），更高的精准、更快的速度，伤害固定为 1~2。
+// 没有贴图（纯透明），极高的精准、极快的速度，伤害固定为 1~2。
 public class HologramDagger extends MeleeWeapon {
 
     {
         image = ItemSpriteSheet.HOLOGRAM_DAGGER;
         tier = 1;
 
-        ACC = 1.3f;  // 更高精准（默认 1）
-        DLY = 0.8f;  // 更快速度（默认 1，越小越快）
+        ACC = 1.5f; // 高精准（默认 1）
+        DLY = 0.5f; // 极快速度（默认 1，越小越快）
 
         bones = false;
     }
@@ -49,5 +52,23 @@ public class HologramDagger extends MeleeWeapon {
     @Override
     public int max(int lvl) {
         return 2;
+    }
+
+    // 精准随强化等级成长：每级 +0.1（+10 时达到 3.0）
+    // 逻辑与 Weapon.accuracyFactor 一致，仅将 ACC 替换为含等级成长的版本
+    @Override
+    public float accuracyFactor(Char owner, Char target) {
+        int encumbrance = 0;
+        if (owner instanceof Hero) {
+            encumbrance = STRReq() - ((Hero) owner).STR();
+        }
+
+        float ACC = this.ACC + 0.1f * level();
+
+        if (owner.buff(Wayward.WaywardBuff.class) != null && enchantment instanceof Wayward) {
+            ACC /= 5;
+        }
+
+        return encumbrance > 0 ? (float) (ACC / Math.pow(1.5, encumbrance)) : ACC;
     }
 }

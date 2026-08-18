@@ -105,7 +105,8 @@ public class Food extends Item {
     protected float eatingTime() {
         if (Dungeon.hero.hasTalent(Talent.FEAST_FRENZY)) {
             return 0;
-        } else if (Dungeon.hero.hasTalent(Talent.IRON_STOMACH)
+        } else if (Dungeon.hero.hasTalent(Talent.HOLO_RATIONS) // 骇客全息口粮：吃东西只消耗 1 回合
+                || Dungeon.hero.hasTalent(Talent.IRON_STOMACH)
                 || Dungeon.hero.hasTalent(Talent.ENERGIZING_MEAL)
                 || Dungeon.hero.hasTalent(Talent.MYSTICAL_MEAL)
                 || Dungeon.hero.hasTalent(Talent.INVIGORATING_MEAL)

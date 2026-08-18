@@ -1166,6 +1166,17 @@ public abstract class Mob extends Char {
             Talent.onFoodEaten(Dungeon.hero, 0, null);
         }
 
+        // 全息口粮（骇客）：敌人死亡时，按该敌人身上的骇入层数恢复饱腹值（10%/20%，向下取整）
+        if (Dungeon.hero.heroClass == HeroClass.HACKER
+                && Dungeon.hero.hasTalent(Talent.HOLO_RATIONS)
+                && buff(Hacked.class) != null) {
+            Hacked hacked = buff(Hacked.class);
+            int satiety = (int) Math.floor(hacked.layers * 0.10f * Dungeon.hero.pointsInTalent(Talent.HOLO_RATIONS));
+            if (satiety > 0 && Dungeon.hero.buff(Hunger.class) != null) {
+                Dungeon.hero.buff(Hunger.class).satisfy(satiety);
+            }
+        }
+
         // 斩杀线挑战：额外掉落相当于英雄等级的金币
         if (Dungeon.isChallenged(Challenges.ALICE_THRESHOLD)) {
             int extraGold = Dungeon.hero.lvl;
