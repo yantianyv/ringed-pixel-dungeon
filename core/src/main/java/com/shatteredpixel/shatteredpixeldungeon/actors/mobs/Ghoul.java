@@ -268,6 +268,9 @@ public class Ghoul extends Mob {
                             Hacked h = new Hacked();
                             h.silent = true;
                             h.layers = ((Hacked) b).layers;
+                            h.kernelBreachCharges = ((Hacked) b).kernelBreachCharges;
+                            h.fancyInvasionCharges = ((Hacked) b).fancyInvasionCharges;
+                            h.turnsSinceKernelBreach = ((Hacked) b).turnsSinceKernelBreach;
                             h.attachTo(child);
                         } else {
                             Buff.affect(child, b.getClass());

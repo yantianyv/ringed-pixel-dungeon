@@ -32,7 +32,7 @@ public class CrackedTerminal extends RemainsItem {
 			if (ch.isAlive()
 					&& ch.alignment == Char.Alignment.ENEMY
 					&& Dungeon.level.heroFOV[ch.pos]) {
-				PortableTerminal.hackTarget(hero, ch, layers);
+				PortableTerminal.hackTarget(hero, ch, layers, 0f);
 				count++;
 			}
 		}

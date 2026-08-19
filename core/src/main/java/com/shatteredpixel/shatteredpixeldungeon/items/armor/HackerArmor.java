@@ -26,7 +26,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.armor;
 
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
-// 骇客职业甲（广播风暴的载体）
+// 骇客职业甲（英雄连帽衫）
 public class HackerArmor extends ClassArmor {
 
     {

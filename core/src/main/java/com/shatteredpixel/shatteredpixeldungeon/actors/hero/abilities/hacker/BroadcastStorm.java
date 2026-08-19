@@ -135,8 +135,8 @@ public class BroadcastStorm extends ArmorAbility {
                     enemy.damage(dmg, this);
                     enemy.sprite.showStatusWithIcon(CharSprite.NEGATIVE, Integer.toString(dmg), FloatingText.SHOCKING);
                 }
-                // 触发协同骇入
-                PortableTerminal.hackTarget(hero, enemy, PortableTerminal.coopHackLayers(hero));
+                // 触发协同骇入（广播风暴属于护甲技能，不额外消耗终端充能）
+                PortableTerminal.hackTarget(hero, enemy, PortableTerminal.coopHackLayers(hero), 0f);
                 // 电火花特效
                 CellEmitter.get(enemy.pos).burst(SparkParticle.FACTORY, 3 + n);
             }

@@ -1806,7 +1806,8 @@ public enum Talent {
 	private static final HashMap<String, String> renamedTalents = new HashMap<>();
 	static{
 		//v0.1.7：骇客一层「全息口粮」重做为一层「设备发现」，二层「屏蔽一餐」重做为二层「全息口粮」
-		renamedTalents.put("HOLO_RATIONS", "DEVICE_DISCOVERY");
+		// 注意：当前 T2 的「全息口粮」枚举仍叫 HOLO_RATIONS，与旧 T1 同名，
+		// 若保留 HOLO_RATIONS -> DEVICE_DISCOVERY，当前 T2 的点数会被错误迁移到 T1 并丢弃。
 		renamedTalents.put("SKIPPED_MEAL", "HOLO_RATIONS");
 		renamedTalents.put("PORT_SCAN", "DEVICE_DISCOVERY");
 	}

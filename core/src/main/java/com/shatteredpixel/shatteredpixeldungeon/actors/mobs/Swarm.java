@@ -168,6 +168,9 @@ public class Swarm extends Mob {
                     Hacked h = new Hacked();
                     h.silent = true;
                     h.layers = ((Hacked) b).layers;
+                    h.kernelBreachCharges = ((Hacked) b).kernelBreachCharges;
+                    h.fancyInvasionCharges = ((Hacked) b).fancyInvasionCharges;
+                    h.turnsSinceKernelBreach = ((Hacked) b).turnsSinceKernelBreach;
                     h.attachTo(clone);
                 } else {
                     Buff.affect(clone, b.getClass());

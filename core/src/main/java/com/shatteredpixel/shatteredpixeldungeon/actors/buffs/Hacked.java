@@ -49,6 +49,11 @@ public class Hacked extends Buff {
     // 静默模式：不触发溢出伤害/死亡判定/状态显示（用于 Swarm 分裂、Ghoul 复活等子体继承场景，此时子体可能尚未加入场景）
     public boolean silent = false;
 
+    // 木马大师触发次数（内置在每个怪物的 Hacked 中）
+    public int kernelBreachCharges = 0;
+    public int fancyInvasionCharges = 0;
+    public int turnsSinceKernelBreach = 0;
+
     {
         type = buffType.NEGATIVE;
         announced = true;
@@ -60,8 +65,27 @@ public class Hacked extends Buff {
         if (n <= 0) return;
         layers += n;
         applyHack(n, false);
+
+        // 骇入时恢复木马大师的触发次数
+        restoreCharges();
+
         if (target != null && target.isAlive()) {
             target.sprite.showStatusWithIcon(CharSprite.NEGATIVE, Messages.get(this, "hacked", layers), FloatingText.CORRUPTION);
+        }
+    }
+
+    // 骇入动作恢复内核爆破/花式入侵的触发次数
+    private void restoreCharges() {
+        Hero hero = Dungeon.hero;
+        if (hero == null) return;
+
+        if (hero.hasTalent(Talent.KERNEL_BREACH)) {
+            int maxCharges = 2 + hero.pointsInTalent(Talent.KERNEL_BREACH); // 3/4/5
+            kernelBreachCharges = Math.min(kernelBreachCharges + 1, maxCharges);
+        }
+
+        if (hero.hasTalent(Talent.FANCY_INVASION)) {
+            fancyInvasionCharges = 10;
         }
     }
 
@@ -136,30 +160,40 @@ public class Hacked extends Buff {
         Hero hero = Dungeon.hero;
         if (hero != null && target.isAlive() && target.alignment == Char.Alignment.ENEMY) {
 
-            // 内核爆破：每回合伤害 = log_base(层数) 向上取整 + 1，底数由天赋决定
+            // 内核爆破：每 3 回合造成一次对数伤害，每次消耗 1 次触发次数
             if (hero.hasTalent(Talent.KERNEL_BREACH)) {
-                int base = 5 - (hero.pointsInTalent(Talent.KERNEL_BREACH) - 1); // 5/4/3
-                int dmg;
-                if (layers <= 1) {
-                    dmg = 1;
-                } else {
-                    dmg = (int) Math.ceil(Math.log(layers) / Math.log(base)) + 1;
-                }
-                target.damage(dmg, this);
-                if (target.isAlive()) {
-                    target.sprite.showStatusWithIcon(CharSprite.NEGATIVE, Integer.toString(dmg), FloatingText.CORROSION);
+                turnsSinceKernelBreach++;
+                if (turnsSinceKernelBreach >= 3 && kernelBreachCharges > 0) {
+                    turnsSinceKernelBreach = 0;
+                    kernelBreachCharges--;
+
+                    int base = 5 - (hero.pointsInTalent(Talent.KERNEL_BREACH) - 1); // 5/4/3
+                    int dmg;
+                    if (layers <= 1) {
+                        dmg = 1;
+                    } else {
+                        dmg = (int) Math.ceil(Math.log(layers) / Math.log(base)) + 1;
+                    }
+                    target.damage(dmg, this);
+                    if (target.isAlive()) {
+                        target.sprite.showStatusWithIcon(CharSprite.NEGATIVE, Integer.toString(dmg), FloatingText.CORROSION);
+                    }
                 }
             }
 
-            // 花式入侵：每回合 0.1%/0.2%/0.3% * 层数 的几率获得随机 debuff（上限 33%/66%/99%），与 0 级腐化法杖一致
+            // 花式入侵：每回合消耗 1 次触发次数，并按原概率判定是否施加 debuff
             if (target.isAlive() && hero.hasTalent(Talent.FANCY_INVASION)) {
-                float chance = 0.001f * hero.pointsInTalent(Talent.FANCY_INVASION) * layers;
-                float maxChance = 0.33f * hero.pointsInTalent(Talent.FANCY_INVASION);
-                if (chance > maxChance) chance = maxChance;
-                if (Random.Float() < chance) {
-                    Class<? extends FlavourBuff> debuffCls = WandOfCorruption.randomMinorDebuff(target);
-                    if (debuffCls != null) {
-                        Buff.append(target, debuffCls, 6); // 6 = 0级腐化法杖的 debuff 时长（6 + buffedLvl*3）
+                if (fancyInvasionCharges > 0) {
+                    fancyInvasionCharges--;
+
+                    float chance = 0.001f * hero.pointsInTalent(Talent.FANCY_INVASION) * layers;
+                    float maxChance = 0.33f * hero.pointsInTalent(Talent.FANCY_INVASION);
+                    if (chance > maxChance) chance = maxChance;
+                    if (Random.Float() < chance) {
+                        Class<? extends FlavourBuff> debuffCls = WandOfCorruption.randomMinorDebuff(target);
+                        if (debuffCls != null) {
+                            Buff.append(target, debuffCls, 6); // 6 = 0级腐化法杖的 debuff 时长
+                        }
                     }
                 }
             }
@@ -185,12 +219,18 @@ public class Hacked extends Buff {
 
     private static final String LAYERS = "layers";
     private static final String HT_APPLIED = "ht_applied";
+    private static final String KERNEL_BREACH_CHARGES = "kernel_breach_charges";
+    private static final String FANCY_INVASION_CHARGES = "fancy_invasion_charges";
+    private static final String TURNS_SINCE_KERNEL_BREACH = "turns_since_kernel_breach";
 
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
         bundle.put(LAYERS, layers);
         bundle.put(HT_APPLIED, htApplied);
+        bundle.put(KERNEL_BREACH_CHARGES, kernelBreachCharges);
+        bundle.put(FANCY_INVASION_CHARGES, fancyInvasionCharges);
+        bundle.put(TURNS_SINCE_KERNEL_BREACH, turnsSinceKernelBreach);
     }
 
     @Override
@@ -199,6 +239,15 @@ public class Hacked extends Buff {
         layers = bundle.getInt(LAYERS);
         if (bundle.contains(HT_APPLIED)) {
             htApplied = bundle.getBoolean(HT_APPLIED);
+        }
+        if (bundle.contains(KERNEL_BREACH_CHARGES)) {
+            kernelBreachCharges = bundle.getInt(KERNEL_BREACH_CHARGES);
+        }
+        if (bundle.contains(FANCY_INVASION_CHARGES)) {
+            fancyInvasionCharges = bundle.getInt(FANCY_INVASION_CHARGES);
+        }
+        if (bundle.contains(TURNS_SINCE_KERNEL_BREACH)) {
+            turnsSinceKernelBreach = bundle.getInt(TURNS_SINCE_KERNEL_BREACH);
         }
     }
 }
