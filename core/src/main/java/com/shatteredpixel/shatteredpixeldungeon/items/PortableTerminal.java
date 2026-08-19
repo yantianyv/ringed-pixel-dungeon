@@ -29,9 +29,13 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FrostElement;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hacked;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Overclock;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
@@ -56,6 +60,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -65,26 +70,43 @@ import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
-// 便携终端：骇客的独特物品。
-// 被动：每回合自动充能，上限 100%。终端等级随英雄等级成长，等级越高充能越快。
+// 便携终端：骇客的独特物品，以「温度」衡量状态。
+// 初始 20℃，每回合自然降温：降温量为（当前温度 - 20）的 1%（低于 20 时缓慢回升）。
+// 超过 120℃ 时终端过热禁用；超过 80℃ 闪烁橙色附魔光效，超过 100℃ 显示红色附魔光效。
 // 主动使用：选择视野内目标进行骇入，固定消耗 1 回合。
-//   - 敌人：消耗 5% 充能，叠加主动骇入层数（受零日漏洞/木马大师加成/子网广播）
-//   - 友军（含自己）：消耗 20% 充能，隐身 20 回合
-//   - 宝箱/门：消耗 50% 充能 + 对应钥匙，远程打开
-//   - 陷阱：消耗 100% 充能，使其失效
-// 协同骇入（物理攻击命中时自动触发）：消耗 1% 充能。
+//   - 敌人：升温 5℃，叠加主动骇入层数（受零日漏洞/木马大师加成/子网广播）
+//   - 友军（不含自身）：升温 20℃，隐身 20 回合
+//   - 自己（有超频运算天赋）：升温 20℃，获得超频（2 倍命中、3 倍攻速，直到过热）
+//   - 宝箱/门：升温 50℃ + 对应钥匙，远程打开
+//   - 陷阱：升温 100℃，使其失效
+// 协同骇入（物理攻击命中时自动触发）：升温 1℃。
 public class PortableTerminal extends Item {
 
     public static final String AC_HACK = "HACK";
 
-    public static final float CHARGE_MAX = 1.0f;
-    public static final float ACTIVE_HACK_COST = 0.05f;
-    public static final float COOP_HACK_COST = 0.01f;
-    public static final float ALLY_INVIS_COST = 0.20f;
-    public static final float CHEST_DOOR_COST = 0.50f;
-    public static final float TRAP_COST = 1.00f;
+    // 温度阈值与参数
+    public static final float TEMPERATURE_IDLE = 20f;      // 环境温度（自然降温的目标）
+    public static final float TEMPERATURE_WARN = 80f;      // 橙色闪烁阈值
+    public static final float TEMPERATURE_DANGER = 100f;   // 红色光效阈值
+    public static final float TEMPERATURE_OVERHEAT = 120f; // 过热禁用阈值
+    public static final float COOL_RATE = 0.01f;           // 每回合降温（当前温度 - 20）的 1%
+    public static final float LIQUID_COOL_BASE = 10f;      // 液冷散热的目标温度
 
-    private float charge = 1.0f;
+    // 寒冷 / 冰冻 / 元素冻结的降温目标与速率（替代被动降温）
+    public static final float CHILL_TARGET = 0f;           // 寒冷：向 0℃ 收敛
+    public static final float CHILL_COOL_RATE = 0.10f;     // 每回合降（当前温度 - 0）的 10%
+    public static final float FROST_TARGET = -20f;         // 冰冻/元素冻结：向 -20℃ 收敛
+    public static final float FROST_COOL_RATE = 0.15f;     // 每回合降（当前温度 - (-20)）的 15%
+
+    // 各类骇入的升温量（由原充能消耗 1:1 映射）
+    public static final float ACTIVE_HACK_HEAT = 5f;
+    public static final float COOP_HACK_HEAT = 1f;
+    public static final float ALLY_INVIS_HEAT = 20f;
+    public static final float OVERCLOCK_HEAT = 20f;
+    public static final float CHEST_DOOR_HEAT = 50f;
+    public static final float TRAP_HEAT = 100f;
+
+    private float temperature = TEMPERATURE_IDLE;
 
     {
         image = ItemSpriteSheet.PORTABLE_TERMINAL;
@@ -111,6 +133,10 @@ public class PortableTerminal extends Item {
         if (action.equals(AC_HACK)) {
             if (hero.buff(MagicImmune.class) != null) {
                 GLog.w(Messages.get(this, "magic_immune"));
+                return;
+            }
+            if (isOverheated()) {
+                GLog.w(Messages.get(this, "overheated"));
                 return;
             }
 
@@ -148,9 +174,23 @@ public class PortableTerminal extends Item {
                         return;
                     }
 
-                    // 友军隐身
-                    if (ch != null && ch.isAlive() && ch.alignment == Char.Alignment.ALLY) {
-                        if (spendCharge(hero, ALLY_INVIS_COST, true)) {
+                    // 超频运算：骇客对自己使用骇入 → 获得超频（2 倍命中、3 倍攻速，直到过热）
+                    if (ch == hero && hero.hasTalent(Talent.OVERCLOCKING)) {
+                        if (addHeat(hero, OVERCLOCK_HEAT, true)) {
+                            hero.spend(1f);
+                            hero.busy();
+                            Sample.INSTANCE.play(Assets.Sounds.MELD, 1f, 1.2f);
+                            Buff.affect(hero, Overclock.class);
+                            GLog.i(Messages.get(Talent.class, "overclocked"));
+                            hero.sprite.operate(hero.pos);
+                            hero.next();
+                        }
+                        return;
+                    }
+
+                    // 友军隐身（不含自身）
+                    if (ch != null && ch != hero && ch.isAlive() && ch.alignment == Char.Alignment.ALLY) {
+                        if (addHeat(hero, ALLY_INVIS_HEAT, true)) {
                             hero.spend(1f);
                             hero.busy();
                             Sample.INSTANCE.play(Assets.Sounds.MELD, 1f, 1.2f);
@@ -174,7 +214,7 @@ public class PortableTerminal extends Item {
                             GLog.w(Messages.get(PortableTerminal.class, "no_key"));
                             return;
                         }
-                        if (spendCharge(hero, CHEST_DOOR_COST, true)) {
+                        if (addHeat(hero, CHEST_DOOR_HEAT, true)) {
                             hero.spend(1f);
                             hero.busy();
                             Sample.INSTANCE.play(Assets.Sounds.UNLOCK, 1f, 1.2f);
@@ -204,7 +244,7 @@ public class PortableTerminal extends Item {
                             GLog.w(Messages.get(PortableTerminal.class, "no_key"));
                             return;
                         }
-                        if (spendCharge(hero, CHEST_DOOR_COST, true)) {
+                        if (addHeat(hero, CHEST_DOOR_HEAT, true)) {
                             hero.spend(1f);
                             hero.busy();
                             if (terrain == Terrain.LOCKED_DOOR) {
@@ -228,7 +268,7 @@ public class PortableTerminal extends Item {
 
                     // 陷阱
                     if (trap != null && trap.active) {
-                        if (spendCharge(hero, TRAP_COST, true)) {
+                        if (addHeat(hero, TRAP_HEAT, true)) {
                             hero.spend(1f);
                             hero.busy();
                             Sample.INSTANCE.play(Assets.Sounds.HIT_MAGIC, 1f, 1.2f);
@@ -263,62 +303,67 @@ public class PortableTerminal extends Item {
         return dst;
     }
 
-    // 终端等级随英雄等级成长，类似女猎的灵能弓：英雄每升 5 级，终端显示等级 +1
-    @Override
-    public int level() {
-        if (Dungeon.hero == null) return 0;
-        return Math.min(6, Dungeon.hero.lvl / 5);
+    // ———————— 温度系统 ————————
+
+    public float temperature() {
+        return temperature;
     }
 
-    @Override
-    public int buffedLvl() {
-        return level();
+    public boolean isOverheated() {
+        return temperature > TEMPERATURE_OVERHEAT;
     }
 
-    // 每回合充能速率：等级 0 时 1%，满级（等级 6）时 3%
-    public float chargeRate() {
-        int lvl = level();
-        if (lvl < 0) lvl = 0;
-        if (lvl > 6) lvl = 6;
-        return 0.01f + lvl * (0.02f / 6f);
-    }
-
-    public void recharge() {
-        if (charge < CHARGE_MAX) {
-            charge = Math.min(CHARGE_MAX, charge + chargeRate());
+    // 温度向 target 收敛，按 rate 比例降温（或回升）
+    public void coolDown(float target, float rate) {
+        if (temperature != target) {
+            temperature -= (temperature - target) * rate;
             updateQuickslot();
         }
     }
 
-    public float charge() {
-        return charge;
+    // 每回合散热：被寒冷/冰冻/元素冻结时使用对应的强降温，否则被动降温
+    public void tickCooling(Hero hero) {
+        if (hero.buff(Frost.class) != null || hero.buff(FrostElement.class) != null) {
+            coolDown(FROST_TARGET, FROST_COOL_RATE);
+        } else if (hero.buff(Chill.class) != null) {
+            coolDown(CHILL_TARGET, CHILL_COOL_RATE);
+        } else {
+            coolDown(TEMPERATURE_IDLE, COOL_RATE);
+        }
     }
 
-    public void setCharge(float value) {
-        charge = Math.max(0f, Math.min(CHARGE_MAX, value));
-        updateQuickslot();
+    // 液冷散热：降温（当前温度 - 10）的 rate 比例
+    public void liquidCool(float rate) {
+        if (temperature > LIQUID_COOL_BASE) {
+            temperature -= (temperature - LIQUID_COOL_BASE) * rate;
+            updateQuickslot();
+        }
     }
 
-    public static boolean spendCharge(Hero hero, float amount) {
-        return spendCharge(hero, amount, false);
-    }
-
-    public static boolean spendCharge(Hero hero, float amount, boolean warnIfInsufficient) {
-        PortableTerminal terminal = hero.belongings.getItem(PortableTerminal.class);
-        if (terminal == null) return false;
-        return terminal.spendCharge(amount, warnIfInsufficient);
-    }
-
-    public boolean spendCharge(float amount, boolean warnIfInsufficient) {
-        if (charge + 0.001f < amount) {
-            if (warnIfInsufficient) {
-                GLog.w(Messages.get(PortableTerminal.class, "charge_low"));
+    // 升高温度；若超过阈值则过热（禁用 + 结束超频）
+    public boolean addHeat(float amount, boolean warnIfOverheated) {
+        if (isOverheated()) {
+            if (warnIfOverheated) {
+                GLog.w(Messages.get(PortableTerminal.class, "overheated"));
             }
             return false;
         }
-        charge = Math.max(0f, charge - amount);
+        temperature += amount;
+        if (isOverheated()) {
+            // 过热：结束超频并提示
+            if (Dungeon.hero != null) {
+                Buff.detach(Dungeon.hero, Overclock.class);
+            }
+            GLog.w(Messages.get(PortableTerminal.class, "overheated"));
+        }
         updateQuickslot();
         return true;
+    }
+
+    public static boolean addHeat(Hero hero, float amount, boolean warnIfOverheated) {
+        PortableTerminal terminal = hero.belongings.getItem(PortableTerminal.class);
+        if (terminal == null) return false;
+        return terminal.addHeat(amount, warnIfOverheated);
     }
 
     public static void ensureCharger(Hero hero) {
@@ -372,7 +417,7 @@ public class PortableTerminal extends Item {
 
     // 主动骇入：对目标叠加层数，并受子网广播影响扩散到周围
     public static boolean activeHack(Hero hero, Char target, int layers) {
-        if (!spendCharge(hero, ACTIVE_HACK_COST, true)) {
+        if (!addHeat(hero, ACTIVE_HACK_HEAT, true)) {
             return false;
         }
         hackTarget(hero, target, layers, 0f);
@@ -404,17 +449,17 @@ public class PortableTerminal extends Item {
     }
 
     // 对目标施加骇入（用于主动骇入、协同骇入、广播风暴等）
-    // 默认 cost = 1%（协同骇入），cost = 0 时不消耗充能（已由上层预付）
+    // 默认升温 = 1℃（协同骇入），heat = 0 时不升温（已由上层预付）
     public static void hackTarget(Hero hero, Char target, int layers) {
-        hackTarget(hero, target, layers, COOP_HACK_COST);
+        hackTarget(hero, target, layers, COOP_HACK_HEAT);
     }
 
-    public static void hackTarget(Hero hero, Char target, int layers, float cost) {
+    public static void hackTarget(Hero hero, Char target, int layers, float heat) {
         if (!target.isAlive() || !(target.alignment == Char.Alignment.ENEMY || target instanceof Mimic)) {
             return;
         }
         ensureCharger(hero);
-        if (cost > 0 && !spendCharge(hero, cost, false)) {
+        if (heat > 0 && !addHeat(hero, heat, false)) {
             return;
         }
         Hacked hacked = Buff.affect(target, Hacked.class);
@@ -482,29 +527,41 @@ public class PortableTerminal extends Item {
 
     @Override
     public String status() {
-        return Messages.format("%d%%", Math.round(charge * 100));
+        return Math.round(temperature) + "'C";
     }
 
-    private static final String CHARGE = "charge";
+    // 附魔光效：超过 80℃ 闪烁橙色，超过 100℃ 显示红色
+    @Override
+    public ItemSprite.Glowing glowing() {
+        if (temperature > TEMPERATURE_DANGER) {
+            return new ItemSprite.Glowing(0xFF2200, 0.8f); // 红色
+        } else if (temperature > TEMPERATURE_WARN) {
+            return new ItemSprite.Glowing(0xFF8000, 0.4f); // 橙色闪烁
+        }
+        return null;
+    }
+
+    private static final String TEMPERATURE = "temperature";
 
     @Override
     public void storeInBundle(Bundle bundle) {
         super.storeInBundle(bundle);
-        bundle.put(CHARGE, charge);
+        bundle.put(TEMPERATURE, temperature);
     }
 
     @Override
     public void restoreFromBundle(Bundle bundle) {
         super.restoreFromBundle(bundle);
-        if (bundle.contains(CHARGE)) {
-            charge = bundle.getFloat(CHARGE);
+        // 旧存档中的 charge 字段不再读取（无迁移，旧存档回落到初始温度）
+        if (bundle.contains(TEMPERATURE)) {
+            temperature = bundle.getFloat(TEMPERATURE);
         } else {
-            charge = 1.0f;
+            temperature = TEMPERATURE_IDLE;
         }
     }
 
-    // 终端充能器：作为 Buff 挂在英雄身上，每回合为终端恢复少量充能。
-    // 它本身不保存任何数据，所有充能百分比都保存在 PortableTerminal 中。
+    // 终端散热器：作为 Buff 挂在英雄身上，每回合为终端降温。
+    // 它本身不保存任何数据，所有温度数据都保存在 PortableTerminal 中。
     public static class TerminalCharger extends Buff {
 
         {
@@ -517,7 +574,7 @@ public class PortableTerminal extends Item {
         public boolean attachTo(Char target) {
             if (super.attachTo(target)) {
                 if (target instanceof Hero && Dungeon.hero == null && target.cooldown() > 0) {
-                    // 读档加载时若英雄已经有部分冷却，延迟一回合再充能
+                    // 读档加载时若英雄已经有部分冷却，延迟一回合再降温
                     spend(TICK);
                 }
                 return true;
@@ -537,9 +594,9 @@ public class PortableTerminal extends Item {
             Hero hero = (Hero) target;
             PortableTerminal terminal = hero.belongings.getItem(PortableTerminal.class);
             if (terminal != null) {
-                terminal.recharge();
+                terminal.tickCooling(hero);
             } else {
-                // 终端已丢失，充能器没有存在意义
+                // 终端已丢失，散热器没有存在意义
                 detach();
             }
 

@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
+import com.shatteredpixel.shatteredpixeldungeon.items.PortableTerminal;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -55,6 +56,12 @@ public class FrozenCarpaccio extends Food {
 	}
 
 	public static void effect(Hero hero){
+		// 吃冻肉：骇客的便携终端降温（当前温度 - 0）的 1%
+		PortableTerminal terminal = hero.belongings.getItem(PortableTerminal.class);
+		if (terminal != null) {
+			terminal.coolDown(0f, 0.01f);
+		}
+
 		switch (Random.Int( 5 )) {
 			case 0:
 				GLog.i( Messages.get(FrozenCarpaccio.class, "invis") );

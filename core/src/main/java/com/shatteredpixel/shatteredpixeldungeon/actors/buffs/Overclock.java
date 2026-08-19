@@ -25,14 +25,14 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.PortableTerminal;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
-// 超频：2 倍命中、3 倍攻速，持续 5 回合。
+// 超频：2 倍命中、3 倍攻速，持续到终端过热为止。
 // 命中加成挂接在 Char.hit，攻速加成挂接在 Hero.attackDelay。
-public class Overclock extends FlavourBuff {
-
-    public static final float DURATION = 5f;
+public class Overclock extends Buff {
 
     {
         type = buffType.POSITIVE;
@@ -49,7 +49,22 @@ public class Overclock extends FlavourBuff {
 
     @Override
     public String desc() {
-        return Messages.get(this, "desc", (int) DURATION);
+        return Messages.get(this, "desc");
+    }
+
+    // 每回合检查：终端过热或丢失时结束超频
+    @Override
+    public boolean act() {
+        spend(TICK);
+        if (target instanceof Hero) {
+            PortableTerminal terminal = ((Hero) target).belongings.getItem(PortableTerminal.class);
+            if (terminal == null || terminal.isOverheated()) {
+                detach();
+            }
+        } else {
+            detach();
+        }
+        return true;
     }
 
     // 供 Char.hit 使用：命中加成

@@ -40,7 +40,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArtifactRecharge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FrostImbue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Overclock;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
@@ -1171,16 +1170,12 @@ public enum Talent {
 		}
 
 		// ———————— 骇客 ————————
-		// 液冷散热：饮用药剂获得冰霜之力并解除燃烧（液火药剂无法触发；力量/经验药剂等 factor=2 翻倍）
+		// 液冷散热：饮用一瓶药剂时为终端散热，降温当前温度与 10℃ 差值的 10%（+1）/ 20%（+2）；液火药剂无法触发
 		if (hero.hasTalent(LIQUID_COOLING) && !(potion instanceof PotionOfLiquidFlame)){
-			int turns = Math.round(factor * (1 + 2 * hero.pointsInTalent(LIQUID_COOLING))); // +1: 3/6, +2: 5/10
-			Buff.prolong(hero, FrostImbue.class, turns);
-			Buff.detach(hero, Burning.class);
-		}
-		// 超频运算：喝下液火药剂后获得超频（2 倍命中、3 倍攻速，5 回合）
-		if (hero.hasTalent(OVERCLOCKING) && potion instanceof PotionOfLiquidFlame){
-			Buff.prolong(hero, Overclock.class, Overclock.DURATION);
-			hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Messages.get(Talent.class, "overclocked"), FloatingText.CORRUPTION);
+			PortableTerminal terminal = hero.belongings.getItem(PortableTerminal.class);
+			if (terminal != null) {
+				terminal.liquidCool(0.10f * hero.pointsInTalent(LIQUID_COOLING));
+			}
 		}
 	}
 
@@ -1239,14 +1234,6 @@ public enum Talent {
 			if (hero.buff(Hunger.class) != null) {
 				hero.buff(Hunger.class).satisfy(5f);
 			}
-		}
-
-		// 超频运算 +2：吃下烈焰花之种获得超频（2 倍命中、3 倍攻速，5 回合）
-		if (seed instanceof Firebloom.Seed
-				&& hero.hasTalent(OVERCLOCKING)
-				&& hero.pointsInTalent(OVERCLOCKING) >= 2){
-			Buff.prolong(hero, Overclock.class, Overclock.DURATION);
-			return;
 		}
 
 		if (seed instanceof Firebloom.Seed){
@@ -1434,6 +1421,14 @@ public enum Talent {
 
             // 协同骇入：物理攻击命中时叠加骇入层数（onAttackProc 仅物理攻击触发，含投掷武器）
             PortableTerminal.hackTarget(hero, enemy, PortableTerminal.coopHackLayers(hero));
+
+            // 超频运算：超频状态下每次物理命中使终端升温（+1: 20℃, +2: 15℃）
+            if (hero.buff(Overclock.class) != null) {
+                PortableTerminal terminal = hero.belongings.getItem(PortableTerminal.class);
+                if (terminal != null) {
+                    terminal.addHeat(hero.pointsInTalent(Talent.OVERCLOCKING) >= 2 ? 15f : 20f, false);
+                }
+            }
 
             // 护甲穿透：近战攻击对被骇入的敌人造成额外伤害
             KindOfWeapon atkWep = hero.belongings.attackingWeapon();

@@ -2906,7 +2906,8 @@ public class Hero extends Char {
         // · 可路过（不占格数）：水、草、高草、门、非隐藏陷阱等可走但无隐藏物的格子
         // · 障碍（墙、墙饰、路障、虚空等）：不搜索、不扩散（密门除外）
         ArrayList<Integer> bfsCells = null;
-        if (heroClass == HeroClass.HACKER && hasTalent(Talent.BFS_SEARCH)) {
+        // 先见密卷（Foresight）生效期间暂时关闭广度优先，改用密卷的全范围扫描
+        if (heroClass == HeroClass.HACKER && hasTalent(Talent.BFS_SEARCH) && !foresight) {
             int steps = pointsInTalent(Talent.BFS_SEARCH) == 1 ? 9 : 16; // +1: 9 格, +2: 16 格
             int bw = Dungeon.level.width();
             int rot = Random.Int(8);
