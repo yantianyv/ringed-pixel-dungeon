@@ -59,7 +59,7 @@ public class FrozenCarpaccio extends Food {
 		// 吃冻肉：骇客的便携终端降温（当前温度 - 0）的 1%
 		PortableTerminal terminal = hero.belongings.getItem(PortableTerminal.class);
 		if (terminal != null) {
-			terminal.coolDown(0f, 0.01f);
+			terminal.extraCool(PortableTerminal.FROZEN_FOOD_TARGET, PortableTerminal.FROZEN_FOOD_RATE);
 		}
 
 		switch (Random.Int( 5 )) {

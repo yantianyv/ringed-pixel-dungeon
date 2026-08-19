@@ -215,6 +215,24 @@ Buff 系统通过 `Buff` 类实现所有状态效果，继承自 `FlavourBuff`�
 
 ## Ringed Pixel Dungeon 特有架构
 
+### 特殊戒指默认已鉴定
+
+所有「特殊戒指」（`items/rings/specialrings/` 下的 `SpecialRing` 子类：`WeddingRing`、`IronRing`、`YogRing`）都应当默认已鉴定。实现方式是：
+- `SpecialRing` 的初始化块调用 `anonymize()`，并覆写 `isKnown()` 恒返回 `true`（跳过宝石识别体系）；
+- `SpecialRing` 覆写 `isIdentified()` 恒返回 `true`（跳过 `Item` 的 `levelKnown && cursedKnown` 判定）。
+
+因此**不要在生成/掉落处依赖 `.identify()` 来补鉴定**——例如 `WeddingRing` 在 `RegularLevel` 中以 `Heap.Type.REMAINS` 掉落、没有调用 `.identify()`，但靠上述覆写依然是已鉴定。新增特殊戒指时只需继承 `SpecialRing`，无需在掉落/奖励处显式 `identify()`。
+
+### 快捷栏目标锁定（usesTargeting）的坑
+
+`ui/QuickSlotButton.onClick()` 在非 auto-aim 分支里会执行 `item.execute(hero)`，然后**只要 `item.usesTargeting == true` 就无条件调用 `useTargeting()`**，后者会把 `targetingSlot` 重新锁定到 `lastTarget` 并给该槽位打上准星。
+
+如果某个 `usesTargeting = true` 的物品在 `execute()` 里**在打开 `GameScene.selectCell(...)` 之前就 `return`**（例如便携终端过热、禁魔、充能不足、未装备等早退分支），那么 `execute()` 并没有真正打开瞄准器，但 `useTargeting()` 仍会把 `targetingSlot` 重新武装。玩家下一次点击快捷栏就会走 `targetingSlot == slotNum` 的 auto-aim 分支，调用 `GameScene.handleCell(lastTarget.pos)`，此时当前 CellSelector 是默认监听器（`defaultCellListener`），最终触发 `hero.handle(cell)`——英雄会朝敌人**追击/攻击**，而不是使用物品。
+
+**规则：任何 `usesTargeting = true` 的物品，只要在 `execute()` 中可能早退（不打开瞄准器），就必须在早退分支里把 `usesTargeting` 设为 `false`，并在真正进入瞄准流程时设回 `true`**。参考 `items/artifacts/EtherealChains.java` 和 `items/artifacts/MasterThievesArmband.java` 的写法；`PortableTerminal.execute()` 的过热/禁魔早退即按此修复。
+
+> 历史：法师「旅行者」专精（`MagesStaff.promptSkillTarget`）与此同类 bug；骇客便携终端过热时选中敌人追击也是同一根因。以后新增带 `usesTargeting` 的物品时务必遵守上述规则。
+
 ### 法师专精「旅行者」(Traveler) 系统
 
 项目在法师子职业中新增「旅行者」专精（见 `HeroSubClass.java` 的 `TRAVELER` 及 `HeroIcon.TRAVELER`）。核心实现：
@@ -266,3 +284,12 @@ Ringed 版本在部分图标系统中使用 1000+ 索引偏移，把自定义图
 默认英文文件为相同目录下无语言后缀的 `.properties`（如 `actors.properties`）。
 
 > 注：旧版 AGENTS.md 提到的顶层 `actors_zh.properties` 等路径已过时，中文文件现位于对应子目录内。
+
+## 文案规范
+
+面向玩家的文案（`desc`、`stats`、`statsInfo` 等物品/技能描述）**不要写技术实现细节或公式**。
+
+- 错误示例：把成长/阈值公式写进物品描述，如「英雄每升 5 级终端 +1，最高 6 级」「温度超过 100℃（终端每级 +10℃，最高 160℃）」「冷却效率 = (1 + 0.1×等级) × 环境系数」。
+- 正确做法：用自然、有代入感的语言表达效果即可，如「它会随主人一同变强」「温度过高便会过热，只能等它冷却下来」。
+- 玩家做决策所需的**直接数值**（使用代价、效果幅度，如「升温 5℃」「隐身 20 回合」）可以写；但成长公式、阈值公式、内部系数等实现细节一律不写。
+- 这些机制细节（等级成长表、过热阈值、冷却系数等）应记在**代码注释**或**设计文档**里，而不是物品描述里。

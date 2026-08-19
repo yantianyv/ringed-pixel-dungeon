@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ElementBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FrostElement;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hacked;
@@ -71,8 +72,12 @@ import com.watabou.utils.Random;
 import java.util.ArrayList;
 
 // 便携终端：骇客的独特物品，以「温度」衡量状态。
-// 初始 20℃，每回合自然降温：降温量为（当前温度 - 20）的 1%（低于 20 时缓慢回升）。
-// 超过 120℃ 时终端过热禁用；超过 80℃ 闪烁橙色附魔光效，超过 100℃ 显示红色附魔光效。
+// 终端等级随英雄等级成长：英雄每升 5 级终端等级 +1，最高 6 级。
+// 过热温度：+0 时 100℃，每级 +10℃（满级 160℃）。
+// 被动冷却每回合触发一次：温度高于基准温度时，降低（当前温度-基准温度）*冷却效率；
+// 冷却效率 = (1 + 0.1*终端等级) * 环境系数（正常 1%/20℃，水元素附着或漂浮 1.5%/15℃，
+// 在水中 2%/10℃，寒冷 5%/0℃，冰冻或元素冻结 10%/-20℃，多状态取环境系数最大者）。
+// 吃冻肉、液冷散热为额外冷却，不参与被动冷却。红闪与过热温度对齐，橙闪为过热温度 - 20℃。
 // 主动使用：选择视野内目标进行骇入，固定消耗 1 回合。
 //   - 敌人：升温 5℃，叠加主动骇入层数（受零日漏洞/木马大师加成/子网广播）
 //   - 友军（不含自身）：升温 20℃，隐身 20 回合
@@ -84,19 +89,25 @@ public class PortableTerminal extends Item {
 
     public static final String AC_HACK = "HACK";
 
-    // 温度阈值与参数
-    public static final float TEMPERATURE_IDLE = 20f;      // 环境温度（自然降温的目标）
-    public static final float TEMPERATURE_WARN = 80f;      // 橙色闪烁阈值
-    public static final float TEMPERATURE_DANGER = 100f;   // 红色光效阈值
-    public static final float TEMPERATURE_OVERHEAT = 120f; // 过热禁用阈值
-    public static final float COOL_RATE = 0.01f;           // 每回合降温（当前温度 - 20）的 1%
-    public static final float LIQUID_COOL_BASE = 10f;      // 液冷散热的目标温度
+    // ———————— 温度系统参数 ————————
 
-    // 寒冷 / 冰冻 / 元素冻结的降温目标与速率（替代被动降温）
-    public static final float CHILL_TARGET = 0f;           // 寒冷：向 0℃ 收敛
-    public static final float CHILL_COOL_RATE = 0.10f;     // 每回合降（当前温度 - 0）的 10%
-    public static final float FROST_TARGET = -20f;         // 冰冻/元素冻结：向 -20℃ 收敛
-    public static final float FROST_COOL_RATE = 0.15f;     // 每回合降（当前温度 - (-20)）的 15%
+    // 初始温度 = 正常状态基准温度
+    public static final float TEMPERATURE_IDLE = 20f;
+
+    // 终端等级随英雄等级成长：英雄每升 5 级终端等级 +1，最高 6 级
+    public static final int MAX_LEVEL = 6;
+
+    // 过热温度：+0 时 100℃，每级 +10℃（满级 160℃）
+    public static final float OVERHEAT_BASE = 100f;
+    public static final float OVERHEAT_PER_LEVEL = 10f;
+
+    // 发光阈值：红闪 = 过热温度；橙闪 = 过热温度 - 20℃
+    public static final float OVERHEAT_WARN_OFFSET = 20f;
+
+    // 额外冷却目标（不参与被动冷却）：液冷散热 / 冻肉
+    public static final float LIQUID_COOL_BASE = 10f;   // 液冷散热向 10℃ 收敛
+    public static final float FROZEN_FOOD_TARGET = 0f;  // 冻肉向 0℃ 收敛
+    public static final float FROZEN_FOOD_RATE = 0.01f; // 冻肉降温 1%
 
     // 各类骇入的升温量（由原充能消耗 1:1 映射）
     public static final float ACTIVE_HACK_HEAT = 5f;
@@ -133,13 +144,21 @@ public class PortableTerminal extends Item {
         if (action.equals(AC_HACK)) {
             if (hero.buff(MagicImmune.class) != null) {
                 GLog.w(Messages.get(this, "magic_immune"));
+                usesTargeting = false;
                 return;
             }
             if (isOverheated()) {
                 GLog.w(Messages.get(this, "overheated"));
+                usesTargeting = false;
                 return;
             }
 
+            // 只有成功进入瞄准流程时才开启快捷栏目标记忆（参考 EtherealChains 的做法）。
+            // 若在上面的早退分支里仍保持 usesTargeting = true，QuickSlotButton.onClick() 会在
+            // execute() 返回后无条件调用 useTargeting()，把 targetingSlot 重新锁定到 lastTarget；
+            // 由于此时并未打开 CellSelector，下一次点击快捷栏会走 auto-aim 分支命中 defaultCellListener，
+            // 进而触发英雄追击/攻击敌人。
+            usesTargeting = true;
             ensureCharger(hero);
 
             // 像法杖一样打开瞄准器；若已通过快捷栏锁定记忆目标，再次点击快捷栏可直接命中
@@ -309,34 +328,80 @@ public class PortableTerminal extends Item {
         return temperature;
     }
 
-    public boolean isOverheated() {
-        return temperature > TEMPERATURE_OVERHEAT;
+    // 终端等级：随英雄等级成长（每升 5 级 +1，最高 MAX_LEVEL），类似女猎的灵能弓
+    @Override
+    public int level() {
+        if (Dungeon.hero == null) return 0;
+        return Math.min(MAX_LEVEL, Dungeon.hero.lvl / 5);
     }
 
-    // 温度向 target 收敛，按 rate 比例降温（或回升）
-    public void coolDown(float target, float rate) {
-        if (temperature != target) {
+    @Override
+    public int buffedLvl() {
+        return level();
+    }
+
+    // 过热温度：+0 时 100℃，每级 +10℃（满级 160℃）
+    public float overheatTemp() {
+        return OVERHEAT_BASE + OVERHEAT_PER_LEVEL * level();
+    }
+
+    public boolean isOverheated() {
+        return temperature > overheatTemp();
+    }
+
+    // 冷却环境：基准温度 + 环境系数。满足多个状态时取环境系数最大的那档。
+    private static CoolingEnv coolingEnv(Hero hero) {
+        // 冰冻 / 元素冻结：10%，-20℃
+        if (hero.buff(Frost.class) != null || hero.buff(FrostElement.class) != null) {
+            return new CoolingEnv(-20f, 0.10f);
+        }
+        // 寒冷：5%，0℃
+        if (hero.buff(Chill.class) != null) {
+            return new CoolingEnv(0f, 0.05f);
+        }
+        // 英雄在水中（漂浮不算）：2%，10℃
+        if (Dungeon.level != null && Dungeon.level.water[hero.pos] && !hero.flying) {
+            return new CoolingEnv(10f, 0.02f);
+        }
+        // 水元素附着 / 漂浮：1.5%，15℃
+        if (hero.buff(ElementBuff.HydroElement.class) != null || hero.flying) {
+            return new CoolingEnv(15f, 0.015f);
+        }
+        // 正常状态：1%，20℃
+        return new CoolingEnv(TEMPERATURE_IDLE, 0.01f);
+    }
+
+    // 被动冷却：每回合触发一次。温度高于基准温度时，降低（当前温度-基准温度）*冷却效率；
+    // 冷却效率 = (1 + 0.1*终端等级) * 环境系数；温度低于基准温度则跳过。
+    public void tickCooling(Hero hero) {
+        CoolingEnv env = coolingEnv(hero);
+        if (temperature > env.baseTemp) {
+            temperature -= (temperature - env.baseTemp) * ((1f + 0.1f * level()) * env.envFactor);
+            updateQuickslot();
+        }
+    }
+
+    // 额外冷却（不参与被动冷却）：向 target 按 rate 比例收敛，温度不高于 target 时跳过
+    public void extraCool(float target, float rate) {
+        if (temperature > target) {
             temperature -= (temperature - target) * rate;
             updateQuickslot();
         }
     }
 
-    // 每回合散热：被寒冷/冰冻/元素冻结时使用对应的强降温，否则被动降温
-    public void tickCooling(Hero hero) {
-        if (hero.buff(Frost.class) != null || hero.buff(FrostElement.class) != null) {
-            coolDown(FROST_TARGET, FROST_COOL_RATE);
-        } else if (hero.buff(Chill.class) != null) {
-            coolDown(CHILL_TARGET, CHILL_COOL_RATE);
-        } else {
-            coolDown(TEMPERATURE_IDLE, COOL_RATE);
-        }
+    // 液冷散热：额外冷却，向 LIQUID_COOL_BASE 按 rate 收敛
+    public void liquidCool(float rate) {
+        extraCool(LIQUID_COOL_BASE, rate);
     }
 
-    // 液冷散热：降温（当前温度 - 10）的 rate 比例
-    public void liquidCool(float rate) {
-        if (temperature > LIQUID_COOL_BASE) {
-            temperature -= (temperature - LIQUID_COOL_BASE) * rate;
-            updateQuickslot();
+    // 冷却环境：基准温度与冷却效率的环境系数
+    private static class CoolingEnv {
+        final float baseTemp;  // 基准温度
+        final float envFactor; // 环境系数（1% = 0.01）
+
+        CoolingEnv(float baseTemp, float envFactor) {
+            this.baseTemp = baseTemp;
+            this.envFactor = envFactor;
         }
     }
 
@@ -522,7 +587,8 @@ public class PortableTerminal extends Item {
 
     @Override
     public String info() {
-        return Messages.get(this, "desc");
+        return Messages.get(this, "desc")
+                + "\n\n" + Messages.get(this, "stats", Math.round(overheatTemp()));
     }
 
     @Override
@@ -530,12 +596,13 @@ public class PortableTerminal extends Item {
         return Math.round(temperature) + "'C";
     }
 
-    // 附魔光效：超过 80℃ 闪烁橙色，超过 100℃ 显示红色
+    // 附魔光效：红闪与过热温度对齐；橙闪 = 过热温度 - 20℃
     @Override
     public ItemSprite.Glowing glowing() {
-        if (temperature > TEMPERATURE_DANGER) {
+        float overheat = overheatTemp();
+        if (temperature > overheat) {
             return new ItemSprite.Glowing(0xFF2200, 0.8f); // 红色
-        } else if (temperature > TEMPERATURE_WARN) {
+        } else if (temperature > overheat - OVERHEAT_WARN_OFFSET) {
             return new ItemSprite.Glowing(0xFF8000, 0.4f); // 橙色闪烁
         }
         return null;

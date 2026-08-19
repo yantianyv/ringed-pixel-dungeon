@@ -50,6 +50,13 @@ public abstract class SpecialRing extends Ring {
         return true;
     }
 
+    // 特殊戒指默认已鉴定：始终返回 true，避免依赖生成代码显式调用 identify()。
+    // （婚戒、铁戒、Yog戒均继承此行为，无需在掉落/奖励处额外 identify）
+    @Override
+    public boolean isIdentified() {
+        return true;
+    }
+
     // 6. 禁用宝石系统的识别逻辑
     @Override
     public void setKnown() {
