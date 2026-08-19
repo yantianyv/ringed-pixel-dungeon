@@ -41,7 +41,7 @@ import com.watabou.utils.Random;
 // Swarm 分裂子体 / 亡灵复活会继承层数（revivePersists + 手动复制层数）。
 public class Hacked extends Buff {
 
-    public int layers = 1;
+    public int layers = 0;
 
     // 是否已削减过生命上限（存档恢复走 attachTo，不能重复削减）
     private boolean htApplied = false;
