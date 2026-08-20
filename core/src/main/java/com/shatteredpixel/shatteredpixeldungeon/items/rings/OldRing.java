@@ -41,6 +41,11 @@ public class OldRing extends Ring {
         return (float) getBuffedBonus(target, Oldring.class);
     }
 
+    @Override
+    public boolean isKnown() {
+        return true;
+    }
+
 
 
     // 定义RingBuff类

@@ -67,8 +67,12 @@ public class ChaliceOfBlood extends Artifact {
 
     public static final String AC_PRICK = "PRICK";
     public static final String AC_PRAY = "PRAY";
-    static int last_charge = 0;
-    static int prick_cooldown = 0;
+
+    private int lastCharge = 0;
+    private int prickCooldown = 0;
+
+    private static final String LAST_CHARGE = "last_charge";
+    private static final String PRICK_COOLDOWN = "prick_cooldown";
 
     @Override    // 添加按钮选项
     public ArrayList<String> actions(Hero hero) {
@@ -77,7 +81,7 @@ public class ChaliceOfBlood extends Artifact {
                 && !cursed
                 && !hero.isInvulnerable(getClass())
                 && hero.buff(MagicImmune.class) == null
-                && prick_cooldown <= 0) {
+                && prickCooldown <= 0) {
             actions.add(AC_PRICK);
         }
         if (charge >= 10 && level() >= 1) {
@@ -149,9 +153,9 @@ public class ChaliceOfBlood extends Artifact {
         }
         if (level() >= 10) {
             damage = Dungeon.hero.HP / 2;
-            prick_cooldown = damage > 100 ? 100 : damage;
+            prickCooldown = damage > 100 ? 100 : damage;
         } else {
-            prick_cooldown = 0;
+            prickCooldown = 0;
         }
         hero.damage(damage, this);
 
@@ -167,6 +171,7 @@ public class ChaliceOfBlood extends Artifact {
             Catalog.countUse(getClass());
             int newcharge = charge + damage / 3 + 1;
             charge = newcharge > chargeCap ? chargeCap : newcharge;
+            lastCharge = charge;
         }
     }
 
@@ -175,7 +180,7 @@ public class ChaliceOfBlood extends Artifact {
         if (charge >= 10 && level() >= 1 && hero.buff(Healing.class) == null && hero.HP < hero.HT && !cursed) {
             int extra_level = level() - levelCap;
             extra_level = extra_level > 0 ? extra_level : 0;
-            last_charge = charge;
+            lastCharge = charge;
             GLog.p(Messages.get(this, "onpray"));
             Buff.affect(hero, Healing.class).setHeal(((level() + 1) * (level() - extra_level) / 2 + extra_level * (hero.HT - hero.HP) / 300) * charge / 100 + 1, 0.1f, 0);
             charge = 0;
@@ -203,11 +208,20 @@ public class ChaliceOfBlood extends Artifact {
     @Override
     public void restoreFromBundle(Bundle bundle) {
         super.restoreFromBundle(bundle);
+        lastCharge = bundle.contains(LAST_CHARGE) ? bundle.getInt(LAST_CHARGE) : charge;
+        prickCooldown = bundle.contains(PRICK_COOLDOWN) ? bundle.getInt(PRICK_COOLDOWN) : 0;
         if (level() >= 7) {
             image = ItemSpriteSheet.ARTIFACT_CHALICE3;
         } else if (level() >= 3) {
             image = ItemSpriteSheet.ARTIFACT_CHALICE2;
         }
+    }
+
+    @Override
+    public void storeInBundle(Bundle bundle) {
+        super.storeInBundle(bundle);
+        bundle.put(LAST_CHARGE, lastCharge);
+        bundle.put(PRICK_COOLDOWN, prickCooldown);
     }
 
     @Override
@@ -228,10 +242,12 @@ public class ChaliceOfBlood extends Artifact {
             while (partialCharge >= 1f) {
                 charge++;
                 partialCharge--;
+                lastCharge = charge;
             }
             if (charge >= chargeCap) {
                 partialCharge = 0;
                 charge = chargeCap;
+                lastCharge = charge;
             }
             updateQuickslot();
         }
@@ -257,8 +273,8 @@ public class ChaliceOfBlood extends Artifact {
         return desc;
     }
 
-    public static int reg_level() {
-        int reg_level = (Dungeon.hero.buff(ChaliceOfBlood.chaliceRegen.class).itemLevel() * last_charge) / 100;
+    public int regLevel() {
+        int reg_level = (level() * lastCharge) / 100;
         reg_level = Math.min(reg_level, 10);
         return reg_level;
     }
@@ -280,7 +296,7 @@ public class ChaliceOfBlood extends Artifact {
             while (partialCharge >= 1) {
                 charge += 1;
                 partialCharge -= 1;
-                last_charge = charge;
+                lastCharge = charge;
 
                 updateQuickslot();
                 if (charge >= chargeCap) {
@@ -290,9 +306,9 @@ public class ChaliceOfBlood extends Artifact {
                 }
             }
 
-            if (prick_cooldown > 0) {
-                prick_cooldown--;
-                if (prick_cooldown == 0) {
+            if (prickCooldown > 0) {
+                prickCooldown--;
+                if (prickCooldown == 0) {
                     GLog.w(Messages.get(ChaliceOfBlood.this, "prick_ready"));
                 }
             }

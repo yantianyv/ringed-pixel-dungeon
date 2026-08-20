@@ -286,6 +286,10 @@ public class Artifact extends KindofMisc {
             return target.buff(MagicImmune.class) == null && cursed;
         }
 
+        public Artifact getArtifact() {
+            return Artifact.this;
+        }
+
         public void charge(Hero target, float amount) {
             Artifact.this.charge(target, amount);
         }
