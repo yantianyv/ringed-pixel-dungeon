@@ -57,6 +57,18 @@ public abstract class SpecialRing extends Ring {
         return true;
     }
 
+    // 等级始终可见（reset() 会把 levelKnown 置 false，若走默认实现，
+    // 升级后标题不显示 +N，看起来像升级失败）
+    @Override
+    public int visiblyUpgraded() {
+        return level();
+    }
+
+    @Override
+    public int buffedVisiblyUpgraded() {
+        return buffedLvl();
+    }
+
     // 6. 禁用宝石系统的识别逻辑
     @Override
     public void setKnown() {
@@ -74,6 +86,8 @@ public abstract class SpecialRing extends Ring {
         return this.buffedLvl() + 1;
     }
 
+    // 特殊戒指的双段升级设计：6 级前用原初宝珠升级（OriginGem 自带 level() < 6 门禁），
+    // 满 6 级后改用升级卷轴——ScrollOfUpgrade 的选择器只认本方法，故此处反转判断
     @Override
     public boolean isUpgradable() {
         return level() > 5;
