@@ -272,6 +272,16 @@ Ringed 版本在部分图标系统中使用 1000+ 索引偏移，把自定义图
 - 虽然 `Assets.Sprites.ITEMS_RINGED` 常量被定义为 `"sprites/items_ringed.png"`，但仓库中并不存在对应的 `items_ringed.png` 文件，`ItemSpriteSheet` 也没有引用该常量。
 - Ringed 特有物品常量（例如 `RINGED_CAKE`）仍然定义在普通 `< 1000` 索引空间内，通过 `assignItemRect()` 分配到 `items.png` 上。
 
+### libGDX 版本约束（魅族截屏）
+
+`gdxVersion` **不得降回 ≤1.12.1**：旧版 `GLSurfaceView20.onCreateInputConnection()` 向输入法上报 `inputType=144`（即 `Input.Keys.NUMPAD_0`），恰好精确命中 Flyme「密码保护」的可见密码类型判定（144），导致游戏在前台时全屏所有窗口被标记为 secure、魅族手机无法截屏。libGDX 1.14.0 上报的 `0x80091` 不命中该判定。
+
+libGDX 1.14.0 与以下两项是一组，调整时不要拆散：
+- `appAndroidMinSDK = 21`（libGDX 1.14.0 的 aar 硬性要求）
+- `gradle.properties` 中 `android.useAndroidX=true`（libGDX 1.14.0 依赖 AndroidX）
+
+排查记录见 commit `d1c07e2` 的提交信息。
+
 ## 多语言支持
 
 游戏使用 `.properties` 文件存储本地化文本，位于 `core/src/main/assets/messages/`，按模块分子目录，每个子目录内再按语言拆分文件（`<文件名>_<语言代码>.properties`）。中文翻译文件（`_zh`）分布在：
