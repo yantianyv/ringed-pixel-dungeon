@@ -39,7 +39,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Overclock;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM100;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM200;
@@ -79,12 +78,13 @@ import java.util.ArrayList;
 // 在水中 2%/10℃，寒冷 5%/0℃，冰冻或元素冻结 10%/-20℃，多状态取环境系数最大者）。
 // 吃冻肉、液冷散热为额外冷却，不参与被动冷却。红闪与过热温度对齐，橙闪为过热温度 - 20℃。
 // 主动使用：选择视野内目标进行骇入，固定消耗 1 回合。
-//   - 敌人：升温 5℃，叠加主动骇入层数（受零日漏洞/木马大师加成/子网广播）
+//   - 敌人：升温 5℃，叠加主动骇入层数（受子网广播扩散；零日漏洞在首次骇入时加成）
 //   - 友军（不含自身）：升温 20℃，隐身 20 回合
 //   - 自己（有超频运算天赋）：升温 20℃，获得超频（2 倍命中、3 倍攻速，直到过热）
 //   - 宝箱/门：升温 50℃ + 对应钥匙，远程打开
 //   - 陷阱：升温 100℃，使其失效
 // 协同骇入（物理攻击命中时自动触发）：升温 1℃。
+//   - 木马大师：无法造成物理伤害，伤害等量转化为协同骇入层数；过热也能协同骇入
 public class PortableTerminal extends Item {
 
     public static final String AC_HACK = "HACK";
@@ -425,6 +425,15 @@ public class PortableTerminal extends Item {
         return true;
     }
 
+    // 强制升温：不做过热前置检查，允许临时超出过热温度（用于木马大师的原子化骇入结算兜底）
+    public void addHeatForced(float amount) {
+        temperature += amount;
+        if (isOverheated() && Dungeon.hero != null) {
+            Buff.detach(Dungeon.hero, Overclock.class);
+        }
+        updateQuickslot();
+    }
+
     public static boolean addHeat(Hero hero, float amount, boolean warnIfOverheated) {
         PortableTerminal terminal = hero.belongings.getItem(PortableTerminal.class);
         if (terminal == null) return false;
@@ -437,47 +446,14 @@ public class PortableTerminal extends Item {
         }
     }
 
-    // 主动骇入层数：基础 2 层 + 零日漏洞加成
+    // 主动骇入层数：基础 2 层
     public static int activeHackLayers(Hero hero) {
-        int layers = 2;
-        if (hero.hasTalent(Talent.ZERO_DAY)) {
-            switch (hero.pointsInTalent(Talent.ZERO_DAY)) {
-                case 1:
-                    layers += 1;
-                    break;
-                case 2:
-                    layers += 1;
-                    break;
-                case 3:
-                    layers += 2;
-                    break;
-            }
-        }
-        return TrojanMasterMultiplier(hero, layers);
+        return 2;
     }
 
-    // 协同骇入层数：基础 1 层 + 零日漏洞加成
+    // 协同骇入层数：基础 1 层
     public static int coopHackLayers(Hero hero) {
-        int layers = 1;
-        if (hero.hasTalent(Talent.ZERO_DAY)) {
-            switch (hero.pointsInTalent(Talent.ZERO_DAY)) {
-                case 2:
-                    layers += 1;
-                    break;
-                case 3:
-                    layers += 1;
-                    break;
-            }
-        }
-        return TrojanMasterMultiplier(hero, layers);
-    }
-
-    // 木马大师：骇入层数翻倍（独立乘区，与其它加成乘算）
-    public static int TrojanMasterMultiplier(Hero hero, int layers) {
-        if (hero.subClass == HeroSubClass.TROJAN_MASTER) {
-            layers *= 2;
-        }
-        return layers;
+        return 1;
     }
 
     // 主动骇入：对目标叠加层数，并受子网广播影响扩散到周围
@@ -516,16 +492,39 @@ public class PortableTerminal extends Item {
     // 对目标施加骇入（用于主动骇入、协同骇入、广播风暴等）
     // 默认升温 = 1℃（协同骇入），heat = 0 时不升温（已由上层预付）
     public static void hackTarget(Hero hero, Char target, int layers) {
-        hackTarget(hero, target, layers, COOP_HACK_HEAT);
+        hackTarget(hero, target, layers, COOP_HACK_HEAT, false);
     }
 
     public static void hackTarget(Hero hero, Char target, int layers, float heat) {
+        hackTarget(hero, target, layers, heat, false);
+    }
+
+    // force = true 用于木马大师：跳过过热检查（即使终端过热也能协同骇入），
+    // 升温允许临时超出过热温度
+    public static void hackTarget(Hero hero, Char target, int layers, float heat, boolean force) {
         if (!target.isAlive() || !(target.alignment == Char.Alignment.ENEMY || target instanceof Mimic)) {
             return;
         }
         ensureCharger(hero);
-        if (heat > 0 && !addHeat(hero, heat, false)) {
-            return;
+        if (heat > 0) {
+            if (force) {
+                PortableTerminal terminal = hero.belongings.getItem(PortableTerminal.class);
+                if (terminal != null) {
+                    terminal.addHeatForced(heat);
+                }
+            } else if (!addHeat(hero, heat, false)) {
+                return;
+            }
+        }
+        applyHackLayers(hero, target, layers);
+    }
+
+    // 骇入层数结算：叠加层数（含零日漏洞首次加成）并触发设备提权判定
+    private static void applyHackLayers(Hero hero, Char target, int layers) {
+        // 零日漏洞：敌人首次被骇入（获得骇入debuff前身上没有该debuff）时，
+        // 额外获得相当于其生命上限 5%/10%/15% 的骇入层数，向上取整
+        if (target.buff(Hacked.class) == null && hero.hasTalent(Talent.ZERO_DAY)) {
+            layers += (int) Math.ceil(target.HT * 0.05f * hero.pointsInTalent(Talent.ZERO_DAY));
         }
         Hacked hacked = Buff.affect(target, Hacked.class);
         if (hacked != null) {

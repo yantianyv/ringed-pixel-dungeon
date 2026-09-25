@@ -1419,8 +1419,16 @@ public enum Talent {
                 && enemy.alignment == Char.Alignment.ENEMY
                 && enemy.isAlive()) {
 
+            boolean trojanMaster = hero.subClass == HeroSubClass.TROJAN_MASTER;
+
             // 协同骇入：物理攻击命中时叠加骇入层数（onAttackProc 仅物理攻击触发，含投掷武器）
-            PortableTerminal.hackTarget(hero, enemy, PortableTerminal.coopHackLayers(hero));
+            // 木马大师：无法造成物理伤害，本应造成的伤害等量转化为协同骇入层数；
+            // 即使终端过热也能协同骇入（force 模式，见 PortableTerminal.hackTarget）
+            int layers = PortableTerminal.coopHackLayers(hero) + (trojanMaster ? dmg : 0);
+            PortableTerminal.hackTarget(hero, enemy, layers, PortableTerminal.COOP_HACK_HEAT, trojanMaster);
+            if (trojanMaster) {
+                dmg = 0;
+            }
 
             // 超频运算：超频状态下每次物理命中使终端升温（+1: 20℃, +2: 15℃）
             if (hero.buff(Overclock.class) != null) {
@@ -1430,10 +1438,10 @@ public enum Talent {
                 }
             }
 
-            // 护甲穿透：近战攻击对被骇入的敌人造成额外伤害
+            // 护甲穿透：近战攻击对被骇入的敌人造成额外伤害（木马大师不造成物理伤害，不生效）
             KindOfWeapon atkWep = hero.belongings.attackingWeapon();
             boolean melee = atkWep == null || atkWep instanceof MeleeWeapon;
-            if (melee && hero.hasTalent(ARMOR_PIERCE) && enemy.buff(Hacked.class) != null) {
+            if (!trojanMaster && melee && hero.hasTalent(ARMOR_PIERCE) && enemy.buff(Hacked.class) != null) {
                 if (hero.pointsInTalent(ARMOR_PIERCE) == 1) {
                     dmg += Random.Int(2); // 0~1
                 } else {

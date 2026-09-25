@@ -25,6 +25,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
@@ -105,7 +106,12 @@ public class Hacked extends Buff {
             }
             applyHTLoss(n);
         }
-        if (!silent && target.HT <= 0 && target.isAlive()) {
+        // 生命上限归零即处死。不能用 isAlive() 判断：溢出伤害可能被减免
+        // （如豺狼守卫的护盾链接 dmg/4、各类护盾），damage() 走不到死亡分支，
+        // 但 applyHTLoss 已把 HP 压到 0 以下——此时 isAlive() 为 false 却从未走 die()，
+        // 会留下不死亡也不消失的尸体。已被伤害正常杀死的目标会经 destroy() 移出
+        // Actor 队列，用队列在否来避免二次死亡。
+        if (!silent && target.HT <= 0 && Actor.chars().contains(target)) {
             target.die(this);
         }
     }
@@ -128,7 +134,7 @@ public class Hacked extends Buff {
             if (target.alignment == Char.Alignment.ENEMY) {
                 if (!htApplied) {
                     applyHack(layers, silent);
-                } else if (!silent && target.HT <= 0 && target.isAlive()) {
+                } else if (!silent && target.HT <= 0 && Actor.chars().contains(target)) {
                     target.die(this);
                 }
                 return true;
@@ -167,7 +173,7 @@ public class Hacked extends Buff {
                     turnsSinceKernelBreach = 0;
                     kernelBreachCharges--;
 
-                    int base = 5 - (hero.pointsInTalent(Talent.KERNEL_BREACH) - 1); // 5/4/3
+                    int base = 4 - (hero.pointsInTalent(Talent.KERNEL_BREACH) - 1); // 4/3/2
                     int dmg;
                     if (layers <= 1) {
                         dmg = 1;
