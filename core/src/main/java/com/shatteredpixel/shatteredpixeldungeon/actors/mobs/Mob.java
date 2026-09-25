@@ -182,6 +182,7 @@ public abstract class Mob extends Char {
     private static final String TARGET = "target";
     private static final String MAX_LVL = "max_lvl";
     private static final String ENEMY_ID = "enemy_id";
+    private static final String NUM_OF_ESCAPE = "num_of_escape";
 
     @Override
     public void storeInBundle(Bundle bundle) {
@@ -205,6 +206,7 @@ public abstract class Mob extends Char {
         bundle.put(SEEN, enemySeen);
         bundle.put(TARGET, target);
         bundle.put(MAX_LVL, maxLvl);
+        bundle.put(NUM_OF_ESCAPE, num_of_escape);
 
         if (enemy != null) {
             bundle.put(ENEMY_ID, enemy.id());
@@ -237,6 +239,10 @@ public abstract class Mob extends Char {
 
         if (bundle.contains(MAX_LVL)) {
             maxLvl = bundle.getInt(MAX_LVL);
+        }
+
+        if (bundle.contains(NUM_OF_ESCAPE)) {
+            num_of_escape = bundle.getInt(NUM_OF_ESCAPE);
         }
 
         if (bundle.contains(ENEMY_ID)) {

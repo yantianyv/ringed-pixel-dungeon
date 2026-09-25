@@ -398,7 +398,7 @@ public class TravelerSpells {
         ArrayList<Integer> slots = new ArrayList<>();
         for (int n : PathFinder.NEIGHBOURS9) {
             int c = target + n;
-            if (!Dungeon.level.solid[c] && Actor.findChar(c) == null) {
+            if (Dungeon.level.insideMap(c) && !Dungeon.level.solid[c] && Actor.findChar(c) == null) {
                 slots.add(c);
             }
         }
@@ -578,7 +578,6 @@ public class TravelerSpells {
         if (ch instanceof Mob) {
             Mob enemy = (Mob) ch;
             if (attemptCorrupt(hero, enemy, lvl)) return;
-            attemptCorrupt(hero, enemy, lvl);
         } else {
             Wraith w = Wraith.spawnAt(target);
             if (w != null) {

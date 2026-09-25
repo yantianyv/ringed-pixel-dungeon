@@ -14,8 +14,8 @@ allprojects {
         appName = 'Ringed Pixel Dungeon'
         appPackageName = 'com.yantianyv.ringedpixeldungeon'
 
-        appVersionCode = 859
-        appVersionName = '0.1.6_spd3.2.0'
+        appVersionCode = 860
+        appVersionName = '0.1.7_spd3.2.0'
 
         appJavaCompatibility = JavaVersion.VERSION_1_8
 
