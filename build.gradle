@@ -20,12 +20,12 @@ allprojects {
         appJavaCompatibility = JavaVersion.VERSION_1_8
 
         appAndroidCompileSDK = 35   //Android 15
-        appAndroidMinSDK = 14       //Android 4.0
+        appAndroidMinSDK = 21       //Android 5.0 (libGDX 1.14 requirement)
         //significant layout management changes required for API 35+ as edge-to-edge is forced on
         //will do this at the same time as dropping support for Android 4.4- (later in 2025)
         appAndroidTargetSDK = 34    //Android 14
 
-        gdxVersion = '1.12.1'
+        gdxVersion = '1.14.0'
         gdxControllersVersion = '2.2.4'
         robovmVersion = '2.3.23'
     }
