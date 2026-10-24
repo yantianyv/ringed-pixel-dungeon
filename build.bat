@@ -27,10 +27,11 @@ cls
 rem 检测是否需要编译debug版本
 if "!PASSWORD!"=="" (
     call ./gradlew assembleDebug
-    explorer android\build\outputs\apk\debug
     if !ERRORLEVEL! NEQ 0 (
         pause
+        exit /b
     )
+    explorer android\build\outputs\apk\debug
     exit /b
 )
 set /p EXTRACT_PASSWORD=请输入解压密码：
@@ -39,24 +40,34 @@ cls
 del android\key\key.jks
 
 rem 检查是否存在加密的 Keystore 并解密
-if exist "android\key\key.zip" (
-    echo [INFO] 正在解密...
-    if exist "android\key\7z.exe" (
-        "android\key\7z.exe" e "android\key\key.zip" -o"android\key" -p"!EXTRACT_PASSWORD!"
-    ) else (
-        echo [ERROR] 找不到 7-Zip
-        pause
-        exit /b
-    )
-
-    if not exist "android\key\key.jks" (
-        echo [INFO] 解压失败，请重新运行脚本并输入正确密码！
-        pause
-        exit /b
-    )
-
-    echo [INFO] Keystore 解密完成！
+if not exist "android\key\key.zip" goto no_encrypted_keystore
+if not exist "android\key\7z.exe" (
+    echo [ERROR] 找不到 7-Zip
+    pause
+    exit /b
 )
+
+:decrypt_retry
+echo [INFO] 正在解密...
+"android\key\7z.exe" e "android\key\key.zip" -o"android\key" -p"!EXTRACT_PASSWORD!"
+
+rem 密码错误时 7z 仍会留下残缺或空的 key.jks，一并视为失败
+if !ERRORLEVEL! NEQ 0 goto decrypt_fail
+if not exist "android\key\key.jks" goto decrypt_fail
+for %%F in ("android\key\key.jks") do if %%~zF==0 goto decrypt_fail
+goto decrypt_done
+
+:decrypt_fail
+del "android\key\key.jks" 2>nul
+echo [ERROR] 解压失败，可能是解压密码错误。
+set /p EXTRACT_PASSWORD=请重新输入解压密码（留空退出）：
+if "!EXTRACT_PASSWORD!"=="" exit /b
+goto decrypt_retry
+
+:decrypt_done
+echo [INFO] Keystore 解密完成！
+
+:no_encrypted_keystore
 
 rem 检查 Keystore 是否存在
 if not exist "android\key\key.jks" (
